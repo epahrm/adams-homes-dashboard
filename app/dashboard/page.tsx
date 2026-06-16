@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import MilestoneCard from '@/components/MilestoneCard'
+import MarketingLessons from '@/components/MarketingLessons'
+import CertificateDisplay from '@/components/CertificateDisplay'
+import { getDivisionById } from '@/lib/divisions'
 
 interface Milestone {
   id: string
@@ -68,16 +71,38 @@ export default function Dashboard() {
 
       if (!response.ok) throw new Error('Failed to update milestone')
 
-      setMilestones(prev =>
-        prev.map(m =>
-          m.id === milestoneId
-            ? {
-                ...m,
-                progress: [{ completed, completedAt: completed ? new Date().toISOString() : undefined }],
-              }
-            : m
-        )
+      const updatedMilestones = milestones.map(m =>
+        m.id === milestoneId
+          ? {
+              ...m,
+              progress: [{ completed, completedAt: completed ? new Date().toISOString() : undefined }],
+            }
+          : m
       )
+
+      setMilestones(updatedMilestones)
+
+      // If all completed, send notification to manager
+      const allComplete = updatedMilestones.every(m => m.progress[0]?.completed)
+      if (allComplete && completed) {
+        const division = getDivisionById(user.division)
+        if (division) {
+          // Send milestone completion notification (non-blocking)
+          fetch('/api/milestones/notify', {
+            method: 'POST',
+            headers: {
+              'x-user-id': user.id,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userName: user.name,
+              userEmail: user.email,
+              division: user.division,
+              managerEmail: division.managerEmail,
+            }),
+          }).catch(err => console.error('Notification failed:', err))
+        }
+      }
     } catch (err) {
       console.error('Error updating milestone:', err)
     }
@@ -132,6 +157,22 @@ export default function Dashboard() {
               <div className="text-sm text-gray-600">Completed</div>
             </div>
           </div>
+        </div>
+
+        {/* Certificate - Show when all complete */}
+        {progress === 100 && (
+          <div className="mb-8">
+            <CertificateDisplay
+              associateName={user.name}
+              division={user.division}
+              completionDate={new Date()}
+            />
+          </div>
+        )}
+
+        {/* Marketing Lessons */}
+        <div className="mb-8">
+          <MarketingLessons />
         </div>
 
         {/* Milestones */}
