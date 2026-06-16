@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/elizp/Downloads/**)",
+      "Bash(python)",
+      "Bash(extract-text \"Jax Land Report.xlsx\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\elizp\\\\Downloads\" -Filter \"*Jax*\" -Force)",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "mcp__Claude_in_Chrome__read_page",
+      "mcp__Claude_in_Chrome__find",
+      "mcp__Claude_in_Chrome__get_page_text",
+      "WebFetch(domain:www.zillow.com)",
+      "WebFetch(domain:www.adamshomes.com)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\" -Force)",
+      "Bash(Select-Object Name)",
+      "PowerShell(git config --global user.email \"elizporter15@gmail.com\")",
+      "PowerShell(git config --global user.name \"Elizabeth Porter\")"
+    ]
+  }
+}

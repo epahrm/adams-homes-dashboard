@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f7fa;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.container {
+  @apply mx-auto px-4;
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, #1a5490 0%, #2e7cb6 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, #f39200 0%, #f5a623 100%);
+}
+
+.card {
+  @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow;
+}
+
+.btn {
+  @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200;
+}
+
+.btn-primary {
+  @apply btn bg-primary hover:bg-blue-700 text-white;
+}
+
+.btn-secondary {
+  @apply btn bg-secondary hover:bg-orange-600 text-white;
+}
+
+.btn-outline {
+  @apply btn border-2 border-gray-300 text-gray-700 hover:border-primary hover:text-primary;
+}
