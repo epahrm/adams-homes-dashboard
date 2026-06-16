@@ -15,7 +15,8 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\" -Force)",
       "Bash(Select-Object Name)",
       "PowerShell(git config --global user.email \"elizporter15@gmail.com\")",
-      "PowerShell(git config --global user.name \"Elizabeth Porter\")"
+      "PowerShell(git config --global user.name \"Elizabeth Porter\")",
+      "PowerShell(Set-Location \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\"; $env:DATABASE_URL=\"file:./dev.db\"; npx prisma db push --skip-generate 2>&1 | Select-Object -Last 20)"
     ]
   }
 }

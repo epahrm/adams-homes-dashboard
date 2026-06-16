@@ -4,9 +4,15 @@ import { hashPassword, verifyPassword } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, email, password, name } = await request.json()
+    const { action, email, password, name, userType = 'user' } = await request.json()
 
     if (action === 'signup') {
+      if (userType === 'admin') {
+        return NextResponse.json(
+          { error: 'Admin accounts cannot be self-registered' },
+          { status: 403 }
+        )
+      }
       const existingUser = await prisma.user.findUnique({
         where: { email },
       })
@@ -35,31 +41,63 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'login') {
-      const user = await prisma.user.findUnique({
-        where: { email },
-      })
+      if (userType === 'admin') {
+        const admin = await prisma.admin.findUnique({
+          where: { email },
+        })
 
-      if (!user) {
-        return NextResponse.json(
-          { error: 'Invalid credentials' },
-          { status: 401 }
-        )
+        if (!admin) {
+          return NextResponse.json(
+            { error: 'Invalid credentials' },
+            { status: 401 }
+          )
+        }
+
+        const isValidPassword = await verifyPassword(password, admin.password)
+
+        if (!isValidPassword) {
+          return NextResponse.json(
+            { error: 'Invalid credentials' },
+            { status: 401 }
+          )
+        }
+
+        return NextResponse.json({
+          id: admin.id,
+          email: admin.email,
+          name: admin.name,
+          role: admin.role,
+          userType: 'admin',
+        })
+      } else {
+        const user = await prisma.user.findUnique({
+          where: { email },
+        })
+
+        if (!user) {
+          return NextResponse.json(
+            { error: 'Invalid credentials' },
+            { status: 401 }
+          )
+        }
+
+        const isValidPassword = await verifyPassword(password, user.password)
+
+        if (!isValidPassword) {
+          return NextResponse.json(
+            { error: 'Invalid credentials' },
+            { status: 401 }
+          )
+        }
+
+        return NextResponse.json({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          division: user.division,
+          userType: 'user',
+        })
       }
-
-      const isValidPassword = await verifyPassword(password, user.password)
-
-      if (!isValidPassword) {
-        return NextResponse.json(
-          { error: 'Invalid credentials' },
-          { status: 401 }
-        )
-      }
-
-      return NextResponse.json({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-      })
     }
 
     return NextResponse.json(

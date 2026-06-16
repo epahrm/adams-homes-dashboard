@@ -1,15 +1,32 @@
-# Adams Homes Employee Onboarding Dashboard
+# Adams Homes Sales Associate Onboarding Dashboard
 
-A modern, interactive onboarding dashboard for Adams Homes employees to track and complete their onboarding milestones.
+A comprehensive onboarding platform for Adams Homes Sales Associates with progress tracking, admin management, and employee development resources.
 
-## Features
+## ✨ Key Features
 
-- 🔐 User authentication with secure login/signup
-- 📋 8 comprehensive onboarding milestones
-- ✅ Progress tracking and completion status
-- 📊 Visual progress bar
-- 📱 Responsive design
-- 🎨 Professional branding with Adams Homes colors
+### For Sales Associates
+- 🔐 Secure email/password authentication
+- 📋 8 interactive onboarding milestones
+- ✅ Real-time progress tracking with visual progress bar
+- 📊 Division/location management (34 divisions across US)
+- 📅 Hire date tracking
+- 🔑 Secure access credentials storage (Email, CRM-Lasso, FPG Training)
+- 🎥 President's welcome video
+- 📚 30-minute marketing lessons library (5-10 lessons)
+- 💬 Submit questions to admin in real-time
+- 🏆 Certificate of completion (PDF + on-screen)
+- 📱 Responsive mobile-friendly design
+- 🎨 Professional Adams Homes branding
+
+### For Admins
+- 👨‍💼 Individual admin accounts with role-based access
+- 📊 Complete dashboard overview
+- 💬 Question review and response management
+- 👥 Sales Associate management
+- 📧 Email notifications on milestone completion
+- ⚙️ Settings and configuration panel
+- 🔔 Real-time notifications to division managers
+- 📈 Progress analytics and reporting (coming soon)
 
 ## Tech Stack
 

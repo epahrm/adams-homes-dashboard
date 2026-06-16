@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { DIVISIONS } from '@/lib/divisions'
 
 export default function Home() {
   const router = useRouter()
@@ -10,6 +11,8 @@ export default function Home() {
     email: '',
     password: '',
     name: '',
+    division: '',
+    hireDate: '',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -88,20 +91,56 @@ export default function Home() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="John Doe"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  required={mode === 'signup'}
-                />
-              </div>
+              <>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="John Doe"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    required={mode === 'signup'}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Division
+                  </label>
+                  <select
+                    name="division"
+                    value={formData.division}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    required={mode === 'signup'}
+                  >
+                    <option value="">Select a division...</option>
+                    {DIVISIONS.map(div => (
+                      <option key={div.id} value={div.name}>
+                        {div.name} ({div.state})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Hire/Start Date
+                  </label>
+                  <input
+                    type="date"
+                    name="hireDate"
+                    value={formData.hireDate}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    required={mode === 'signup'}
+                  />
+                </div>
+              </>
             )}
 
             <div>
@@ -162,6 +201,16 @@ export default function Home() {
               <p className="text-gray-700"><strong>Email:</strong> demo@example.com</p>
               <p className="text-gray-700"><strong>Password:</strong> password123</p>
             </div>
+          </div>
+
+          {/* Admin Link */}
+          <div className="mt-6 text-center">
+            <a
+              href="/admin-login"
+              className="text-sm text-gray-600 hover:text-primary font-semibold"
+            >
+              Admin Login →
+            </a>
           </div>
         </div>
       </div>
