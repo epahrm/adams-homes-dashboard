@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import html2canvas from 'html2canvas'
+import { useRef, useState } from 'react'
 
 interface CertificateDisplayProps {
   associateName: string
@@ -23,40 +22,18 @@ export default function CertificateDisplay({
     day: 'numeric',
   })
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = () => {
     setDownloading(true)
     try {
-      if (!certificateRef.current) return
-
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#fff',
-      })
-
-      const link = document.createElement('a')
-      link.href = canvas.toDataURL('image/png')
-      link.download = `Adams_Homes_Certificate_${associateName.replace(/\s+/g, '_')}_${division.replace(/\s+/g, '_')}.png`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      // Use browser's print functionality
+      window.print()
     } catch (error) {
-      console.error('Error generating certificate:', error)
+      console.error('Error printing certificate:', error)
     } finally {
       setDownloading(false)
     }
   }
 
-  const handlePrint = () => {
-    if (certificateRef.current) {
-      const printWindow = window.open('', '_blank')
-      if (printWindow) {
-        printWindow.document.write(certificateRef.current.outerHTML)
-        printWindow.document.close()
-        printWindow.print()
-      }
-    }
-  }
 
   return (
     <div className="card p-8 mb-8 text-center">
@@ -132,13 +109,7 @@ export default function CertificateDisplay({
           disabled={downloading}
           className="btn-primary flex items-center gap-2"
         >
-          📥 {downloading ? 'Downloading...' : 'Download Certificate'}
-        </button>
-        <button
-          onClick={handlePrint}
-          className="btn-secondary flex items-center gap-2"
-        >
-          🖨️ Print Certificate
+          🖨️ {downloading ? 'Opening...' : 'Print/Download Certificate'}
         </button>
         <button
           onClick={() => {

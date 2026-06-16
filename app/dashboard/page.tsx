@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import MilestoneCard from '@/components/MilestoneCard'
 import MarketingLessons from '@/components/MarketingLessons'
 import CertificateDisplay from '@/components/CertificateDisplay'
+import ProgressLegend from '@/components/ProgressLegend'
+import ProfileInfo from '@/components/ProfileInfo'
+import CredentialsSection from '@/components/CredentialsSection'
 import { getDivisionById } from '@/lib/divisions'
 
 interface Milestone {
@@ -126,7 +129,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-4xl font-bold mb-2">Welcome, {user.name}!</h1>
-              <p className="text-blue-100">Complete your onboarding milestones to get started</p>
+              <p className="text-blue-100">Adams Homes Sales Associate Onboarding Program</p>
             </div>
             <button
               onClick={handleLogout}
@@ -140,7 +143,16 @@ export default function Dashboard() {
 
       {/* Progress Section */}
       <div className="container py-8">
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        {/* Profile Info */}
+        <ProfileInfo
+          name={user.name}
+          division={user.division}
+          hireDate={user.hireDate}
+          manager={getDivisionById(user.division)?.manager || 'TBD'}
+        />
+
+        {/* Progress Bar */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Your Progress</h2>
           <div className="flex items-center gap-6">
             <div className="flex-1">
@@ -158,6 +170,16 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Credentials Section */}
+        <CredentialsSection
+          emailLogin={user.emailLogin}
+          lassoLogin={user.lassoLogin}
+          fpgTrainingUrl={user.fpgTrainingUrl}
+        />
+
+        {/* Progress Legend */}
+        {milestones.length > 0 && <ProgressLegend milestones={milestones} />}
 
         {/* Certificate - Show when all complete */}
         {progress === 100 && (
@@ -177,7 +199,7 @@ export default function Dashboard() {
 
         {/* Milestones */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Onboarding Milestones</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Adams Homes Sales Associate Onboarding Milestones</h2>
 
           {loading && (
             <div className="text-center py-12">
