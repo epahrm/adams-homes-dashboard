@@ -56,7 +56,7 @@ export default function CredentialsSection({
         {/* FPG Training */}
         <div className="bg-gray-50 p-4 rounded-lg">
           <p className="text-xs font-semibold text-gray-600 mb-2">🎓 FPG Training</p>
-          {fpgTrainingUrl ? (
+          {fpgTrainingUrl && fpgTrainingUrl !== 'undefined' ? (
             <a
               href={fpgTrainingUrl}
               target="_blank"
@@ -66,7 +66,7 @@ export default function CredentialsSection({
               🔗 Access Training
             </a>
           ) : (
-            <p className="text-sm text-gray-600">Not configured</p>
+            <p className="text-sm text-gray-500 italic">Contact your manager for training access</p>
           )}
         </div>
       </div>
