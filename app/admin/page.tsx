@@ -9,7 +9,6 @@ export default function AdminPage() {
   const router = useRouter()
   const [admin, setAdmin] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const storedAdmin = localStorage.getItem('admin')
@@ -18,7 +17,6 @@ export default function AdminPage() {
       return
     }
     setAdmin(JSON.parse(storedAdmin))
-    setLoading(false)
   }, [router])
 
   const handleLogout = () => {
