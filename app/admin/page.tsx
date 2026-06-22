@@ -90,7 +90,7 @@ function DashboardTab() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600 text-sm">Total Employees</p>
+          <p className="text-gray-600 text-sm">Total Sales Associates</p>
           <p className="text-4xl font-bold text-primary mt-2">–</p>
         </div>
         <div className="bg-white rounded-lg shadow p-6">
