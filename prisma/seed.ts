@@ -141,6 +141,7 @@ async function main() {
       email: 'demo@example.com',
       password: hashedPassword,
       name: 'Demo User',
+      division: 'Austin, TX',
     },
   })
 
