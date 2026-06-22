@@ -1,5 +1,7 @@
 'use client'
 
+// v2.0: Clean credentials component
+
 interface CredentialsSectionProps {
   emailLogin?: string
   lassoLogin?: string
