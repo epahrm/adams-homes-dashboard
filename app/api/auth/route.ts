@@ -4,7 +4,7 @@ import { hashPassword, verifyPassword } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
-    const { action, email, password, name, userType = 'user' } = await request.json()
+    const { action, email, password, name, division, hireDate, userType = 'user' } = await request.json()
 
     if (action === 'signup') {
       if (userType === 'admin') {
@@ -30,6 +30,8 @@ export async function POST(request: NextRequest) {
           email,
           password: hashedPassword,
           name,
+          division: division || '',
+          hireDate: hireDate ? new Date(hireDate) : null,
         },
       })
 

@@ -37,15 +37,16 @@ model Admin {
 }
 
 model Milestone {
-  id          String   @id @default(cuid())
-  order       Int      @unique
-  title       String
-  description String
-  keyPoints   String
-  resourceUrl String?
-  videoUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(cuid())
+  order         Int      @unique
+  title         String
+  description   String
+  keyPoints     String
+  resourceUrl   String?
+  videoUrl      String?
+  thumbnailUrl  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   progress MilestoneProgress[]
 }

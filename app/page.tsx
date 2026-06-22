@@ -17,7 +17,7 @@ export default function Home() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
@@ -36,6 +36,8 @@ export default function Home() {
           email: formData.email,
           password: formData.password,
           name: formData.name,
+          division: formData.division,
+          hireDate: formData.hireDate,
         }),
       })
 
