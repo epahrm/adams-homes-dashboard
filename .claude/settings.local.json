@@ -19,7 +19,8 @@
       "PowerShell(Set-Location \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\"; $env:DATABASE_URL=\"file:./dev.db\"; npx prisma db push --skip-generate 2>&1 | Select-Object -Last 20)",
       "PowerShell(cd \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\"; Compress-Archive -Path \"Claude Lot Dashboard\" -DestinationPath \"Adams_Homes_Onboarding_Dashboard_v1.0.zip\" -Force; Get-Item \"Adams_Homes_Onboarding_Dashboard_v1.0.zip\" | Select-Object Name, @{Name='SizeMB';Expression={[math]::Round\\($_.Length/1MB,2\\)}}; \"Archive created successfully!\"; dir \"Adams_Homes_Onboarding_Dashboard_v1.0.zip\")",
       "Read(//mnt/c/Users/elizp/OneDrive/Documents/**)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(vercel deploy *)"
     ]
   }
 }
