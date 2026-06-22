@@ -61,7 +61,7 @@ export default function Home() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Adams Homes</h1>
-            <p className="text-gray-600">Employee Onboarding</p>
+            <p className="text-gray-600">Sales Associate Onboarding</p>
           </div>
 
           {/* Tab Navigation */}
