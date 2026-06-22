@@ -99,8 +99,7 @@ export function generateCertificate(
   // Adams Homes watermark
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(32)
-  doc.setTextColor(26, 84, 144)
-  doc.setOpacity(0.1)
+  doc.setTextColor(200, 200, 200)
   doc.text('ADAMS HOMES', width / 2, height / 2, {
     align: 'center',
     angle: -45,
