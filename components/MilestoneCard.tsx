@@ -10,6 +10,7 @@ interface MilestoneCardProps {
   keyPoints: string
   resourceUrl?: string
   videoUrl?: string
+  thumbnailUrl?: string
   completed: boolean
   onToggle: (milestoneId: string, completed: boolean) => Promise<void>
 }
@@ -22,6 +23,7 @@ export default function MilestoneCard({
   keyPoints,
   resourceUrl,
   videoUrl,
+  thumbnailUrl,
   completed,
   onToggle,
 }: MilestoneCardProps) {
@@ -46,6 +48,16 @@ export default function MilestoneCard({
       }`}
     >
       <div className="flex items-start justify-between gap-4">
+        {/* Thumbnail */}
+        {thumbnailUrl && (
+          <div className="flex-shrink-0 w-24 h-24">
+            <img
+              src={thumbnailUrl}
+              alt={title}
+              className="w-full h-full object-cover rounded-lg"
+            />
+          </div>
+        )}
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <button

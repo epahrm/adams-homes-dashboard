@@ -29,6 +29,7 @@ async function main() {
 • Complete initial assessment`,
       resourceUrl: '#',
       videoUrl: '#',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
     },
     {
       order: 2,
@@ -41,6 +42,7 @@ async function main() {
 • Set up your profile and preferences`,
       resourceUrl: '#',
       videoUrl: '#',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
     },
     {
       order: 3,
@@ -53,6 +55,7 @@ async function main() {
 • Identify appropriate update contacts`,
       resourceUrl: '#',
       videoUrl: '#',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop',
     },
     {
       order: 4,
@@ -65,6 +68,7 @@ async function main() {
 • Learn Adams Homes comments expectations`,
       resourceUrl: '#',
       videoUrl: '#',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=300&fit=crop',
     },
     {
       order: 5,
@@ -77,6 +81,7 @@ async function main() {
 • Identify support contacts`,
       resourceUrl: '#',
       videoUrl: '#',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop',
     },
     {
       order: 6,
@@ -89,6 +94,7 @@ async function main() {
 • Monitor listing performance`,
       resourceUrl: '#',
       videoUrl: '#',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=300&fit=crop',
     },
     {
       order: 7,
@@ -101,6 +107,7 @@ async function main() {
 • Complete customer service assessment`,
       resourceUrl: '#',
       videoUrl: '#',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
     },
     {
       order: 8,
@@ -113,6 +120,7 @@ async function main() {
 • Implement tracking systems`,
       resourceUrl: '#',
       videoUrl: '#',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
     },
   ]
 

@@ -8,6 +8,7 @@ import CertificateDisplay from '@/components/CertificateDisplay'
 import ProgressLegend from '@/components/ProgressLegend'
 import ProfileInfo from '@/components/ProfileInfo'
 import CredentialsSection from '@/components/CredentialsSection'
+import TrainingSchedule from '@/components/TrainingSchedule'
 import { getDivisionById } from '@/lib/divisions'
 
 interface Milestone {
@@ -18,6 +19,7 @@ interface Milestone {
   keyPoints: string
   resourceUrl?: string
   videoUrl?: string
+  thumbnailUrl?: string
   progress: Array<{ completed: boolean; completedAt?: string }>
 }
 
@@ -127,9 +129,12 @@ export default function Dashboard() {
       <div className="gradient-primary text-white">
         <div className="container py-8">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Welcome, {user.name}!</h1>
-              <p className="text-blue-100">Adams Homes Sales Associate Onboarding Program</p>
+            <div className="flex items-center gap-6 flex-1">
+              <img src="/logo.png" alt="Adams Homes" className="h-16" />
+              <div>
+                <h1 className="text-4xl font-bold mb-2">Welcome, {user.name}!</h1>
+                <p className="text-blue-100">Adams Homes Sales Associate Onboarding Program</p>
+              </div>
             </div>
             <button
               onClick={handleLogout}
@@ -177,6 +182,9 @@ export default function Dashboard() {
           lassoLogin={user.lassoLogin}
           fpgTrainingUrl={user.fpgTrainingUrl}
         />
+
+        {/* 543 Training Schedule */}
+        <TrainingSchedule trainingDate={user.hireDate} videoLink={user.videoLink} />
 
         {/* Progress Legend */}
         {milestones.length > 0 && <ProgressLegend milestones={milestones} />}
@@ -230,6 +238,7 @@ export default function Dashboard() {
               keyPoints={milestone.keyPoints}
               resourceUrl={milestone.resourceUrl}
               videoUrl={milestone.videoUrl}
+              thumbnailUrl={milestone.thumbnailUrl}
               completed={milestone.progress[0]?.completed || false}
               onToggle={handleMilestoneToggle}
             />
