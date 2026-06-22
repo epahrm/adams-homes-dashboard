@@ -1,7 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-
 interface CredentialsSectionProps {
   emailLogin?: string
   lassoLogin?: string
@@ -13,7 +11,6 @@ export default function CredentialsSection({
   lassoLogin,
   fpgTrainingUrl,
 }: CredentialsSectionProps) {
-  const [showPassword, setShowPassword] = useState(false)
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
