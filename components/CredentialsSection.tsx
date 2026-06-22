@@ -11,7 +11,6 @@ export default function CredentialsSection({
   lassoLogin,
   fpgTrainingUrl,
 }: CredentialsSectionProps) {
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     alert('Copied to clipboard!')
