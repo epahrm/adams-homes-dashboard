@@ -4,6 +4,10 @@ import { hashPassword, verifyPassword } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Auth endpoint called')
+    console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET')
+    console.log('NODE_ENV:', process.env.NODE_ENV)
+
     const { action, email, password, name, division, hireDate, userType = 'user' } = await request.json()
 
     if (action === 'signup') {
@@ -107,9 +111,11 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     )
   } catch (error) {
-    console.error('Auth error:', error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    console.error('Auth error:', errorMessage)
+    console.error('Full error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: errorMessage },
       { status: 500 }
     )
   }

@@ -20,7 +20,11 @@
       "PowerShell(cd \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\"; Compress-Archive -Path \"Claude Lot Dashboard\" -DestinationPath \"Adams_Homes_Onboarding_Dashboard_v1.0.zip\" -Force; Get-Item \"Adams_Homes_Onboarding_Dashboard_v1.0.zip\" | Select-Object Name, @{Name='SizeMB';Expression={[math]::Round\\($_.Length/1MB,2\\)}}; \"Archive created successfully!\"; dir \"Adams_Homes_Onboarding_Dashboard_v1.0.zip\")",
       "Read(//mnt/c/Users/elizp/OneDrive/Documents/**)",
       "Bash(npm run *)",
-      "Bash(vercel deploy *)"
+      "Bash(vercel deploy *)",
+      "Bash(node -e \"console.log\\(encodeURIComponent\\('AdamsHomes1991!'\\)\\)\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }
