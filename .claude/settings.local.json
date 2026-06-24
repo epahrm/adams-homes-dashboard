@@ -24,7 +24,8 @@
       "Bash(node -e \"console.log\\(encodeURIComponent\\('AdamsHomes1991!'\\)\\)\")",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "mcp__visualize__read_me"
     ]
   }
 }
