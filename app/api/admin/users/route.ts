@@ -4,7 +4,6 @@ import { hashPassword } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
-    const adminId = request.headers.get('x-user-id')
     const userType = request.headers.get('x-user-type')
 
     if (userType !== 'admin') {
