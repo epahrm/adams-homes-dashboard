@@ -42,3 +42,6 @@ yarn-error.log*
 dev.db
 dev.db-shm
 dev.db-wal
+
+.vercel
+.env*

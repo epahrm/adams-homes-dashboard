@@ -32,9 +32,24 @@ export default function AdminPage() {
       <div className="gradient-primary text-white">
         <div className="container py-6">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-blue-100">Welcome, {admin.name}</p>
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white rounded-lg p-2 flex-shrink-0">
+                <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M 20 140 Q 40 120 60 140 Q 80 160 100 140" fill="none" stroke="#DC143C" strokeWidth="15" strokeLinecap="round"/>
+                  <g>
+                    <line x1="80" y1="220" x2="150" y2="40" stroke="#003DA5" strokeWidth="20" strokeLinecap="round"/>
+                    <line x1="220" y1="40" x2="290" y2="220" stroke="#DC143C" strokeWidth="20" strokeLinecap="round"/>
+                    <line x1="110" y1="150" x2="260" y2="150" stroke="#003DA5" strokeWidth="18" strokeLinecap="round"/>
+                  </g>
+                  <polygon points="185,20 205,20 195,40" fill="#DC143C"/>
+                  <rect x="20" y="240" width="360" height="8" fill="#DC143C"/>
+                  <rect x="20" y="250" width="360" height="4" fill="#003DA5"/>
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+                <p className="text-blue-100">Welcome, {admin.name}</p>
+              </div>
             </div>
             <button
               onClick={handleLogout}

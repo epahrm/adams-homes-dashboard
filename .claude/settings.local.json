@@ -28,7 +28,15 @@
       "mcp__visualize__read_me",
       "Bash(findstr /E \"\\\\.env|tsconfig|build\")",
       "Bash(powershell -Command \"ls -la | Select-String -Pattern '\\\\.env|tsconfig'\")",
-      "Bash(rm .env.production vercel.json)"
+      "Bash(rm .env.production vercel.json)",
+      "Bash(vercel deployments *)",
+      "Bash(vercel list *)",
+      "Bash(curl -X POST https://adams-homes-dashboard.vercel.app/api/auth -H 'Content-Type: application/json' -d '{\"action\":\"login\",\"email\":\"demo@example.com\",\"password\":\"password123\",\"userType\":\"user\"}' -s)",
+      "Bash(git commit *)",
+      "Bash(curl -X POST https://adams-homes-dashboard.vercel.app/api/auth -H \"Content-Type: application/json\" -d '{\"action\":\"login\",\"email\":\"demo@example.com\",\"password\":\"password123\",\"userType\":\"user\"}' -s)",
+      "Bash(PGPASSWORD=\"AdamsHomes1991!\" psql -h db.tbzuajwitwonwojqshew.supabase.co -U postgres -d postgres -c \"SELECT 1;\")",
+      "Bash(vercel env *)",
+      "Bash(npm install *)"
     ]
   }
 }
