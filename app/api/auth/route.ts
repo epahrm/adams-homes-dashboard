@@ -5,7 +5,8 @@ import { hashPassword, verifyPassword } from '@/lib/auth'
 export async function POST(request: NextRequest) {
   try {
     console.log('Auth endpoint called')
-    console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET')
+    console.log('DATABASE_URL present:', !!process.env.DATABASE_URL)
+    console.log('DATABASE_URL starts with:', process.env.DATABASE_URL?.substring(0, 50))
     console.log('NODE_ENV:', process.env.NODE_ENV)
     console.log('Using connection pooler:', process.env.DATABASE_URL?.includes('pooler') ? 'YES' : 'NO')
 
