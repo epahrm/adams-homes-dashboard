@@ -19,7 +19,6 @@ model User {
   emailLogin      String?
   emailPassword   String?
   fpgTrainingUrl  String?
-  fpg543Date      DateTime?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
