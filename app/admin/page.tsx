@@ -86,7 +86,6 @@ export default function AdminPage() {
 
 function DashboardTab() {
   const [stats, setStats] = useState<{ total: number; completed: number; inProgress: number; questions: number }>({ total: 0, completed: 0, inProgress: 0, questions: 0 })
-  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -119,8 +118,6 @@ function DashboardTab() {
         }
       } catch (error) {
         console.error('Error fetching stats:', error)
-      } finally {
-        setLoading(false)
       }
     }
 
