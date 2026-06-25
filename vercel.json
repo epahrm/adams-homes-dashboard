@@ -1,10 +1,10 @@
 {
   "env": {
-    "DATABASE_URL": "postgresql://postgres:AdamsHomes1991%21@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public&sslmode=require"
+    "DATABASE_URL": "postgresql://postgres.tbzuajwitwonwojqshew:AdamsHomes1991%21@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public&sslmode=require"
   },
   "build": {
     "env": {
-      "DATABASE_URL": "postgresql://postgres:AdamsHomes1991%21@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public&sslmode=require"
+      "DATABASE_URL": "postgresql://postgres.tbzuajwitwonwojqshew:AdamsHomes1991%21@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public&sslmode=require"
     }
   }
 }

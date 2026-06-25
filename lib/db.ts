@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
-let databaseUrl = process.env.DATABASE_URL || 'postgresql://postgres:AdamsHomes1991!@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public'
+let databaseUrl = process.env.DATABASE_URL || 'postgresql://postgres.tbzuajwitwonwojqshew:AdamsHomes1991!@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public'
 
 console.log('[DB] DATABASE_URL env:', !!process.env.DATABASE_URL)
 console.log('[DB] NODE_ENV:', process.env.NODE_ENV)
