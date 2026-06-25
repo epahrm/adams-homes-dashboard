@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
           name,
           division: division || '',
           hireDate: hireDate ? new Date(hireDate) : null,
-          fpg543Date: fpg543Date ? new Date(fpg543Date) : null,
         },
       })
 
