@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
           const tempPassword = Math.random().toString(36).slice(-12)
           const hashedPassword = await hashPassword(tempPassword)
 
-          const user = await prisma.user.create({
+          await prisma.user.create({
             data: {
               email,
               name,

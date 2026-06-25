@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { hashPassword } from '@/lib/auth'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const existingUser = await prisma.user.findUnique({
       where: { email: 'demo@example.com' },

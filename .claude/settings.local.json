@@ -42,7 +42,16 @@
       "PowerShell($file = Get-Item \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\\\\public\\\\adams-homes-logo.png\"; Write-Host \"File size: $\\($file.Length\\) bytes\"; Write-Host \"File exists: $\\(Test-Path $file.FullName\\)\")",
       "Bash(git lfs *)",
       "Bash(git reset *)",
-      "Bash(git restore *)"
+      "Bash(git restore *)",
+      "Bash(curl -s -X POST https://adams-homes-dashboard.vercel.app/api/demo -H \"Content-Type: application/json\")",
+      "Bash(curl -s -X POST https://adams-homes-dashboard.vercel.app/api/demo)",
+      "Bash(git check-ignore *)",
+      "Bash(export VERCEL_ORG_ID=\"team_eBbgwC0Y0nNeVHvoL58n5KP9\")",
+      "Bash(export VERCEL_PROJECT_ID=\"prj_qf3ZcPIM0I8A6b5U67f7A4iNRPfi\")",
+      "Bash(vercel --prod)",
+      "Bash(curl -s -X POST https://adams-homes-dashboard.vercel.app/api/auth -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s -X POST https://adams-homes-dashboard.vercel.app/api/auth -H 'Content-Type: application/json' -d '{\"action\":\"signup\",\"email\":\"testuser@example.com\",\"password\":\"test123\",\"name\":\"Test\",\"division\":\"Test\"}')",
+      "Bash(powershell -Command \"Remove-Item -Path '.\\\\.next' -Recurse -Force -ErrorAction SilentlyContinue\")"
     ]
   }
 }

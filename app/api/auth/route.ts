@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET')
     console.log('NODE_ENV:', process.env.NODE_ENV)
 
-    const { action, email, password, name, division, hireDate, fpg543Date, userType = 'user' } = await request.json()
+    const { action, email, password, name, division, hireDate, userType = 'user' } = await request.json()
 
     if (action === 'signup') {
       if (userType === 'admin') {
