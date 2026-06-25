@@ -13,6 +13,7 @@ export default function Home() {
     name: '',
     division: '',
     hireDate: '',
+    fpg543Date: '',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -38,6 +39,7 @@ export default function Home() {
           name: formData.name,
           division: formData.division,
           hireDate: formData.hireDate,
+          fpg543Date: formData.fpg543Date,
         }),
       })
 
@@ -154,6 +156,19 @@ export default function Home() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     required={mode === 'signup'}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    FPG 543 Class Date
+                  </label>
+                  <input
+                    type="date"
+                    name="fpg543Date"
+                    value={formData.fpg543Date}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </>

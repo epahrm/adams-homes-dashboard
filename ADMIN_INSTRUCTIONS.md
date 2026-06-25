@@ -20,6 +20,7 @@ Before adding a new team member to the system, gather the following information:
 - [ ] **Work Email Address** - Email they'll use for company communications
 - [ ] **Work Email Password** - Password for their work email account
 - [ ] **FPG Training URL** - Link to their FPG training materials (or "TBD" if not ready)
+- [ ] **FPG 543 Class Date** - Which class/date they're enrolled in (e.g., "June 15, 2026")
 
 ### Verification
 - [ ] All information is correct and verified
