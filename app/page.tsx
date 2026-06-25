@@ -1,5 +1,6 @@
 'use client'
 
+// Adams Homes Logo: Public folder deployment
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { DIVISIONS } from '@/lib/divisions'
