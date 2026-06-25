@@ -130,7 +130,7 @@ export default function Dashboard() {
         <div className="container py-8">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-6 flex-1">
-              <img src="/adams-homes-logo.png" alt="Adams Homes" className="w-16 h-16 flex-shrink-0" />
+              <img src="/adams-homes-logo.png" alt="Adams Homes" className="w-24 flex-shrink-0" style={{height: 'auto'}} />
               <div>
                 <h1 className="text-4xl font-bold mb-2">Welcome, {user.name}!</h1>
                 <p className="text-blue-100">Adams Homes Sales Associate Onboarding Program</p>

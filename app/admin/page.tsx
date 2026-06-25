@@ -33,7 +33,7 @@ export default function AdminPage() {
         <div className="container py-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
-              <img src="/adams-homes-logo.png" alt="Adams Homes" className="w-16 h-16 flex-shrink-0" />
+              <img src="/adams-homes-logo.png" alt="Adams Homes" className="w-20 flex-shrink-0" style={{height: 'auto'}} />
               <div>
                 <h1 className="text-3xl font-bold">Admin Dashboard</h1>
                 <p className="text-blue-100">Welcome, {admin.name}</p>

@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-lg shadow-2xl p-8">
           <div className="text-center mb-8">
-            <img src="/adams-homes-logo.png" alt="Adams Homes" className="w-32 h-32 mx-auto mb-4" />
+            <img src="/adams-homes-logo.png" alt="Adams Homes" className="w-40 mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Panel</h1>
             <p className="text-gray-600">Adams Homes Onboarding Manager</p>
           </div>

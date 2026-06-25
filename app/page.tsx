@@ -65,7 +65,7 @@ export default function Home() {
         <div className="bg-white rounded-lg shadow-2xl p-8">
           {/* Header with Logo */}
           <div className="text-center mb-8">
-            <img src="/adams-homes-logo.png" alt="Adams Homes" className="w-40 h-40 mx-auto mb-4" />
+            <img src="/adams-homes-logo.png" alt="Adams Homes" className="w-56 mx-auto mb-4" />
             <p className="text-gray-600">Sales Associate Onboarding</p>
           </div>
 
