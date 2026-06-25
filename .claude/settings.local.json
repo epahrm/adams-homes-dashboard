@@ -67,7 +67,11 @@
       "Bash(curl -s -X POST http://localhost:3003/api/demo)",
       "Bash(taskkill /F /IM node.exe)",
       "Bash(rm -rf .next)",
-      "Bash(vercel logs *)"
+      "Bash(vercel logs *)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s https://adams-homes-dashboard.vercel.app/api/env-test)",
+      "Bash(curl -s https://adams-homes-dashboard.vercel.app/api/db-test)",
+      "Bash(python3 -m json.tool)"
     ]
   }
 }
