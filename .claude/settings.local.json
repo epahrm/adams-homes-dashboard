@@ -36,7 +36,13 @@
       "Bash(curl -X POST https://adams-homes-dashboard.vercel.app/api/auth -H \"Content-Type: application/json\" -d '{\"action\":\"login\",\"email\":\"demo@example.com\",\"password\":\"password123\",\"userType\":\"user\"}' -s)",
       "Bash(PGPASSWORD=\"AdamsHomes1991!\" psql -h db.tbzuajwitwonwojqshew.supabase.co -U postgres -d postgres -c \"SELECT 1;\")",
       "Bash(vercel env *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(git rm *)",
+      "PowerShell(Copy-Item -Path \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\\\\adams homes logo.png\" -Destination \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\\\\public\\\\adams-homes-logo.png\" -Force)",
+      "PowerShell($file = Get-Item \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\\\\public\\\\adams-homes-logo.png\"; Write-Host \"File size: $\\($file.Length\\) bytes\"; Write-Host \"File exists: $\\(Test-Path $file.FullName\\)\")",
+      "Bash(git lfs *)",
+      "Bash(git reset *)",
+      "Bash(git restore *)"
     ]
   }
 }
