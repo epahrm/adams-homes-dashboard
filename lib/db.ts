@@ -12,9 +12,9 @@ if (databaseUrl.includes('AdamsHomes1991!')) {
   databaseUrl = databaseUrl.replace('AdamsHomes1991!', 'AdamsHomes1991%21')
 }
 
-// Add SSL/TLS for production (required for secure connections)
+// Add SSL mode if not present - use prefer to allow non-SSL if needed
 if (!databaseUrl.includes('sslmode=')) {
-  databaseUrl = databaseUrl + (databaseUrl.includes('?') ? '&' : '?') + 'sslmode=require'
+  databaseUrl = databaseUrl + (databaseUrl.includes('?') ? '&' : '?') + 'sslmode=prefer'
 }
 
 console.log('[DB] Final URL host:', databaseUrl.split('@')[1]?.split(':')[0])
