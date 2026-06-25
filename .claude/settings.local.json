@@ -51,7 +51,22 @@
       "Bash(vercel --prod)",
       "Bash(curl -s -X POST https://adams-homes-dashboard.vercel.app/api/auth -H 'Content-Type: application/json' -d '{ *)",
       "Bash(curl -s -X POST https://adams-homes-dashboard.vercel.app/api/auth -H 'Content-Type: application/json' -d '{\"action\":\"signup\",\"email\":\"testuser@example.com\",\"password\":\"test123\",\"name\":\"Test\",\"division\":\"Test\"}')",
-      "Bash(powershell -Command \"Remove-Item -Path '.\\\\.next' -Recurse -Force -ErrorAction SilentlyContinue\")"
+      "Bash(powershell -Command \"Remove-Item -Path '.\\\\.next' -Recurse -Force -ErrorAction SilentlyContinue\")",
+      "Bash(npx vercel *)",
+      "Bash(curl -s -X POST https://adams-homes-dashboard.vercel.app/api/auth -H \"Content-Type: application/json\" -d '{\"action\":\"login\",\"email\":\"demo@example.com\",\"password\":\"password123\",\"userType\":\"user\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth -H \"Content-Type: application/json\" -d '{\"action\":\"login\",\"email\":\"demo@example.com\",\"password\":\"password123\",\"userType\":\"user\"}')",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(export DATABASE_URL='postgresql://postgres:AdamsHomes1991!@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public&sslmode=require')",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs kill -9)",
+      "Bash(export DATABASE_URL='postgresql://postgres:AdamsHomes1991!@db.tbzuajwitwonwojqshew.supabase.co:5432/postgres?schema=public')",
+      "Bash(rm -rf .next node_modules/.cache)",
+      "Bash(sleep 5 && tail -20 /tmp/dev.log)",
+      "Bash(ping -c 2 db.tbzuajwitwonwojqshew.supabase.co)",
+      "Bash(curl -s -X POST http://localhost:3002/api/demo)",
+      "Bash(curl -s -X POST http://localhost:3003/api/demo)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(rm -rf .next)"
     ]
   }
 }

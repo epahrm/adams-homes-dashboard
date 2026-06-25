@@ -1,10 +1,10 @@
 {
   "env": {
-    "DATABASE_URL": "postgresql://postgres:AdamsHomes1991%21@db.tbzuajwitwonwojqshew.supabase.co:5432/postgres?schema=public&sslmode=require"
+    "DATABASE_URL": "postgresql://postgres:AdamsHomes1991!@db.tbzuajwitwonwojqshew.supabase.co:5432/postgres?schema=public"
   },
   "build": {
     "env": {
-      "DATABASE_URL": "postgresql://postgres:AdamsHomes1991%21@db.tbzuajwitwonwojqshew.supabase.co:5432/postgres?schema=public&sslmode=require"
+      "DATABASE_URL": "postgresql://postgres:AdamsHomes1991!@db.tbzuajwitwonwojqshew.supabase.co:5432/postgres?schema=public"
     }
   }
 }
