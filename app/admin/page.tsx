@@ -85,8 +85,8 @@ export default function AdminPage() {
 }
 
 function DashboardTab() {
-  const [stats, setStats] = useState({ total: 0, completed: 0, inProgress: 0, questions: 0 })
-  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState<{ total: number; completed: number; inProgress: number; questions: number }>({ total: 0, completed: 0, inProgress: 0, questions: 0 })
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -155,9 +155,9 @@ function DashboardTab() {
 
 function QuestionsTab() {
   const [questions, setQuestions] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState<boolean>(true)
   const [respondingTo, setRespondingTo] = useState<string | null>(null)
-  const [response, setResponse] = useState('')
+  const [response, setResponse] = useState<string>('')
 
   useEffect(() => {
     fetchQuestions()
@@ -292,7 +292,7 @@ function QuestionsTab() {
 
 function AssociatesTab() {
   const [users, setUsers] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState<boolean>(true)
   const [mode, setMode] = useState<'list' | 'add' | 'bulk'>('list')
   const [formData, setFormData] = useState({
     email: '',
@@ -624,7 +624,7 @@ function AssociatesTab() {
 
 function SettingsTab() {
   const [resources, setResources] = useState<any>({ milestones: [], lessons: [] })
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState<boolean>(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editData, setEditData] = useState<any>({})
 
