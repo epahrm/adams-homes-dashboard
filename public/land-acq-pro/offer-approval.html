@@ -16,20 +16,24 @@
     .logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 9px 18px; min-height: 40px; font-size: 14px; cursor: pointer; font-family: inherit; }
     .logout:hover { background: rgba(255,255,255,0.2); }
 
-    .content { padding: 22px 22px 60px; }
+    .content { padding: 22px 22px 60px; max-width: 1100px; margin: 0 auto; }
     .content > h2 { color: #003d66; font-size: 24px; margin: 4px 0 6px; line-height: 1.25; }
     .stage-line { color: #556; font-size: 14px; margin-bottom: 18px; }
     .stage-line .pill { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; background: #eaf2fb; color: #003d66; }
 
-    .card { border: 1px solid #dde3ea; border-radius: 12px; padding: 20px; margin-bottom: 18px; }
+    /* Compact multi-column card grid — sections sit side by side, not full width */
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; }
+    @media (min-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .span2 { grid-column: 1 / -1; }
+
+    .card { border: 1px solid #dde3ea; border-radius: 12px; padding: 18px; }
     .card h3 { color: #003d66; font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; border-bottom: 2px solid #003d66; padding-bottom: 10px; margin-bottom: 16px; }
     .field { margin-bottom: 14px; }
     .field:last-child { margin-bottom: 0; }
     .field .lbl { color: #778; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
     .field .val { font-size: 16px; color: #1a1a1a; line-height: 1.5; }
     .field .sub { color: #667; font-size: 13px; }
-    .two-col { display: grid; grid-template-columns: 1fr; gap: 14px; }
-    @media (min-width: 620px) { .two-col { grid-template-columns: 1fr 1fr; } }
+    .two-col { display: grid; grid-template-columns: 1fr; gap: 12px; }
 
     label.form-label { display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 5px; }
     input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-family: inherit; background: white; }
@@ -53,9 +57,11 @@
     .premium-toggle input { width: auto; }
     .premium-list { margin-top: 10px; display: none; }
     .premium-list.show { display: block; }
-    .premium-row { display: grid; grid-template-columns: 1fr 130px; gap: 10px; align-items: center; margin-bottom: 8px; }
-    .premium-row .p-check { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+    .premium-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .premium-row .p-check { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer; }
     .premium-row .p-check input { width: auto; }
+    .premium-row .p-amt { flex: 0 0 110px; display: none; }
+    .premium-row .p-amt.show { display: block; }
     .premium-total { margin-top: 8px; font-weight: 700; color: #003d66; }
 
     /* Timeline */
@@ -76,6 +82,13 @@
     /* Packet preview */
     .packet { background: #f7f9fc; border: 1px dashed #b9c8d8; border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; color: #333; white-space: pre-wrap; display: none; margin-top: 12px; }
     .packet.show { display: block; }
+
+    /* Lot notes log */
+    .note-log { list-style: none; margin-top: 12px; }
+    .note-log li { font-size: 14px; color: #333; padding: 9px 0; border-top: 1px solid #eef2f6; }
+    .note-log li:first-child { border-top: none; }
+    .note-log li .n-meta { display: block; font-size: 12px; color: #889; margin-top: 2px; }
+    .note-log .empty { color: #889; }
 
     /* Notifications log */
     .notif-list { list-style: none; }
@@ -155,9 +168,11 @@
         <h3>Ready for Your Signature</h3>
         <div class="s-row"><span>Approved Lot Stipend</span><span class="s-val" id="sStipend">—</span></div>
         <div class="s-row"><span>Offer Amount</span><span class="s-val" id="sOffer">—</span></div>
-        <div class="s-row"><span>Premiums (extra cost)</span><span class="s-val" id="sPremium">—</span></div>
+        <div class="s-row"><span>Premiums</span><span class="s-val" id="sPremium">—</span></div>
         <div class="s-notes" id="sNotes">No notes from Kevin.</div>
       </div>
+
+      <div class="grid">
 
       <!-- County record / property card -->
       <div class="card">
@@ -234,7 +249,7 @@
           <div>
             <label class="form-label" for="commission">Commission</label>
             <input type="text" id="commission" value="3%">
-            <div class="hint">3% default; 6% when from a listing</div>
+            <div class="hint">Default 3%</div>
           </div>
           <div class="field">
             <div class="lbl">Offer Expiration</div>
@@ -286,8 +301,18 @@
         <div class="hint">Attach the signed contract, survey, closing disclosure, title docs, etc. (Files are recorded on the lot; live storage connects with the backend.)</div>
       </div>
 
-      <!-- Offer packet -->
+      <!-- Lot notes -->
       <div class="card">
+        <h3>Lot Notes</h3>
+        <textarea id="lotNoteInput" rows="2" placeholder="Add a note to refer back to later…"></textarea>
+        <div class="actions" style="margin-top:8px;">
+          <button type="button" class="btn btn-outline" id="addNoteBtn" style="flex:0 0 auto; min-height:40px; padding:10px 18px; font-size:14px;">Add Note</button>
+        </div>
+        <ul class="note-log" id="lotNoteList"><li class="empty">No notes yet.</li></ul>
+      </div>
+
+      <!-- Offer packet -->
+      <div class="card span2">
         <h3>Offer Packet</h3>
         <div class="hint">Generates the seller packet: blank contract template + Kevin's cover letter (with the 14-day expiration) + the county property card.</div>
         <div class="actions" style="margin-top:12px;">
@@ -305,11 +330,13 @@
       </div>
 
       <!-- Primary action (varies by stage + role) -->
-      <div class="card" id="actionCard">
+      <div class="card span2" id="actionCard">
         <h3>Next Step</h3>
         <div class="actions" id="actionButtons"></div>
         <div class="message" id="message"></div>
       </div>
+
+      </div><!-- /grid -->
 
       <a class="back-link" href="admin.html">&larr; Back to Pipeline</a>
     </div>
@@ -428,16 +455,18 @@
       PREMIUMS.forEach(p => {
         const row = document.createElement('div');
         row.className = 'premium-row';
-        row.innerHTML = '<label class="p-check"><input type="checkbox"> <span></span></label><input type="text" placeholder="$0" inputmode="numeric">';
+        row.innerHTML = '<label class="p-check"><input type="checkbox"> <span></span></label><input type="text" class="p-amt" placeholder="$0" inputmode="numeric">';
         row.querySelector('span').textContent = p.label;
         const chk = row.querySelector('input[type=checkbox]');
-        const amt = row.querySelector('input[type=text]');
+        const amt = row.querySelector('.p-amt');
         chk.dataset.key = p.key;
         const savedItem = saved.find(s => s.key === p.key);
         if (savedItem) { chk.checked = true; amt.value = money(savedItem.amount); }
         else if (p.amount != null) { amt.value = money(p.amount); }
-        chk.addEventListener('change', updatePremiumTotal);
+        const syncAmt = () => amt.classList.toggle('show', chk.checked);
+        chk.addEventListener('change', () => { syncAmt(); updatePremiumTotal(); });
         amt.addEventListener('input', updatePremiumTotal);
+        syncAmt();
         wrap.appendChild(row);
       });
     }
@@ -446,7 +475,7 @@
       const out = [];
       rows.forEach(r => {
         const chk = r.querySelector('input[type=checkbox]');
-        if (chk.checked) out.push({ key: chk.dataset.key, label: PREMIUMS.find(p => p.key === chk.dataset.key).label, amount: num(r.querySelector('input[type=text]').value) });
+        if (chk.checked) out.push({ key: chk.dataset.key, label: PREMIUMS.find(p => p.key === chk.dataset.key).label, amount: num(r.querySelector('.p-amt').value) });
       });
       return out;
     }
@@ -454,7 +483,7 @@
       const total = collectPremiums().reduce((a, p) => a + p.amount, 0);
       const el = document.getElementById('premiumTotal');
       el.style.display = 'block';
-      el.textContent = 'Total premium (extra cost): ' + money(total);
+      el.textContent = 'Total premium: ' + money(total);
     }
 
     // ---------- Stipend + over warning ----------
@@ -479,7 +508,7 @@
       return 'Dear ' + owner + ',\n\n' +
         'Thank you for the opportunity to make an offer on ' + addr + '. At Adams Homes, no one closes faster — we are a cash buyer, we handle everything, and there are no agents, commissions, or hidden fees.\n\n' +
         'Your enclosed offer is firm and ready to sign electronically. Please note it expires on ' + exp + ', so we can keep your closing on our fast track. Once you sign, our team gets to work right away.\n\n' +
-        'I personally own your deal from start to finish. Call or text me anytime with questions.\n\n' +
+        "I'll personally help you every step of the way. Call or text me anytime with questions.\n\n" +
         'Warm regards,\nKevin Nelson\nLand Acquisition Manager, Adams Homes\n(407) 523-0908 · ecland@adamshomes.com';
     }
 
@@ -516,6 +545,23 @@
       const ns = (lot.notifications || []).slice();
       ns.unshift({ type: type, to: to, at: new Date().toISOString() });
       return ns;
+    }
+
+    // ---------- Lot notes (running log we can refer back to) ----------
+    function renderLotNotes() {
+      const list = document.getElementById('lotNoteList');
+      const notes = lot.lotNotes || [];
+      list.innerHTML = '';
+      if (!notes.length) { list.innerHTML = '<li class="empty">No notes yet.</li>'; return; }
+      notes.forEach(n => {
+        const li = document.createElement('li');
+        const meta = document.createElement('span');
+        meta.className = 'n-meta';
+        meta.textContent = (n.by || '') + ' · ' + fmtDate(n.at);
+        li.textContent = n.text;
+        li.appendChild(meta);
+        list.appendChild(li);
+      });
     }
 
     // ---------- Timeline render ----------
@@ -558,7 +604,7 @@
         document.getElementById('sStipend').textContent = (stipendForLot() == null ? '—' : money(stipendForLot()));
         document.getElementById('sOffer').textContent = lot.offer || '—';
         const prem = lot.premiums || [];
-        document.getElementById('sPremium').textContent = prem.length ? money(prem.reduce((a, p) => a + p.amount, 0)) + ' (' + prem.map(p => p.label).join(', ') + ')' : 'None';
+        document.getElementById('sPremium').textContent = prem.length ? money(prem.reduce((a, p) => a + p.amount, 0)) + ' — ' + prem.map(p => p.label).join(', ') : 'None';
         document.getElementById('sNotes').textContent = lot.kevinNotes ? ('Kevin: ' + lot.kevinNotes) : 'No notes from Kevin.';
       } else { ep.classList.remove('show'); }
 
@@ -688,7 +734,7 @@
       const defOffer = lot.offer || (lot.listPrice ? money(lot.listPrice - 2000) : '$30,000');
       document.getElementById('offerAmount').value = defOffer;
       if (lot.emd) document.getElementById('emd').value = lot.emd;
-      document.getElementById('commission').value = lot.commission || (lot.agentName ? '6%' : '3%');
+      document.getElementById('commission').value = lot.commission || '3%';
       document.getElementById('expiryVal').textContent = lot.offerExpires ? fmtDate(lot.offerExpires) : 'Set when the offer is generated (14 days)';
 
       // Premium radio
@@ -701,7 +747,7 @@
       document.getElementById('kevinNotes').value = lot.kevinNotes || '';
     }
 
-    function renderAll() { fillForm(); buildPremiumList(); refreshStipend(); renderTimeline(); renderDocs(); renderNotifs(); renderStage(); if ((lot.premiums || []).length) updatePremiumTotal(); }
+    function renderAll() { fillForm(); buildPremiumList(); refreshStipend(); renderTimeline(); renderDocs(); renderLotNotes(); renderNotifs(); renderStage(); if ((lot.premiums || []).length) updatePremiumTotal(); }
 
     // ---------- Wiring ----------
     document.getElementById('utilityType').addEventListener('change', refreshStipend);
@@ -723,6 +769,15 @@
       files.forEach(f => docs.unshift({ name: f.name, size: f.size, at: new Date().toISOString(), by: currentUser() }));
       try { await saveLot({ documents: docs }); renderDocs(); } catch (e) { msg('Could not record the upload — please try again.', false); }
       this.value = '';
+    });
+    document.getElementById('addNoteBtn').addEventListener('click', async function() {
+      const input = document.getElementById('lotNoteInput');
+      const text = input.value.trim();
+      if (!text) return;
+      const notes = (lot.lotNotes || []).slice();
+      notes.unshift({ text: text, at: new Date().toISOString(), by: currentUser() });
+      try { await saveLot({ lotNotes: notes }); input.value = ''; renderLotNotes(); }
+      catch (e) { msg('Could not save the note — please try again.', false); }
     });
 
     async function boot() {

@@ -207,6 +207,15 @@ async function noHorizontalOverflow(page) {
     await page.click('#previewPacketBtn');
     check('cover letter preview shows expiration', (await page.textContent('#packetPreview')).includes('expires on'));
     check('document upload control present', await page.locator('#docUpload').count() === 1);
+    check('commission defaults to 3%', (await page.inputValue('#commission')) === '3%');
+    check('lot notes section present', await page.locator('#addNoteBtn').count() === 1);
+    check('cover letter no longer says Kevin owns the deal', !(await page.textContent('#packetPreview')).includes('own your deal'));
+    check('approval uses compact card grid', await page.locator('.grid').count() === 1);
+    // add a lot note
+    await page.fill('#lotNoteInput', 'Seller prefers a quick close.');
+    await page.click('#addNoteBtn');
+    await page.waitForTimeout(200);
+    check('lot note saved to log', (await page.textContent('#lotNoteList')).includes('quick close'));
 
     // ---------- Approval: Elizabeth counter-signs (seller-first, EP last) ----------
     await page.goto(BASE + '/admin.html');
