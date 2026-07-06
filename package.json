@@ -4,7 +4,7 @@
   "description": "Employee onboarding dashboard for Adams Homes",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "node scripts/load-env.js",
     "start": "next start",
     "lint": "next lint",
     "db:push": "prisma db push",
