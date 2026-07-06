@@ -3,327 +3,508 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adams Homes - Instant Offer on Your Vacant Land</title>
+  <title>Adams Homes - No One Closes Faster</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0d3557;
-      color: #333;
-      min-height: 100vh;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #ffffff; color: #1a1a1a; font-size: 16px;
     }
-    .page { max-width: 680px; margin: 0 auto; }
+    .container { max-width: 1024px; margin: 0 auto; padding: 0 20px; }
+
+    /* Header */
+    .site-header { background: #ffffff; border-bottom: 1px solid #e5e5e5; }
+    .site-header .container { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; padding-bottom: 16px; gap: 12px; }
+    .brand-block .brand { color: #003d66; font-size: 24px; font-weight: 800; }
+    .brand-block .tagline { color: #555; font-size: 13px; letter-spacing: 0.5px; }
+    .login-link { color: #003d66; font-weight: 600; text-decoration: underline; font-size: 16px; background: none; border: none; cursor: pointer; font-family: inherit; padding: 10px; }
 
     /* Hero */
-    .hero { background: #0d3557; color: white; text-align: center; padding: 56px 24px 48px; }
-    .hero h1 { font-size: 36px; line-height: 1.2; margin-bottom: 18px; }
-    .hero p { font-size: 19px; line-height: 1.5; color: #e8eef5; }
+    .hero { background: linear-gradient(160deg, #003d66 0%, #00527f 100%); color: white; text-align: center; padding: 64px 20px 56px; }
+    .hero .eyebrow { font-size: 14px; letter-spacing: 3px; font-weight: 700; color: #bcd6e8; margin-bottom: 16px; text-transform: uppercase; }
+    .hero h1 { font-size: 40px; line-height: 1.2; margin-bottom: 18px; }
+    .hero .subtitle { font-size: 20px; line-height: 1.5; color: #e8f0f6; }
 
-    /* White sheet */
-    .sheet { background: #f4f5f7; }
+    /* Value propositions */
+    .values { background: #f5f5f5; padding: 56px 0; }
+    .values-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    .value-card { background: white; border-radius: 12px; padding: 32px 26px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); text-align: center; }
+    .value-card .icon { font-size: 44px; margin-bottom: 14px; }
+    .value-card h3 { color: #003d66; font-size: 22px; margin-bottom: 16px; }
+    .value-card ul { list-style: none; text-align: left; }
+    .value-card li { padding-left: 24px; position: relative; margin-bottom: 10px; line-height: 1.5; color: #333; }
+    .value-card li::before { content: '•'; color: #1a5a3a; font-weight: 700; position: absolute; left: 8px; }
 
-    /* Why sellers choose */
-    .why { padding: 40px 28px 32px; text-align: center; }
-    .why h2 { color: #0d3557; font-size: 17px; letter-spacing: 2.5px; font-weight: 700; margin-bottom: 26px; text-transform: uppercase; }
-    .why-item { display: flex; align-items: flex-start; justify-content: center; gap: 12px; margin-bottom: 18px; font-size: 17px; color: #333; }
-    .why-item .check { color: #2e7d32; font-weight: 700; font-size: 18px; flex-shrink: 0; }
-
-    /* Callout */
-    .callout-wrap { background: white; padding: 28px 24px 8px; }
-    .callout {
-      background: #eaf2fb; border-left: 5px solid #2e7d32; border-radius: 6px;
-      padding: 22px 20px; font-size: 19px; text-align: center; color: #1a2b3c;
-    }
-
-    /* Search section */
-    .search-section { background: white; padding: 30px 24px 40px; }
-    .search-section > h2 { color: #0d3557; font-size: 27px; text-align: center; margin: 14px 0 28px; }
-    .search-card { border: 1px solid #ddd; border-radius: 10px; padding: 24px 20px; background: white; }
-    .search-card h3 { font-size: 20px; color: #1a1a1a; margin-bottom: 8px; }
-    .search-card .hint { color: #777; font-size: 16px; margin-bottom: 16px; }
-    .search-card input {
-      width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 6px;
-      font-family: inherit; font-size: 17px; margin-bottom: 16px;
-    }
-    .search-card input:focus { outline: none; border-color: #0d3557; box-shadow: 0 0 0 3px rgba(13, 53, 87, 0.12); }
-    .btn {
-      display: block; width: 100%; padding: 15px; background: #2e8540; color: white;
-      border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer;
-      font-family: inherit;
-    }
-    .btn:hover { background: #256b34; }
-    .btn:disabled { background: #999; cursor: not-allowed; opacity: 0.6; }
-    .or-divider { display: flex; align-items: center; gap: 16px; margin: 26px 0; color: #555; font-size: 17px; }
-    .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: #ccc; }
-
-    /* Search result / confirm step */
-    #resultPanel { display: none; margin-top: 26px; }
-    .record-card { border: 2px solid #2e8540; border-radius: 10px; padding: 24px 20px; background: white; margin-bottom: 20px; }
-    .record-card h3 { color: #0d3557; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid #0d3557; padding-bottom: 10px; margin-bottom: 18px; }
-    .rec-field { margin-bottom: 14px; }
-    .rec-field .lbl { color: #888; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
-    .rec-field .val { font-size: 17px; color: #222; }
-    .notfound {
-      background: #fdf6df; border: 1px solid #e5c664; border-radius: 8px;
-      padding: 16px; font-size: 15px; color: #6d5410; margin-bottom: 20px; text-align: center;
-    }
-    .contact-form { border: 1px solid #ddd; border-radius: 10px; padding: 24px 20px; background: white; }
-    .contact-form h3 { font-size: 20px; color: #1a1a1a; margin-bottom: 16px; }
-    .form-group { margin-bottom: 16px; }
-    label { display: block; color: #333; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
-    .contact-form input {
-      width: 100%; padding: 13px; border: 1px solid #ccc; border-radius: 6px;
+    /* Search */
+    .search-section { padding: 56px 0; background: white; }
+    .search-section h2 { color: #003d66; font-size: 30px; text-align: center; margin-bottom: 32px; }
+    .search-grid { max-width: 680px; margin: 0 auto; }
+    .search-card { border: 1px solid #ddd; border-radius: 12px; padding: 26px 22px; background: white; }
+    .search-card h3 { font-size: 20px; color: #1a1a1a; margin-bottom: 6px; }
+    .search-card .hint { color: #666; font-size: 15px; margin-bottom: 16px; }
+    .search-card label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #1a1a1a; }
+    input, textarea {
+      width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px;
       font-family: inherit; font-size: 16px;
     }
-    .contact-form input:focus { outline: none; border-color: #0d3557; box-shadow: 0 0 0 3px rgba(13, 53, 87, 0.12); }
-    .message { padding: 14px; border-radius: 6px; margin: 18px 0 0; display: none; font-size: 15px; }
-    .success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-    .error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+    input:focus, textarea:focus { outline: none; border-color: #003d66; box-shadow: 0 0 0 3px rgba(0, 61, 102, 0.12); }
+    .btn-primary {
+      display: block; width: 100%; padding: 15px; background: #003d66; color: white;
+      border: none; border-radius: 8px; font-size: 17px; font-weight: 700; cursor: pointer;
+      font-family: inherit; margin-top: 16px; transition: background 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:hover { background: #00527f; box-shadow: 0 3px 10px rgba(0,0,0,0.18); }
+    .btn-primary:disabled { background: #999; opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary {
+      display: block; width: 100%; padding: 15px; background: #f5f5f5; color: #1a1a1a;
+      border: 1px solid #ccc; border-radius: 8px; font-size: 17px; font-weight: 600; cursor: pointer;
+      font-family: inherit; margin-top: 12px; transition: background 0.15s, box-shadow 0.15s;
+    }
+    .btn-secondary:hover { background: #ebebeb; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .field-error { color: #c62828; font-size: 14px; margin-top: 6px; display: none; }
+    .or-divider { display: flex; align-items: center; gap: 16px; margin: 26px 0; color: #555; font-size: 16px; }
+    .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: #ccc; }
 
-    /* Kevin contact card */
-    .contact-card-wrap { background: white; padding: 10px 24px 36px; }
-    .contact-card {
-      background: linear-gradient(160deg, #12406b 0%, #0d3557 60%, #0a2a46 100%);
-      border-radius: 10px; color: white; text-align: center; padding: 44px 24px;
+    /* Search results */
+    #resultPanel { display: none; margin-top: 28px; }
+    .property-card { border: 2px solid #1a5a3a; border-radius: 12px; padding: 26px 22px; background: white; }
+    .property-card h3 { color: #003d66; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid #003d66; padding-bottom: 10px; margin-bottom: 18px; }
+    .p-field { margin-bottom: 14px; }
+    .p-field .lbl { color: #777; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
+    .p-field .val { font-size: 17px; color: #1a1a1a; }
+    .confirm { background: #e8f2ec; border-left: 5px solid #1a5a3a; border-radius: 6px; padding: 18px; font-size: 17px; color: #14401d; margin-top: 20px; display: none; }
+
+    /* Fallback form */
+    #fallbackPanel { display: none; margin-top: 28px; }
+    .fallback-head { background: #f5f5f5; border-radius: 8px; padding: 18px; font-size: 18px; color: #1a1a1a; text-align: center; margin-bottom: 20px; font-weight: 600; }
+    .fallback-card { border: 1px solid #ddd; border-radius: 12px; padding: 26px 22px; background: white; }
+    .form-group { margin-bottom: 16px; }
+    .message { padding: 14px; border-radius: 8px; margin-top: 18px; display: none; font-size: 16px; }
+    .message.success { background: #e8f2ec; color: #14401d; border: 1px solid #bcd8c6; }
+    .message.error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+
+    /* Process */
+    .process { background: #f5f5f5; padding: 56px 0; }
+    .process h2 { color: #003d66; font-size: 30px; text-align: center; margin-bottom: 36px; }
+    .steps { max-width: 680px; margin: 0 auto; }
+    .step { background: white; border-radius: 12px; padding: 28px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; gap: 20px; align-items: flex-start; }
+    .step .num {
+      flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; background: #003d66; color: white;
+      display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800;
     }
+    .step h3 { color: #003d66; font-size: 19px; letter-spacing: 1px; margin-bottom: 8px; }
+    .step p { color: #333; line-height: 1.6; }
+    .step-connector { width: 4px; height: 40px; background: #003d66; margin: 0 auto; border-radius: 2px; }
+
+    /* Kevin card */
+    .kevin { background: white; padding: 56px 0; }
+    .kevin-card { max-width: 560px; margin: 0 auto; background: #f5f5f5; border-radius: 14px; text-align: center; padding: 44px 28px; }
     .avatar {
-      width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,0.14);
-      margin: 0 auto 22px; display: flex; align-items: center; justify-content: center; font-size: 52px;
+      width: 110px; height: 110px; border-radius: 50%; background: #dde5ec;
+      margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 52px;
     }
-    .contact-card .name { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
-    .contact-card .role { font-size: 19px; color: #cfdae6; margin-bottom: 20px; }
-    .contact-card .line { font-size: 18px; margin-bottom: 12px; }
-    .contact-card a { color: white; text-decoration: none; }
-    .contact-card .help { margin-top: 18px; font-size: 17px; color: #dbe5ef; }
+    .kevin-card .name { font-size: 27px; font-weight: 800; color: #003d66; margin-bottom: 4px; }
+    .kevin-card .role { font-size: 18px; color: #555; margin-bottom: 18px; }
+    .kevin-card .line { font-size: 18px; margin-bottom: 10px; }
+    .kevin-card a { color: #003d66; text-decoration: underline; font-weight: 600; }
+    .kevin-card .support { margin-top: 18px; font-size: 16px; color: #333; line-height: 1.6; }
 
     /* Footer */
-    .footer { background: #f4f5f7; text-align: center; padding: 34px 24px 40px; }
-    .footer .brand { color: #0d3557; font-size: 26px; font-weight: 700; margin-bottom: 12px; }
-    .footer p { color: #555; font-size: 15px; line-height: 1.6; }
-    .admin-link { margin-top: 16px; font-size: 14px; }
-    .admin-link a { color: #0d3557; text-decoration: none; font-weight: 600; }
-    .admin-link a:hover { text-decoration: underline; }
+    .site-footer { background: #003d66; color: white; text-align: center; padding: 40px 20px; }
+    .site-footer .brand { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+    .site-footer p { color: #cfdce6; font-size: 15px; line-height: 1.7; }
+    .badges { margin-top: 16px; font-size: 14px; color: #bcd6e8; letter-spacing: 0.5px; }
+    .admin-link { margin-top: 14px; font-size: 13px; }
+    .admin-link a { color: #bcd6e8; text-decoration: underline; }
 
+    /* Login modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 50; align-items: center; justify-content: center; padding: 20px; }
+    .modal { background: white; border-radius: 12px; max-width: 400px; width: 100%; padding: 30px 26px; }
+    .modal h3 { color: #003d66; font-size: 22px; margin-bottom: 18px; }
+    .modal .close-row { text-align: right; margin-top: 6px; }
+    .modal .close-link { background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-family: inherit; font-size: 14px; }
+
+    @media (min-width: 768px) {
+      .values-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero h1 { font-size: 46px; }
+    }
+    @media (min-width: 1024px) {
+      .values-grid { grid-template-columns: repeat(3, 1fr); }
+    }
     @media (max-width: 480px) {
-      .hero h1 { font-size: 29px; }
-      .hero p { font-size: 17px; }
-      .search-section > h2 { font-size: 24px; }
+      .hero h1 { font-size: 30px; }
+      .hero .subtitle { font-size: 17px; }
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <!-- Hero -->
-    <div class="hero">
-      <h1>Instant Offer on Your Vacant Land</h1>
-      <p>You want the highest price. We deliver it.<br>No delays. No surprises.</p>
-    </div>
-
-    <div class="sheet">
-      <!-- Why sellers choose Adams Homes -->
-      <div class="why">
-        <h2>Why Sellers Choose Adams Homes</h2>
-        <div class="why-item"><span class="check">&#10003;</span><span>Highest offers on land in Palm Bay</span></div>
-        <div class="why-item"><span class="check">&#10003;</span><span>Cash buyer&mdash;funds ready now</span></div>
-        <div class="why-item"><span class="check">&#10003;</span><span>No one closes faster (30 days)</span></div>
-        <div class="why-item"><span class="check">&#10003;</span><span>35 years of proven integrity (since 1991)</span></div>
-        <div class="why-item"><span class="check">&#10003;</span><span>Top-rated builder in Palm Bay since 2001</span></div>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="brand-block">
+        <div class="brand">Adams Homes</div>
+        <div class="tagline">Value, Simplified&trade;</div>
       </div>
+      <button class="login-link" id="loginLink">Login</button>
     </div>
+  </header>
 
-    <!-- Callout -->
-    <div class="callout-wrap">
-      <div class="callout">Let's confirm your lot and get this offer going</div>
-    </div>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="eyebrow">Sell Your Vacant Land Fast</div>
+    <h1>No One Closes Faster Than Adams Homes</h1>
+    <p class="subtitle">Get your instant offer. We do all the work. You sit back and relax.</p>
+  </section>
 
-    <!-- Search Your Lot -->
-    <div class="search-section">
-      <h2>Search Your Lot</h2>
-
-      <div class="search-card">
-        <h3>Search by Owner Name</h3>
-        <p class="hint">Enter the name from Brevard County records</p>
-        <input type="text" id="ownerName" placeholder="John Smith" autocomplete="name">
-        <button type="button" class="btn" id="searchNameBtn">Search by Name</button>
-      </div>
-
-      <div class="or-divider">OR</div>
-
-      <div class="search-card">
-        <h3>Search by Street Address</h3>
-        <p class="hint">If you have it handy</p>
-        <input type="text" id="streetAddress" placeholder="123 Main Street, Palm Bay, FL" autocomplete="street-address">
-        <button type="button" class="btn" id="searchAddressBtn">Search by Address</button>
-      </div>
-
-      <!-- Result / confirmation step -->
-      <div id="resultPanel">
-        <div id="notFoundNote" class="notfound" style="display:none;">
-          We couldn't find an exact match in Brevard County records. No problem &mdash; confirm your details below and we'll verify it for you.
+  <!-- Value propositions -->
+  <section class="values">
+    <div class="container">
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="icon">&#9889;</div>
+          <h3>Fastest Closing</h3>
+          <ul>
+            <li>No one closes faster than Adams Homes</li>
+            <li>Our team gets to work right away to close you faster</li>
+            <li>Convenient mail-away process with no travel needed</li>
+          </ul>
         </div>
-        <div class="record-card" id="recordCard" style="display:none;">
-          <h3>Brevard County Record</h3>
-          <div class="rec-field"><div class="lbl">Address</div><div class="val" id="recAddress"></div></div>
-          <div class="rec-field"><div class="lbl">Parcel Number</div><div class="val" id="recParcel"></div></div>
-          <div class="rec-field"><div class="lbl">Owner</div><div class="val" id="recOwner"></div></div>
-          <div class="rec-field"><div class="lbl">Lot Size</div><div class="val" id="recLotSize"></div></div>
-          <div class="rec-field"><div class="lbl">Zoning</div><div class="val" id="recZoning"></div></div>
+        <div class="value-card">
+          <div class="icon">&#128176;</div>
+          <h3>Cash Ready</h3>
+          <ul>
+            <li>100% cash buyer with funds ready</li>
+            <li>No financing contingencies</li>
+            <li>Funds available immediately upon approval</li>
+          </ul>
         </div>
-
-        <form class="contact-form" id="submissionForm">
-          <h3>Get your offer within 24 hours</h3>
-          <div class="form-group">
-            <label for="address">Property Address *</label>
-            <input type="text" id="address" name="address" required placeholder="123 Main St, Palm Bay, FL 32907">
-          </div>
-          <div class="form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" name="firstName" placeholder="John">
-          </div>
-          <div class="form-group">
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" name="lastName" placeholder="Smith">
-          </div>
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="john@example.com">
-          </div>
-          <div class="form-group">
-            <label for="phone">Phone</label>
-            <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567">
-          </div>
-          <button type="submit" class="btn" id="submitBtn">Get My Offer</button>
-        </form>
-        <div class="message" id="message"></div>
+        <div class="value-card">
+          <div class="icon">&#10003;</div>
+          <h3>Zero Middlemen</h3>
+          <ul>
+            <li>Deal direct with Adams Homes</li>
+            <li>No agents. No brokers</li>
+            <li>No commissions or hidden fees</li>
+          </ul>
+        </div>
       </div>
     </div>
+  </section>
 
-    <!-- Kevin contact card -->
-    <div class="contact-card-wrap">
-      <div class="contact-card">
+  <!-- Search -->
+  <section class="search-section">
+    <div class="container">
+      <h2>Find Your Property</h2>
+      <div class="search-grid">
+        <div class="search-card">
+          <h3>Search by Owner Name</h3>
+          <p class="hint">Enter the name from Brevard County records</p>
+          <label for="ownerName">Owner name</label>
+          <input type="text" id="ownerName" placeholder="Enter owner name" autocomplete="name">
+          <div class="field-error" id="ownerNameError">Please enter owner name (at least 2 characters)</div>
+          <button type="button" class="btn-primary" id="searchNameBtn">Search</button>
+        </div>
+
+        <div class="or-divider">OR</div>
+
+        <div class="search-card">
+          <h3>Search by Property Address</h3>
+          <p class="hint">If you have it handy</p>
+          <label for="streetAddress">Property address</label>
+          <input type="text" id="streetAddress" placeholder="Enter property address" autocomplete="street-address">
+          <div class="field-error" id="streetAddressError">Please enter valid property address</div>
+          <button type="button" class="btn-primary" id="searchAddressBtn">Search</button>
+        </div>
+
+        <!-- Search result -->
+        <div id="resultPanel">
+          <div class="property-card">
+            <h3>Property Found</h3>
+            <div class="p-field"><div class="lbl">Address</div><div class="val" id="recAddress"></div></div>
+            <div class="p-field"><div class="lbl">Owner</div><div class="val" id="recOwner"></div></div>
+            <div class="p-field"><div class="lbl">Lot Size</div><div class="val" id="recLotSize"></div></div>
+            <div class="p-field"><div class="lbl">Zoning</div><div class="val" id="recZoning"></div></div>
+            <div class="p-field"><div class="lbl">Utilities</div><div class="val" id="recUtilities"></div></div>
+            <div class="p-field"><div class="lbl">Tax Value</div><div class="val" id="recTaxValue"></div></div>
+            <button type="button" class="btn-primary" id="confirmBtn">Yes, this is my property</button>
+            <button type="button" class="btn-secondary" id="searchAgainBtn">No, search again</button>
+            <div class="confirm" id="confirmMsg">Property verified. Kevin will send your offer within 24 hours.</div>
+            <div class="message" id="resultMessage"></div>
+          </div>
+        </div>
+
+        <!-- Fallback form -->
+        <div id="fallbackPanel">
+          <div class="fallback-head">We couldn't find your property. No problem.</div>
+          <div class="fallback-card">
+            <form id="fallbackForm" novalidate>
+              <div class="form-group">
+                <label for="fbOwnerName">Owner Name *</label>
+                <input type="text" id="fbOwnerName" required>
+                <div class="field-error" id="fbOwnerNameError">Owner name is required</div>
+              </div>
+              <div class="form-group">
+                <label for="fbAddress">Property Address *</label>
+                <input type="text" id="fbAddress" required>
+                <div class="field-error" id="fbAddressError">Property address is required</div>
+              </div>
+              <div class="form-group">
+                <label for="fbLotSize">Lot Size (optional)</label>
+                <input type="text" id="fbLotSize" placeholder="e.g. 0.25 acres">
+              </div>
+              <div class="form-group">
+                <label for="fbPhone">Contact Phone *</label>
+                <input type="tel" id="fbPhone" required placeholder="(XXX) XXX-XXXX">
+                <div class="field-error" id="fbPhoneError">Contact phone is required</div>
+              </div>
+              <div class="form-group">
+                <label for="fbEmail">Contact Email *</label>
+                <input type="email" id="fbEmail" required placeholder="you@example.com">
+                <div class="field-error" id="fbEmailError">Valid email required</div>
+              </div>
+              <div class="form-group">
+                <label for="fbNotes">Additional Notes (optional)</label>
+                <textarea id="fbNotes" rows="4" maxlength="500"></textarea>
+              </div>
+              <button type="submit" class="btn-primary">Submit - Kevin Will Research Your Lot</button>
+            </form>
+            <div class="message" id="fallbackMessage"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="process">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <div>
+            <h3>GET YOUR INSTANT OFFER</h3>
+            <p>We verify your property and send your custom offer. You review it.</p>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="num">2</div>
+          <div>
+            <h3>WE CLOSE YOUR DEAL</h3>
+            <p>Our team handles all the work. Due diligence, inspections, closing. You relax.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Kevin's contact card -->
+  <section class="kevin">
+    <div class="container">
+      <div class="kevin-card">
         <div class="avatar">&#128100;</div>
         <div class="name">Kevin Nelson</div>
         <div class="role">Land Acquisition Manager</div>
+        <div class="line"><a href="tel:4075230908">(407) 523-0908</a></div>
         <div class="line"><a href="mailto:ecland@adamshomes.com">ecland@adamshomes.com</a></div>
-        <div class="line"><a href="tel:407-523-0908">407-523-0908</a></div>
-        <div class="help">Questions? We're here to help.</div>
+        <div class="support">Kevin owns your deal from start to finish. Call him with any questions.</div>
       </div>
     </div>
+  </section>
 
-    <!-- Footer -->
-    <div class="footer">
-      <div class="brand">Adams Homes</div>
-      <p>&copy; 2026 Adams Homes. All Rights Reserved.<br>Since 1991 | Top-Rated Builder in Palm Bay Since 2001</p>
-      <div class="admin-link"><a href="admin.html">Kevin's Admin Portal</a></div>
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="brand">Adams Homes</div>
+    <p>&copy; 2026 Adams Homes. All Rights Reserved.<br>Trusted Builder in Palm Bay Since 2001</p>
+    <div class="badges">Licensed Builder &nbsp;|&nbsp; Secure SSL &nbsp;|&nbsp; Cash Buyer</div>
+    <div class="admin-link"><a href="admin.html">Kevin's Admin Portal</a></div>
+  </footer>
+
+  <!-- Login modal -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <h3>Admin Login</h3>
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" required placeholder="ecland@adamshomes.com">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" required>
+        </div>
+        <div class="field-error" id="loginError">Invalid email or password</div>
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+      <div class="close-row"><button class="close-link" id="loginClose">Close</button></div>
     </div>
   </div>
 
   <script>
     // Mock Brevard County parcel records used to verify lots client-side.
+    // The production build will replace this with the Brevard County Property
+    // Appraiser API (see project handoff, Section 6).
     const COUNTY_RECORDS = [
-      { address: '123 Maple Avenue, Palm Bay, FL 32908', parcel: '2936-02GI-10509', owner: 'John Smith', ownerContact: '123 Maple Ave, Palm Bay, FL 32908 | (321) 555-1234 | john@email.com', lotSize: '0.23 acres (10,019 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$28,500', annualTax: '$495', listPrice: 35000, listStatus: 'Active Listing', agentName: 'John Johnson', agentBrokerage: 'Keller Williams Island Life', agentPhone: '941-123-4567', agentEmail: 'john@kw-islandlife.com' },
-      { address: '456 Oak Street, Palm Bay, FL 32907', parcel: '2937-11AB-20443', owner: 'Maria Garcia', ownerContact: '456 Oak Street, Palm Bay, FL 32907 | (321) 555-2288 | maria@email.com', lotSize: '0.25 acres (10,890 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$31,200', annualTax: '$540', listPrice: 40000, listStatus: 'Active Listing', agentName: 'Sarah Lee', agentBrokerage: 'RE/MAX Elite', agentPhone: '321-555-8890', agentEmail: 'sarah@remaxelite.com' },
-      { address: '789 Pine Road, Palm Bay, FL 32909', parcel: '2938-07CD-31877', owner: 'Robert Chen', ownerContact: '789 Pine Road, Palm Bay, FL 32909 | (321) 555-3401 | rchen@email.com', lotSize: '0.28 acres (12,196 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$26,800', annualTax: '$463', listPrice: null, listStatus: 'Off-Market', agentName: null, agentBrokerage: null, agentPhone: null, agentEmail: null }
+      { address: '123 Maple Avenue, Palm Bay, FL 32908', parcel: '2936-02GI-10509', owner: 'John Smith', ownerContact: '123 Maple Ave, Palm Bay, FL 32908 | (321) 555-1234 | john@email.com', ownerEmail: 'john@email.com', lotSize: '0.23 acres (10,019 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$28,500', annualTax: '$495', listPrice: 35000, listStatus: 'Active Listing', agentName: 'John Johnson', agentBrokerage: 'Keller Williams Island Life', agentPhone: '941-123-4567', agentEmail: 'john@kw-islandlife.com' },
+      { address: '456 Oak Street, Palm Bay, FL 32907', parcel: '2937-11AB-20443', owner: 'Maria Garcia', ownerContact: '456 Oak Street, Palm Bay, FL 32907 | (321) 555-2288 | maria@email.com', ownerEmail: 'maria@email.com', lotSize: '0.25 acres (10,890 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$31,200', annualTax: '$540', listPrice: 40000, listStatus: 'Active Listing', agentName: 'Sarah Lee', agentBrokerage: 'RE/MAX Elite', agentPhone: '321-555-8890', agentEmail: 'sarah@remaxelite.com' },
+      { address: '789 Pine Road, Palm Bay, FL 32909', parcel: '2938-07CD-31877', owner: 'Robert Chen', ownerContact: '789 Pine Road, Palm Bay, FL 32909 | (321) 555-3401 | rchen@email.com', ownerEmail: 'rchen@email.com', lotSize: '0.28 acres (12,196 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$26,800', annualTax: '$463', listPrice: null, listStatus: 'Off-Market', agentName: null, agentBrokerage: null, agentPhone: null, agentEmail: null }
     ];
 
     const resultPanel = document.getElementById('resultPanel');
-    const recordCard = document.getElementById('recordCard');
-    const notFoundNote = document.getElementById('notFoundNote');
-    const messageEl = document.getElementById('message');
+    const fallbackPanel = document.getElementById('fallbackPanel');
+    const confirmMsg = document.getElementById('confirmMsg');
+    const resultMessage = document.getElementById('resultMessage');
     let matchedRecord = null;
 
     function normalize(s) { return (s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+    function showError(id, show) { document.getElementById(id).style.display = show ? 'block' : 'none'; }
 
-    function showResult(record, searchedAddress) {
-      matchedRecord = record || null;
+    function showMatch(record) {
+      matchedRecord = record;
+      fallbackPanel.style.display = 'none';
       resultPanel.style.display = 'block';
-      if (record) {
-        notFoundNote.style.display = 'none';
-        recordCard.style.display = 'block';
-        document.getElementById('recAddress').textContent = record.address;
-        document.getElementById('recParcel').textContent = record.parcel;
-        document.getElementById('recOwner').textContent = record.owner;
-        document.getElementById('recLotSize').textContent = record.lotSize;
-        document.getElementById('recZoning').textContent = record.zoning;
-        document.getElementById('address').value = record.address;
-        const parts = record.owner.split(' ');
-        document.getElementById('firstName').value = parts[0] || '';
-        document.getElementById('lastName').value = parts.slice(1).join(' ') || '';
-      } else {
-        recordCard.style.display = 'none';
-        notFoundNote.style.display = 'block';
-        if (searchedAddress) document.getElementById('address').value = searchedAddress;
-      }
+      confirmMsg.style.display = 'none';
+      resultMessage.style.display = 'none';
+      document.getElementById('confirmBtn').disabled = false;
+      document.getElementById('recAddress').textContent = record.address;
+      document.getElementById('recOwner').textContent = record.owner;
+      document.getElementById('recLotSize').textContent = record.lotSize;
+      document.getElementById('recZoning').textContent = record.zoning;
+      document.getElementById('recUtilities').textContent = record.utilities;
+      document.getElementById('recTaxValue').textContent = record.taxValue;
       resultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
+    function showFallback(prefill) {
+      matchedRecord = null;
+      resultPanel.style.display = 'none';
+      fallbackPanel.style.display = 'block';
+      if (prefill.ownerName) document.getElementById('fbOwnerName').value = prefill.ownerName;
+      if (prefill.address) document.getElementById('fbAddress').value = prefill.address;
+      fallbackPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     document.getElementById('searchNameBtn').addEventListener('click', function() {
-      const q = normalize(document.getElementById('ownerName').value);
-      if (!q) return;
+      const raw = document.getElementById('ownerName').value.trim();
+      const valid = raw.length >= 2;
+      showError('ownerNameError', !valid);
+      if (!valid) return;
+      const q = normalize(raw);
       const rec = COUNTY_RECORDS.find(r => normalize(r.owner).includes(q) || q.includes(normalize(r.owner)));
-      showResult(rec, '');
+      rec ? showMatch(rec) : showFallback({ ownerName: raw });
     });
 
     document.getElementById('searchAddressBtn').addEventListener('click', function() {
       const raw = document.getElementById('streetAddress').value.trim();
+      const valid = raw.length >= 5;
+      showError('streetAddressError', !valid);
+      if (!valid) return;
       const q = normalize(raw);
-      if (!q) return;
       const rec = COUNTY_RECORDS.find(r => normalize(r.address).includes(q) || q.includes(normalize(r.address).slice(0, 12)));
-      showResult(rec, raw);
+      rec ? showMatch(rec) : showFallback({ address: raw });
     });
 
-    document.getElementById('submissionForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+    document.getElementById('searchAgainBtn').addEventListener('click', function() {
+      resultPanel.style.display = 'none';
+      matchedRecord = null;
+      document.getElementById('ownerName').focus();
+      document.querySelector('.search-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    function saveLead(fields) {
       const submissions = JSON.parse(localStorage.getItem('landAcqSubmissions') || '[]');
-      const address = document.getElementById('address').value.trim();
-      const firstName = document.getElementById('firstName').value.trim();
-      const lastName = document.getElementById('lastName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const normalized = address.toLowerCase();
-      const isDuplicate = submissions.some(s => (s.address || '').toLowerCase() === normalized);
-      if (isDuplicate) {
-        messageEl.classList.remove('success');
-        messageEl.classList.add('error');
-        messageEl.textContent = '✗ This property has already been submitted. You will receive an offer within 24 hours.';
-        messageEl.style.display = 'block';
-        return;
-      }
-      const rec = matchedRecord || {};
-      const submission = {
+      const normalized = (fields.address || '').toLowerCase();
+      if (submissions.some(s => (s.address || '').toLowerCase() === normalized)) return 'duplicate';
+      submissions.push(Object.assign({
         id: Date.now(),
-        address, firstName, lastName, email, phone,
         status: 'pending',
         createdAt: new Date().toISOString(),
-        source: 'QR Landing Page',
-        offer: rec.listPrice ? '$' + (rec.listPrice - 2000).toLocaleString() : '$30,000',
-        parcel: rec.parcel || null,
-        owner: rec.owner || ((firstName + ' ' + lastName).trim() || null),
-        ownerContact: rec.ownerContact || [address, phone, email].filter(Boolean).join(' | '),
-        lotSize: rec.lotSize || null,
-        zoning: rec.zoning || null,
-        utilities: rec.utilities || null,
-        taxValue: rec.taxValue || null,
-        annualTax: rec.annualTax || null,
-        listPrice: rec.listPrice || null,
-        listStatus: rec.listStatus || null,
-        agentName: rec.agentName || null,
-        agentBrokerage: rec.agentBrokerage || null,
-        agentPhone: rec.agentPhone || null,
-        agentEmail: rec.agentEmail || null,
-        verified: !!matchedRecord
-      };
-      submissions.push(submission);
+        source: 'QR Landing Page'
+      }, fields));
       localStorage.setItem('landAcqSubmissions', JSON.stringify(submissions));
-      messageEl.classList.remove('error');
-      messageEl.classList.add('success');
-      messageEl.textContent = '✓ Success! We received your property. You will get a custom offer within 24 hours.';
-      messageEl.style.display = 'block';
-      document.getElementById('submissionForm').reset();
-      matchedRecord = null;
-      recordCard.style.display = 'none';
-      notFoundNote.style.display = 'none';
-      setTimeout(() => { messageEl.style.display = 'none'; }, 5000);
+      return 'ok';
+    }
+
+    document.getElementById('confirmBtn').addEventListener('click', function() {
+      if (!matchedRecord) return;
+      const rec = matchedRecord;
+      const result = saveLead({
+        address: rec.address,
+        firstName: rec.owner.split(' ')[0],
+        lastName: rec.owner.split(' ').slice(1).join(' '),
+        email: rec.ownerEmail || '',
+        phone: '',
+        parcel: rec.parcel, owner: rec.owner, ownerContact: rec.ownerContact,
+        lotSize: rec.lotSize, zoning: rec.zoning, utilities: rec.utilities,
+        taxValue: rec.taxValue, annualTax: rec.annualTax,
+        listPrice: rec.listPrice, listStatus: rec.listStatus,
+        agentName: rec.agentName, agentBrokerage: rec.agentBrokerage,
+        agentPhone: rec.agentPhone, agentEmail: rec.agentEmail,
+        verified: true
+      });
+      if (result === 'duplicate') {
+        resultMessage.className = 'message error';
+        resultMessage.textContent = 'This property has already been submitted. Kevin will send your offer within 24 hours.';
+        resultMessage.style.display = 'block';
+        return;
+      }
+      confirmMsg.style.display = 'block';
+      this.disabled = true;
+    });
+
+    // Fallback form validation + submit
+    document.getElementById('fallbackForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const ownerName = document.getElementById('fbOwnerName').value.trim();
+      const address = document.getElementById('fbAddress').value.trim();
+      const lotSize = document.getElementById('fbLotSize').value.trim();
+      const phone = document.getElementById('fbPhone').value.trim();
+      const email = document.getElementById('fbEmail').value.trim();
+      const notes = document.getElementById('fbNotes').value.trim();
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      showError('fbOwnerNameError', !ownerName);
+      showError('fbAddressError', !address);
+      showError('fbPhoneError', !phone);
+      showError('fbEmailError', !emailOk);
+      if (!ownerName || !address || !phone || !emailOk) return;
+      const msg = document.getElementById('fallbackMessage');
+      const result = saveLead({
+        address,
+        firstName: ownerName.split(' ')[0],
+        lastName: ownerName.split(' ').slice(1).join(' '),
+        owner: ownerName, email, phone, lotSize: lotSize || null, notes: notes || null,
+        ownerContact: [address, phone, email].filter(Boolean).join(' | '),
+        verified: false
+      });
+      if (result === 'duplicate') {
+        msg.className = 'message error';
+        msg.textContent = 'This property has already been submitted. Kevin will contact you within 24 hours.';
+        msg.style.display = 'block';
+        return;
+      }
+      msg.className = 'message success';
+      msg.textContent = 'Thanks! Kevin will contact you within 24 hours.';
+      msg.style.display = 'block';
+      this.reset();
+    });
+
+    // Login modal
+    const loginModal = document.getElementById('loginModal');
+    document.getElementById('loginLink').addEventListener('click', () => { loginModal.style.display = 'flex'; });
+    document.getElementById('loginClose').addEventListener('click', () => { loginModal.style.display = 'none'; });
+    loginModal.addEventListener('click', e => { if (e.target === loginModal) loginModal.style.display = 'none'; });
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password) {
+        showError('loginError', true);
+        return;
+      }
+      // Demo auth only — the production build validates against the backend (JWT).
+      sessionStorage.setItem('landAcqAdmin', email);
+      window.location.href = 'admin.html';
     });
   </script>
 </body>
