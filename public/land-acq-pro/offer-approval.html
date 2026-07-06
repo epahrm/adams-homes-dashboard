@@ -269,11 +269,11 @@
           <div class="t-row"><span class="t-lbl">Offer expires (14 days)</span><span class="t-val" id="tExpires">—</span></div>
           <div class="t-row"><span class="t-lbl">Seller contract received</span><span class="t-val" id="tSellerRcvd">—</span></div>
           <div class="t-row"><span class="t-lbl">Elizabeth signed (official)</span><span class="t-val" id="tEpSigned">—</span></div>
-          <div class="t-row"><span class="t-lbl">Inspection period ends</span><span class="t-val" id="tIp">—</span></div>
-          <div class="t-row"><span class="t-lbl">Contract closing date</span><span class="t-val" id="tDefaultClose">—</span></div>
-          <div class="t-row"><span class="t-lbl">Actual close (Thursday)</span><span class="t-val" id="tActualClose">—</span></div>
+          <div class="t-row"><span class="t-lbl">Due diligence / IP ends (45 days)</span><span class="t-val" id="tIp">—</span></div>
+          <div class="t-row"><span class="t-lbl">Contract closing date (+10 business days)</span><span class="t-val" id="tDefaultClose">—</span></div>
+          <div class="t-row"><span class="t-lbl">Actual close (Thursday on/before)</span><span class="t-val" id="tActualClose">—</span></div>
         </div>
-        <div class="placeholder-note">Inspection period and closing offsets are placeholders (IP = sign + 10 days; closing = sign + 45 days) until the contract template is loaded. We close on the Thursday on/before the contract closing date.</div>
+        <div class="placeholder-note">Per the Vacant Land Contract: Effective Date = your signature; due diligence / inspection period = 45 days; contract closing = 10 business days after due diligence ends; we close the Thursday on/before that date.</div>
       </div>
 
       <!-- Documents -->
@@ -294,7 +294,7 @@
           <button type="button" class="btn btn-outline" id="previewPacketBtn">Preview Cover Letter</button>
         </div>
         <div class="packet" id="packetPreview"></div>
-        <div class="hint" style="margin-top:8px;">Contract template: <span id="templateStatus">not yet uploaded — Elizabeth to provide</span>.</div>
+        <div class="hint" style="margin-top:8px;">Contract template: <a class="county-link" href="contract-template.pdf" target="_blank" rel="noopener">Vacant Land Contract (VAC-14)</a> — attached to the packet.</div>
       </div>
 
       <!-- Notifications -->
@@ -322,8 +322,9 @@
     const STIPEND_LABELS = { 'well-septic': 'Well / Septic', 'water-septic': 'Water / Septic', 'water-sewer': 'Water / Sewer' };
     const STATUS_KEY = 'landAcqStipend';
     const OFFER_VALID_DAYS = 14;
-    const IP_DAYS = 10;         // placeholder — confirm from contract
-    const DAYS_TO_CLOSE = 45;   // placeholder — confirm from contract
+    // From the Florida Realtors Vacant Land Contract (VAC-14):
+    const DD_PERIOD_DAYS = 45;          // §9 Due Diligence / inspection period after Effective Date
+    const BUSINESS_DAYS_TO_CLOSE = 10;  // §4 closing = 10 business days after Due Diligence ends
     const PREMIUMS = [
       { key: 'corner', label: 'Corner lot', amount: 8000 },
       { key: 'extended-driveway', label: 'Extended driveway', amount: null },
@@ -351,6 +352,7 @@
     function num(v) { const n = Number(String(v == null ? '' : v).replace(/[^0-9.\-]/g, '')); return Number.isFinite(n) ? n : 0; }
     function fmtDate(iso) { return iso ? new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '—'; }
     function addDays(iso, d) { const x = new Date(iso); x.setDate(x.getDate() + d); return x.toISOString(); }
+    function addBusinessDays(iso, n) { const x = new Date(iso); let added = 0; while (added < n) { x.setDate(x.getDate() + 1); const d = x.getDay(); if (d !== 0 && d !== 6) added++; } return x.toISOString(); }
     function thursdayOnOrBefore(iso) { const x = new Date(iso); const diff = (x.getDay() - 4 + 7) % 7; x.setDate(x.getDate() - diff); return x.toISOString(); }
 
     async function verifyPassword(password) {
@@ -631,10 +633,10 @@
 
     async function elizabethSign() {
       if (!isElizabeth()) return msg('Only Elizabeth can sign.', false);
-      const now = new Date().toISOString();
-      const ip = addDays(now, IP_DAYS);
-      const defClose = addDays(now, DAYS_TO_CLOSE);
-      const actualClose = thursdayOnOrBefore(defClose);
+      const now = new Date().toISOString();               // Effective Date = Buyer (Elizabeth) signs last
+      const ip = addDays(now, DD_PERIOD_DAYS);             // §9: due diligence / IP = 45 days after Effective Date
+      const defClose = addBusinessDays(ip, BUSINESS_DAYS_TO_CLOSE); // §4: 10 business days after DD ends
+      const actualClose = thursdayOnOrBefore(defClose);   // we only close on Thursdays
       const sellerEmail = lot.email || (lot.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@')) || 'seller';
       const set = {
         status: 'ip', epSignedAt: now, epSignedBy: currentUser(),
