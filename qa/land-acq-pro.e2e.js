@@ -134,11 +134,32 @@ async function noHorizontalOverflow(page) {
     check('admin: gate blocks dashboard', await page.locator('#gateOverlay').isVisible());
     await page.click('#gateForm button');
     check('admin: empty password rejected', await page.locator('#gateError').isVisible());
+    await page.selectOption('#gateRole', 'Elizabeth Porter');
     await page.fill('#gatePassword', 'AdamsHomes2026!');
     await page.click('#gateForm button');
     await page.waitForSelector('#lotRows tr');
     check('admin: offline demo banner shows when server unreachable',
       await page.locator('#modeBanner').isVisible());
+    check('admin: signed-in user shown in header',
+      (await page.textContent('.topbar .who')).includes('Elizabeth'));
+
+    // ---------- Stipend panel ----------
+    const stipendTiles = await page.locator('#stipendGrid .stipend-tile').count();
+    check('stipend tiles render (3 utility types)', stipendTiles === 3);
+    check('water/sewer stipend default is $50,000',
+      (await page.textContent('#stipendGrid')).includes('$50,000'));
+    await page.click('#stipendEditBtn');
+    await page.fill('input[data-key="water-sewer"]', '52000');
+    await page.click('#stipendForm button[type=submit]');
+    await page.waitForSelector('#stipendMsg.ok', { timeout: 10000 });
+    check('stipend save confirms', (await page.textContent('#stipendMsg')).includes('Elizabeth'));
+    check('stipend tile updated to $52,000',
+      (await page.textContent('#stipendGrid')).includes('$52,000'));
+    const auditText = await page.textContent('#stipendAuditList');
+    check('stipend change audit-logged with user + from/to',
+      auditText.includes('Elizabeth') && auditText.includes('$50,000') && auditText.includes('$52,000'));
+    check('stipend column present in table',
+      (await page.locator('table thead th').allTextContents()).includes('Stipend'));
 
     // ---------- Data sync to admin ----------
     const tableText = await page.textContent('#lotRows');

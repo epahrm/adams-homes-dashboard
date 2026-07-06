@@ -34,6 +34,36 @@
     .target { background: #e6f4e8; border-left: 5px solid #1a5a3a; border-radius: 6px; padding: 16px 18px; font-size: 17px; margin-bottom: 24px; }
     .target b { color: #14401d; }
 
+    /* Stipend panel */
+    .stipend-panel { border: 2px solid #003d66; border-radius: 12px; background: #f3f8fd; padding: 18px 18px 12px; margin-bottom: 24px; }
+    .stipend-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .stipend-head h3 { color: #003d66; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; }
+    .stipend-head .sub { display: block; font-size: 12px; letter-spacing: 0.3px; text-transform: none; color: #667; font-weight: 400; margin-top: 3px; }
+    .stipend-edit { background: white; border: 1px solid #003d66; color: #003d66; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; min-height: 40px; }
+    .stipend-edit:hover { background: #eaf2fb; }
+    .stipend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+    .stipend-tile { background: white; border: 1px solid #d5e2f0; border-radius: 10px; padding: 14px 16px; }
+    .stipend-tile .st-lbl { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #667; margin-bottom: 4px; }
+    .stipend-tile .st-val { font-size: 24px; font-weight: 800; color: #003d66; }
+    .stipend-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    .stipend-field label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 5px; }
+    .stipend-field input { width: 100%; padding: 11px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; }
+    .stipend-form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stipend-form-actions button { padding: 11px 18px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; min-height: 44px; }
+    .stipend-msg { margin-top: 10px; font-size: 14px; display: none; }
+    .stipend-msg.ok { color: #14401d; display: block; }
+    .stipend-msg.err { color: #b02a1a; display: block; }
+    .stipend-audit { margin-top: 12px; }
+    .stipend-audit summary { cursor: pointer; font-size: 14px; color: #003d66; font-weight: 600; }
+    .stipend-audit ul { list-style: none; margin-top: 10px; }
+    .stipend-audit li { font-size: 13px; color: #445; padding: 6px 0; border-top: 1px solid #e0e8f1; }
+    .stipend-audit li.empty { color: #889; border-top: none; }
+    .stipend-audit li b { color: #003d66; }
+
+    td.stipend-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    td.stipend-cell .over { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 700; color: #b02a1a; background: #fdecea; border: 1px solid #f3c3bb; border-radius: 6px; padding: 1px 6px; letter-spacing: 0.5px; }
+    tr.over-stipend { background: #fef7f6 !important; }
+
     /* Filters */
     .filters { border: 1px solid #ddd; border-radius: 10px; background: #fafafa; padding: 20px 18px; margin-bottom: 24px; }
     .filter-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
@@ -50,7 +80,8 @@
     .metric .m-val { font-size: 20px; font-weight: 800; color: #003d66; }
 
     /* Table */
-    table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+    .table-wrap { overflow-x: auto; margin-bottom: 18px; }
+    table { width: 100%; border-collapse: collapse; min-width: 340px; }
     thead th { text-align: left; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: white; padding: 12px 10px; background: #003d66; }
     tbody td { padding: 16px 10px; border-bottom: 1px solid #e2e2e2; font-size: 16px; vertical-align: middle; }
     tbody tr { cursor: pointer; }
@@ -61,6 +92,9 @@
     .pill { display: inline-block; padding: 7px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
     .pill.pending { background: #fbe9a9; color: #6d5410; }
     .pill.offer-sent { background: #cde9f0; color: #145263; }
+    .pill.seller-signed { background: #cfe0fb; color: #1c3f7a; }
+    .pill.awaiting-signature { background: #ffe0b3; color: #8a5200; }
+    .pill.executed { background: #b8e3bd; color: #14401d; }
     .pill.signed { background: #cfe0fb; color: #1c3f7a; }
     .pill.due-diligence { background: #fbe0c2; color: #7a4a10; }
     .pill.post-inspection { background: #dcd6f5; color: #3b2f7a; }
@@ -100,6 +134,8 @@
     .gate p { color: #666; font-size: 14px; margin-bottom: 18px; }
     .gate input { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; margin-bottom: 8px; }
     .gate input:focus { outline: none; border-color: #003d66; box-shadow: 0 0 0 3px rgba(0,61,102,0.12); }
+    .gate .gate-label { display: block; text-align: left; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .gate select { width: 100%; padding: 12px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; margin-bottom: 12px; background: white; }
     .gate .gate-error { color: #c62828; font-size: 14px; margin-bottom: 8px; display: none; }
     .gate button { width: 100%; padding: 14px; background: #003d66; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 6px; }
     .gate button:hover { background: #0a4f8e; }
@@ -116,6 +152,11 @@
       <h2>Admin Access</h2>
       <p>Enter the admin password to open the pipeline.</p>
       <form id="gateForm">
+        <label class="gate-label" for="gateRole">Sign in as</label>
+        <select id="gateRole" aria-label="Sign in as">
+          <option value="Kevin Nelson">Kevin Nelson</option>
+          <option value="Elizabeth Porter">Elizabeth Porter</option>
+        </select>
         <input type="password" id="gatePassword" placeholder="Password" aria-label="Admin password" autocomplete="current-password">
         <div class="gate-error" id="gateError">Invalid password</div>
         <button type="submit">Unlock Dashboard</button>
@@ -127,7 +168,7 @@
     <div class="topbar">
       <h1>Land Acquisition Pipeline</h1>
       <div class="who"><div class="avatar">K</div><div>Kevin Nelson |<br>Palm Bay Division</div></div>
-      <button class="logout" onclick="sessionStorage.removeItem('laAdminKey'); sessionStorage.removeItem('laMode'); window.location.href='index.html'">Logout</button>
+      <button class="logout" onclick="sessionStorage.removeItem('laAdminKey'); sessionStorage.removeItem('laMode'); sessionStorage.removeItem('laRole'); window.location.href='index.html'">Logout</button>
     </div>
 
     <div class="content">
@@ -146,6 +187,27 @@
 
       <div class="target"><b>Target:</b> 50 lots/month | <b>Current:</b> <span id="targetCurrent">0</span> sent <span id="targetCheck"></span></div>
 
+      <!-- Stipend settings -->
+      <div class="stipend-panel">
+        <div class="stipend-head">
+          <h3>Approved Lot Stipends <span class="sub">Palm Bay &mdash; max price by utility type</span></h3>
+          <button type="button" class="stipend-edit" id="stipendEditBtn">Edit Stipends</button>
+        </div>
+        <div class="stipend-grid" id="stipendGrid"></div>
+        <form class="stipend-form" id="stipendForm" style="display:none;">
+          <div class="stipend-fields" id="stipendFields"></div>
+          <div class="stipend-form-actions">
+            <button type="submit" class="btn-green">Save Stipends</button>
+            <button type="button" class="btn-outline" id="stipendCancel">Cancel</button>
+          </div>
+        </form>
+        <div class="stipend-msg" id="stipendMsg"></div>
+        <details class="stipend-audit">
+          <summary>Change history</summary>
+          <ul id="stipendAuditList"><li class="empty">No changes recorded yet.</li></ul>
+        </details>
+      </div>
+
       <div class="filters">
         <div class="filter-row"><label for="fCity">City:</label>
           <select id="fCity"><option value="all">All Cities</option><option value="palm-bay" selected>Palm Bay</option></select>
@@ -155,6 +217,9 @@
             <option value="all" selected>All Statuses</option>
             <option value="pending">Pending</option>
             <option value="offer-sent">Offer Sent</option>
+            <option value="seller-signed">Seller Signed</option>
+            <option value="awaiting-signature">Awaiting Your Signature</option>
+            <option value="executed">Executed</option>
             <option value="signed">Signed</option>
             <option value="due-diligence">Due Diligence</option>
             <option value="post-inspection">Post-Inspection</option>
@@ -191,10 +256,12 @@
         <div class="metric"><span class="m-lbl">Commission Tracked</span><span class="m-val" id="mCommission">&ndash;</span></div>
       </div>
 
-      <table>
-        <thead><tr><th>Address</th><th>List Price</th><th>Status</th></tr></thead>
-        <tbody id="lotRows"></tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Address</th><th>List Price</th><th>Stipend</th><th>Status</th></tr></thead>
+          <tbody id="lotRows"></tbody>
+        </table>
+      </div>
 
       <div class="pager" id="pager"></div>
 
@@ -218,12 +285,48 @@
     const PAGE_SIZE = 6;
     const OUTREACH_BASELINE = 150; // direct-mail pieces sent before digital tracking began
     const API_LOTS = '/api/land-acq/lots';
+    const API_SETTINGS = '/api/land-acq/settings';
+    const STIPEND_KEY = 'landAcqStipend';
+    const DEFAULT_STIPENDS = { 'well-septic': 30000, 'water-septic': 30000, 'water-sewer': 50000 };
+    const STIPEND_LABELS = { 'well-septic': 'Well / Septic', 'water-septic': 'Water / Septic', 'water-sewer': 'Water / Sewer' };
     let currentPage = 1;
     let mode = null;          // 'server' = shared store (Kevin + Elizabeth), 'local' = offline demo
     let lastLots = [];        // last loaded lots, for exports
+    let stipendState = { defaults: Object.assign({}, DEFAULT_STIPENDS), audit: [] };
+
+    function currentUser() { return sessionStorage.getItem('laRole') || 'Admin'; }
 
     function adminHeaders() {
       return { 'X-Admin-Key': sessionStorage.getItem('laAdminKey') || '' };
+    }
+
+    function money(n) { return '$' + Number(n || 0).toLocaleString('en-US'); }
+
+    // Infer a lot's utility type from its county utilities text so the right
+    // stipend applies even before Kevin sets it explicitly.
+    function inferUtilityType(l) {
+      if (l.utilityType) return l.utilityType;
+      const u = (l.utilities || '').toLowerCase();
+      if (!u) return null;
+      const water = /water:\s*city|city water|water:\s*available/.test(u) && !/water:\s*none/.test(u);
+      const sewer = /sewer:\s*city|city sewer/.test(u) && !/sewer:\s*none/.test(u);
+      if (water && sewer) return 'water-sewer';
+      if (water && !sewer) return 'water-septic';
+      return 'well-septic';
+    }
+
+    // The stipend that applies to a lot: its saved snapshot if set, otherwise
+    // the current default for its (inferred) utility type.
+    function lotStipend(l) {
+      if (typeof l.lotStipend === 'number') return l.lotStipend;
+      const t = inferUtilityType(l);
+      return t ? stipendState.defaults[t] : null;
+    }
+
+    function offerNumber(l) {
+      if (!l.offer) return null;
+      const n = Number(String(l.offer).replace(/[^0-9.]/g, ''));
+      return Number.isFinite(n) && n > 0 ? n : null;
     }
 
     async function verifyPassword(password) {
@@ -309,8 +412,9 @@
     }
 
     const PILL_LABELS = {
-      'pending': 'PENDING', 'offer-sent': 'OFFER SENT', 'signed': 'SIGNED',
-      'due-diligence': 'DUE DIL.', 'post-inspection': 'POST-INSP.',
+      'pending': 'PENDING', 'offer-sent': 'OFFER SENT',
+      'seller-signed': 'SELLER SIGNED', 'awaiting-signature': 'AWAITING YOU', 'executed': 'EXECUTED',
+      'signed': 'SIGNED', 'due-diligence': 'DUE DIL.', 'post-inspection': 'POST-INSP.',
       'ready-to-close': 'READY', 'closed': 'CLOSED', 'declined': 'DECLINED'
     };
 
@@ -362,14 +466,31 @@
       const tbody = document.getElementById('lotRows');
       tbody.innerHTML = '';
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="3" class="empty">No lots match the current filters.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="empty">No lots match the current filters.</td></tr>';
       }
       rows.forEach(l => {
         const tr = document.createElement('tr');
         const st = l.displayStatus in PILL_LABELS ? l.displayStatus : 'pending';
-        tr.innerHTML = '<td class="addr"></td><td></td><td><span class="pill ' + st + '">' + PILL_LABELS[st] + '</span></td>';
+        tr.innerHTML = '<td class="addr"></td><td></td><td class="stipend-cell"></td><td><span class="pill ' + st + '">' + PILL_LABELS[st] + '</span></td>';
         tr.children[0].textContent = l.address || '—';
         tr.children[1].textContent = listPriceLabel(l);
+        // Stipend cell + over-stipend flag
+        const stip = lotStipend(l);
+        const offer = offerNumber(l);
+        const stipCell = tr.children[2];
+        if (stip == null) {
+          stipCell.textContent = '—';
+        } else {
+          stipCell.textContent = money(stip);
+          if (offer != null && offer > stip) {
+            const flag = document.createElement('span');
+            flag.className = 'over';
+            flag.textContent = 'OVER';
+            flag.title = 'Offer ' + money(offer) + ' exceeds the stipend';
+            stipCell.appendChild(flag);
+            tr.classList.add('over-stipend');
+          }
+        }
         tr.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
         tbody.appendChild(tr);
       });
@@ -401,16 +522,138 @@
     document.getElementById('exportCsv').addEventListener('click', () => {
       const lots = applyFilters(lastLots);
       const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-      const head = ['Address','List Price','Status','Source','Owner','Parcel','Offer','Created'];
-      const lines = [head.join(',')].concat(lots.map(l =>
-        [l.address, listPriceLabel(l), PILL_LABELS[l.displayStatus] || l.displayStatus, l.source || 'QR Landing Page', l.owner || '', l.parcel || '', l.offer || '', l.createdAt].map(esc).join(',')
-      ));
+      const head = ['Address','List Price','Stipend','Utility Type','Status','Source','Owner','Parcel','Offer','Created'];
+      const lines = [head.join(',')].concat(lots.map(l => {
+        const stip = lotStipend(l);
+        return [l.address, listPriceLabel(l), stip == null ? '' : money(stip), STIPEND_LABELS[inferUtilityType(l)] || '', PILL_LABELS[l.displayStatus] || l.displayStatus, l.source || 'QR Landing Page', l.owner || '', l.parcel || '', l.offer || '', l.createdAt].map(esc).join(',');
+      }));
       const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'palm-bay-lot-pipeline.csv';
       a.click();
       URL.revokeObjectURL(a.href);
+    });
+
+    // ---------- Stipend settings (shared, audit-logged) ----------
+    async function loadStipends() {
+      if (mode === 'server') {
+        try {
+          const res = await fetch(API_SETTINGS, { headers: adminHeaders(), signal: AbortSignal.timeout(9000) });
+          if (res.ok) {
+            const body = await res.json();
+            stipendState = { defaults: Object.assign({}, DEFAULT_STIPENDS, body.defaults), audit: body.audit || [] };
+            return;
+          }
+        } catch (e) { /* fall through to local */ }
+      }
+      const raw = localStorage.getItem(STIPEND_KEY);
+      stipendState = raw ? JSON.parse(raw) : { defaults: Object.assign({}, DEFAULT_STIPENDS), audit: [] };
+    }
+
+    async function saveStipends(nextDefaults) {
+      const changedBy = currentUser();
+      const when = new Date().toISOString();
+      if (mode === 'server') {
+        const res = await fetch(API_SETTINGS, {
+          method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, adminHeaders()),
+          body: JSON.stringify({ defaults: nextDefaults, changedBy }), signal: AbortSignal.timeout(9000)
+        });
+        if (!res.ok) throw new Error('save failed');
+        stipendState = await res.json();
+        return;
+      }
+      // Offline demo: record audit entries locally.
+      const audit = stipendState.audit.slice();
+      Object.keys(nextDefaults).forEach(key => {
+        const from = Number(stipendState.defaults[key] ?? DEFAULT_STIPENDS[key]);
+        if (from !== nextDefaults[key]) audit.unshift({ key, from, to: nextDefaults[key], changedBy, when });
+      });
+      stipendState = { defaults: nextDefaults, audit: audit.slice(0, 200) };
+      localStorage.setItem(STIPEND_KEY, JSON.stringify(stipendState));
+    }
+
+    function renderStipends() {
+      const grid = document.getElementById('stipendGrid');
+      grid.innerHTML = '';
+      Object.keys(DEFAULT_STIPENDS).forEach(key => {
+        const tile = document.createElement('div');
+        tile.className = 'stipend-tile';
+        tile.innerHTML = '<div class="st-lbl"></div><div class="st-val"></div>';
+        tile.children[0].textContent = STIPEND_LABELS[key];
+        tile.children[1].textContent = money(stipendState.defaults[key]);
+        grid.appendChild(tile);
+      });
+      // Audit list
+      const list = document.getElementById('stipendAuditList');
+      list.innerHTML = '';
+      if (!stipendState.audit.length) {
+        list.innerHTML = '<li class="empty">No changes recorded yet.</li>';
+      } else {
+        stipendState.audit.forEach(a => {
+          const li = document.createElement('li');
+          const d = new Date(a.when).toLocaleString();
+          li.innerHTML = '<b></b> changed <b></b> from <span></span> to <span></span> &middot; <span></span>';
+          li.children[0].textContent = a.changedBy;
+          li.children[1].textContent = STIPEND_LABELS[a.key] || a.key;
+          li.children[2].textContent = money(a.from);
+          li.children[3].textContent = money(a.to);
+          li.children[4].textContent = d;
+          list.appendChild(li);
+        });
+      }
+    }
+
+    document.getElementById('stipendEditBtn').addEventListener('click', () => {
+      const fields = document.getElementById('stipendFields');
+      fields.innerHTML = '';
+      Object.keys(DEFAULT_STIPENDS).forEach(key => {
+        const wrap = document.createElement('div');
+        wrap.className = 'stipend-field';
+        wrap.innerHTML = '<label></label><input type="number" min="0" step="500">';
+        wrap.querySelector('label').textContent = STIPEND_LABELS[key] + ' ($)';
+        const input = wrap.querySelector('input');
+        input.value = stipendState.defaults[key];
+        input.dataset.key = key;
+        fields.appendChild(wrap);
+      });
+      document.getElementById('stipendForm').style.display = 'block';
+      document.getElementById('stipendEditBtn').style.display = 'none';
+    });
+
+    document.getElementById('stipendCancel').addEventListener('click', () => {
+      document.getElementById('stipendForm').style.display = 'none';
+      document.getElementById('stipendEditBtn').style.display = '';
+      document.getElementById('stipendMsg').className = 'stipend-msg';
+    });
+
+    document.getElementById('stipendForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const msg = document.getElementById('stipendMsg');
+      const next = {};
+      let valid = true;
+      this.querySelectorAll('input[data-key]').forEach(inp => {
+        const n = Number(inp.value);
+        if (!Number.isFinite(n) || n < 0) valid = false;
+        next[inp.dataset.key] = Math.round(n);
+      });
+      if (!valid) { msg.className = 'stipend-msg err'; msg.textContent = 'Please enter valid amounts.'; return; }
+      const btn = this.querySelector('button[type=submit]');
+      btn.disabled = true;
+      try {
+        await saveStipends(next);
+        renderStipends();
+        render();
+        msg.className = 'stipend-msg ok';
+        msg.textContent = 'Saved by ' + currentUser() + '. Change recorded in history.';
+        document.getElementById('stipendForm').style.display = 'none';
+        document.getElementById('stipendEditBtn').style.display = '';
+      } catch (err) {
+        msg.className = 'stipend-msg err';
+        msg.textContent = 'Could not save — please try again.';
+      } finally {
+        btn.disabled = false;
+      }
     });
 
     // Export to PDF via the browser print dialog
@@ -421,17 +664,28 @@
       document.getElementById(id).addEventListener('change', () => { currentPage = 1; render(); })
     );
 
-    function boot() {
+    function applyUser() {
+      const name = currentUser();
+      const parts = name.split(' ');
+      document.querySelector('.topbar .avatar').textContent = (parts[0][0] || '') + (parts[1] ? parts[1][0] : '');
+      document.querySelector('.topbar .who div:last-child').innerHTML = name + ' |<br>Palm Bay Division';
+    }
+
+    async function boot() {
       document.getElementById('gateOverlay').style.display = 'none';
       document.getElementById('modeBanner').style.display = mode === 'local' ? 'block' : 'none';
+      applyUser();
       if (mode === 'local') seedIfNeeded();
+      await loadStipends();
+      renderStipends();
       render();
-      setInterval(render, 5000); // shared store keeps Kevin + Elizabeth in sync
+      setInterval(async () => { await loadStipends(); renderStipends(); render(); }, 5000);
     }
 
     document.getElementById('gateForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const password = document.getElementById('gatePassword').value;
+      const role = document.getElementById('gateRole').value;
       const errEl = document.getElementById('gateError');
       if (!password) { errEl.style.display = 'block'; return; }
       errEl.style.display = 'none';
@@ -445,6 +699,7 @@
       if (result === 'invalid') { errEl.style.display = 'block'; return; }
       sessionStorage.setItem('laAdminKey', password);
       sessionStorage.setItem('laMode', result);
+      sessionStorage.setItem('laRole', role);
       mode = result;
       boot();
     });

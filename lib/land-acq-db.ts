@@ -35,6 +35,9 @@ globalForPool.landAcqPool = pool
 export const LOT_STATUSES = [
   'pending',
   'offer-sent',
+  'seller-signed',
+  'awaiting-signature',
+  'executed',
   'signed',
   'due-diligence',
   'post-inspection',
@@ -42,6 +45,32 @@ export const LOT_STATUSES = [
   'closed',
   'declined',
 ] as const
+
+// Palm Bay lot stipends (max price) by utility type. These are the seed
+// defaults — Kevin or Elizabeth can change them from the dashboard, and each
+// change is recorded in the audit log. Each lot also stores the stipend that
+// applied to it at the time, so changing a default never rewrites history.
+export const DEFAULT_STIPENDS: Record<string, number> = {
+  'well-septic': 30000,
+  'water-septic': 30000,
+  'water-sewer': 50000,
+}
+
+export const STIPEND_LABELS: Record<string, string> = {
+  'well-septic': 'Well / Septic',
+  'water-septic': 'Water / Septic',
+  'water-sewer': 'Water / Sewer',
+}
+
+export function ensureSettingsTable(): Promise<unknown> {
+  return pool.query(`
+    CREATE TABLE IF NOT EXISTS land_acq_settings (
+      key TEXT PRIMARY KEY,
+      value JSONB NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `)
+}
 
 export function ensureTable(): Promise<unknown> {
   if (!globalForPool.landAcqTableReady) {
