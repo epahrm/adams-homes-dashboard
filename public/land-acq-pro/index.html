@@ -13,13 +13,16 @@
     .container { max-width: 1024px; margin: 0 auto; padding: 0 20px; }
 
     /* Header */
-    .site-header { background: #ffffff; border-bottom: 1px solid #e5e5e5; }
-    .site-header .container { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; padding-bottom: 16px; gap: 12px; }
-    .brand-block .brand { color: #003d66; font-size: 24px; font-weight: 800; }
+    .site-header { background: #ffffff; }
+    .site-header .container { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; padding-bottom: 12px; gap: 12px; }
+    .brand-block { display: flex; align-items: center; gap: 14px; }
+    .brand-block img { height: 52px; width: auto; display: block; }
     .brand-block .tagline { color: #555; font-size: 13px; letter-spacing: 0.5px; }
+    .brand-band { height: 6px; background: #d92e43; }
+    .brand-band::after { content: ''; display: block; height: 2px; background: #1a5ba5; margin-top: 2px; }
 
     /* Hero */
-    .hero { background: linear-gradient(160deg, #003d66 0%, #00527f 100%); color: white; text-align: center; padding: 64px 20px 56px; }
+    .hero { background: linear-gradient(160deg, #14508f 0%, #1a5ba5 100%); color: white; text-align: center; padding: 64px 20px 56px; }
     .hero .eyebrow { font-size: 14px; letter-spacing: 3px; font-weight: 700; color: #bcd6e8; margin-bottom: 16px; text-transform: uppercase; }
     .hero h1 { font-size: 40px; line-height: 1.2; margin-bottom: 18px; }
     .hero .subtitle { font-size: 20px; line-height: 1.5; color: #e8f0f6; }
@@ -29,14 +32,14 @@
     .values-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
     .value-card { background: white; border-radius: 12px; padding: 32px 26px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); text-align: center; }
     .value-card .icon { font-size: 44px; margin-bottom: 14px; }
-    .value-card h3 { color: #003d66; font-size: 22px; margin-bottom: 16px; }
+    .value-card h3 { color: #1a5ba5; font-size: 22px; margin-bottom: 16px; }
     .value-card ul { list-style: none; text-align: left; }
     .value-card li { padding-left: 24px; position: relative; margin-bottom: 10px; line-height: 1.5; color: #333; }
-    .value-card li::before { content: '•'; color: #1a5a3a; font-weight: 700; position: absolute; left: 8px; }
+    .value-card li::before { content: '•'; color: #d92e43; font-weight: 700; position: absolute; left: 8px; }
 
     /* Search */
     .search-section { padding: 56px 0; background: white; }
-    .search-section h2 { color: #003d66; font-size: 30px; text-align: center; margin-bottom: 32px; }
+    .search-section h2 { color: #1a5ba5; font-size: 30px; text-align: center; margin-bottom: 32px; }
     .search-grid { max-width: 680px; margin: 0 auto; }
     .search-card { border: 1px solid #ddd; border-radius: 12px; padding: 26px 22px; background: white; }
     .search-card h3 { font-size: 20px; color: #1a1a1a; margin-bottom: 6px; }
@@ -46,13 +49,13 @@
       width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px;
       font-family: inherit; font-size: 16px;
     }
-    input:focus, textarea:focus { outline: none; border-color: #003d66; box-shadow: 0 0 0 3px rgba(0, 61, 102, 0.12); }
+    input:focus, textarea:focus { outline: none; border-color: #1a5ba5; box-shadow: 0 0 0 3px rgba(0, 61, 102, 0.12); }
     .btn-primary {
-      display: block; width: 100%; padding: 15px; background: #003d66; color: white;
+      display: block; width: 100%; padding: 15px; background: #1a5ba5; color: white;
       border: none; border-radius: 8px; font-size: 17px; font-weight: 700; cursor: pointer;
       font-family: inherit; margin-top: 16px; transition: background 0.15s, box-shadow 0.15s;
     }
-    .btn-primary:hover { background: #00527f; box-shadow: 0 3px 10px rgba(0,0,0,0.18); }
+    .btn-primary:hover { background: #14508f; box-shadow: 0 3px 10px rgba(0,0,0,0.18); }
     .btn-primary:disabled { background: #999; opacity: 0.6; cursor: not-allowed; }
     .btn-secondary {
       display: block; width: 100%; padding: 15px; background: #f5f5f5; color: #1a1a1a;
@@ -67,7 +70,7 @@
     /* Search results */
     #resultPanel { display: none; margin-top: 28px; }
     .property-card { border: 2px solid #1a5a3a; border-radius: 12px; padding: 26px 22px; background: white; }
-    .property-card h3 { color: #003d66; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid #003d66; padding-bottom: 10px; margin-bottom: 18px; }
+    .property-card h3 { color: #1a5ba5; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid #1a5ba5; padding-bottom: 10px; margin-bottom: 18px; }
     .p-field { margin-bottom: 14px; }
     .p-field .lbl { color: #777; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
     .p-field .val { font-size: 17px; color: #1a1a1a; }
@@ -84,16 +87,16 @@
 
     /* Process */
     .process { background: #f5f5f5; padding: 56px 0; }
-    .process h2 { color: #003d66; font-size: 30px; text-align: center; margin-bottom: 36px; }
+    .process h2 { color: #1a5ba5; font-size: 30px; text-align: center; margin-bottom: 36px; }
     .steps { max-width: 680px; margin: 0 auto; }
     .step { background: white; border-radius: 12px; padding: 28px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; gap: 20px; align-items: flex-start; }
     .step .num {
-      flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; background: #003d66; color: white;
+      flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; background: #1a5ba5; color: white;
       display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800;
     }
-    .step h3 { color: #003d66; font-size: 19px; letter-spacing: 1px; margin-bottom: 8px; }
+    .step h3 { color: #1a5ba5; font-size: 19px; letter-spacing: 1px; margin-bottom: 8px; }
     .step p { color: #333; line-height: 1.6; }
-    .step-connector { width: 4px; height: 40px; background: #003d66; margin: 0 auto; border-radius: 2px; }
+    .step-connector { width: 4px; height: 40px; background: #1a5ba5; margin: 0 auto; border-radius: 2px; }
 
     /* Kevin card */
     .kevin { background: white; padding: 56px 0; }
@@ -102,14 +105,14 @@
       width: 110px; height: 110px; border-radius: 50%; background: #dde5ec;
       margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 52px;
     }
-    .kevin-card .name { font-size: 27px; font-weight: 800; color: #003d66; margin-bottom: 4px; }
+    .kevin-card .name { font-size: 27px; font-weight: 800; color: #1a5ba5; margin-bottom: 4px; }
     .kevin-card .role { font-size: 18px; color: #555; margin-bottom: 18px; }
     .kevin-card .line { font-size: 18px; margin-bottom: 10px; }
-    .kevin-card a { color: #003d66; text-decoration: underline; font-weight: 600; }
+    .kevin-card a { color: #1a5ba5; text-decoration: underline; font-weight: 600; }
     .kevin-card .support { margin-top: 18px; font-size: 16px; color: #333; line-height: 1.6; }
 
     /* Footer */
-    .site-footer { background: #003d66; color: white; text-align: center; padding: 40px 20px; }
+    .site-footer { background: #1a5ba5; color: white; text-align: center; padding: 40px 20px; }
     .site-footer .brand { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
     .site-footer p { color: #cfdce6; font-size: 15px; line-height: 1.7; }
     .badges { margin-top: 16px; font-size: 14px; color: #bcd6e8; letter-spacing: 0.5px; }
@@ -133,11 +136,12 @@
   <header class="site-header">
     <div class="container">
       <div class="brand-block">
-        <div class="brand">Adams Homes</div>
+        <img src="adams-homes-logo.png" alt="Adams Homes">
         <div class="tagline">Value, Simplified&trade;</div>
       </div>
     </div>
   </header>
+  <div class="brand-band"></div>
 
   <!-- Hero -->
   <section class="hero">
@@ -306,15 +310,18 @@
   <!-- Footer -->
   <footer class="site-footer">
     <div class="brand">Adams Homes</div>
+    <div style="width:60px;height:4px;background:#d92e43;margin:0 auto 14px;border-radius:2px;"></div>
     <p>&copy; 2026 Adams Homes. All Rights Reserved.<br>Trusted Builder in Palm Bay Since 2001</p>
     <div class="badges">Licensed Builder &nbsp;|&nbsp; Secure SSL &nbsp;|&nbsp; Cash Buyer</div>
   </footer>
 
   <script>
-    // Mock Brevard County parcel records used to verify lots client-side.
-    // The production build will replace this with the Brevard County Property
-    // Appraiser API (see project handoff, Section 6).
-    const COUNTY_RECORDS = [
+    // Live search goes through /api/land-acq/county (a server-side proxy to
+    // the Brevard County Property Appraiser). These sample records are the
+    // offline/demo fallback when the county site or API is unreachable.
+    const API_LOTS = '/api/land-acq/lots';
+    const API_COUNTY = '/api/land-acq/county';
+    const SAMPLE_RECORDS = [
       { address: '123 Maple Avenue, Palm Bay, FL 32908', parcel: '2936-02GI-10509', owner: 'John Smith', ownerContact: '123 Maple Ave, Palm Bay, FL 32908 | (321) 555-1234 | john@email.com', ownerEmail: 'john@email.com', lotSize: '0.23 acres (10,019 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$28,500', annualTax: '$495', listPrice: 35000, listStatus: 'Active Listing', agentName: 'John Johnson', agentBrokerage: 'Keller Williams Island Life', agentPhone: '941-123-4567', agentEmail: 'john@kw-islandlife.com' },
       { address: '456 Oak Street, Palm Bay, FL 32907', parcel: '2937-11AB-20443', owner: 'Maria Garcia', ownerContact: '456 Oak Street, Palm Bay, FL 32907 | (321) 555-2288 | maria@email.com', ownerEmail: 'maria@email.com', lotSize: '0.25 acres (10,890 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$31,200', annualTax: '$540', listPrice: 40000, listStatus: 'Active Listing', agentName: 'Sarah Lee', agentBrokerage: 'RE/MAX Elite', agentPhone: '321-555-8890', agentEmail: 'sarah@remaxelite.com' },
       { address: '789 Pine Road, Palm Bay, FL 32909', parcel: '2938-07CD-31877', owner: 'Robert Chen', ownerContact: '789 Pine Road, Palm Bay, FL 32909 | (321) 555-3401 | rchen@email.com', ownerEmail: 'rchen@email.com', lotSize: '0.28 acres (12,196 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$26,800', annualTax: '$463', listPrice: null, listStatus: 'Off-Market', agentName: null, agentBrokerage: null, agentPhone: null, agentEmail: null }
@@ -336,12 +343,12 @@
       confirmMsg.style.display = 'none';
       resultMessage.style.display = 'none';
       document.getElementById('confirmBtn').disabled = false;
-      document.getElementById('recAddress').textContent = record.address;
-      document.getElementById('recOwner').textContent = record.owner;
-      document.getElementById('recLotSize').textContent = record.lotSize;
-      document.getElementById('recZoning').textContent = record.zoning;
-      document.getElementById('recUtilities').textContent = record.utilities;
-      document.getElementById('recTaxValue').textContent = record.taxValue;
+      document.getElementById('recAddress').textContent = record.address || '—';
+      document.getElementById('recOwner').textContent = record.owner || '—';
+      document.getElementById('recLotSize').textContent = record.lotSize || 'Kevin will verify';
+      document.getElementById('recZoning').textContent = record.zoning || 'Kevin will verify';
+      document.getElementById('recUtilities').textContent = record.utilities || 'Kevin will verify';
+      document.getElementById('recTaxValue').textContent = record.taxValue || 'Kevin will verify';
       resultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -354,24 +361,53 @@
       fallbackPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    document.getElementById('searchNameBtn').addEventListener('click', function() {
-      const raw = document.getElementById('ownerName').value.trim();
-      const valid = raw.length >= 2;
-      showError('ownerNameError', !valid);
-      if (!valid) return;
+    function sampleSearch(kind, raw) {
       const q = normalize(raw);
-      const rec = COUNTY_RECORDS.find(r => normalize(r.owner).includes(q) || q.includes(normalize(r.owner)));
-      rec ? showMatch(rec) : showFallback({ ownerName: raw });
+      if (kind === 'name') {
+        return SAMPLE_RECORDS.find(r => normalize(r.owner).includes(q) || q.includes(normalize(r.owner))) || null;
+      }
+      return SAMPLE_RECORDS.find(r => normalize(r.address).includes(q) || q.includes(normalize(r.address).slice(0, 12))) || null;
+    }
+
+    // Live Brevard County search with sample-data fallback when offline.
+    async function countySearch(kind, raw) {
+      try {
+        const param = kind === 'name' ? 'name' : 'address';
+        const res = await fetch(API_COUNTY + '?' + param + '=' + encodeURIComponent(raw), {
+          signal: AbortSignal.timeout(9000)
+        });
+        if (res.ok) {
+          const body = await res.json();
+          if (body.records && body.records.length) return body.records[0];
+          return null; // county answered: genuinely no match
+        }
+      } catch (e) { /* offline or county unavailable */ }
+      return sampleSearch(kind, raw);
+    }
+
+    async function runSearch(kind, inputId, errorId, btn) {
+      const raw = document.getElementById(inputId).value.trim();
+      const valid = kind === 'name' ? raw.length >= 2 : raw.length >= 5;
+      showError(errorId, !valid);
+      if (!valid) return;
+      const label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Searching…';
+      try {
+        const rec = await countySearch(kind, raw);
+        rec ? showMatch(rec) : showFallback(kind === 'name' ? { ownerName: raw } : { address: raw });
+      } finally {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+    }
+
+    document.getElementById('searchNameBtn').addEventListener('click', function() {
+      runSearch('name', 'ownerName', 'ownerNameError', this);
     });
 
     document.getElementById('searchAddressBtn').addEventListener('click', function() {
-      const raw = document.getElementById('streetAddress').value.trim();
-      const valid = raw.length >= 5;
-      showError('streetAddressError', !valid);
-      if (!valid) return;
-      const q = normalize(raw);
-      const rec = COUNTY_RECORDS.find(r => normalize(r.address).includes(q) || q.includes(normalize(r.address).slice(0, 12)));
-      rec ? showMatch(rec) : showFallback({ address: raw });
+      runSearch('address', 'streetAddress', 'streetAddressError', this);
     });
 
     document.getElementById('searchAgainBtn').addEventListener('click', function() {
@@ -381,24 +417,42 @@
       document.querySelector('.search-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    function saveLead(fields) {
+    function saveLocal(lead) {
       const submissions = JSON.parse(localStorage.getItem('landAcqSubmissions') || '[]');
-      const normalized = (fields.address || '').toLowerCase();
+      const normalized = (lead.address || '').toLowerCase();
       if (submissions.some(s => (s.address || '').toLowerCase() === normalized)) return 'duplicate';
-      submissions.push(Object.assign({
-        id: Date.now(),
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        source: 'QR Landing Page'
-      }, fields));
+      submissions.push(lead);
       localStorage.setItem('landAcqSubmissions', JSON.stringify(submissions));
       return 'ok';
     }
 
-    document.getElementById('confirmBtn').addEventListener('click', function() {
+    // Save to the shared store (synced for Kevin + Elizabeth); fall back to
+    // this browser's local store when offline.
+    async function saveLead(fields) {
+      const lead = Object.assign({
+        id: Date.now(),
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        source: 'QR Landing Page'
+      }, fields);
+      try {
+        const res = await fetch(API_LOTS, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(lead),
+          signal: AbortSignal.timeout(9000)
+        });
+        if (res.status === 201) return 'ok';
+        if (res.status === 409) return 'duplicate';
+      } catch (e) { /* offline */ }
+      return saveLocal(lead);
+    }
+
+    document.getElementById('confirmBtn').addEventListener('click', async function() {
       if (!matchedRecord) return;
       const rec = matchedRecord;
-      const result = saveLead({
+      this.disabled = true;
+      const result = await saveLead({
         address: rec.address,
         firstName: rec.owner.split(' ')[0],
         lastName: rec.owner.split(' ').slice(1).join(' '),
@@ -416,14 +470,14 @@
         resultMessage.className = 'message error';
         resultMessage.textContent = 'This property has already been submitted. Kevin will send your offer within 24 hours.';
         resultMessage.style.display = 'block';
+        this.disabled = false;
         return;
       }
       confirmMsg.style.display = 'block';
-      this.disabled = true;
     });
 
     // Fallback form validation + submit
-    document.getElementById('fallbackForm').addEventListener('submit', function(e) {
+    document.getElementById('fallbackForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const ownerName = document.getElementById('fbOwnerName').value.trim();
       const address = document.getElementById('fbAddress').value.trim();
@@ -438,7 +492,7 @@
       showError('fbEmailError', !emailOk);
       if (!ownerName || !address || !phone || !emailOk) return;
       const msg = document.getElementById('fallbackMessage');
-      const result = saveLead({
+      const result = await saveLead({
         address,
         firstName: ownerName.split(' ')[0],
         lastName: ownerName.split(' ').slice(1).join(' '),

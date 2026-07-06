@@ -66,14 +66,34 @@
     .error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
 
     @media (max-width: 480px) { .content > h2 { font-size: 25px; } }
+
+    .gate-overlay { position: fixed; inset: 0; background: #003d66; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .gate { background: white; border-radius: 12px; max-width: 400px; width: 100%; padding: 32px 28px; }
+    .gate h2 { color: #003d66; font-size: 22px; margin-bottom: 6px; }
+    .gate p { color: #666; font-size: 14px; margin-bottom: 18px; }
+    .gate input { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; margin-bottom: 8px; }
+    .gate .gate-error { color: #c62828; font-size: 14px; margin-bottom: 8px; display: none; }
+    .gate button { width: 100%; padding: 14px; background: #003d66; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 6px; }
   </style>
 </head>
 <body>
+  <div class="gate-overlay" id="gateOverlay">
+    <div class="gate">
+      <h2>Admin Access</h2>
+      <p>Enter the admin password to open this offer.</p>
+      <form id="gateForm">
+        <input type="password" id="gatePassword" placeholder="Password" autocomplete="current-password">
+        <div class="gate-error" id="gateError">Invalid password</div>
+        <button type="submit">Unlock</button>
+      </form>
+    </div>
+  </div>
+
   <div class="page">
     <div class="topbar">
       <h1>Admin Dashboard - Offer Approval</h1>
       <div class="who"><div class="avatar">K</div><div>Kevin<br>Nelson</div></div>
-      <button class="logout" onclick="window.location.href='index.html'">Logout</button>
+      <button class="logout" onclick="sessionStorage.removeItem('laAdminKey'); sessionStorage.removeItem('laMode'); window.location.href='index.html'">Logout</button>
     </div>
 
     <div class="content">
@@ -134,14 +154,41 @@
 
   <script>
     const STORE_KEY = 'landAcqSubmissions';
+    const API_LOTS = '/api/land-acq/lots';
     const params = new URLSearchParams(window.location.search);
     const lotId = params.get('id');
-    const lots = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
-    const lot = lots.find(l => String(l.id) === String(lotId));
     const messageEl = document.getElementById('message');
+    let mode = null;
+    let lot = null;
+
+    function adminHeaders() {
+      return { 'X-Admin-Key': sessionStorage.getItem('laAdminKey') || '', 'Content-Type': 'application/json' };
+    }
+
+    async function verifyPassword(password) {
+      try {
+        const res = await fetch(API_LOTS, { headers: { 'X-Admin-Key': password }, signal: AbortSignal.timeout(9000) });
+        if (res.ok) return 'server';
+        if (res.status === 401) return 'invalid';
+      } catch (e) { /* offline */ }
+      return 'local';
+    }
+
+    async function loadLot() {
+      if (mode === 'server') {
+        try {
+          const res = await fetch(API_LOTS + '?id=' + encodeURIComponent(lotId), { headers: adminHeaders(), signal: AbortSignal.timeout(9000) });
+          if (res.ok) return ((await res.json()).lots || [])[0] || null;
+        } catch (e) { /* fall through */ }
+        return null;
+      }
+      const lots = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+      return lots.find(l => String(l.id) === String(lotId)) || null;
+    }
 
     function money(n) { return '$' + Number(n).toLocaleString(); }
 
+    function initPage() {
     if (!lot) {
       document.getElementById('pageTitle').textContent = 'Offer Approval';
       document.getElementById('verifiedNote').textContent = 'Lot not found. Return to the dashboard and select a property.';
@@ -195,6 +242,7 @@
         routingBox.querySelector('span').textContent = lot.email || (lot.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@')) || 'contact on file';
       }
     }
+    }
 
     // Edit links unlock their input
     document.querySelectorAll('.edit-link').forEach(a => {
@@ -206,7 +254,7 @@
       });
     });
 
-    document.getElementById('approveBtn').addEventListener('click', () => {
+    document.getElementById('approveBtn').addEventListener('click', async () => {
       if (!lot) return;
       const offerVal = Number(document.getElementById('offerAmount').value.replace(/[^0-9.]/g, ''));
       const emdVal = Number(document.getElementById('emd').value.replace(/[^0-9.]/g, ''));
@@ -215,14 +263,31 @@
       const routingEmail = lot.agentEmail || lot.email ||
         (lot.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@'));
       if (!routingEmail) return fail('No valid routing email on file');
-      lot.status = 'offer-sent';
-      lot.offer = document.getElementById('offerAmount').value.trim();
-      lot.emd = document.getElementById('emd').value.trim();
-      lot.commission = document.getElementById('commission').value.trim();
-      lot.routingEmail = routingEmail;
-      lot.approvedAt = new Date().toISOString();
-      lot.approvedBy = 'Kevin Nelson';
-      localStorage.setItem(STORE_KEY, JSON.stringify(lots));
+      const set = {
+        status: 'offer-sent',
+        offer: document.getElementById('offerAmount').value.trim(),
+        emd: document.getElementById('emd').value.trim(),
+        commission: document.getElementById('commission').value.trim(),
+        routingEmail: routingEmail,
+        approvedAt: new Date().toISOString(),
+        approvedBy: 'Kevin Nelson'
+      };
+      if (mode === 'server') {
+        try {
+          const res = await fetch(API_LOTS, {
+            method: 'PATCH', headers: adminHeaders(),
+            body: JSON.stringify({ id: lot.id, set: set }),
+            signal: AbortSignal.timeout(9000)
+          });
+          if (!res.ok) return fail('Could not save the offer — please try again');
+        } catch (e) {
+          return fail('Could not reach the server — please try again');
+        }
+      } else {
+        const lots = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+        const target = lots.find(l => String(l.id) === String(lot.id));
+        if (target) { Object.assign(target, set); localStorage.setItem(STORE_KEY, JSON.stringify(lots)); }
+      }
       messageEl.classList.remove('error');
       messageEl.classList.add('success');
       messageEl.textContent = '✓ Offer sent to ' + routingEmail;
@@ -240,6 +305,31 @@
     document.getElementById('cancelBtn').addEventListener('click', () => {
       window.location.href = 'admin.html';
     });
+
+    async function boot() {
+      document.getElementById('gateOverlay').style.display = 'none';
+      lot = await loadLot();
+      initPage();
+    }
+
+    document.getElementById('gateForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const password = document.getElementById('gatePassword').value;
+      const errEl = document.getElementById('gateError');
+      if (!password) { errEl.style.display = 'block'; return; }
+      errEl.style.display = 'none';
+      const result = await verifyPassword(password);
+      if (result === 'invalid') { errEl.style.display = 'block'; return; }
+      sessionStorage.setItem('laAdminKey', password);
+      sessionStorage.setItem('laMode', result);
+      mode = result;
+      boot();
+    });
+
+    if (sessionStorage.getItem('laAdminKey')) {
+      mode = sessionStorage.getItem('laMode') || 'local';
+      boot();
+    }
   </script>
 </body>
 </html>

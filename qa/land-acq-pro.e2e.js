@@ -52,6 +52,7 @@ async function noHorizontalOverflow(page) {
     const html = (await page.content());
     check('index: no admin link', !/admin\.html|offer-approval\.html/i.test(html));
     check('index: no login UI', !/login/i.test(html));
+    check('index: Adams Homes logo present', await page.locator('.brand-block img').isVisible());
     const bodyText = await page.evaluate(() => document.body.innerText);
     check('index: no pricing on public page', !/\$\s?\d/.test(bodyText), bodyText.match(/\$\s?\d[^\s]*/)?.[0]);
     check('index: locked headline', bodyText.includes('No One Closes Faster Than Adams Homes'));
@@ -70,37 +71,48 @@ async function noHorizontalOverflow(page) {
     // ---------- Seller flow: verified match ----------
     await page.fill('#ownerName', 'John Smith');
     await page.click('#searchNameBtn');
+    await page.waitForSelector('#resultPanel', { state: 'visible' });
     check('search by name finds county record',
-      await page.locator('#resultPanel').isVisible() &&
       (await page.textContent('#recOwner')).trim() === 'John Smith');
     await page.click('#confirmBtn');
+    await page.waitForSelector('#confirmMsg', { state: 'visible', timeout: 15000 });
     check('confirmation message shows',
-      await page.locator('#confirmMsg').isVisible() &&
       (await page.textContent('#confirmMsg')).includes('Property verified'));
 
     // Duplicate handling
     await page.fill('#streetAddress', '123 Maple Avenue');
     await page.click('#searchAddressBtn');
+    await page.waitForSelector('#resultPanel', { state: 'visible' });
     await page.click('#confirmBtn');
-    check('duplicate submission blocked',
-      await page.locator('#resultMessage.error').isVisible());
+    await page.waitForSelector('#resultMessage.error', { state: 'visible', timeout: 15000 });
+    check('duplicate submission blocked', true);
 
     // ---------- Seller flow: fallback ----------
     await page.fill('#streetAddress', '999 Nowhere Blvd, Palm Bay');
     await page.click('#searchAddressBtn');
-    check('fallback form shows for unknown property', await page.locator('#fallbackPanel').isVisible());
+    await page.waitForSelector('#fallbackPanel', { state: 'visible', timeout: 15000 });
+    check('fallback form shows for unknown property', true);
     await page.click('#fallbackForm button[type=submit]');
     check('fallback validation fires', await page.locator('#fbOwnerNameError').isVisible());
     await page.fill('#fbOwnerName', 'Jane Doe');
     await page.fill('#fbPhone', '(321) 555-0102');
     await page.fill('#fbEmail', 'jane@example.com');
     await page.click('#fallbackForm button[type=submit]');
-    check('fallback submits',
-      await page.locator('#fallbackMessage.success').isVisible());
+    await page.waitForSelector('#fallbackMessage.success', { state: 'visible', timeout: 15000 });
+    check('fallback submits', true);
+
+    // ---------- Admin password gate ----------
+    await page.goto(BASE + '/admin.html');
+    check('admin: gate blocks dashboard', await page.locator('#gateOverlay').isVisible());
+    await page.click('#gateForm button');
+    check('admin: empty password rejected', await page.locator('#gateError').isVisible());
+    await page.fill('#gatePassword', 'AdamsHomes2026!');
+    await page.click('#gateForm button');
+    await page.waitForSelector('#lotRows tr');
+    check('admin: offline demo banner shows when server unreachable',
+      await page.locator('#modeBanner').isVisible());
 
     // ---------- Data sync to admin ----------
-    await page.goto(BASE + '/admin.html');
-    await page.waitForSelector('#lotRows tr');
     const tableText = await page.textContent('#lotRows');
     check('seller submissions reach dashboard',
       tableText.includes('123 Maple Avenue') && tableText.includes('999 Nowhere Blvd'));
@@ -141,7 +153,10 @@ async function noHorizontalOverflow(page) {
     await page.click('#exportCsv');
     check('CSV export downloads', !!(await dl));
 
-    check('no console errors across flows', consoleErrors.length === 0, consoleErrors.join('; '));
+    const realErrors = consoleErrors.filter(t =>
+      !t.includes('/api/land-acq') && !t.includes('Failed to load resource'));
+    check('no console errors across flows (offline API fallback noise excluded)',
+      realErrors.length === 0, realErrors.join('; '));
     await ctx.close();
   }
 

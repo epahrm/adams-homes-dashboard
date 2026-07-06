@@ -13,14 +13,25 @@ Static pages for the Land Acq Pro system, rebuilt to match the approved sample d
 
 ## How the pages work together
 
-- All data lives in `localStorage` under the key `landAcqSubmissions` — no backend required.
-- Landing-page submissions appear in the admin dashboard within 5 seconds (auto-refresh).
-- Clicking a row in the admin table opens the Offer Approval screen for that lot.
-- Approving an offer sets the lot's status to `offer-sent` and returns to the dashboard.
-- The dashboard seeds six sample Palm Bay lots on first load (one-time, guarded by a
-  `landAcqSeeded_v2` flag) so the pipeline matches the approved sample.
-- Legacy statuses from the previous landing page (`new`, `qualified`) are still recognized
-  and displayed as PENDING.
+- **Shared store (Kevin + Elizabeth always in sync):** submissions and status changes
+  are saved through `/api/land-acq/lots` into the shared Postgres database, so every
+  admin sees the same pipeline from any device. The dashboard re-fetches every 5 seconds.
+- **Live county search:** the landing page verifies lots through
+  `/api/land-acq/county`, a server-side proxy to the Brevard County Property
+  Appraiser. If the county site is unreachable (their Cloudflare protection can
+  intermittently block automated requests), the seller falls back to Kevin's
+  research form — no lead is ever lost.
+- **Admin password gate:** `admin.html` and `offer-approval.html` require the shared
+  admin password before loading. Set it with the `LAND_ACQ_ADMIN_KEY` environment
+  variable in Vercel (default: `AdamsHomes2026!` — change it). The seller page has
+  no login and no links to the admin pages.
+- **Offline/demo mode:** when the pages are opened without the server (e.g. from
+  disk), they fall back to this browser's `localStorage` and show a demo-mode banner.
+  The dashboard seeds six sample Palm Bay lots in that mode only.
+- Clicking a row in the admin table opens the Offer Approval screen; approving sets
+  the lot to `offer-sent` and routes to the listing agent (MLS) or owner (off-market).
+- Legacy statuses from the previous landing page (`new`, `qualified`) still display
+  as PENDING.
 
 ## Where these pages are served
 
@@ -31,6 +42,7 @@ page) — so they can be tested live on any Vercel preview of this repo.
 
 ## Deploying to the live site (land-acq-pro-app)
 
-These files are also drop-in replacements for the standalone site. Copy all three HTML
-files to the root of the `epahrm/land-acq-pro-app` repository (overwriting `index.html`
-and `admin.html`, adding `offer-approval.html`) and push — Vercel auto-deploys on push.
+The HTML files can still be copied to the standalone `epahrm/land-acq-pro-app`
+repository, but the shared store, live county search, and password verification live
+in this repo's API routes — standalone copies run in offline/demo mode unless those
+endpoints are made available to them.
