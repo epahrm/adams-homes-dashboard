@@ -101,6 +101,27 @@ async function noHorizontalOverflow(page) {
     await page.waitForSelector('#fallbackMessage.success', { state: 'visible', timeout: 15000 });
     check('fallback submits', true);
 
+    // ---------- Regression: symbol-only search must not match a record (F1) ----------
+    await page.goto(BASE + '/index.html');
+    await page.fill('#ownerName', '!!##');
+    await page.click('#searchNameBtn');
+    await page.waitForSelector('#fallbackPanel', { state: 'visible', timeout: 15000 });
+    check('symbol-only search falls back instead of matching a record',
+      !(await page.locator('#resultPanel').isVisible()));
+
+    // ---------- Regression: stored XSS must not execute in admin pages ----------
+    await page.evaluate(() => {
+      const lots = JSON.parse(localStorage.getItem('landAcqSubmissions') || '[]');
+      lots.push({
+        id: 424242, address: '1 Exploit Test Ln, Palm Bay, FL', status: 'pending',
+        createdAt: new Date().toISOString(), source: 'QR Landing Page',
+        ownerContact: '<img src=x onerror="window.__xss=1"> | (321) 555-0000 | evil@example.com',
+        utilities: '<script>window.__xss=1<\/script> / Sewer: None',
+        taxValue: '<b onmouseover=1>$1</b>'
+      });
+      localStorage.setItem('landAcqSubmissions', JSON.stringify(lots));
+    });
+
     // ---------- Admin password gate ----------
     await page.goto(BASE + '/admin.html');
     check('admin: gate blocks dashboard', await page.locator('#gateOverlay').isVisible());
@@ -134,11 +155,14 @@ async function noHorizontalOverflow(page) {
     const offer = await page.inputValue('#offerAmount');
     check('offer default populated', /\$[\d,]+/.test(offer), offer);
 
-    // Validation: zero offer rejected
+    // Validation: zero and negative offers rejected (F2)
     await page.click('a[data-edit="offerAmount"]');
     await page.fill('#offerAmount', '$0');
     await page.click('#approveBtn');
     check('zero offer rejected', await page.locator('#message.error').isVisible());
+    await page.fill('#offerAmount', '-5000');
+    await page.click('#approveBtn');
+    check('negative offer rejected', await page.locator('#message.error').isVisible());
     await page.fill('#offerAmount', offer);
     await page.click('#approveBtn');
     check('approve sends offer',
@@ -147,6 +171,16 @@ async function noHorizontalOverflow(page) {
     await page.waitForURL('**/admin.html', { timeout: 5000 });
     check('approve returns to dashboard + status updated',
       (await page.locator('#lotRows .pill').allTextContents()).includes('OFFER SENT'));
+
+    // ---------- Regression: malicious lot renders as text, not markup ----------
+    await page.goto(BASE + '/offer-approval.html?id=424242');
+    await page.waitForSelector('#approveBtn');
+    const xssFired = await page.evaluate(() => window.__xss === 1);
+    const imgInjected = await page.locator('#cOwnerContact img, #cUtilities script, #cTax b').count();
+    const rawShown = (await page.textContent('#cOwnerContact')).includes('<img');
+    check('stored XSS neutralized on approval screen', !xssFired && imgInjected === 0 && rawShown);
+    await page.goto(BASE + '/admin.html');
+    await page.waitForSelector('#lotRows tr');
 
     // ---------- CSV export ----------
     const dl = page.waitForEvent('download', { timeout: 5000 }).catch(() => null);

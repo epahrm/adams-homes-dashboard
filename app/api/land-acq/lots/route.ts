@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { pool, ensureTable, isAdmin, addressKey } from '@/lib/land-acq-db'
+import { pool, ensureTable, isAdmin, addressKey, LOT_STATUSES } from '@/lib/land-acq-db'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,13 +50,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Property address is required' }, { status: 400 })
     }
     await ensureTable()
-    const { id: _id, status, createdAt: _c, updatedAt: _u, ...data } = body
+    // Public endpoint: sellers cannot set a pipeline stage.
+    const { id: _id, status: _s, createdAt: _c, updatedAt: _u, ...data } = body
     const result = await pool.query(
       `INSERT INTO land_acq_lots (address, address_key, status, data)
-       VALUES ($1, $2, $3, $4)
+       VALUES ($1, $2, 'pending', $3)
        ON CONFLICT (address_key) DO NOTHING
        RETURNING *`,
-      [address, addressKey(address), String(status || 'pending'), JSON.stringify(data)]
+      [address, addressKey(address), JSON.stringify(data)]
     )
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'duplicate' }, { status: 409 })
@@ -79,6 +80,9 @@ export async function PATCH(request: NextRequest) {
     const set = body.set
     if (!id || !set || typeof set !== 'object') {
       return NextResponse.json({ error: 'id and set are required' }, { status: 400 })
+    }
+    if (set.status !== undefined && !(LOT_STATUSES as readonly string[]).includes(String(set.status))) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
     await ensureTable()
     const { status, ...dataFields } = set

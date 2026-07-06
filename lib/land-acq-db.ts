@@ -27,13 +27,26 @@ export const pool =
   new Pool({
     connectionString: databaseUrl,
     max: 3,
+    connectionTimeoutMillis: 8000,
     ssl: { rejectUnauthorized: false },
   })
 globalForPool.landAcqPool = pool
 
+export const LOT_STATUSES = [
+  'pending',
+  'offer-sent',
+  'signed',
+  'due-diligence',
+  'post-inspection',
+  'ready-to-close',
+  'closed',
+  'declined',
+] as const
+
 export function ensureTable(): Promise<unknown> {
   if (!globalForPool.landAcqTableReady) {
-    globalForPool.landAcqTableReady = pool.query(`
+    globalForPool.landAcqTableReady = pool
+      .query(`
       CREATE TABLE IF NOT EXISTS land_acq_lots (
         id BIGSERIAL PRIMARY KEY,
         address TEXT NOT NULL,
@@ -44,6 +57,12 @@ export function ensureTable(): Promise<unknown> {
         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
       )
     `)
+      .catch((e) => {
+        // Don't cache the failure — a transient blip at boot must not brick
+        // every later request; the next call retries table creation.
+        globalForPool.landAcqTableReady = undefined
+        throw e
+      })
   }
   return globalForPool.landAcqTableReady
 }

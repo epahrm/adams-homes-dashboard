@@ -13,7 +13,7 @@
     .topbar h1 { font-size: 24px; line-height: 1.25; flex: 1 1 200px; }
     .topbar .who { display: flex; align-items: center; gap: 10px; font-size: 15px; }
     .topbar .avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-weight: 700; }
-    .logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 10px 22px; font-size: 15px; cursor: pointer; font-family: inherit; }
+    .logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 10px 22px; min-height: 44px; font-size: 15px; cursor: pointer; font-family: inherit; }
     .logout:hover { background: rgba(255,255,255,0.2); }
 
     .content { padding: 26px 22px 48px; }
@@ -82,7 +82,7 @@
       <h2>Admin Access</h2>
       <p>Enter the admin password to open this offer.</p>
       <form id="gateForm">
-        <input type="password" id="gatePassword" placeholder="Password" autocomplete="current-password">
+        <input type="password" id="gatePassword" placeholder="Password" aria-label="Admin password" autocomplete="current-password">
         <div class="gate-error" id="gateError">Invalid password</div>
         <button type="submit">Unlock</button>
       </form>
@@ -126,16 +126,16 @@
           <div class="sub" id="oAgentPhone"></div>
         </div>
         <div class="field"><div class="lbl">Offer Amount</div>
-          <input type="text" id="offerAmount" readonly>
+          <input type="text" id="offerAmount" aria-label="Offer amount" readonly>
           <div class="muted">Default: $2K below asking</div>
           <a class="edit-link" data-edit="offerAmount">Edit Offer</a>
         </div>
         <div class="field"><div class="lbl">Earnest Money Deposit (EMD)</div>
-          <input type="text" id="emd" value="$100" readonly>
+          <input type="text" id="emd" value="$100" aria-label="Earnest money deposit" readonly>
           <a class="edit-link" data-edit="emd">Edit EMD</a>
         </div>
         <div class="field"><div class="lbl">Commission</div>
-          <input type="text" id="commission" value="3%" readonly>
+          <input type="text" id="commission" value="3%" aria-label="Commission" readonly>
           <div class="muted">From listing details</div>
           <a class="edit-link" data-edit="commission">Edit Commission</a>
         </div>
@@ -188,6 +188,15 @@
 
     function money(n) { return '$' + Number(n).toLocaleString(); }
 
+    // Lot fields originate from the public seller form — render as text only.
+    function setLines(el, lines) {
+      el.textContent = '';
+      lines.forEach((line, i) => {
+        if (i) el.appendChild(document.createElement('br'));
+        el.appendChild(document.createTextNode(line));
+      });
+    }
+
     function initPage() {
     if (!lot) {
       document.getElementById('pageTitle').textContent = 'Offer Approval';
@@ -204,11 +213,13 @@
       document.getElementById('cAddress').textContent = lot.address || '—';
       document.getElementById('cParcel').textContent = lot.parcel || 'Pending county lookup';
       document.getElementById('cOwner').textContent = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '—';
-      document.getElementById('cOwnerContact').innerHTML = (lot.ownerContact || [lot.address, lot.phone, lot.email].filter(Boolean).join(' | ') || '—').split('|').map(s => s.trim()).join('<br>');
+      setLines(document.getElementById('cOwnerContact'),
+        (lot.ownerContact || [lot.address, lot.phone, lot.email].filter(Boolean).join(' | ') || '—').split('|').map(s => s.trim()));
       document.getElementById('cLotSize').textContent = lot.lotSize || '—';
       document.getElementById('cZoning').textContent = lot.zoning || '—';
-      document.getElementById('cUtilities').innerHTML = (lot.utilities || '—').split('/').map(s => s.trim()).join('<br>');
-      document.getElementById('cTax').innerHTML = lot.taxValue ? ('Value: ' + lot.taxValue + '<br>Annual Tax: ' + (lot.annualTax || '—')) : '—';
+      setLines(document.getElementById('cUtilities'), (lot.utilities || '—').split('/').map(s => s.trim()));
+      if (lot.taxValue) setLines(document.getElementById('cTax'), ['Value: ' + lot.taxValue, 'Annual Tax: ' + (lot.annualTax || '—')]);
+      else document.getElementById('cTax').textContent = '—';
 
       // Offer card
       document.getElementById('oAddress').textContent = lot.address || '—';
@@ -256,8 +267,8 @@
 
     document.getElementById('approveBtn').addEventListener('click', async () => {
       if (!lot) return;
-      const offerVal = Number(document.getElementById('offerAmount').value.replace(/[^0-9.]/g, ''));
-      const emdVal = Number(document.getElementById('emd').value.replace(/[^0-9.]/g, ''));
+      const offerVal = Number(document.getElementById('offerAmount').value.replace(/[^0-9.\-]/g, ''));
+      const emdVal = Number(document.getElementById('emd').value.replace(/[^0-9.\-]/g, ''));
       if (!(offerVal > 0)) return fail('Please enter valid offer amount');
       if (!(emdVal > 0)) return fail('Please enter valid EMD amount');
       const routingEmail = lot.agentEmail || lot.email ||
@@ -316,9 +327,15 @@
       e.preventDefault();
       const password = document.getElementById('gatePassword').value;
       const errEl = document.getElementById('gateError');
+      const btn = this.querySelector('button');
       if (!password) { errEl.style.display = 'block'; return; }
       errEl.style.display = 'none';
+      btn.disabled = true;
+      const label = btn.textContent;
+      btn.textContent = 'Checking…';
       const result = await verifyPassword(password);
+      btn.disabled = false;
+      btn.textContent = label;
       if (result === 'invalid') { errEl.style.display = 'block'; return; }
       sessionStorage.setItem('laAdminKey', password);
       sessionStorage.setItem('laMode', result);

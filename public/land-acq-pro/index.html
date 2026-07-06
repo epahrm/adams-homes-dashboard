@@ -363,6 +363,7 @@
 
     function sampleSearch(kind, raw) {
       const q = normalize(raw);
+      if (!q) return null;
       if (kind === 'name') {
         return SAMPLE_RECORDS.find(r => normalize(r.owner).includes(q) || q.includes(normalize(r.owner))) || null;
       }
