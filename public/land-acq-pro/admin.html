@@ -64,6 +64,39 @@
     .lead-row .l-meta { font-size: 13px; color: #667; margin-top: 2px; }
     .lead-row .l-cta { flex-shrink: 0; font-size: 13px; font-weight: 700; color: #8a5200; }
 
+    /* New Opportunities — buy-box scan with green/yellow/red triage */
+    .opps { border: 2px solid #1a5ba5; border-radius: 12px; background: #f2f7fc; padding: 14px 16px; margin-bottom: 24px; }
+    .opps h3 { color: #123a63; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+    .opps h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: #4a6b8f; font-size: 13px; }
+    .opps .opps-sub { font-size: 12px; color: #5a7290; margin-bottom: 12px; }
+    .opp-row { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #d3e0ee; border-left-width: 5px; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+    .opp-row.green { border-left-color: #1a7a44; }
+    .opp-row.yellow { border-left-color: #e8963c; }
+    .opp-main { flex: 1; min-width: 0; }
+    .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; }
+    .opp-meta { font-size: 13px; color: #667; margin-top: 2px; }
+    .opp-reason { font-size: 12px; margin-top: 4px; }
+    .opp-row.green .opp-reason { color: #1a7a44; }
+    .opp-row.yellow .opp-reason { color: #a5651a; }
+    .light { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+    .light::before { content: ''; width: 9px; height: 9px; border-radius: 50%; }
+    .light.green { background: #e3f2ea; color: #1a7a44; } .light.green::before { background: #1a7a44; }
+    .light.yellow { background: #fdf1e2; color: #a5651a; } .light.yellow::before { background: #e8963c; }
+    .light.red { background: #fdecea; color: #b02a1a; } .light.red::before { background: #d92e43; }
+    .opp-offer { font-weight: 800; color: #123a63; font-size: 15px; white-space: nowrap; }
+    .opp-offer span { display: block; font-size: 10px; font-weight: 600; color: #5a7290; text-transform: uppercase; letter-spacing: 0.5px; }
+    .opp-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+    .opp-actions button { font-family: inherit; font-size: 12px; font-weight: 700; border-radius: 6px; padding: 6px 12px; cursor: pointer; border: 1px solid transparent; }
+    .opp-btn-add { background: #1a5ba5; color: #fff; }
+    .opp-btn-add:hover { background: #14508f; }
+    .opp-btn-skip, .opp-btn-hold { background: #fff; border-color: #c3cfdc; color: #4a6b8f; }
+    .opp-btn-skip:hover, .opp-btn-hold:hover { background: #eef4fb; }
+    .opps-rejected { margin-top: 6px; }
+    .opps-rejected summary { font-size: 12px; color: #8a3a28; cursor: pointer; font-weight: 600; }
+    .opps-rejected .rej-row { font-size: 12px; color: #777; padding: 6px 4px; border-bottom: 1px solid #eee; }
+    .opps-rejected .rej-row b { color: #555; }
+    @media (max-width: 560px) { .opp-row { flex-wrap: wrap; } .opp-actions { flex-direction: row; width: 100%; } .opp-actions button { flex: 1; } }
+
     /* Closing calendar */
     .calendar-block { border: 2px solid #003d66; border-radius: 12px; background: #f7fafd; padding: 16px 16px 10px; margin-bottom: 24px; }
     .calendar-block h3 { color: #003d66; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
@@ -265,6 +298,17 @@
         <div class="cal-grid" id="calGrid"></div>
       </div>
 
+      <!-- Buy-box market scan: green/yellow/red triage of found lots -->
+      <div class="opps" id="oppsBlock" style="display:none;">
+        <h3>New Opportunities <span>&mdash; buy-box market scan</span></h3>
+        <div class="opps-sub" id="oppsSub"></div>
+        <div id="oppsList"></div>
+        <details class="opps-rejected" id="oppsRejected" style="display:none;">
+          <summary></summary>
+          <div id="oppsRejectedList"></div>
+        </details>
+      </div>
+
       <!-- New leads awaiting a first offer (QR + research requests) -->
       <div class="newleads" id="newLeadsBlock" style="display:none;">
         <h3>New Leads <span>&mdash; awaiting first offer</span></h3>
@@ -330,7 +374,7 @@
 
   <script>
     const STORE_KEY = 'landAcqSubmissions';
-    const SEED_FLAG = 'landAcqSeeded_v4';
+    const SEED_FLAG = 'landAcqSeeded_v5';
     const PAGE_SIZE = 6;
     const OUTREACH_BASELINE = 150; // direct-mail pieces sent before digital tracking began
     const API_LOTS = '/api/land-acq/lots';
@@ -370,6 +414,77 @@
       if (typeof l.lotStipend === 'number') return l.lotStipend;
       const t = inferUtilityType(l);
       return t ? stipendState.defaults[t] : null;
+    }
+
+    // ---- Buy box (locked purchasing filters) --------------------------------
+    // Palm Bay pilot. Off-market lots come from the FL DOR / county assessment
+    // API (authoritative). Every candidate is scored against these before it
+    // reaches Kevin. Edit these once, and the whole scan re-triages.
+    const BUY_BOX = {
+      zips: ['32905', '32906', '32907', '32908', '32909'],
+      minAcres: 0.25, maxAcres: 2,
+      defaultOffer: 30000,      // starting cash offer (Kevin can override)
+      floodReview: ['A', 'AE'], // insurable but needs sign-off
+    };
+
+    function acresOf(l) {
+      if (typeof l.acres === 'number') return l.acres;
+      const m = String(l.lotSize || '').match(/([\d.]+)\s*acre/i);
+      return m ? parseFloat(m[1]) : null;
+    }
+
+    // Returns { light: 'green'|'yellow'|'red', reasons: [...], offer } for a lot.
+    // RED  = fails a hard buy-box rule (auto-rejected, logged).
+    // YELLOW = buyable but needs Kevin/Elizabeth review (over stipend, a yellow
+    //          flag, or missing data).
+    // GREEN = meets every rule, at/under stipend, no flags — ready to send.
+    function evaluateBuyBox(l) {
+      const red = [], yellow = [];
+      const acres = acresOf(l);
+      const stipend = lotStipend(l);
+      const offer = typeof l.offerSuggested === 'number' ? l.offerSuggested : BUY_BOX.defaultOffer;
+
+      // Hard fails → RED
+      if (l.hasStructure) red.push('Has a structure (not a vacant lot)');
+      if (l.zoningClass && !/resid/i.test(l.zoningClass)) red.push('Zoning not residential');
+      if (acres != null && (acres < BUY_BOX.minAcres || acres > BUY_BOX.maxAcres))
+        red.push('Lot ' + acres + ' ac outside ' + BUY_BOX.minAcres + '–' + BUY_BOX.maxAcres + ' ac');
+      if (l.wetlands) red.push('Wetlands on parcel');
+      if (l.landlocked) red.push('No road access (landlocked)');
+      if (l.deedRestricted) red.push('Deed restriction prohibits builder');
+      if (/shared|mobile/i.test(l.utilities || '')) red.push('Utilities not acceptable (shared/mobile)');
+
+      // Needs review → YELLOW
+      if (stipend != null && offer > stipend)
+        yellow.push('Offer ' + money(offer) + ' over ' + money(stipend) + ' stipend');
+      if (typeof l.listPrice === 'number' && stipend != null && l.listPrice > stipend)
+        yellow.push('Asking ' + money(l.listPrice) + ' over ' + money(stipend) + ' stipend');
+      if (l.floodZone && BUY_BOX.floodReview.includes(String(l.floodZone).toUpperCase()))
+        yellow.push('Flood zone ' + l.floodZone + ' — insurable, needs sign-off');
+      if (l.hoa) yellow.push('HOA restriction');
+      if (l.minorEasement) yellow.push('Minor easement');
+      if (!l.parcel || !(l.ownerContact || l.owner) || !inferUtilityType(l))
+        yellow.push('Missing data — verify before offer');
+
+      const light = red.length ? 'red' : (yellow.length ? 'yellow' : 'green');
+      const reasons = red.length ? red : (yellow.length ? yellow : ['Meets every buy-box rule — ready to send']);
+      return { light, reasons, offer };
+    }
+
+    // Persist a single lot change (Add / Skip / Hold from the opportunity queue).
+    async function patchLot(id, set) {
+      if (mode === 'server') {
+        try {
+          await fetch(API_LOTS, { method: 'PATCH',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, adminHeaders()),
+            body: JSON.stringify({ id, set }), signal: AbortSignal.timeout(9000) });
+        } catch (e) { /* keep UI responsive; next load reconciles */ }
+      } else {
+        const lots = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+        const t = lots.find(l => String(l.id) === String(id));
+        if (t) { Object.assign(t, set); localStorage.setItem(STORE_KEY, JSON.stringify(lots)); }
+      }
+      render();
     }
 
     function offerNumber(l) {
@@ -412,7 +527,13 @@
         { id: now - 9, address: '42 Redfish Ct, Palm Bay, FL 32909', status: 'survey-rcvd', source: 'Direct Mail', listPrice: 36000, listStatus: 'Active Listing', parcel: '2946-07ST-11888', owner: 'Alan Cross', ownerContact: '42 Redfish Ct, Palm Bay, FL 32909 | (321) 555-2020 | across@email.com', lotSize: '0.27 acres (11,761 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: City', taxValue: '$30,100', annualTax: '$523', offer: '$34,500', createdAt: iso(now - 26 * day), acceptedAt: iso(now - 18 * day), scheduledClose: dt(0, 28) },
         { id: now - 10, address: '77 Marlin Way, Palm Bay, FL 32908', status: 'cd-approved', source: 'Direct Mail', listPrice: 31000, listStatus: 'Active Listing', parcel: '2947-01UV-22999', owner: 'Beth Nolan', ownerContact: '77 Marlin Way, Palm Bay, FL 32908 | (321) 555-3030 | bnolan@email.com', lotSize: '0.23 acres (10,019 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$28,200', annualTax: '$490', offer: '$29,500', createdAt: iso(now - 33 * day), acceptedAt: iso(now - 24 * day), scheduledClose: dt(1, 8) },
         { id: now - 7, address: '200 Harbor Dr, Palm Bay, FL 32905', status: 'closed', source: 'Direct Mail', listPrice: 29000, listStatus: 'Active Listing', parcel: '2945-02QR-10677', owner: 'Susan Park', ownerContact: '200 Harbor Dr, Palm Bay, FL 32905 | (321) 555-6600 | spark@email.com', lotSize: '0.21 acres (9,148 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$24,000', annualTax: '$418', offer: '$29,000', createdAt: iso(now - 62 * day), acceptedAt: iso(now - 50 * day), closedAt: dt(0, Math.max(1, new Date().getDate() - 2)) },
-        { id: now - 8, address: '987 Maple Drive, Palm Bay, FL 32907', status: 'declined', source: 'FSBO', listPrice: null, listStatus: 'FSBO', parcel: '2941-05IJ-60874', owner: 'Patricia Moore', ownerContact: '987 Maple Drive, Palm Bay, FL 32907 | (321) 555-9080 | pmoore@email.com', lotSize: '0.26 acres (11,326 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$27,300', annualTax: '$471', createdAt: iso(now - 90 * day) }
+        { id: now - 8, address: '987 Maple Drive, Palm Bay, FL 32907', status: 'declined', source: 'FSBO', listPrice: null, listStatus: 'FSBO', parcel: '2941-05IJ-60874', owner: 'Patricia Moore', ownerContact: '987 Maple Drive, Palm Bay, FL 32907 | (321) 555-9080 | pmoore@email.com', lotSize: '0.26 acres (11,326 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$27,300', annualTax: '$471', createdAt: iso(now - 90 * day) },
+
+        // Buy-box market-scan results (FL DOR assessment API) awaiting Kevin's triage.
+        { id: now - 20, status: 'opportunity', source: 'Market Scan · FL DOR', address: '3145 Weber Rd, Palm Bay, FL 32909', parcel: '2945-11GH-30288', owner: 'Estate of R. Alvarez', ownerContact: 'PO Box 441, Palm Bay, FL 32909', acres: 0.50, lotSize: '0.50 acres (21,780 sqft)', zoningClass: 'Residential', utilities: 'Water: City / Sewer: City', floodZone: 'X', taxValue: '$38,500', createdAt: iso(now - 1 * day) },
+        { id: now - 21, status: 'opportunity', source: 'Market Scan · FL DOR', address: '760 Emerson Dr NW, Palm Bay, FL 32907', parcel: '2938-02AB-11907', owner: 'James & Carol Petit', ownerContact: '760 Emerson Dr NW, Palm Bay, FL 32907', acres: 0.34, lotSize: '0.34 acres (14,810 sqft)', zoningClass: 'Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', floodZone: 'AE', taxValue: '$29,900', createdAt: iso(now - 1 * day) },
+        { id: now - 22, status: 'opportunity', source: 'Market Scan · MLS', address: '1421 Bianca Dr NE, Palm Bay, FL 32905', parcel: '2933-08KL-42210', owner: 'Listed — Palm Realty', listStatus: 'Active Listing', listPrice: 42000, acres: 0.29, lotSize: '0.29 acres (12,632 sqft)', zoningClass: 'Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', floodZone: 'X', taxValue: '$26,100', createdAt: iso(now - 2 * day) },
+        { id: now - 23, status: 'opportunity', source: 'Market Scan · FL DOR', address: '55 Degroodt Rd SW, Palm Bay, FL 32908', parcel: '2949-03MN-90551', owner: 'H. Okafor', ownerContact: '55 Degroodt Rd SW, Palm Bay, FL 32908', acres: 3.20, lotSize: '3.20 acres (139,392 sqft)', zoningClass: 'Residential', utilities: 'Water: City / Sewer: None (Septic required)', floodZone: 'X', wetlands: true, taxValue: '$61,000', createdAt: iso(now - 2 * day) }
       ];
       const have = new Set(existing.map(s => (s.address || '').toLowerCase()));
       const merged = existing.concat(seeds.filter(s => !have.has(s.address.toLowerCase())));
@@ -557,8 +678,84 @@
       }
     }
 
+    // New Opportunities — buy-box scan results with green/yellow/red triage.
+    function renderOpportunities(lots) {
+      const block = document.getElementById('oppsBlock');
+      const list = document.getElementById('oppsList');
+      const sub = document.getElementById('oppsSub');
+      const rejWrap = document.getElementById('oppsRejected');
+      const rejList = document.getElementById('oppsRejectedList');
+      const opps = lots.filter(l => l.status === 'opportunity');
+      if (!opps.length) { block.style.display = 'none'; return; }
+
+      const scored = opps.map(l => ({ l, ev: evaluateBuyBox(l) }));
+      const order = { green: 0, yellow: 1 };
+      const actionable = scored.filter(s => s.ev.light !== 'red')
+        .sort((a, b) => (order[a.ev.light] - order[b.ev.light]) || (new Date(b.l.createdAt) - new Date(a.l.createdAt)));
+      const rejected = scored.filter(s => s.ev.light === 'red');
+
+      const greenN = actionable.filter(s => s.ev.light === 'green').length;
+      const yellowN = actionable.filter(s => s.ev.light === 'yellow').length;
+      block.style.display = 'block';
+      sub.textContent = greenN + ' ready to send · ' + yellowN + ' need review'
+        + (rejected.length ? ' · ' + rejected.length + ' auto-rejected' : '');
+
+      list.innerHTML = '';
+      actionable.forEach(({ l, ev }) => {
+        const row = document.createElement('div');
+        row.className = 'opp-row ' + ev.light;
+
+        const badge = document.createElement('span');
+        badge.className = 'light ' + ev.light;
+        badge.textContent = ev.light === 'green' ? 'Ready' : 'Review';
+
+        const main = document.createElement('div');
+        main.className = 'opp-main';
+        const addr = document.createElement('div'); addr.className = 'opp-addr';
+        addr.textContent = l.address || '—';
+        const meta = document.createElement('div'); meta.className = 'opp-meta';
+        const util = inferUtilityType(l);
+        meta.textContent = [l.source || 'Market Scan', acresOf(l) != null ? acresOf(l) + ' ac' : null,
+          util ? STIPEND_LABELS[util] : null].filter(Boolean).join(' · ');
+        const reason = document.createElement('div'); reason.className = 'opp-reason';
+        reason.textContent = (ev.light === 'green' ? '✓ ' : '⚠ ') + ev.reasons.join(' · ');
+        main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+
+        const offer = document.createElement('div'); offer.className = 'opp-offer';
+        const oLbl = document.createElement('span'); oLbl.textContent = 'Suggested offer';
+        offer.appendChild(oLbl); offer.appendChild(document.createTextNode(money(ev.offer)));
+
+        const actions = document.createElement('div'); actions.className = 'opp-actions';
+        const add = document.createElement('button'); add.className = 'opp-btn-add'; add.textContent = 'Add to Pipeline';
+        add.addEventListener('click', () => patchLot(l.id, { status: 'pending', offerSuggested: ev.offer }));
+        const hold = document.createElement('button'); hold.className = 'opp-btn-hold'; hold.textContent = 'Hold';
+        hold.addEventListener('click', () => patchLot(l.id, { status: 'opportunity-hold' }));
+        const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Skip';
+        skip.addEventListener('click', () => patchLot(l.id, { status: 'declined' }));
+        actions.appendChild(add); actions.appendChild(hold); actions.appendChild(skip);
+
+        row.appendChild(badge); row.appendChild(main); row.appendChild(offer); row.appendChild(actions);
+        list.appendChild(row);
+      });
+
+      if (rejected.length) {
+        rejWrap.style.display = 'block';
+        rejWrap.querySelector('summary').textContent = '🔴 ' + rejected.length + ' auto-rejected (buy-box fail) — view reasons';
+        rejList.innerHTML = '';
+        rejected.forEach(({ l, ev }) => {
+          const r = document.createElement('div'); r.className = 'rej-row';
+          const b = document.createElement('b'); b.textContent = (l.address || '—') + ': ';
+          r.appendChild(b); r.appendChild(document.createTextNode(ev.reasons.join('; ')));
+          rejList.appendChild(r);
+        });
+      } else {
+        rejWrap.style.display = 'none';
+      }
+    }
+
     async function render() {
       const lots = await loadLots();
+      renderOpportunities(lots);
 
       // KPIs (live pipeline stages; Closed shows this-month only)
       const count = st => lots.filter(l => l.displayStatus === st).length;
