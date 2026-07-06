@@ -95,8 +95,18 @@ async function noHorizontalOverflow(page) {
     await page.click('#searchAddressBtn');
     await page.waitForSelector('#notFoundNote', { state: 'visible', timeout: 15000 });
     check('unknown property shows not-found note', true);
-    check('Call Kevin button present', await page.locator('a.btn-red[href^="tel:"]').isVisible());
+    check('Call Kevin button present', await page.locator('.cantfind a[href^="tel:"]').count() === 1);
     check('Email Kevin button present', await page.locator('.cantfind a[href^="mailto:"]').count() === 1);
+    // Research request captures a lead into the pipeline
+    await page.click('#researchForm button[type=submit]');
+    check('research form validation fires', await page.locator('#rfNameError').isVisible());
+    await page.fill('#rfName', 'Jane Doe');
+    await page.fill('#rfAddress', 'Corner lot near Malabar Rd, Palm Bay');
+    await page.fill('#rfPhone', '(321) 555-0102');
+    await page.fill('#rfEmail', 'jane@example.com');
+    await page.click('#researchForm button[type=submit]');
+    await page.waitForSelector('#researchMessage.success', { state: 'visible', timeout: 15000 });
+    check('research request submits', true);
 
     // ---------- Regression: symbol-only search must not match a record (F1) ----------
     await page.goto(BASE + '/index.html');
@@ -132,8 +142,8 @@ async function noHorizontalOverflow(page) {
 
     // ---------- Data sync to admin ----------
     const tableText = await page.textContent('#lotRows');
-    check('confirmed seller submission reaches dashboard',
-      tableText.includes('123 Maple Avenue'));
+    check('confirmed + research-request leads reach dashboard',
+      tableText.includes('123 Maple Avenue') && tableText.includes('Malabar'));
 
     // ---------- Kevin flow: KPIs, filters, pagination ----------
     const outreach = Number(await page.textContent('#kpiOutreach'));

@@ -96,7 +96,10 @@
     .cantfind { max-width: 640px; margin: 26px auto 0; background: #fdf5ef; border: 1px solid #f2ddcf; border-radius: 14px; padding: 28px 24px; text-align: center; }
     .cantfind h3 { color: var(--blue); font-size: 22px; margin-bottom: 10px; text-wrap: balance; }
     .cantfind p { color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 18px; }
-    .cantfind .btn + .btn { margin-top: 12px; }
+    .cantfind .rf-group { margin-bottom: 12px; text-align: left; }
+    .cantfind textarea { resize: vertical; }
+    .cantfind .field-error { text-align: left; }
+    .cantfind-or { margin: 20px 0 14px; color: #8a7a70; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
 
     /* Why sell now */
     .reasons { max-width: 680px; margin: 24px auto 0; display: grid; gap: 16px; }
@@ -265,9 +268,33 @@
       <!-- Can't find -->
       <div class="cantfind">
         <h3>Can't Find Your Property? No Problem.</h3>
-        <p>Our Land team will research your property for you and get back within one business day.</p>
-        <a class="btn btn-red" href="tel:4075230908">Call Kevin Now: (407) 523-0908</a>
-        <a class="btn btn-outline" href="mailto:ecland@adamshomes.com?subject=Vacant%20Land%20Inquiry&body=Hi%20Kevin%2C%20I'd%20like%20to%20get%20an%20offer%20on%20my%20vacant%20land.%20Here%20are%20the%20details%3A%0A%0AProperty%20address%3A%0AOwner%20name%3A%0ABest%20phone%3A%0A">Email Kevin Instead</a>
+        <p>Send us your details and our Land team will research your property for you and get back within one business day.</p>
+        <form id="researchForm" novalidate>
+          <div class="rf-group">
+            <input type="text" id="rfName" placeholder="Your name *" autocomplete="name">
+            <div class="field-error" id="rfNameError">Please enter your name.</div>
+          </div>
+          <div class="rf-group">
+            <input type="text" id="rfAddress" placeholder="Property address or description *" autocomplete="street-address">
+            <div class="field-error" id="rfAddressError">Please enter your property address or a short description.</div>
+          </div>
+          <div class="rf-group">
+            <input type="tel" id="rfPhone" placeholder="Phone *" autocomplete="tel">
+            <div class="field-error" id="rfPhoneError">Please enter a phone number.</div>
+          </div>
+          <div class="rf-group">
+            <input type="email" id="rfEmail" placeholder="Email *" autocomplete="email">
+            <div class="field-error" id="rfEmailError">Please enter a valid email.</div>
+          </div>
+          <div class="rf-group">
+            <textarea id="rfNotes" rows="3" placeholder="Anything else we should know? (optional)" maxlength="500"></textarea>
+          </div>
+          <button type="submit" class="btn btn-red">Request a Research Call</button>
+        </form>
+        <div class="message" id="researchMessage"></div>
+        <div class="cantfind-or">Or reach Kevin directly</div>
+        <a class="btn btn-outline" href="tel:4075230908">Call Kevin Now: (407) 523-0908</a>
+        <a class="btn btn-outline" href="mailto:ecland@adamshomes.com?subject=Vacant%20Land%20Inquiry&body=Hi%20Kevin%2C%20I'd%20like%20to%20get%20an%20offer%20on%20my%20vacant%20land.%20Here%20are%20the%20details%3A%0A%0AProperty%20address%3A%0AOwner%20name%3A%0ABest%20phone%3A%0A" style="margin-top:12px;">Email Kevin Instead</a>
       </div>
     </div>
   </section>
@@ -458,6 +485,46 @@
         return;
       }
       confirmMsg.style.display = 'block';
+    });
+
+    // "Can't find" research request — captures a lead into the pipeline.
+    document.getElementById('researchForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('rfName').value.trim();
+      const address = document.getElementById('rfAddress').value.trim();
+      const phone = document.getElementById('rfPhone').value.trim();
+      const email = document.getElementById('rfEmail').value.trim();
+      const notes = document.getElementById('rfNotes').value.trim();
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      showError('rfNameError', !name);
+      showError('rfAddressError', !address);
+      showError('rfPhoneError', !phone);
+      showError('rfEmailError', !emailOk);
+      if (!name || !address || !phone || !emailOk) return;
+      const btn = this.querySelector('button');
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Sending…';
+      const msg = document.getElementById('researchMessage');
+      const result = await saveLead({
+        address,
+        firstName: name.split(' ')[0],
+        lastName: name.split(' ').slice(1).join(' '),
+        owner: name, email, phone, notes: notes || null,
+        ownerContact: [address, phone, email].filter(Boolean).join(' | '),
+        source: 'Research Request',
+        verified: false
+      });
+      btn.disabled = false; btn.textContent = label;
+      if (result === 'duplicate') {
+        msg.className = 'message error';
+        msg.textContent = 'We already have a request for this property. Kevin will be in touch within one business day.';
+        msg.style.display = 'block';
+        return;
+      }
+      msg.className = 'message success';
+      msg.textContent = 'Thanks! Kevin will research your property and get back to you within one business day.';
+      msg.style.display = 'block';
+      this.reset();
     });
   </script>
 </body>
