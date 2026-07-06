@@ -169,13 +169,18 @@ async function noHorizontalOverflow(page) {
 
     // ---------- Kevin flow: pipeline table, filters, calendar ----------
     check('closing calendar renders two months', await page.locator('#calGrid .cal-month').count() === 2);
+    check('calendar entries link to deals', await page.locator('#calGrid a.cal-close[href^="offer-approval.html?id="]').count() >= 1);
+    check('calendar summary shows monthly counts', /closing.*this month.*scheduled next month/i.test(await page.textContent('#calSummary')));
+    check('KPI: Pending EP Sig present', (await page.textContent('.kpi-grid')).includes('Pending EP Sig'));
+    check('KPI: Clear to Close present', (await page.textContent('.kpi-grid')).includes('Clear to Close'));
+    check('metrics: commission tracker removed', !(await page.textContent('.metrics')).includes('Commission'));
     check('scheduled-to-close metric populated', Number(await page.textContent('#mScheduled')) >= 1);
     // Table shows only active-contract lots (no closed/declined/pending)
     const tbl = await page.textContent('#lotRows');
     check('table excludes closed lots', !tbl.includes('200 Harbor'));
     check('table excludes declined lots', !tbl.includes('987 Maple Drive'));
     check('table shows active lots', tbl.includes('321 Elm Court'));
-    await page.selectOption('#fStatus', 'ready-to-close');
+    await page.selectOption('#fStatus', 'ctc');
     await page.waitForTimeout(200);
     check('status filter works', (await page.textContent('#lotRows')).includes('88 Sable'));
     await page.selectOption('#fStatus', 'all');

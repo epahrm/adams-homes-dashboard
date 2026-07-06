@@ -33,17 +33,24 @@ export const pool =
 globalForPool.landAcqPool = pool
 
 export const LOT_STATUSES = [
-  'pending',
-  'offer-sent',
-  'seller-signed',
+  'pending',          // new lead, pre-offer
+  'offer-sent',       // offer sent to seller
+  'seller-signed',    // seller signed / offer accepted
+  'pending-ep-sig',   // awaiting Elizabeth Porter counter-signature
+  'ip',               // inspection period
+  'manager-driven',   // manager-driven review
+  'survey-rcvd',      // survey received
+  'cd-approved',      // closing disclosure approved
+  'ctc',              // clear to close
+  'closed',
+  'declined',
+  // legacy keys kept so older records still validate
   'awaiting-signature',
   'executed',
   'signed',
   'due-diligence',
   'post-inspection',
   'ready-to-close',
-  'closed',
-  'declined',
 ] as const
 
 // Palm Bay lot stipends (max price) by utility type. These are the seed
