@@ -17,7 +17,6 @@
     .site-header .container { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; padding-bottom: 16px; gap: 12px; }
     .brand-block .brand { color: #003d66; font-size: 24px; font-weight: 800; }
     .brand-block .tagline { color: #555; font-size: 13px; letter-spacing: 0.5px; }
-    .login-link { color: #003d66; font-weight: 600; text-decoration: underline; font-size: 16px; background: none; border: none; cursor: pointer; font-family: inherit; padding: 10px; }
 
     /* Hero */
     .hero { background: linear-gradient(160deg, #003d66 0%, #00527f 100%); color: white; text-align: center; padding: 64px 20px 56px; }
@@ -114,15 +113,7 @@
     .site-footer .brand { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
     .site-footer p { color: #cfdce6; font-size: 15px; line-height: 1.7; }
     .badges { margin-top: 16px; font-size: 14px; color: #bcd6e8; letter-spacing: 0.5px; }
-    .admin-link { margin-top: 14px; font-size: 13px; }
-    .admin-link a { color: #bcd6e8; text-decoration: underline; }
 
-    /* Login modal */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 50; align-items: center; justify-content: center; padding: 20px; }
-    .modal { background: white; border-radius: 12px; max-width: 400px; width: 100%; padding: 30px 26px; }
-    .modal h3 { color: #003d66; font-size: 22px; margin-bottom: 18px; }
-    .modal .close-row { text-align: right; margin-top: 6px; }
-    .modal .close-link { background: none; border: none; color: #555; text-decoration: underline; cursor: pointer; font-family: inherit; font-size: 14px; }
 
     @media (min-width: 768px) {
       .values-grid { grid-template-columns: repeat(2, 1fr); }
@@ -145,7 +136,6 @@
         <div class="brand">Adams Homes</div>
         <div class="tagline">Value, Simplified&trade;</div>
       </div>
-      <button class="login-link" id="loginLink">Login</button>
     </div>
   </header>
 
@@ -318,28 +308,7 @@
     <div class="brand">Adams Homes</div>
     <p>&copy; 2026 Adams Homes. All Rights Reserved.<br>Trusted Builder in Palm Bay Since 2001</p>
     <div class="badges">Licensed Builder &nbsp;|&nbsp; Secure SSL &nbsp;|&nbsp; Cash Buyer</div>
-    <div class="admin-link"><a href="admin.html">Kevin's Admin Portal</a></div>
   </footer>
-
-  <!-- Login modal -->
-  <div class="modal-overlay" id="loginModal">
-    <div class="modal">
-      <h3>Admin Login</h3>
-      <form id="loginForm" novalidate>
-        <div class="form-group">
-          <label for="loginEmail">Email</label>
-          <input type="email" id="loginEmail" required placeholder="ecland@adamshomes.com">
-        </div>
-        <div class="form-group">
-          <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" required>
-        </div>
-        <div class="field-error" id="loginError">Invalid email or password</div>
-        <button type="submit" class="btn-primary">Login</button>
-      </form>
-      <div class="close-row"><button class="close-link" id="loginClose">Close</button></div>
-    </div>
-  </div>
 
   <script>
     // Mock Brevard County parcel records used to verify lots client-side.
@@ -489,23 +458,6 @@
       this.reset();
     });
 
-    // Login modal
-    const loginModal = document.getElementById('loginModal');
-    document.getElementById('loginLink').addEventListener('click', () => { loginModal.style.display = 'flex'; });
-    document.getElementById('loginClose').addEventListener('click', () => { loginModal.style.display = 'none'; });
-    loginModal.addEventListener('click', e => { if (e.target === loginModal) loginModal.style.display = 'none'; });
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      if (!email || !password) {
-        showError('loginError', true);
-        return;
-      }
-      // Demo auth only — the production build validates against the backend (JWT).
-      sessionStorage.setItem('landAcqAdmin', email);
-      window.location.href = 'admin.html';
-    });
   </script>
 </body>
 </html>
