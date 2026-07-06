@@ -22,8 +22,15 @@ Static pages for the Land Acq Pro system, rebuilt to match the approved sample d
 - Legacy statuses from the previous landing page (`new`, `qualified`) are still recognized
   and displayed as PENDING.
 
+## Where these pages are served
+
+Because this folder lives under `public/`, the Next.js dashboard deployment serves the
+pages directly at `/land-acq-pro/index.html`, `/land-acq-pro/admin.html`, and
+`/land-acq-pro/offer-approval.html` (with `/land-acq-pro` redirecting to the landing
+page) — so they can be tested live on any Vercel preview of this repo.
+
 ## Deploying to the live site (land-acq-pro-app)
 
-These files are drop-in replacements. Copy all three HTML files to the root of the
-`epahrm/land-acq-pro-app` repository (overwriting `index.html` and `admin.html`,
-adding `offer-approval.html`) and push — Vercel auto-deploys on push.
+These files are also drop-in replacements for the standalone site. Copy all three HTML
+files to the root of the `epahrm/land-acq-pro-app` repository (overwriting `index.html`
+and `admin.html`, adding `offer-approval.html`) and push — Vercel auto-deploys on push.
