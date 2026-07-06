@@ -3,131 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adams Homes - No One Closes Faster</title>
+  <title>Adams Homes - Sell Your Vacant Land</title>
   <style>
+    :root {
+      --blue: #1a5ba5;
+      --blue-dark: #14508f;
+      --blue-deep: #123a63;
+      --red: #c0432f;
+      --red-dark: #a5361f;
+      --ink: #1a1a1a;
+      --muted: #555;
+      --ground: #eef2f7;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #ffffff; color: #1a1a1a; font-size: 16px;
+      background: #ffffff; color: var(--ink); font-size: 16px;
     }
     .container { max-width: 1024px; margin: 0 auto; padding: 0 20px; }
 
     /* Header */
     .site-header { background: #ffffff; }
-    .site-header .container { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; padding-bottom: 12px; gap: 12px; }
-    .brand-block { display: flex; align-items: center; gap: 14px; }
-    .brand-block img { height: 52px; width: auto; display: block; }
-    .brand-block .tagline { color: #555; font-size: 13px; letter-spacing: 0.5px; }
-    .brand-band { height: 6px; background: #d92e43; }
-    .brand-band::after { content: ''; display: block; height: 2px; background: #1a5ba5; margin-top: 2px; }
+    .site-header .container { display: flex; align-items: center; justify-content: center; padding: 18px 20px 14px; }
+    .brand-block { text-align: center; }
+    .brand-block img { height: 60px; width: auto; display: block; margin: 0 auto; }
+    .brand-block .tagline { color: var(--muted); font-size: 13px; letter-spacing: 0.5px; margin-top: 6px; }
+    .brand-band { height: 6px; background: var(--red); }
+    .brand-band::after { content: ''; display: block; height: 2px; background: var(--blue); margin-top: 2px; }
 
     /* Hero */
-    .hero { background: linear-gradient(160deg, #14508f 0%, #1a5ba5 100%); color: white; text-align: center; padding: 64px 20px 56px; }
-    .hero .eyebrow { font-size: 14px; letter-spacing: 3px; font-weight: 700; color: #bcd6e8; margin-bottom: 16px; text-transform: uppercase; }
-    .hero h1 { font-size: 40px; line-height: 1.2; margin-bottom: 18px; }
-    .hero .subtitle { font-size: 20px; line-height: 1.5; color: #e8f0f6; }
+    .hero { background: var(--blue); color: white; text-align: center; padding: 54px 20px 56px; }
+    .hero .eyebrow { display: inline-block; background: rgba(255,255,255,0.14); color: #fff; font-size: 15px; font-weight: 700; padding: 9px 20px; border-radius: 999px; margin-bottom: 22px; }
+    .hero h1 { font-size: 42px; line-height: 1.15; margin-bottom: 20px; text-wrap: balance; }
+    .hero .subtitle { font-size: 21px; line-height: 1.5; color: #eaf1f8; }
 
-    /* Value propositions */
-    .values { background: #f5f5f5; padding: 56px 0; }
-    .values-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
-    .value-card { background: white; border-radius: 12px; padding: 32px 26px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); text-align: center; }
-    .value-card .icon { font-size: 44px; margin-bottom: 14px; }
-    .value-card h3 { color: #1a5ba5; font-size: 22px; margin-bottom: 16px; }
-    .value-card ul { list-style: none; text-align: left; }
-    .value-card li { padding-left: 24px; position: relative; margin-bottom: 10px; line-height: 1.5; color: #333; }
-    .value-card li::before { content: '•'; color: #d92e43; font-weight: 700; position: absolute; left: 8px; }
+    /* Section shells */
+    .section { padding: 52px 0; }
+    .section.tint { background: var(--ground); }
+    .section h2 { color: var(--blue); font-size: 30px; text-align: center; margin-bottom: 12px; text-wrap: balance; }
+    .section .lede { text-align: center; color: var(--muted); font-size: 17px; max-width: 560px; margin: 0 auto 8px; }
+
+    /* Why Adams Homes bullets */
+    .why-list { max-width: 560px; margin: 22px auto 0; list-style: none; }
+    .why-list li { position: relative; padding-left: 26px; margin-bottom: 14px; font-size: 18px; color: #333; line-height: 1.5; }
+    .why-list li::before { content: '•'; position: absolute; left: 6px; color: var(--muted); font-weight: 700; }
+
+    /* Value props */
+    .values { display: grid; gap: 22px; grid-template-columns: 1fr; margin-top: 12px; }
+    .value-card { background: #fff; border: 1px solid #e6e9ee; border-radius: 14px; padding: 30px 26px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+    .value-card .icon { font-size: 44px; margin-bottom: 12px; }
+    .value-card h3 { color: var(--blue); font-size: 22px; margin-bottom: 16px; }
+    .value-card ul { list-style: none; text-align: left; max-width: 340px; margin: 0 auto; }
+    .value-card li { position: relative; padding-left: 22px; margin-bottom: 10px; line-height: 1.5; color: #333; }
+    .value-card li::before { content: '•'; position: absolute; left: 6px; color: var(--muted); font-weight: 700; }
 
     /* Search */
-    .search-section { padding: 56px 0; background: white; }
-    .search-section h2 { color: #1a5ba5; font-size: 30px; text-align: center; margin-bottom: 32px; }
-    .search-grid { max-width: 680px; margin: 0 auto; }
-    .search-card { border: 1px solid #ddd; border-radius: 12px; padding: 26px 22px; background: white; }
-    .search-card h3 { font-size: 20px; color: #1a1a1a; margin-bottom: 6px; }
-    .search-card .hint { color: #666; font-size: 15px; margin-bottom: 16px; }
-    .search-card label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #1a1a1a; }
+    .search-grid { max-width: 640px; margin: 24px auto 0; }
+    .search-card { border: 1px solid #dde3ea; border-radius: 12px; padding: 24px 22px; background: white; }
+    .search-card label { display: block; font-weight: 700; font-size: 17px; margin-bottom: 4px; color: var(--ink); }
+    .search-card .hint { color: #667; font-size: 15px; margin-bottom: 14px; line-height: 1.45; }
     input, textarea {
-      width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px;
+      width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 8px;
       font-family: inherit; font-size: 16px;
     }
-    input:focus, textarea:focus { outline: none; border-color: #1a5ba5; box-shadow: 0 0 0 3px rgba(0, 61, 102, 0.12); }
-    .btn-primary {
-      display: block; width: 100%; padding: 15px; background: #1a5ba5; color: white;
-      border: none; border-radius: 8px; font-size: 17px; font-weight: 700; cursor: pointer;
-      font-family: inherit; margin-top: 16px; transition: background 0.15s, box-shadow 0.15s;
-    }
-    .btn-primary:hover { background: #14508f; box-shadow: 0 3px 10px rgba(0,0,0,0.18); }
-    .btn-primary:disabled { background: #999; opacity: 0.6; cursor: not-allowed; }
-    .btn-secondary {
-      display: block; width: 100%; padding: 15px; background: #f5f5f5; color: #1a1a1a;
-      border: 1px solid #ccc; border-radius: 8px; font-size: 17px; font-weight: 600; cursor: pointer;
-      font-family: inherit; margin-top: 12px; transition: background 0.15s, box-shadow 0.15s;
-    }
-    .btn-secondary:hover { background: #ebebeb; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-    .field-error { color: #c62828; font-size: 14px; margin-top: 6px; display: none; }
-    .or-divider { display: flex; align-items: center; gap: 16px; margin: 26px 0; color: #555; font-size: 16px; }
-    .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: #ccc; }
+    input:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26, 91, 165, 0.14); }
+    .btn { display: block; width: 100%; padding: 16px; border-radius: 8px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; border: none; text-align: center; text-decoration: none; min-height: 52px; transition: background 0.15s, box-shadow 0.15s; }
+    .btn-blue { background: var(--blue); color: white; margin-top: 16px; }
+    .btn-blue:hover { background: var(--blue-dark); box-shadow: 0 3px 10px rgba(0,0,0,0.18); }
+    .btn-blue:disabled { background: #99a; opacity: 0.65; cursor: not-allowed; }
+    .btn-red { background: var(--red); color: white; }
+    .btn-red:hover { background: var(--red-dark); box-shadow: 0 3px 10px rgba(0,0,0,0.18); }
+    .btn-outline { background: white; color: var(--blue); border: 2px solid var(--blue); }
+    .btn-outline:hover { background: #eef4fb; }
+    .field-error { color: #c62828; font-size: 14px; margin-top: 8px; display: none; }
+    .or-divider { display: flex; align-items: center; gap: 16px; margin: 24px 0; color: #667; font-size: 16px; font-weight: 600; }
+    .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: #cdd5de; }
 
-    /* Search results */
-    #resultPanel { display: none; margin-top: 28px; }
-    .property-card { border: 2px solid #1a5a3a; border-radius: 12px; padding: 26px 22px; background: white; }
-    .property-card h3 { color: #1a5ba5; font-size: 15px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid #1a5ba5; padding-bottom: 10px; margin-bottom: 18px; }
+    /* Found property card */
+    #resultPanel { display: none; max-width: 640px; margin: 24px auto 0; }
+    .property-card { border: 2px solid var(--blue); border-radius: 12px; padding: 24px 22px; background: white; }
+    .property-card h3 { color: var(--blue); font-size: 15px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid var(--blue); padding-bottom: 10px; margin-bottom: 18px; }
     .p-field { margin-bottom: 14px; }
-    .p-field .lbl { color: #777; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
-    .p-field .val { font-size: 17px; color: #1a1a1a; }
-    .confirm { background: #e8f2ec; border-left: 5px solid #1a5a3a; border-radius: 6px; padding: 18px; font-size: 17px; color: #14401d; margin-top: 20px; display: none; }
-
-    /* Fallback form */
-    #fallbackPanel { display: none; margin-top: 28px; }
-    .fallback-head { background: #f5f5f5; border-radius: 8px; padding: 18px; font-size: 18px; color: #1a1a1a; text-align: center; margin-bottom: 20px; font-weight: 600; }
-    .fallback-card { border: 1px solid #ddd; border-radius: 12px; padding: 26px 22px; background: white; }
-    .form-group { margin-bottom: 16px; }
-    .message { padding: 14px; border-radius: 8px; margin-top: 18px; display: none; font-size: 16px; }
+    .p-field .lbl { color: #778; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
+    .p-field .val { font-size: 17px; color: var(--ink); }
+    .confirm { background: #e8f2ec; border-left: 5px solid #1a7a44; border-radius: 6px; padding: 18px; font-size: 17px; color: #14401d; margin-top: 20px; display: none; }
+    .message { padding: 14px; border-radius: 8px; margin-top: 16px; display: none; font-size: 16px; }
     .message.success { background: #e8f2ec; color: #14401d; border: 1px solid #bcd8c6; }
-    .message.error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+    .message.error { background: #fdecea; color: #b02a1a; border: 1px solid #f3c3bb; }
+    .notfound-note { display: none; max-width: 640px; margin: 20px auto 0; background: #fdf3ef; border: 1px solid #f0cabe; border-radius: 8px; padding: 14px 18px; font-size: 15px; color: #8a3a28; text-align: center; }
 
-    /* Process */
-    .process { background: #f5f5f5; padding: 56px 0; }
-    .process h2 { color: #1a5ba5; font-size: 30px; text-align: center; margin-bottom: 36px; }
-    .steps { max-width: 680px; margin: 0 auto; }
-    .step { background: white; border-radius: 12px; padding: 28px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; gap: 20px; align-items: flex-start; }
-    .step .num {
-      flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; background: #1a5ba5; color: white;
-      display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800;
-    }
-    .step h3 { color: #1a5ba5; font-size: 19px; letter-spacing: 1px; margin-bottom: 8px; }
-    .step p { color: #333; line-height: 1.6; }
-    .step-connector { width: 4px; height: 40px; background: #1a5ba5; margin: 0 auto; border-radius: 2px; }
+    /* Can't find box */
+    .cantfind { max-width: 640px; margin: 26px auto 0; background: #fdf5ef; border: 1px solid #f2ddcf; border-radius: 14px; padding: 28px 24px; text-align: center; }
+    .cantfind h3 { color: var(--blue); font-size: 22px; margin-bottom: 10px; text-wrap: balance; }
+    .cantfind p { color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 18px; }
+    .cantfind .btn + .btn { margin-top: 12px; }
+
+    /* Why sell now */
+    .reasons { max-width: 680px; margin: 24px auto 0; display: grid; gap: 16px; }
+    .reason { background: #fff; border: 1px solid #e6e9ee; border-left: 5px solid var(--red); border-radius: 10px; padding: 20px 22px; }
+    .reason h3 { color: var(--ink); font-size: 18px; margin-bottom: 6px; }
+    .reason p { color: #555; font-size: 16px; line-height: 1.5; }
+
+    /* How it works */
+    .steps { max-width: 620px; margin: 8px auto 0; text-align: center; }
+    .step .num { width: 64px; height: 64px; border-radius: 50%; background: var(--blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; margin: 0 auto 14px; }
+    .step h3 { color: var(--blue); font-size: 18px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .step p { color: #444; line-height: 1.6; max-width: 480px; margin: 0 auto; }
+    .step-connector { width: 3px; height: 46px; background: #c9d4e2; margin: 18px auto; }
 
     /* Kevin card */
-    .kevin { background: white; padding: 56px 0; }
-    .kevin-card { max-width: 560px; margin: 0 auto; background: #f5f5f5; border-radius: 14px; text-align: center; padding: 44px 28px; }
-    .avatar {
-      width: 110px; height: 110px; border-radius: 50%; background: #dde5ec;
-      margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 52px;
-    }
-    .kevin-card .name { font-size: 27px; font-weight: 800; color: #1a5ba5; margin-bottom: 4px; }
-    .kevin-card .role { font-size: 18px; color: #555; margin-bottom: 18px; }
-    .kevin-card .line { font-size: 18px; margin-bottom: 10px; }
-    .kevin-card a { color: #1a5ba5; text-decoration: underline; font-weight: 600; }
-    .kevin-card .support { margin-top: 18px; font-size: 16px; color: #333; line-height: 1.6; }
+    .kevin-wrap { padding: 40px 0 8px; }
+    .kevin-card { max-width: 600px; margin: 0 auto; background: var(--blue); border-radius: 16px; color: white; text-align: center; padding: 40px 28px; }
+    .kevin-card .photo { width: 128px; height: 128px; border-radius: 50%; margin: 0 auto 20px; object-fit: cover; border: 4px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); }
+    .kevin-card .name { font-size: 27px; font-weight: 800; margin-bottom: 6px; }
+    .kevin-card .role { font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #cfe0f2; margin-bottom: 18px; }
+    .kevin-card .bio { font-size: 17px; line-height: 1.6; color: #eaf1f8; margin-bottom: 22px; max-width: 460px; margin-left: auto; margin-right: auto; }
+    .kevin-card .btn-white { background: white; color: var(--blue); }
+    .kevin-card .btn-white:hover { background: #eef4fb; }
+    .kevin-card .btn-translucent { background: rgba(255,255,255,0.16); color: white; border: 1px solid rgba(255,255,255,0.5); margin-top: 12px; }
+    .kevin-card .btn-translucent:hover { background: rgba(255,255,255,0.26); }
+    .kevin-card .sbd { margin-top: 16px; font-style: italic; color: #cfe0f2; font-size: 15px; }
 
     /* Footer */
-    .site-footer { background: #1a5ba5; color: white; text-align: center; padding: 40px 20px; }
-    .site-footer .brand { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
-    .site-footer p { color: #cfdce6; font-size: 15px; line-height: 1.7; }
-    .badges { margin-top: 16px; font-size: 14px; color: #bcd6e8; letter-spacing: 0.5px; }
-
+    .site-footer { background: var(--blue-deep); color: white; text-align: center; padding: 40px 20px 44px; }
+    .footer-logo { display: inline-block; background: white; border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; }
+    .footer-logo img { height: 46px; width: auto; display: block; }
+    .site-footer p { color: #d3deec; font-size: 15px; line-height: 1.7; }
+    .site-footer .tag { font-size: 16px; color: #eaf1f8; }
+    .footer-links { margin: 14px 0 6px; font-size: 15px; }
+    .footer-links a { color: #cfe0f2; text-decoration: underline; }
+    .footer-copy { font-size: 14px; color: #a9bcd4; }
 
     @media (min-width: 768px) {
-      .values-grid { grid-template-columns: repeat(2, 1fr); }
-      .hero h1 { font-size: 46px; }
-    }
-    @media (min-width: 1024px) {
-      .values-grid { grid-template-columns: repeat(3, 1fr); }
+      .values { grid-template-columns: repeat(3, 1fr); }
+      .hero h1 { font-size: 48px; }
     }
     @media (max-width: 480px) {
-      .hero h1 { font-size: 30px; }
-      .hero .subtitle { font-size: 17px; }
+      .hero h1 { font-size: 32px; }
+      .hero .subtitle { font-size: 18px; }
+      .section h2 { font-size: 25px; }
     }
   </style>
 </head>
@@ -145,31 +159,44 @@
 
   <!-- Hero -->
   <section class="hero">
-    <div class="eyebrow">Sell Your Vacant Land Fast</div>
-    <h1>No One Closes Faster Than Adams Homes</h1>
-    <p class="subtitle">Get your instant offer. We do all the work. You sit back and relax.</p>
+    <div class="container">
+      <div class="eyebrow">Sell Your Vacant Land</div>
+      <h1>Sell Fast Without the Hassle</h1>
+      <p class="subtitle">We handle everything. You get cash.</p>
+    </div>
   </section>
 
-  <!-- Value propositions -->
-  <section class="values">
+  <!-- Why Adams Homes -->
+  <section class="section">
     <div class="container">
-      <div class="values-grid">
+      <h2>Why Adams Homes?</h2>
+      <ul class="why-list">
+        <li>Over 35 years of building experience</li>
+        <li>We've purchased more than 75,000 lots</li>
+        <li>Full-time local team ready to serve you</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Value props -->
+  <section class="section tint">
+    <div class="container">
+      <div class="values">
         <div class="value-card">
           <div class="icon">&#9889;</div>
           <h3>Fastest Closing</h3>
           <ul>
             <li>No one closes faster than Adams Homes</li>
-            <li>Our team gets to work right away to close you faster</li>
-            <li>Convenient mail-away process with no travel needed</li>
+            <li>Our team gets to work right away</li>
+            <li>Closing process is very convenient with no travel required</li>
           </ul>
         </div>
         <div class="value-card">
           <div class="icon">&#128176;</div>
           <h3>Cash Ready</h3>
           <ul>
-            <li>100% cash buyer with funds ready</li>
+            <li>We are a 100% cash buyer</li>
             <li>No financing contingencies</li>
-            <li>Funds available immediately upon approval</li>
           </ul>
         </div>
         <div class="value-card">
@@ -177,7 +204,7 @@
           <h3>Zero Middlemen</h3>
           <ul>
             <li>Deal direct with Adams Homes</li>
-            <li>No agents. No brokers</li>
+            <li>No agents. No brokers.</li>
             <li>No commissions or hidden fees</li>
           </ul>
         </div>
@@ -185,134 +212,119 @@
     </div>
   </section>
 
-  <!-- Search -->
-  <section class="search-section">
+  <!-- Let's Get Started -->
+  <section class="section">
+    <div class="container">
+      <h2>Let's Get Started!</h2>
+      <p class="lede">Search for your property below, or connect with our Land team.</p>
+    </div>
+  </section>
+
+  <!-- Find Your Property -->
+  <section class="section tint" style="padding-top:8px;">
     <div class="container">
       <h2>Find Your Property</h2>
       <div class="search-grid">
         <div class="search-card">
-          <h3>Search by Owner Name</h3>
-          <p class="hint">Enter the name from Brevard County records</p>
-          <label for="ownerName">Owner name</label>
+          <label for="ownerName">Search by Owner Name</label>
+          <p class="hint">Enter the name on the property's Brevard County record.</p>
           <input type="text" id="ownerName" placeholder="Enter owner name" autocomplete="name">
-          <div class="field-error" id="ownerNameError">Please enter owner name (at least 2 characters)</div>
-          <button type="button" class="btn-primary" id="searchNameBtn">Search</button>
+          <div class="field-error" id="ownerNameError">Please enter an owner name (at least 2 characters).</div>
+          <button type="button" class="btn btn-blue" id="searchNameBtn">Search by Name</button>
         </div>
 
         <div class="or-divider">OR</div>
 
         <div class="search-card">
-          <h3>Search by Property Address</h3>
-          <p class="hint">If you have it handy</p>
-          <label for="streetAddress">Property address</label>
+          <label for="streetAddress">Search by Property Address</label>
+          <p class="hint">If you have a formal address, enter it here to speed up the search.</p>
           <input type="text" id="streetAddress" placeholder="Enter property address" autocomplete="street-address">
-          <div class="field-error" id="streetAddressError">Please enter valid property address</div>
-          <button type="button" class="btn-primary" id="searchAddressBtn">Search</button>
+          <div class="field-error" id="streetAddressError">Please enter a valid property address.</div>
+          <button type="button" class="btn btn-blue" id="searchAddressBtn">Search by Address</button>
         </div>
+      </div>
 
-        <!-- Search result -->
-        <div id="resultPanel">
-          <div class="property-card">
-            <h3>Property Found</h3>
-            <div class="p-field"><div class="lbl">Address</div><div class="val" id="recAddress"></div></div>
-            <div class="p-field"><div class="lbl">Owner</div><div class="val" id="recOwner"></div></div>
-            <div class="p-field"><div class="lbl">Lot Size</div><div class="val" id="recLotSize"></div></div>
-            <div class="p-field"><div class="lbl">Zoning</div><div class="val" id="recZoning"></div></div>
-            <div class="p-field"><div class="lbl">Utilities</div><div class="val" id="recUtilities"></div></div>
-            <div class="p-field"><div class="lbl">Tax Value</div><div class="val" id="recTaxValue"></div></div>
-            <button type="button" class="btn-primary" id="confirmBtn">Yes, this is my property</button>
-            <button type="button" class="btn-secondary" id="searchAgainBtn">No, search again</button>
-            <div class="confirm" id="confirmMsg">Property verified. Kevin will send your offer within 24 hours.</div>
-            <div class="message" id="resultMessage"></div>
-          </div>
+      <!-- Found property -->
+      <div id="resultPanel">
+        <div class="property-card">
+          <h3>Property Found</h3>
+          <div class="p-field"><div class="lbl">Address</div><div class="val" id="recAddress"></div></div>
+          <div class="p-field"><div class="lbl">Owner</div><div class="val" id="recOwner"></div></div>
+          <div class="p-field"><div class="lbl">Lot Size</div><div class="val" id="recLotSize"></div></div>
+          <div class="p-field"><div class="lbl">Zoning</div><div class="val" id="recZoning"></div></div>
+          <div class="p-field"><div class="lbl">Utilities</div><div class="val" id="recUtilities"></div></div>
+          <button type="button" class="btn btn-blue" id="confirmBtn">Yes, this is my property</button>
+          <button type="button" class="btn btn-outline" id="searchAgainBtn" style="margin-top:12px;">No, search again</button>
+          <div class="confirm" id="confirmMsg">Property verified. Kevin will send your custom offer within one business day.</div>
+          <div class="message" id="resultMessage"></div>
         </div>
+      </div>
 
-        <!-- Fallback form -->
-        <div id="fallbackPanel">
-          <div class="fallback-head">We couldn't find your property. No problem.</div>
-          <div class="fallback-card">
-            <form id="fallbackForm" novalidate>
-              <div class="form-group">
-                <label for="fbOwnerName">Owner Name *</label>
-                <input type="text" id="fbOwnerName" required>
-                <div class="field-error" id="fbOwnerNameError">Owner name is required</div>
-              </div>
-              <div class="form-group">
-                <label for="fbAddress">Property Address *</label>
-                <input type="text" id="fbAddress" required>
-                <div class="field-error" id="fbAddressError">Property address is required</div>
-              </div>
-              <div class="form-group">
-                <label for="fbLotSize">Lot Size (optional)</label>
-                <input type="text" id="fbLotSize" placeholder="e.g. 0.25 acres">
-              </div>
-              <div class="form-group">
-                <label for="fbPhone">Contact Phone *</label>
-                <input type="tel" id="fbPhone" required placeholder="(XXX) XXX-XXXX">
-                <div class="field-error" id="fbPhoneError">Contact phone is required</div>
-              </div>
-              <div class="form-group">
-                <label for="fbEmail">Contact Email *</label>
-                <input type="email" id="fbEmail" required placeholder="you@example.com">
-                <div class="field-error" id="fbEmailError">Valid email required</div>
-              </div>
-              <div class="form-group">
-                <label for="fbNotes">Additional Notes (optional)</label>
-                <textarea id="fbNotes" rows="4" maxlength="500"></textarea>
-              </div>
-              <button type="submit" class="btn-primary">Submit - Kevin Will Research Your Lot</button>
-            </form>
-            <div class="message" id="fallbackMessage"></div>
-          </div>
-        </div>
+      <div class="notfound-note" id="notFoundNote">We couldn't find that property automatically &mdash; no problem. Our Land team will research it for you.</div>
+
+      <!-- Can't find -->
+      <div class="cantfind">
+        <h3>Can't Find Your Property? No Problem.</h3>
+        <p>Our Land team will research your property for you and get back within one business day.</p>
+        <a class="btn btn-red" href="tel:4075230908">Call Kevin Now: (407) 523-0908</a>
+        <a class="btn btn-outline" href="mailto:ecland@adamshomes.com?subject=Vacant%20Land%20Inquiry&body=Hi%20Kevin%2C%20I'd%20like%20to%20get%20an%20offer%20on%20my%20vacant%20land.%20Here%20are%20the%20details%3A%0A%0AProperty%20address%3A%0AOwner%20name%3A%0ABest%20phone%3A%0A">Email Kevin Instead</a>
       </div>
     </div>
   </section>
 
-  <!-- Process -->
-  <section class="process">
+  <!-- Why Sell Now -->
+  <section class="section">
+    <div class="container">
+      <h2>Why Sell Now?</h2>
+      <div class="reasons">
+        <div class="reason"><h3>Carrying Costs Add Up</h3><p>Vacant land costs you money every year in taxes, insurance, and maintenance.</p></div>
+        <div class="reason"><h3>Market is Strong Right Now</h3><p>Interest rates and market conditions shift. This is a strong seller's market.</p></div>
+        <div class="reason"><h3>We're Actively Buying This Quarter</h3><p>We are a cash buyer and we're closing deals fast.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section tint">
     <div class="container">
       <h2>How It Works</h2>
       <div class="steps">
         <div class="step">
           <div class="num">1</div>
-          <div>
-            <h3>GET YOUR INSTANT OFFER</h3>
-            <p>We verify your property and send your custom offer. You review it.</p>
-          </div>
+          <h3>Get Your Custom Offer</h3>
+          <p>Once we verify your property, we'll send your offer within one business day. No obligation.</p>
         </div>
         <div class="step-connector"></div>
         <div class="step">
           <div class="num">2</div>
-          <div>
-            <h3>WE CLOSE YOUR DEAL</h3>
-            <p>Our team handles all the work. Due diligence, inspections, closing. You relax.</p>
-          </div>
+          <h3>We Close Your Deal</h3>
+          <p>Our team handles everything&mdash;no appraisals, no inspections, no delays. Average close: 45 days.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Kevin's contact card -->
-  <section class="kevin">
+  <!-- Kevin card -->
+  <section class="kevin-wrap">
     <div class="container">
       <div class="kevin-card">
-        <div class="avatar">&#128100;</div>
+        <img class="photo" src="kevin-nelson.jpg" alt="Kevin Nelson, Land Acquisition Manager">
         <div class="name">Kevin Nelson</div>
         <div class="role">Land Acquisition Manager</div>
-        <div class="line"><a href="tel:4075230908">(407) 523-0908</a></div>
-        <div class="line"><a href="mailto:ecland@adamshomes.com">ecland@adamshomes.com</a></div>
-        <div class="support">Kevin owns your deal from start to finish. Call him with any questions.</div>
+        <p class="bio">Kevin owns your deal from start to finish and can answer any question you have about selling your land to Adams Homes.</p>
+        <a class="btn btn-white" href="tel:4075230908">Call Kevin: (407) 523-0908</a>
+        <a class="btn btn-translucent" href="mailto:ecland@adamshomes.com?subject=Vacant%20Land%20Inquiry">Email Kevin</a>
+        <div class="sbd">Same business day response</div>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
   <footer class="site-footer">
-    <div class="brand">Adams Homes</div>
-    <div style="width:60px;height:4px;background:#d92e43;margin:0 auto 14px;border-radius:2px;"></div>
-    <p>&copy; 2026 Adams Homes. All Rights Reserved.<br>Trusted Builder in Palm Bay Since 2001</p>
-    <div class="badges">Licensed Builder &nbsp;|&nbsp; Secure SSL &nbsp;|&nbsp; Cash Buyer</div>
+    <div class="footer-logo"><img src="adams-homes-logo.png" alt="Adams Homes"></div>
+    <p class="tag">Locally managed. Nationally backed.<br>We've done this more than 75,000 times.</p>
+    <div class="footer-links"><a href="#">Privacy Policy</a> &nbsp;|&nbsp; <a href="#">Terms</a></div>
+    <p class="footer-copy">&copy; 2026 Adams Homes. All Rights Reserved.</p>
   </footer>
 
   <script>
@@ -328,9 +340,9 @@
     ];
 
     const resultPanel = document.getElementById('resultPanel');
-    const fallbackPanel = document.getElementById('fallbackPanel');
     const confirmMsg = document.getElementById('confirmMsg');
     const resultMessage = document.getElementById('resultMessage');
+    const notFoundNote = document.getElementById('notFoundNote');
     let matchedRecord = null;
 
     function normalize(s) { return (s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
@@ -338,7 +350,7 @@
 
     function showMatch(record) {
       matchedRecord = record;
-      fallbackPanel.style.display = 'none';
+      notFoundNote.style.display = 'none';
       resultPanel.style.display = 'block';
       confirmMsg.style.display = 'none';
       resultMessage.style.display = 'none';
@@ -348,41 +360,33 @@
       document.getElementById('recLotSize').textContent = record.lotSize || 'Kevin will verify';
       document.getElementById('recZoning').textContent = record.zoning || 'Kevin will verify';
       document.getElementById('recUtilities').textContent = record.utilities || 'Kevin will verify';
-      document.getElementById('recTaxValue').textContent = record.taxValue || 'Kevin will verify';
       resultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function showFallback(prefill) {
+    function showNotFound() {
       matchedRecord = null;
       resultPanel.style.display = 'none';
-      fallbackPanel.style.display = 'block';
-      if (prefill.ownerName) document.getElementById('fbOwnerName').value = prefill.ownerName;
-      if (prefill.address) document.getElementById('fbAddress').value = prefill.address;
-      fallbackPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      notFoundNote.style.display = 'block';
+      notFoundNote.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function sampleSearch(kind, raw) {
       const q = normalize(raw);
       if (!q) return null;
-      if (kind === 'name') {
-        return SAMPLE_RECORDS.find(r => normalize(r.owner).includes(q) || q.includes(normalize(r.owner))) || null;
-      }
+      if (kind === 'name') return SAMPLE_RECORDS.find(r => normalize(r.owner).includes(q) || q.includes(normalize(r.owner))) || null;
       return SAMPLE_RECORDS.find(r => normalize(r.address).includes(q) || q.includes(normalize(r.address).slice(0, 12))) || null;
     }
 
-    // Live Brevard County search with sample-data fallback when offline.
     async function countySearch(kind, raw) {
       try {
         const param = kind === 'name' ? 'name' : 'address';
-        const res = await fetch(API_COUNTY + '?' + param + '=' + encodeURIComponent(raw), {
-          signal: AbortSignal.timeout(9000)
-        });
+        const res = await fetch(API_COUNTY + '?' + param + '=' + encodeURIComponent(raw), { signal: AbortSignal.timeout(9000) });
         if (res.ok) {
           const body = await res.json();
           if (body.records && body.records.length) return body.records[0];
-          return null; // county answered: genuinely no match
+          return null;
         }
-      } catch (e) { /* offline or county unavailable */ }
+      } catch (e) { /* offline / county unavailable */ }
       return sampleSearch(kind, raw);
     }
 
@@ -392,25 +396,17 @@
       showError(errorId, !valid);
       if (!valid) return;
       const label = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = 'Searching…';
+      btn.disabled = true; btn.textContent = 'Searching…';
       try {
         const rec = await countySearch(kind, raw);
-        rec ? showMatch(rec) : showFallback(kind === 'name' ? { ownerName: raw } : { address: raw });
+        rec ? showMatch(rec) : showNotFound();
       } finally {
-        btn.disabled = false;
-        btn.textContent = label;
+        btn.disabled = false; btn.textContent = label;
       }
     }
 
-    document.getElementById('searchNameBtn').addEventListener('click', function() {
-      runSearch('name', 'ownerName', 'ownerNameError', this);
-    });
-
-    document.getElementById('searchAddressBtn').addEventListener('click', function() {
-      runSearch('address', 'streetAddress', 'streetAddressError', this);
-    });
-
+    document.getElementById('searchNameBtn').addEventListener('click', function() { runSearch('name', 'ownerName', 'ownerNameError', this); });
+    document.getElementById('searchAddressBtn').addEventListener('click', function() { runSearch('address', 'streetAddress', 'streetAddressError', this); });
     document.getElementById('searchAgainBtn').addEventListener('click', function() {
       resultPanel.style.display = 'none';
       matchedRecord = null;
@@ -427,22 +423,10 @@
       return 'ok';
     }
 
-    // Save to the shared store (synced for Kevin + Elizabeth); fall back to
-    // this browser's local store when offline.
     async function saveLead(fields) {
-      const lead = Object.assign({
-        id: Date.now(),
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        source: 'QR Landing Page'
-      }, fields);
+      const lead = Object.assign({ id: Date.now(), status: 'pending', createdAt: new Date().toISOString(), source: 'QR Landing Page' }, fields);
       try {
-        const res = await fetch(API_LOTS, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(lead),
-          signal: AbortSignal.timeout(9000)
-        });
+        const res = await fetch(API_LOTS, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead), signal: AbortSignal.timeout(9000) });
         if (res.status === 201) return 'ok';
         if (res.status === 409) return 'duplicate';
       } catch (e) { /* offline */ }
@@ -455,10 +439,9 @@
       this.disabled = true;
       const result = await saveLead({
         address: rec.address,
-        firstName: rec.owner.split(' ')[0],
-        lastName: rec.owner.split(' ').slice(1).join(' '),
-        email: rec.ownerEmail || '',
-        phone: '',
+        firstName: (rec.owner || '').split(' ')[0],
+        lastName: (rec.owner || '').split(' ').slice(1).join(' '),
+        email: rec.ownerEmail || '', phone: '',
         parcel: rec.parcel, owner: rec.owner, ownerContact: rec.ownerContact,
         lotSize: rec.lotSize, zoning: rec.zoning, utilities: rec.utilities,
         taxValue: rec.taxValue, annualTax: rec.annualTax,
@@ -469,50 +452,13 @@
       });
       if (result === 'duplicate') {
         resultMessage.className = 'message error';
-        resultMessage.textContent = 'This property has already been submitted. Kevin will send your offer within 24 hours.';
+        resultMessage.textContent = 'This property has already been submitted. Kevin will send your offer within one business day.';
         resultMessage.style.display = 'block';
         this.disabled = false;
         return;
       }
       confirmMsg.style.display = 'block';
     });
-
-    // Fallback form validation + submit
-    document.getElementById('fallbackForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const ownerName = document.getElementById('fbOwnerName').value.trim();
-      const address = document.getElementById('fbAddress').value.trim();
-      const lotSize = document.getElementById('fbLotSize').value.trim();
-      const phone = document.getElementById('fbPhone').value.trim();
-      const email = document.getElementById('fbEmail').value.trim();
-      const notes = document.getElementById('fbNotes').value.trim();
-      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-      showError('fbOwnerNameError', !ownerName);
-      showError('fbAddressError', !address);
-      showError('fbPhoneError', !phone);
-      showError('fbEmailError', !emailOk);
-      if (!ownerName || !address || !phone || !emailOk) return;
-      const msg = document.getElementById('fallbackMessage');
-      const result = await saveLead({
-        address,
-        firstName: ownerName.split(' ')[0],
-        lastName: ownerName.split(' ').slice(1).join(' '),
-        owner: ownerName, email, phone, lotSize: lotSize || null, notes: notes || null,
-        ownerContact: [address, phone, email].filter(Boolean).join(' | '),
-        verified: false
-      });
-      if (result === 'duplicate') {
-        msg.className = 'message error';
-        msg.textContent = 'This property has already been submitted. Kevin will contact you within 24 hours.';
-        msg.style.display = 'block';
-        return;
-      }
-      msg.className = 'message success';
-      msg.textContent = 'Thanks! Kevin will contact you within 24 hours.';
-      msg.style.display = 'block';
-      this.reset();
-    });
-
   </script>
 </body>
 </html>

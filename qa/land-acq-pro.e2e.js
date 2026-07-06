@@ -55,11 +55,14 @@ async function noHorizontalOverflow(page) {
     check('index: Adams Homes logo present', await page.locator('.brand-block img').isVisible());
     const bodyText = await page.evaluate(() => document.body.innerText);
     check('index: no pricing on public page', !/\$\s?\d/.test(bodyText), bodyText.match(/\$\s?\d[^\s]*/)?.[0]);
-    check('index: locked headline', bodyText.includes('No One Closes Faster Than Adams Homes'));
-    check('index: locked subtitle', bodyText.includes('Get your instant offer. We do all the work. You sit back and relax.'));
+    check('index: hero headline', bodyText.includes('Sell Fast Without the Hassle'));
+    check('index: hero subtitle', bodyText.includes('We handle everything. You get cash.'));
     check('index: exactly 2 process steps', await page.locator('.step').count() === 2);
     check('index: Kevin card copy', bodyText.includes('Kevin owns your deal from start to finish'));
-    check('index: trust badges', bodyText.includes('Licensed Builder'));
+    check('index: fastest-closing value prop retained', bodyText.includes('No one closes faster than Adams Homes'));
+    check('index: why sell now section', bodyText.includes('Why Sell Now?'));
+    check('index: footer logo present', await page.locator('.footer-logo img').isVisible());
+    check('index: Kevin photo present', await page.locator('.kevin-card img.photo').isVisible());
 
     // Tap targets (buttons) at least 44px tall on mobile
     const minBtn = await page.evaluate(() =>
@@ -87,26 +90,20 @@ async function noHorizontalOverflow(page) {
     await page.waitForSelector('#resultMessage.error', { state: 'visible', timeout: 15000 });
     check('duplicate submission blocked', true);
 
-    // ---------- Seller flow: fallback ----------
+    // ---------- Seller flow: no match -> not-found note + Call/Email Kevin ----------
     await page.fill('#streetAddress', '999 Nowhere Blvd, Palm Bay');
     await page.click('#searchAddressBtn');
-    await page.waitForSelector('#fallbackPanel', { state: 'visible', timeout: 15000 });
-    check('fallback form shows for unknown property', true);
-    await page.click('#fallbackForm button[type=submit]');
-    check('fallback validation fires', await page.locator('#fbOwnerNameError').isVisible());
-    await page.fill('#fbOwnerName', 'Jane Doe');
-    await page.fill('#fbPhone', '(321) 555-0102');
-    await page.fill('#fbEmail', 'jane@example.com');
-    await page.click('#fallbackForm button[type=submit]');
-    await page.waitForSelector('#fallbackMessage.success', { state: 'visible', timeout: 15000 });
-    check('fallback submits', true);
+    await page.waitForSelector('#notFoundNote', { state: 'visible', timeout: 15000 });
+    check('unknown property shows not-found note', true);
+    check('Call Kevin button present', await page.locator('a.btn-red[href^="tel:"]').isVisible());
+    check('Email Kevin button present', await page.locator('.cantfind a[href^="mailto:"]').count() === 1);
 
     // ---------- Regression: symbol-only search must not match a record (F1) ----------
     await page.goto(BASE + '/index.html');
     await page.fill('#ownerName', '!!##');
     await page.click('#searchNameBtn');
-    await page.waitForSelector('#fallbackPanel', { state: 'visible', timeout: 15000 });
-    check('symbol-only search falls back instead of matching a record',
+    await page.waitForSelector('#notFoundNote', { state: 'visible', timeout: 15000 });
+    check('symbol-only search shows not-found instead of matching a record',
       !(await page.locator('#resultPanel').isVisible()));
 
     // ---------- Regression: stored XSS must not execute in admin pages ----------
@@ -135,8 +132,8 @@ async function noHorizontalOverflow(page) {
 
     // ---------- Data sync to admin ----------
     const tableText = await page.textContent('#lotRows');
-    check('seller submissions reach dashboard',
-      tableText.includes('123 Maple Avenue') && tableText.includes('999 Nowhere Blvd'));
+    check('confirmed seller submission reaches dashboard',
+      tableText.includes('123 Maple Avenue'));
 
     // ---------- Kevin flow: KPIs, filters, pagination ----------
     const outreach = Number(await page.textContent('#kpiOutreach'));
