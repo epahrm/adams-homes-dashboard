@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Offer Approval</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f5f7; color: #333; }
+    .page { max-width: 760px; margin: 0 auto; background: white; min-height: 100vh; }
+
+    .topbar { background: #0d3557; color: white; padding: 24px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    .topbar h1 { font-size: 24px; line-height: 1.25; flex: 1 1 200px; }
+    .topbar .who { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+    .topbar .avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+    .logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 10px 22px; font-size: 15px; cursor: pointer; font-family: inherit; }
+    .logout:hover { background: rgba(255,255,255,0.2); }
+
+    .content { padding: 26px 22px 48px; }
+    .content > h2 { color: #0d3557; font-size: 30px; margin: 4px 0 20px; line-height: 1.25; }
+
+    .verified { background: #eaf2fb; border-left: 5px solid #0d3557; border-radius: 6px; padding: 16px 18px; font-size: 16px; color: #1a2b3c; margin-bottom: 24px; }
+
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 24px 20px; margin-bottom: 26px; background: white; }
+    .card h3 { color: #0d3557; font-size: 16px; letter-spacing: 2.5px; text-transform: uppercase; border-bottom: 3px solid #0d3557; padding-bottom: 12px; margin-bottom: 20px; }
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+    .field .lbl { color: #888; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+    .field .val { font-size: 18px; color: #222; line-height: 1.5; }
+    .field .sub { font-size: 15px; color: #555; }
+    .county-link { color: #2e8540; font-size: 20px; font-weight: 700; text-decoration: none; }
+    .county-link:hover { text-decoration: underline; }
+
+    .offer-card { border: 2px solid #2e8540; border-radius: 12px; padding: 24px 20px; margin-bottom: 26px; background: white; }
+    .offer-card .field { border-bottom: 1px solid #e5e5e5; padding-bottom: 18px; }
+    .offer-card .field:last-of-type { border-bottom: none; padding-bottom: 0; }
+    .offer-card input {
+      width: 100%; max-width: 340px; padding: 14px; border: 1px solid #ccc; border-radius: 8px;
+      font-family: inherit; font-size: 18px; margin: 4px 0 8px; background: #fafafa;
+    }
+    .offer-card input:not([readonly]) { background: white; border-color: #2e8540; }
+    .offer-card input:focus { outline: none; box-shadow: 0 0 0 3px rgba(46, 133, 64, 0.15); }
+    .edit-link { color: #2e8540; font-weight: 700; font-size: 16px; cursor: pointer; text-decoration: none; }
+    .edit-link:hover { text-decoration: underline; }
+    .muted { color: #888; font-size: 15px; margin-bottom: 4px; }
+
+    .routing { background: #e6f4e8; border-left: 5px solid #2e8540; border-radius: 6px; padding: 16px 18px; font-size: 16px; line-height: 1.6; color: #14401d; }
+    .routing b { font-size: 18px; }
+
+    .actions { display: flex; gap: 14px; margin-top: 24px; flex-wrap: wrap; }
+    .btn-approve {
+      flex: 1 1 180px; background: #2e8540; color: white; border: none; border-radius: 10px;
+      padding: 18px 16px; font-size: 18px; font-weight: 800; cursor: pointer; font-family: inherit;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .btn-approve:hover { background: #256b34; }
+    .btn-cancel {
+      flex: 1 1 140px; background: white; color: #0d3557; border: 2px solid #ccc; border-radius: 10px;
+      padding: 18px 16px; font-size: 18px; font-weight: 700; cursor: pointer; font-family: inherit;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .btn-cancel:hover { border-color: #0d3557; }
+
+    .message { padding: 14px; border-radius: 6px; margin-top: 18px; display: none; font-size: 15px; }
+    .success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+    .error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+
+    @media (max-width: 480px) { .content > h2 { font-size: 25px; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <h1>Admin Dashboard - Offer Approval</h1>
+      <div class="who"><div class="avatar">K</div><div>Kevin<br>Nelson</div></div>
+      <button class="logout" onclick="window.location.href='index.html'">Logout</button>
+    </div>
+
+    <div class="content">
+      <h2 id="pageTitle">Offer Approval</h2>
+
+      <div class="verified" id="verifiedNote">Property verified against Brevard County records. Ready for approval.</div>
+
+      <div class="card">
+        <h3>Brevard County Record</h3>
+        <div class="field"><div class="lbl">Address</div><div class="val" id="cAddress">&mdash;</div></div>
+        <div class="field"><div class="lbl">Parcel Number</div><div class="val" id="cParcel">&mdash;</div></div>
+        <div class="field"><div class="lbl">Owner</div><div class="val" id="cOwner">&mdash;</div></div>
+        <div class="field"><div class="lbl">Owner Contact</div><div class="val" id="cOwnerContact">&mdash;</div></div>
+        <div class="field"><div class="lbl">Lot Size</div><div class="val" id="cLotSize">&mdash;</div></div>
+        <div class="field"><div class="lbl">Zoning</div><div class="val" id="cZoning">&mdash;</div></div>
+        <div class="field"><div class="lbl">Utilities</div><div class="val" id="cUtilities">&mdash;</div></div>
+        <div class="field"><div class="lbl">Tax Assessment</div><div class="val" id="cTax">&mdash;</div></div>
+        <div class="field"><div class="lbl">Environmental Flags</div><div class="val" id="cEnv">None detected</div></div>
+        <div class="field"><div class="lbl">Verify at County</div>
+          <a class="county-link" href="https://www.bcpao.us/PropertySearch/" target="_blank" rel="noopener">Open County Records</a>
+        </div>
+      </div>
+
+      <div class="offer-card">
+        <div class="field"><div class="lbl">Property Address</div><div class="val" id="oAddress">&mdash;</div></div>
+        <div class="field"><div class="lbl">List Price</div><div class="val"><span id="oListPrice">&mdash;</span> <span class="sub" id="oListStatus"></span></div></div>
+        <div class="field"><div class="lbl">Listing Agent</div>
+          <div class="val" id="oAgent">&mdash;</div>
+          <div class="sub" id="oAgentBrokerage"></div>
+          <div class="sub" id="oAgentPhone"></div>
+        </div>
+        <div class="field"><div class="lbl">Offer Amount</div>
+          <input type="text" id="offerAmount" readonly>
+          <div class="muted">Default: $2K below asking</div>
+          <a class="edit-link" data-edit="offerAmount">Edit Offer</a>
+        </div>
+        <div class="field"><div class="lbl">Earnest Money Deposit (EMD)</div>
+          <input type="text" id="emd" value="$100" readonly>
+          <a class="edit-link" data-edit="emd">Edit EMD</a>
+        </div>
+        <div class="field"><div class="lbl">Commission</div>
+          <input type="text" id="commission" value="6%" readonly>
+          <div class="muted">From listing details</div>
+          <a class="edit-link" data-edit="commission">Edit Commission</a>
+        </div>
+        <div class="field"><div class="lbl">Routing</div>
+          <div class="routing" id="routingBox">Will send to owner directly.</div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-approve" id="approveBtn">Approve &amp; Send Offer</button>
+          <button class="btn-cancel" id="cancelBtn">Cancel</button>
+        </div>
+        <div class="message" id="message"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORE_KEY = 'landAcqSubmissions';
+    const params = new URLSearchParams(window.location.search);
+    const lotId = params.get('id');
+    const lots = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+    const lot = lots.find(l => String(l.id) === String(lotId));
+    const messageEl = document.getElementById('message');
+
+    function money(n) { return '$' + Number(n).toLocaleString(); }
+
+    if (!lot) {
+      document.getElementById('pageTitle').textContent = 'Offer Approval';
+      document.getElementById('verifiedNote').textContent = 'Lot not found. Return to the dashboard and select a property.';
+      document.querySelector('.offer-card .actions').style.display = 'none';
+    } else {
+      const shortAddr = (lot.address || '').split(',')[0];
+      document.getElementById('pageTitle').textContent = 'Offer Approval: ' + shortAddr;
+      if (!lot.verified && !lot.parcel) {
+        document.getElementById('verifiedNote').textContent = 'Awaiting verification against Brevard County records. Confirm details before approving.';
+      }
+
+      // County record card
+      document.getElementById('cAddress').textContent = lot.address || '—';
+      document.getElementById('cParcel').textContent = lot.parcel || 'Pending county lookup';
+      document.getElementById('cOwner').textContent = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '—';
+      document.getElementById('cOwnerContact').innerHTML = (lot.ownerContact || [lot.address, lot.phone, lot.email].filter(Boolean).join(' | ') || '—').split('|').map(s => s.trim()).join('<br>');
+      document.getElementById('cLotSize').textContent = lot.lotSize || '—';
+      document.getElementById('cZoning').textContent = lot.zoning || '—';
+      document.getElementById('cUtilities').innerHTML = (lot.utilities || '—').split('/').map(s => s.trim()).join('<br>');
+      document.getElementById('cTax').innerHTML = lot.taxValue ? ('Value: ' + lot.taxValue + '<br>Annual Tax: ' + (lot.annualTax || '—')) : '—';
+
+      // Offer card
+      document.getElementById('oAddress').textContent = lot.address || '—';
+      document.getElementById('oListPrice').textContent = lot.listPrice ? money(lot.listPrice) : (lot.listStatus || '—');
+      document.getElementById('oListStatus').textContent = lot.listPrice && lot.listStatus ? '(' + lot.listStatus + ')' : '';
+      if (lot.agentName) {
+        document.getElementById('oAgent').textContent = lot.agentName;
+        document.getElementById('oAgentBrokerage').textContent = lot.agentBrokerage || '';
+        document.getElementById('oAgentPhone').textContent = lot.agentPhone || '';
+      } else {
+        document.getElementById('oAgent').textContent = 'None (direct to owner)';
+      }
+
+      const defaultOffer = lot.offer
+        ? lot.offer
+        : (lot.listPrice ? money(lot.listPrice - 2000) : '$30,000');
+      document.getElementById('offerAmount').value = defaultOffer;
+      if (lot.emd) document.getElementById('emd').value = lot.emd;
+      if (lot.commission) document.getElementById('commission').value = lot.commission;
+
+      const routingBox = document.getElementById('routingBox');
+      if (lot.agentName && lot.agentEmail) {
+        routingBox.innerHTML = 'Will send to listing agent:<br><b></b><br><span></span>';
+        routingBox.querySelector('b').textContent = lot.agentName;
+        routingBox.querySelector('span').textContent = lot.agentEmail;
+      } else {
+        routingBox.innerHTML = 'Will send to owner directly:<br><b></b><br><span></span>';
+        routingBox.querySelector('b').textContent = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || 'Owner';
+        routingBox.querySelector('span').textContent = lot.email || (lot.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@')) || 'contact on file';
+      }
+    }
+
+    // Edit links unlock their input
+    document.querySelectorAll('.edit-link').forEach(a => {
+      a.addEventListener('click', () => {
+        const input = document.getElementById(a.dataset.edit);
+        input.removeAttribute('readonly');
+        input.focus();
+        input.select();
+      });
+    });
+
+    document.getElementById('approveBtn').addEventListener('click', () => {
+      if (!lot) return;
+      lot.status = 'offer-sent';
+      lot.offer = document.getElementById('offerAmount').value.trim();
+      lot.emd = document.getElementById('emd').value.trim();
+      lot.commission = document.getElementById('commission').value.trim();
+      lot.approvedAt = new Date().toISOString();
+      lot.approvedBy = 'Kevin Nelson';
+      localStorage.setItem(STORE_KEY, JSON.stringify(lots));
+      messageEl.classList.remove('error');
+      messageEl.classList.add('success');
+      messageEl.textContent = '✓ Offer approved and sent. Status updated to OFFER SENT.';
+      messageEl.style.display = 'block';
+      setTimeout(() => { window.location.href = 'admin.html'; }, 1500);
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      window.location.href = 'admin.html';
+    });
+  </script>
+</body>
+</html>

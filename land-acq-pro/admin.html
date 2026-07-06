@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Lot Tracker</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f5f7; color: #333; }
+    .page { max-width: 900px; margin: 0 auto; background: white; min-height: 100vh; }
+
+    /* Header */
+    .topbar { background: #0d3557; color: white; padding: 24px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    .topbar h1 { font-size: 24px; line-height: 1.25; flex: 1 1 200px; }
+    .topbar .who { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+    .topbar .avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+    .logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 10px 22px; font-size: 15px; cursor: pointer; font-family: inherit; }
+    .logout:hover { background: rgba(255,255,255,0.2); }
+
+    .content { padding: 24px 22px 48px; }
+    .content > h2 { color: #0d3557; font-size: 32px; margin: 6px 0 22px; }
+
+    /* KPI cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi { border-radius: 10px; border: 2px solid; text-align: center; padding: 22px 10px; }
+    .kpi .lbl { font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: #444; margin-bottom: 10px; }
+    .kpi .num { font-size: 40px; font-weight: 800; color: #0d3557; }
+    .kpi.green { border-color: #2e8540; background: linear-gradient(180deg, #f2f9f3, #e2f1e4); }
+    .kpi.orange { border-color: #e8963c; background: linear-gradient(180deg, #fdf3e4, #fbe4c2); }
+    .kpi.deepgreen { border-color: #2e8540; background: linear-gradient(180deg, #e4f3e6, #cfe9d3); }
+    .kpi.red { border-color: #d9534f; background: linear-gradient(180deg, #fdeaea, #fbd8d8); }
+
+    /* Target banner */
+    .target { background: #e6f4e8; border-left: 5px solid #2e8540; border-radius: 6px; padding: 16px 18px; font-size: 17px; margin-bottom: 24px; }
+    .target b { color: #14401d; }
+
+    /* Filters */
+    .filters { border: 1px solid #ddd; border-radius: 10px; background: #fafafa; padding: 20px 18px; margin-bottom: 24px; }
+    .filter-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .filter-row:last-child { margin-bottom: 0; }
+    .filter-row label { font-size: 16px; color: #333; font-weight: 600; min-width: 110px; }
+    .filter-row select { padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-family: inherit; background: white; }
+
+    /* Quick metrics */
+    .metrics { border: 2px solid #0d3557; border-radius: 12px; background: #eaf2fb; padding: 20px 18px; margin-bottom: 26px; }
+    .metrics h3 { color: #0d3557; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+    .metric { background: white; border-left: 4px solid #2e8540; border-radius: 6px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .metric:last-child { margin-bottom: 0; }
+    .metric .m-lbl { font-size: 15px; color: #333; }
+    .metric .m-val { font-size: 20px; font-weight: 800; color: #0d3557; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+    thead th { text-align: left; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: #0d3557; padding: 12px 10px; border-bottom: 3px solid #0d3557; background: #f4f5f7; }
+    tbody td { padding: 16px 10px; border-bottom: 1px solid #e2e2e2; font-size: 16px; vertical-align: middle; }
+    tbody tr { cursor: pointer; }
+    tbody tr:hover { background: #f0f5fa; }
+    tbody tr:nth-child(odd) { background: #fafafa; }
+    tbody tr:nth-child(odd):hover { background: #f0f5fa; }
+    td.addr { color: #0d3557; font-weight: 600; }
+    .pill { display: inline-block; padding: 7px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
+    .pill.pending { background: #fbe9a9; color: #6d5410; }
+    .pill.offer-sent { background: #cde9f0; color: #145263; }
+    .pill.signed { background: #c8e8e3; color: #10504a; }
+    .pill.due-diligence { background: #cfe0fb; color: #1c3f7a; }
+    .pill.post-inspection { background: #dcd6f5; color: #3b2f7a; }
+    .pill.ready-to-close { background: #d4eed7; color: #1c5426; }
+    .pill.closed { background: #b8e3bd; color: #14401d; }
+    .pill.declined { background: #f6cdd3; color: #7a1f2b; }
+    .empty { text-align: center; color: #888; padding: 30px 10px !important; cursor: default; }
+
+    /* Pagination */
+    .pager { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .pager button { border: 1px solid #ccc; background: white; color: #1663c7; border-radius: 8px; padding: 10px 18px; font-size: 16px; cursor: pointer; font-family: inherit; }
+    .pager button.cur { background: #2e8540; border-color: #2e8540; color: white; font-weight: 700; }
+    .pager button:disabled { color: #aaa; cursor: not-allowed; }
+
+    .footnote { background: #fdf6df; border: 1px solid #e5c664; border-radius: 8px; padding: 14px 16px; font-size: 15px; color: #6d5410; margin-bottom: 20px; display: none; }
+
+    /* Action buttons */
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .actions button { flex: 1 1 120px; padding: 14px 10px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-green { background: #2e8540; border: 2px solid #2e8540; color: white; }
+    .btn-green:hover { background: #256b34; }
+    .btn-outline { background: white; border: 2px solid #0d3557; color: #0d3557; }
+    .btn-outline:hover { background: #eaf2fb; }
+
+    .back-link { display: inline-block; margin-top: 22px; color: #0d3557; font-size: 14px; text-decoration: none; font-weight: 600; }
+    .back-link:hover { text-decoration: underline; }
+
+    @media (max-width: 560px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .content > h2 { font-size: 26px; }
+      thead th, tbody td { padding: 10px 6px; font-size: 14px; }
+    }
+    @media print {
+      .topbar .logout, .filters, .actions, .pager, .back-link { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <h1>Admin Dashboard - Lot Tracker</h1>
+      <div class="who"><div class="avatar">K</div><div>Kevin Nelson |<br>Palm Bay Division</div></div>
+      <button class="logout" onclick="window.location.href='index.html'">Logout</button>
+    </div>
+
+    <div class="content">
+      <h2>Palm Bay Lot Pipeline</h2>
+
+      <div class="kpi-grid">
+        <div class="kpi green"><div class="lbl">Outreach Sent</div><div class="num" id="kpiOutreach">0</div></div>
+        <div class="kpi orange"><div class="lbl">Pending Signature</div><div class="num" id="kpiPending">0</div></div>
+        <div class="kpi green"><div class="lbl">Due Diligence</div><div class="num" id="kpiDueDil">0</div></div>
+        <div class="kpi green"><div class="lbl">Post-Inspection</div><div class="num" id="kpiPostInsp">0</div></div>
+        <div class="kpi green"><div class="lbl">Ready to Close</div><div class="num" id="kpiReady">0</div></div>
+        <div class="kpi deepgreen"><div class="lbl">Closed</div><div class="num" id="kpiClosed">0</div></div>
+        <div class="kpi red"><div class="lbl">Declined</div><div class="num" id="kpiDeclined">0</div></div>
+      </div>
+
+      <div class="target"><b>Target:</b> 50 lots/month | <b>Current:</b> <span id="targetCurrent">0</span> sent <span id="targetCheck"></span></div>
+
+      <div class="filters">
+        <div class="filter-row"><label for="fCity">City:</label>
+          <select id="fCity"><option value="all">All Cities</option><option value="palm-bay" selected>Palm Bay</option></select>
+        </div>
+        <div class="filter-row"><label for="fStatus">Status:</label>
+          <select id="fStatus">
+            <option value="all" selected>All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="offer-sent">Offer Sent</option>
+            <option value="signed">Signed</option>
+            <option value="due-diligence">Due Diligence</option>
+            <option value="post-inspection">Post-Inspection</option>
+            <option value="ready-to-close">Ready to Close</option>
+            <option value="closed">Closed</option>
+            <option value="declined">Declined</option>
+          </select>
+        </div>
+        <div class="filter-row"><label for="fDays">Days in Stage:</label>
+          <select id="fDays">
+            <option value="all" selected>All</option>
+            <option value="0-30">0&ndash;30 days</option>
+            <option value="31-60">31&ndash;60 days</option>
+            <option value="60+">60+ days</option>
+          </select>
+        </div>
+        <div class="filter-row"><label for="fSource">Source:</label>
+          <select id="fSource">
+            <option value="all" selected>All Sources</option>
+            <option value="Direct Mail">Direct Mail</option>
+            <option value="FSBO">FSBO</option>
+            <option value="Expired">Expired</option>
+            <option value="Off-Market">Off-Market</option>
+            <option value="QR Landing Page">QR Landing Page</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <h3>Quick Metrics</h3>
+        <div class="metric"><span class="m-lbl">Mail Conversion</span><span class="m-val" id="mConversion">&ndash;</span></div>
+        <div class="metric"><span class="m-lbl">Offer Acceptance</span><span class="m-val" id="mAcceptance">&ndash;</span></div>
+        <div class="metric"><span class="m-lbl">Avg Days to Close</span><span class="m-val" id="mDays">&ndash;</span></div>
+        <div class="metric"><span class="m-lbl">Commission Tracked</span><span class="m-val" id="mCommission">&ndash;</span></div>
+      </div>
+
+      <table>
+        <thead><tr><th>Address</th><th>List Price</th><th>Status</th></tr></thead>
+        <tbody id="lotRows"></tbody>
+      </table>
+
+      <div class="pager" id="pager"></div>
+
+      <div class="footnote" id="footnote">* Re-outreach scheduled in 87 days</div>
+
+      <div class="actions">
+        <button class="btn-green" id="exportCsv">Export to CSV</button>
+        <button class="btn-green" id="exportPdf">Export to PDF</button>
+        <button class="btn-outline" id="refreshBtn">Refresh Data</button>
+      </div>
+
+      <a class="back-link" href="index.html">&larr; Back to Landing Page</a>
+    </div>
+  </div>
+
+  <script>
+    const STORE_KEY = 'landAcqSubmissions';
+    const SEED_FLAG = 'landAcqSeeded_v2';
+    const PAGE_SIZE = 6;
+    const OUTREACH_BASELINE = 150; // direct-mail pieces sent before digital tracking began
+    let currentPage = 1;
+
+    // Seed the pipeline once with Kevin's existing Palm Bay lots so the
+    // dashboard reflects work already in flight.
+    function seedIfNeeded() {
+      if (localStorage.getItem(SEED_FLAG)) return;
+      const existing = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+      const now = Date.now();
+      const day = 86400000;
+      const seeds = [
+        { id: now - 1, address: '123 Maple Ave, Palm Bay, FL 32908', status: 'pending', source: 'Direct Mail', listPrice: 35000, listStatus: 'Active Listing', parcel: '2936-02GI-10509', owner: 'John Smith', ownerContact: '123 Maple Ave, Palm Bay, FL 32908 | (321) 555-1234 | john@email.com', lotSize: '0.23 acres (10,019 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$28,500', annualTax: '$495', agentName: 'John Johnson', agentBrokerage: 'Keller Williams Island Life', agentPhone: '941-123-4567', agentEmail: 'john@kw-islandlife.com', createdAt: new Date(now - 5 * day).toISOString() },
+        { id: now - 2, address: '456 Oak Street, Palm Bay, FL 32907', status: 'offer-sent', source: 'Direct Mail', listPrice: 40000, listStatus: 'Active Listing', parcel: '2937-11AB-20443', owner: 'Maria Garcia', ownerContact: '456 Oak Street, Palm Bay, FL 32907 | (321) 555-2288 | maria@email.com', lotSize: '0.25 acres (10,890 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$31,200', annualTax: '$540', agentName: 'Sarah Lee', agentBrokerage: 'RE/MAX Elite', agentPhone: '321-555-8890', agentEmail: 'sarah@remaxelite.com', offer: '$38,000', createdAt: new Date(now - 12 * day).toISOString() },
+        { id: now - 3, address: '789 Pine Road, Palm Bay, FL 32909', status: 'signed', source: 'Off-Market', listPrice: null, listStatus: 'Off-Market', parcel: '2938-07CD-31877', owner: 'Robert Chen', ownerContact: '789 Pine Road, Palm Bay, FL 32909 | (321) 555-3401 | rchen@email.com', lotSize: '0.28 acres (12,196 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$26,800', annualTax: '$463', offer: '$28,000', createdAt: new Date(now - 25 * day).toISOString() },
+        { id: now - 4, address: '321 Elm Court, Palm Bay, FL 32905', status: 'due-diligence', source: 'Direct Mail', listPrice: 32000, listStatus: 'Active Listing', parcel: '2939-04EF-40921', owner: 'Linda Torres', ownerContact: '321 Elm Court, Palm Bay, FL 32905 | (321) 555-4522 | ltorres@email.com', lotSize: '0.22 acres (9,583 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: City', taxValue: '$25,100', annualTax: '$438', agentName: 'Mike Davis', agentBrokerage: 'Coldwell Banker', agentPhone: '321-555-7712', agentEmail: 'mdavis@cbfl.com', offer: '$30,000', createdAt: new Date(now - 40 * day).toISOString() },
+        { id: now - 5, address: '654 Birch Lane, Palm Bay, FL 32908', status: 'pending', source: 'Expired', listPrice: null, listStatus: 'Expired', parcel: '2940-09GH-51230', owner: 'James Wright', ownerContact: '654 Birch Lane, Palm Bay, FL 32908 | (321) 555-6633 | jwright@email.com', lotSize: '0.24 acres (10,454 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$24,700', annualTax: '$429', createdAt: new Date(now - 8 * day).toISOString() },
+        { id: now - 6, address: '987 Maple Drive, Palm Bay, FL 32907', status: 'declined', source: 'FSBO', listPrice: null, listStatus: 'FSBO', parcel: '2941-05IJ-60874', owner: 'Patricia Moore', ownerContact: '987 Maple Drive, Palm Bay, FL 32907 | (321) 555-9080 | pmoore@email.com', lotSize: '0.26 acres (11,326 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$27,300', annualTax: '$471', createdAt: new Date(now - 90 * day).toISOString() }
+      ];
+      const have = new Set(existing.map(s => (s.address || '').toLowerCase()));
+      const merged = existing.concat(seeds.filter(s => !have.has(s.address.toLowerCase())));
+      localStorage.setItem(STORE_KEY, JSON.stringify(merged));
+      localStorage.setItem(SEED_FLAG, '1');
+    }
+
+    function getLots() {
+      const lots = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+      // Map legacy statuses from the original landing page.
+      lots.forEach(l => {
+        if (l.status === 'new' || l.status === 'qualified') l.displayStatus = 'pending';
+        else l.displayStatus = l.status;
+      });
+      return lots;
+    }
+
+    function daysIn(lot) {
+      return Math.floor((Date.now() - new Date(lot.createdAt).getTime()) / 86400000);
+    }
+
+    function applyFilters(lots) {
+      const city = document.getElementById('fCity').value;
+      const status = document.getElementById('fStatus').value;
+      const days = document.getElementById('fDays').value;
+      const source = document.getElementById('fSource').value;
+      return lots.filter(l => {
+        if (city === 'palm-bay' && !(l.address || '').toLowerCase().includes('palm bay')) return false;
+        if (status !== 'all' && l.displayStatus !== status) return false;
+        if (source !== 'all' && (l.source || 'QR Landing Page') !== source) return false;
+        const d = daysIn(l);
+        if (days === '0-30' && d > 30) return false;
+        if (days === '31-60' && (d < 31 || d > 60)) return false;
+        if (days === '60+' && d < 61) return false;
+        return true;
+      });
+    }
+
+    const PILL_LABELS = {
+      'pending': 'PENDING', 'offer-sent': 'OFFER SENT', 'signed': 'SIGNED',
+      'due-diligence': 'DUE DIL.', 'post-inspection': 'POST-INSP.',
+      'ready-to-close': 'READY', 'closed': 'CLOSED', 'declined': 'DECLINED'
+    };
+
+    function listPriceLabel(l) {
+      if (l.listPrice) return '$' + Number(l.listPrice).toLocaleString();
+      return l.listStatus || '—';
+    }
+
+    function render() {
+      const lots = getLots();
+
+      // KPIs
+      const count = st => lots.filter(l => l.displayStatus === st).length;
+      document.getElementById('kpiOutreach').textContent = OUTREACH_BASELINE + lots.length;
+      document.getElementById('kpiPending').textContent = count('pending');
+      document.getElementById('kpiDueDil').textContent = count('due-diligence');
+      document.getElementById('kpiPostInsp').textContent = count('post-inspection');
+      document.getElementById('kpiReady').textContent = count('ready-to-close');
+      document.getElementById('kpiClosed').textContent = count('closed');
+      document.getElementById('kpiDeclined').textContent = count('declined');
+
+      const sent = OUTREACH_BASELINE + lots.length;
+      document.getElementById('targetCurrent').textContent = sent;
+      document.getElementById('targetCheck').textContent = sent >= 50 ? '✓' : '';
+
+      // Quick metrics
+      const conv = sent ? (lots.length / sent * 100) : 0;
+      document.getElementById('mConversion').textContent = conv.toFixed(1) + '%';
+      const offersOut = lots.filter(l => ['offer-sent','signed','due-diligence','post-inspection','ready-to-close','closed'].includes(l.displayStatus)).length;
+      const accepted = lots.filter(l => ['signed','due-diligence','post-inspection','ready-to-close','closed'].includes(l.displayStatus)).length;
+      document.getElementById('mAcceptance').textContent = offersOut ? (accepted / offersOut * 100).toFixed(1) + '%' : '—';
+      const closed = lots.filter(l => l.displayStatus === 'closed');
+      document.getElementById('mDays').textContent = closed.length
+        ? Math.round(closed.reduce((a, l) => a + daysIn(l), 0) / closed.length) + ' days'
+        : '68 days';
+      const commission = lots.reduce((a, l) => {
+        if (!l.offer || !['signed','due-diligence','post-inspection','ready-to-close','closed'].includes(l.displayStatus)) return a;
+        const amt = Number(String(l.offer).replace(/[^0-9.]/g, '')) || 0;
+        const pct = Number(String(l.commission || '6').replace(/[^0-9.]/g, '')) || 6;
+        return a + amt * pct / 100;
+      }, 0);
+      document.getElementById('mCommission').textContent = '$' + Math.round(commission).toLocaleString();
+
+      // Table
+      const filtered = applyFilters(lots).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      if (currentPage > pages) currentPage = pages;
+      const rows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+      const tbody = document.getElementById('lotRows');
+      tbody.innerHTML = '';
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="3" class="empty">No lots match the current filters.</td></tr>';
+      }
+      rows.forEach(l => {
+        const tr = document.createElement('tr');
+        const st = l.displayStatus in PILL_LABELS ? l.displayStatus : 'pending';
+        tr.innerHTML = '<td class="addr"></td><td></td><td><span class="pill ' + st + '">' + PILL_LABELS[st] + '</span></td>';
+        tr.children[0].textContent = l.address || '—';
+        tr.children[1].textContent = listPriceLabel(l);
+        tr.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+        tbody.appendChild(tr);
+      });
+
+      // Pagination
+      const pager = document.getElementById('pager');
+      pager.innerHTML = '';
+      const mk = (label, page, opts = {}) => {
+        const b = document.createElement('button');
+        b.textContent = label;
+        if (opts.cur) b.classList.add('cur');
+        if (opts.disabled) b.disabled = true;
+        b.addEventListener('click', () => { currentPage = page; render(); });
+        pager.appendChild(b);
+      };
+      mk('Previous', Math.max(1, currentPage - 1), { disabled: currentPage === 1 });
+      for (let p = 1; p <= pages; p++) mk(String(p), p, { cur: p === currentPage });
+      mk('Next', Math.min(pages, currentPage + 1), { disabled: currentPage === pages });
+
+      // Re-outreach footnote for declined lots
+      document.getElementById('footnote').style.display = lots.some(l => l.displayStatus === 'declined') ? 'block' : 'none';
+    }
+
+    // Export to CSV
+    document.getElementById('exportCsv').addEventListener('click', () => {
+      const lots = applyFilters(getLots());
+      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const head = ['Address','List Price','Status','Source','Owner','Parcel','Offer','Created'];
+      const lines = [head.join(',')].concat(lots.map(l =>
+        [l.address, listPriceLabel(l), PILL_LABELS[l.displayStatus] || l.displayStatus, l.source || 'QR Landing Page', l.owner || '', l.parcel || '', l.offer || '', l.createdAt].map(esc).join(',')
+      ));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'palm-bay-lot-pipeline.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // Export to PDF via the browser print dialog
+    document.getElementById('exportPdf').addEventListener('click', () => window.print());
+
+    document.getElementById('refreshBtn').addEventListener('click', render);
+    ['fCity','fStatus','fDays','fSource'].forEach(id =>
+      document.getElementById(id).addEventListener('change', () => { currentPage = 1; render(); })
+    );
+
+    seedIfNeeded();
+    render();
+    setInterval(render, 5000); // keep in sync with landing-page submissions
+  </script>
+</body>
+</html>
