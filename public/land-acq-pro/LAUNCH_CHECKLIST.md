@@ -1,60 +1,59 @@
-# Land Acq Pro — Launch Checklist
+# Land Acq Pro — Go-Live Plan
 
-Everything needed to take the demo to a permanent, production launch.
+Locked decisions (July 2026):
+- **Hosting:** launch on the free Vercel URL now, add a branded domain later.
+- **E-signature:** Kevin sends offers through his own Dotloop login (no API integration yet).
+- **Seller emails:** manual for now — Kevin emails sellers himself until we automate.
 
-## 1. Hosting & domain
-- [ ] Decide the public URL (e.g. `landacq.adamshomes.com` or the Vercel
-      domain) and point DNS at the deployment.
-- [ ] Turn OFF Vercel deployment protection for the public/seller page so
-      sellers can reach it (keep the admin pages behind the password gate).
-- [ ] Generate the QR code for the postcards pointing at the seller landing URL.
+That means launch comes down to three switches, then a QR code and a test.
 
-## 2. Secrets & environment (Vercel project settings)
-- [ ] `LAND_ACQ_ADMIN_KEY` — set a strong shared admin password (replaces the
-      demo default). Consider separate Kevin/Elizabeth passwords later.
-- [ ] `DATABASE_URL` — confirm the Supabase Postgres connection (already wired).
-- [ ] Brevard County: confirm live search works from the production servers
-      (BCPAO sits behind Cloudflare; if it blocks the server, add an API key or
-      a scraping allowance, otherwise sellers fall back to the research form).
+---
 
-## 3. Data
-- [ ] First real API call auto-creates the `land_acq_lots` and
-      `land_acq_settings` tables — verify they exist and that Kevin/Elizabeth
-      see the same pipeline from different devices.
-- [ ] Confirm the stipend defaults (Well/Septic $30k, Water/Septic $30k,
-      Water/Sewer $50k) and that changes log to the audit trail.
+## Step 1 — Turn the site on (Elizabeth, ~2 min in Vercel)
+- [ ] vercel.com → **adams-homes-dashboard** project → **Settings → Deployment
+      Protection** → set **Vercel Authentication** to **Off** → **Save**.
+      (This makes the public seller page reachable. The admin pages still have
+      their own password gate, so they stay protected.)
 
-## 4. E-signature (Dotloop)
-- [ ] Provide Dotloop access for Kevin's account (API/OAuth or documented
-      manual send).
-- [ ] Wire "Generate & Send Offer via Dotloop" to create/send the loop with the
-      contract template + cover letter + county property card.
+## Step 2 — Set the admin password (Elizabeth, ~1 min in Vercel)
+- [ ] Settings → **Environment Variables** → add **`LAND_ACQ_ADMIN_KEY`** =
+      the password you want Kevin & Elizabeth to use → Save.
+- [ ] Confirm **`DATABASE_URL`** (Supabase) is present so Kevin and Elizabeth
+      share one live pipeline across devices. First real save auto-creates the
+      `land_acq_lots` and `land_acq_settings` tables.
 
-## 5. Email / notifications
-- [ ] Choose the sender (SendGrid API key or a Gmail app password) and add it
-      to the environment.
-- [ ] Connect the two seller notifications: "contract received" and "fully
-      executed / official."
-- [ ] Optional: notify Elizabeth when a deal reaches "Pending EP Signature," and
-      Kevin/GM when a deal is "Manager Driven."
+## Step 3 — Publish to the permanent URL (Claude, on your OK)
+- [ ] Merge the pull request to `main` so the pages deploy to the permanent
+      address: **https://adams-homes-dashboard.vercel.app/land-acq-pro/**
+      (Currently they live only on the preview branch.)
 
-## 6. Document storage
-- [ ] Stand up real file storage (Supabase Storage bucket) so lot document
-      uploads persist the actual files, not just filenames.
+## Step 4 — QR code + postcards (ready now)
+- [ ] QR code generated pointing at the seller landing URL above. It "activates"
+      the moment Steps 1 and 3 are done. Drop it on the postcard artwork.
 
-## 7. Content & branding
-- [ ] Replace Kevin's photo if a newer headshot is preferred (currently set).
-- [ ] Confirm final cover-letter wording and the contract template are current.
-- [ ] Add Privacy Policy / Terms pages (footer links are placeholders).
+## Step 5 — End-to-end test on real devices (Claude + Elizabeth)
+- [ ] Seller opens the QR/link on a phone → searches property → submits.
+- [ ] Deal appears in Kevin's dashboard.
+- [ ] Kevin sets stipend/offer, sends the packet via **Dotloop (his login)**.
+- [ ] Seller signs → Kevin marks "contract received" → Elizabeth signs.
+- [ ] Timeline computes IP (+45 days) and the Thursday closing date.
+- [ ] Verify on iPhone, Android, and desktop.
 
-## 8. Testing & sign-off
-- [ ] Run the QA suite (`node qa/land-acq-pro.e2e.js`) — should be all green.
-- [ ] End-to-end live test: seller submit → appears in dashboard → Kevin offer
-      via Dotloop → seller signs → Kevin marks received → Elizabeth signs →
-      timeline + Thursday closing computed → notifications delivered.
-- [ ] Verify on real devices: iPhone, Android, iPad, desktop.
+---
 
-## 9. Operations
-- [ ] Confirm database backups are on (Supabase automatic backups).
-- [ ] Decide who can change stipends and rotate the admin password on a schedule.
-- [ ] Basic monitoring/uptime check on the public URL.
+## Live pages
+- Seller landing: `/land-acq-pro/`
+- Pipeline dashboard: `/land-acq-pro/admin.html`
+- Offer approval: `/land-acq-pro/offer-approval.html`
+
+## Deferred (do after launch — not blockers)
+- [ ] Branded domain (e.g. `landacq.adamshomes.com`) — needs IT/DNS.
+- [ ] Automated seller emails ("contract received" / "fully executed").
+- [ ] Dotloop API automation (auto-create + send the loop).
+- [ ] Real file storage (Supabase Storage bucket) so lot uploads keep the
+      actual files, not just filenames.
+- [ ] Confirm Brevard County (BCPAO) live search works from production; sellers
+      fall back to the research form if it's blocked.
+- [ ] Privacy Policy / Terms pages (footer links are placeholders).
+- [ ] Rotate the admin password on a schedule; consider separate
+      Kevin/Elizabeth passwords.
