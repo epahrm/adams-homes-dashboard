@@ -430,7 +430,8 @@
     function inferUtilityType(l) {
       if (l.utilityType) return l.utilityType;
       const u = (l.utilities || '').toLowerCase();
-      if (!u) return '';
+      // Palm Bay default: Well/Septic ($30k) unless the listing says otherwise.
+      if (!u) return 'well-septic';
       const water = /water:\s*city|city water/.test(u) && !/water:\s*none/.test(u);
       const sewer = /sewer:\s*city|city sewer/.test(u) && !/sewer:\s*none/.test(u);
       if (water && sewer) return 'water-sewer';

@@ -45,10 +45,12 @@ export function acresOf(l: Lot): number | null {
   return m ? parseFloat(m[1]) : null
 }
 
-export function inferUtilityType(l: Lot): string | null {
+export function inferUtilityType(l: Lot): string {
   if (l.utilityType) return l.utilityType
   const u = (l.utilities || '').toLowerCase()
-  if (!u) return null
+  // Palm Bay default: assume Well/Septic ($30k stipend) unless the listing
+  // specifies city water/sewer.
+  if (!u) return 'well-septic'
   const water = /water:\s*city|city water|water:\s*available/.test(u) && !/water:\s*none/.test(u)
   const sewer = /sewer:\s*city|city sewer/.test(u) && !/sewer:\s*none/.test(u)
   if (water && sewer) return 'water-sewer'
@@ -89,7 +91,7 @@ export function scoreBuyBox(l: Lot, defaults: Record<string, number> = DEFAULT_S
     yellow.push('Flood zone ' + l.floodZone + ' — insurable, needs sign-off')
   if (l.hoa) yellow.push('HOA restriction')
   if (l.minorEasement) yellow.push('Minor easement')
-  if (!l.parcel || !(l.ownerContact || l.owner) || !inferUtilityType(l))
+  if (!l.parcel || !(l.ownerContact || l.owner))
     yellow.push('Missing data — verify before offer')
 
   const light = red.length ? 'red' : yellow.length ? 'yellow' : 'green'
