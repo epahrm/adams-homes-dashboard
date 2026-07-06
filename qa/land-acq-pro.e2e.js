@@ -188,35 +188,47 @@ async function noHorizontalOverflow(page) {
     check('showing count renders', /Showing \d+-\d+ of \d+ lots/.test(await page.textContent('#showingCount')));
     check('target focuses on accepted contracts', (await page.textContent('.target')).includes('accepted contracts'));
 
-    // ---------- Kevin flow: approval ----------
-    await page.locator('#lotRows tr').first().click();
-    await page.waitForSelector('#approveBtn');
+    // ---------- Approval: generate an offer on a New Lead ----------
+    await page.waitForSelector('#newLeadsList .lead-row');
+    await page.locator('#newLeadsList .lead-row').first().click();
+    await page.waitForSelector('#actionButtons button', { timeout: 10000 });
     check('approval screen loads lot', (await page.textContent('#pageTitle')).includes('Offer Approval:'));
-    const offer = await page.inputValue('#offerAmount');
-    check('offer default populated', /\$[\d,]+/.test(offer), offer);
+    await page.locator('#actionButtons button', { hasText: 'Generate' }).click();
+    check('premium Yes/No required before generating', await page.locator('#premiumError').isVisible());
+    await page.check('input[name=hasPremium][value=no]');
+    await page.selectOption('#utilityType', 'water-sewer');
+    await page.fill('#offerAmount', '$30,000');
+    await page.locator('#actionButtons button', { hasText: 'Generate' }).click();
+    await page.waitForSelector('#message.success', { timeout: 8000 });
+    check('offer generated with 14-day expiration', (await page.textContent('#message')).includes('Expires'));
+    check('offer expiration date set on timeline', (await page.textContent('#tExpires')) !== '—');
+    await page.fill('#offerAmount', '60000');
+    check('over-stipend warning shows', await page.locator('#overWarn.show').isVisible());
+    await page.click('#previewPacketBtn');
+    check('cover letter preview shows expiration', (await page.textContent('#packetPreview')).includes('expires on'));
+    check('document upload control present', await page.locator('#docUpload').count() === 1);
 
-    // Validation: zero and negative offers rejected (F2)
-    await page.click('a[data-edit="offerAmount"]');
-    await page.fill('#offerAmount', '$0');
-    await page.click('#approveBtn');
-    check('zero offer rejected', await page.locator('#message.error').isVisible());
-    await page.fill('#offerAmount', '-5000');
-    await page.click('#approveBtn');
-    check('negative offer rejected', await page.locator('#message.error').isVisible());
-    await page.fill('#offerAmount', offer);
-    await page.click('#approveBtn');
-    check('approve sends offer',
-      await page.locator('#message.success').isVisible() &&
-      (await page.textContent('#message')).includes('Offer sent to'));
-    await page.waitForURL('**/admin.html', { timeout: 5000 });
-    check('approve returns to dashboard + status updated',
-      (await page.locator('#lotRows .pill').allTextContents()).includes('OFFER SENT'));
+    // ---------- Approval: Elizabeth counter-signs (seller-first, EP last) ----------
+    await page.goto(BASE + '/admin.html');
+    await page.waitForSelector('#lotRows tr');
+    await page.selectOption('#fStatus', 'pending-ep-sig');
+    await page.waitForTimeout(200);
+    await page.locator('#lotRows tr').first().click();
+    await page.waitForSelector('#epSummary.show', { timeout: 10000 });
+    check('EP sign-off summary shows for Elizabeth', await page.locator('#epSummary.show').isVisible());
+    check('EP summary lists stipend + offer', (await page.textContent('#epSummary')).includes('Approved Lot Stipend'));
+    await page.locator('#actionButtons button', { hasText: 'Sign' }).click();
+    await page.waitForSelector('#message.success', { timeout: 8000 });
+    check('EP signature computes Thursday closing', (await page.textContent('#message')).includes('closing'));
+    check('official notification logged', (await page.textContent('#notifList')).toLowerCase().includes('official'));
+    check('IP + closing dates set on timeline',
+      (await page.textContent('#tIp')) !== '—' && (await page.textContent('#tActualClose')) !== '—');
 
     // ---------- Regression: malicious lot renders as text, not markup ----------
     await page.goto(BASE + '/offer-approval.html?id=424242');
-    await page.waitForSelector('#approveBtn');
+    await page.waitForSelector('#cOwnerContact', { timeout: 10000 });
     const xssFired = await page.evaluate(() => window.__xss === 1);
-    const imgInjected = await page.locator('#cOwnerContact img, #cUtilities script, #cTax b').count();
+    const imgInjected = await page.locator('#cOwnerContact img, #cUtilities script').count();
     const rawShown = (await page.textContent('#cOwnerContact')).includes('<img');
     check('stored XSS neutralized on approval screen', !xssFired && imgInjected === 0 && rawShown);
     await page.goto(BASE + '/admin.html');

@@ -3,77 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Offer Approval</title>
+  <title>Offer Approval - Adams Homes</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f5f7; color: #333; }
-    .page { max-width: 760px; margin: 0 auto; background: white; min-height: 100vh; }
+    .page { max-width: 820px; margin: 0 auto; background: white; min-height: 100vh; }
 
-    .topbar { background: #003d66; color: white; padding: 24px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
-    .topbar h1 { font-size: 24px; line-height: 1.25; flex: 1 1 200px; }
-    .topbar .who { display: flex; align-items: center; gap: 10px; font-size: 15px; }
-    .topbar .avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-weight: 700; }
-    .logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 10px 22px; min-height: 44px; font-size: 15px; cursor: pointer; font-family: inherit; }
+    .topbar { background: #003d66; color: white; padding: 20px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    .topbar h1 { font-size: 20px; line-height: 1.25; flex: 1 1 200px; }
+    .topbar .who { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+    .topbar .avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+    .logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 9px 18px; min-height: 40px; font-size: 14px; cursor: pointer; font-family: inherit; }
     .logout:hover { background: rgba(255,255,255,0.2); }
 
-    .content { padding: 26px 22px 48px; }
-    .content > h2 { color: #003d66; font-size: 30px; margin: 4px 0 20px; line-height: 1.25; }
+    .content { padding: 22px 22px 60px; }
+    .content > h2 { color: #003d66; font-size: 24px; margin: 4px 0 6px; line-height: 1.25; }
+    .stage-line { color: #556; font-size: 14px; margin-bottom: 18px; }
+    .stage-line .pill { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; background: #eaf2fb; color: #003d66; }
 
-    .verified { background: #eaf2fb; border-left: 5px solid #003d66; border-radius: 6px; padding: 16px 18px; font-size: 16px; color: #1a2b3c; margin-bottom: 24px; }
-
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 24px 20px; margin-bottom: 26px; background: white; }
-    .card h3 { color: #003d66; font-size: 16px; letter-spacing: 2.5px; text-transform: uppercase; border-bottom: 3px solid #003d66; padding-bottom: 12px; margin-bottom: 20px; }
-    .field { margin-bottom: 18px; }
+    .card { border: 1px solid #dde3ea; border-radius: 12px; padding: 20px; margin-bottom: 18px; }
+    .card h3 { color: #003d66; font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; border-bottom: 2px solid #003d66; padding-bottom: 10px; margin-bottom: 16px; }
+    .field { margin-bottom: 14px; }
     .field:last-child { margin-bottom: 0; }
-    .field .lbl { color: #888; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
-    .field .val { font-size: 18px; color: #222; line-height: 1.5; }
-    .field .sub { font-size: 15px; color: #555; }
-    .county-link { color: #1a5a3a; font-size: 20px; font-weight: 700; text-decoration: none; }
+    .field .lbl { color: #778; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+    .field .val { font-size: 16px; color: #1a1a1a; line-height: 1.5; }
+    .field .sub { color: #667; font-size: 13px; }
+    .two-col { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 620px) { .two-col { grid-template-columns: 1fr 1fr; } }
+
+    label.form-label { display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 5px; }
+    input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-family: inherit; background: white; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #003d66; box-shadow: 0 0 0 3px rgba(0,61,102,0.12); }
+    textarea { resize: vertical; }
+    .hint { font-size: 12px; color: #778; margin-top: 4px; }
+
+    .county-link { color: #1a5a3a; font-weight: 700; text-decoration: none; }
     .county-link:hover { text-decoration: underline; }
 
-    .offer-card { border: 2px solid #1a5a3a; border-radius: 12px; padding: 24px 20px; margin-bottom: 26px; background: white; }
-    .offer-card .field { border-bottom: 1px solid #e5e5e5; padding-bottom: 18px; }
-    .offer-card .field:last-of-type { border-bottom: none; padding-bottom: 0; }
-    .offer-card input {
-      width: 100%; max-width: 340px; padding: 14px; border: 1px solid #ccc; border-radius: 8px;
-      font-family: inherit; font-size: 18px; margin: 4px 0 8px; background: #fafafa;
-    }
-    .offer-card input:not([readonly]) { background: white; border-color: #1a5a3a; }
-    .offer-card input:focus { outline: none; box-shadow: 0 0 0 3px rgba(46, 133, 64, 0.15); }
-    .edit-link { color: #1a5a3a; font-weight: 700; font-size: 16px; cursor: pointer; text-decoration: none; }
-    .edit-link:hover { text-decoration: underline; }
-    .muted { color: #888; font-size: 15px; margin-bottom: 4px; }
+    /* Stipend + warning */
+    .stipend-line { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; font-size: 16px; }
+    .stipend-line b { color: #003d66; font-variant-numeric: tabular-nums; }
+    .warn { background: #fdf3ef; border: 1px solid #f0cabe; border-radius: 8px; padding: 12px 14px; color: #8a3a28; font-size: 14px; margin-top: 12px; display: none; }
+    .warn.show { display: block; }
+    .warn b { color: #8a2a18; }
 
-    .routing { background: #e6f4e8; border-left: 5px solid #1a5a3a; border-radius: 6px; padding: 16px 18px; font-size: 16px; line-height: 1.6; color: #14401d; }
-    .routing b { font-size: 18px; }
+    /* Premium picker */
+    .premium-toggle { display: flex; gap: 10px; margin-bottom: 6px; }
+    .premium-toggle label { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; font-size: 15px; cursor: pointer; padding: 8px 16px; border: 1px solid #ccc; border-radius: 8px; }
+    .premium-toggle input { width: auto; }
+    .premium-list { margin-top: 10px; display: none; }
+    .premium-list.show { display: block; }
+    .premium-row { display: grid; grid-template-columns: 1fr 130px; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .premium-row .p-check { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+    .premium-row .p-check input { width: auto; }
+    .premium-total { margin-top: 8px; font-weight: 700; color: #003d66; }
 
-    .actions { display: flex; gap: 14px; margin-top: 24px; flex-wrap: wrap; }
-    .btn-approve {
-      flex: 1 1 180px; background: #1a5a3a; color: white; border: none; border-radius: 10px;
-      padding: 18px 16px; font-size: 18px; font-weight: 800; cursor: pointer; font-family: inherit;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .btn-approve:hover { background: #14472e; }
-    .btn-cancel {
-      flex: 1 1 140px; background: white; color: #003d66; border: 2px solid #ccc; border-radius: 10px;
-      padding: 18px 16px; font-size: 18px; font-weight: 700; cursor: pointer; font-family: inherit;
-      text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .btn-cancel:hover { border-color: #003d66; }
+    /* Timeline */
+    .timeline .t-row { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid #eef2f6; font-size: 15px; }
+    .timeline .t-row:last-child { border-bottom: none; }
+    .timeline .t-row .t-lbl { color: #556; }
+    .timeline .t-row .t-val { font-weight: 700; color: #1a1a1a; font-variant-numeric: tabular-nums; }
+    .placeholder-note { background: #fff8ef; border: 1px solid #f0dcc2; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #8a5200; margin-top: 12px; }
 
-    .message { padding: 14px; border-radius: 6px; margin-top: 18px; display: none; font-size: 15px; }
-    .success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-    .error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+    /* Documents */
+    .doc-list { list-style: none; margin: 10px 0 0; }
+    .doc-list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px; background: #f7f9fc; border: 1px solid #e3e9f0; border-radius: 8px; margin-bottom: 6px; font-size: 14px; }
+    .doc-list li .d-name { color: #003d66; font-weight: 600; }
+    .doc-list li .d-meta { color: #889; font-size: 12px; }
+    .doc-list .empty { color: #889; background: none; border: none; padding: 6px 0; }
+    .upload-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
 
-    @media (max-width: 480px) { .content > h2 { font-size: 25px; } }
+    /* Packet preview */
+    .packet { background: #f7f9fc; border: 1px dashed #b9c8d8; border-radius: 8px; padding: 16px; font-size: 14px; line-height: 1.6; color: #333; white-space: pre-wrap; display: none; margin-top: 12px; }
+    .packet.show { display: block; }
 
+    /* Notifications log */
+    .notif-list { list-style: none; }
+    .notif-list li { font-size: 13px; color: #445; padding: 7px 0; border-top: 1px solid #eef2f6; }
+    .notif-list li:first-child { border-top: none; }
+    .notif-list li b { color: #003d66; }
+    .notif-list .empty { color: #889; }
+
+    /* EP summary */
+    .ep-summary { background: #eaf2fb; border: 2px solid #003d66; border-radius: 12px; padding: 18px; margin-bottom: 18px; display: none; }
+    .ep-summary.show { display: block; }
+    .ep-summary h3 { color: #003d66; font-size: 15px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+    .ep-summary .s-row { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid #d5e2f0; font-size: 15px; }
+    .ep-summary .s-row:last-of-type { border-bottom: none; }
+    .ep-summary .s-row .s-val { font-weight: 700; color: #003d66; }
+    .ep-summary .s-notes { margin-top: 10px; background: white; border-radius: 8px; padding: 12px; font-size: 14px; color: #333; }
+
+    /* Buttons */
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+    .btn { padding: 15px 18px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; border: none; min-height: 50px; }
+    .btn-primary { background: #1a5a3a; color: white; flex: 1 1 220px; }
+    .btn-primary:hover { background: #14472e; }
+    .btn-navy { background: #003d66; color: white; flex: 1 1 220px; }
+    .btn-navy:hover { background: #0a4f8e; }
+    .btn-outline { background: white; color: #003d66; border: 2px solid #003d66; flex: 1 1 140px; }
+    .btn-outline:hover { background: #eaf2fb; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .message { padding: 14px; border-radius: 8px; margin-top: 16px; display: none; font-size: 15px; }
+    .message.success { background: #e8f2ec; color: #14401d; border: 1px solid #bcd8c6; }
+    .message.error { background: #fdecea; color: #b02a1a; border: 1px solid #f3c3bb; }
+
+    .back-link { display: inline-block; margin-top: 20px; color: #003d66; font-size: 14px; text-decoration: none; font-weight: 600; }
+    .back-link:hover { text-decoration: underline; }
+
+    /* Gate */
     .gate-overlay { position: fixed; inset: 0; background: #003d66; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .gate { background: white; border-radius: 12px; max-width: 400px; width: 100%; padding: 32px 28px; }
+    .gate { background: white; border-radius: 12px; max-width: 400px; width: 100%; padding: 30px 26px; }
     .gate h2 { color: #003d66; font-size: 22px; margin-bottom: 6px; }
-    .gate p { color: #666; font-size: 14px; margin-bottom: 18px; }
-    .gate input { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; margin-bottom: 8px; }
+    .gate p { color: #666; font-size: 14px; margin-bottom: 16px; }
+    .gate label { display: block; text-align: left; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .gate select, .gate input { width: 100%; padding: 12px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; margin-bottom: 12px; background: white; }
     .gate .gate-error { color: #c62828; font-size: 14px; margin-bottom: 8px; display: none; }
-    .gate button { width: 100%; padding: 14px; background: #003d66; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 6px; }
+    .gate button { width: 100%; padding: 14px; background: #003d66; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
   </style>
 </head>
 <body>
@@ -82,6 +127,11 @@
       <h2>Admin Access</h2>
       <p>Enter the admin password to open this offer.</p>
       <form id="gateForm">
+        <label for="gateRole">Sign in as</label>
+        <select id="gateRole">
+          <option value="Kevin Nelson">Kevin Nelson</option>
+          <option value="Elizabeth Porter">Elizabeth Porter</option>
+        </select>
         <input type="password" id="gatePassword" placeholder="Password" aria-label="Admin password" autocomplete="current-password">
         <div class="gate-error" id="gateError">Invalid password</div>
         <button type="submit">Unlock</button>
@@ -91,79 +141,217 @@
 
   <div class="page">
     <div class="topbar">
-      <h1>Admin Dashboard - Offer Approval</h1>
-      <div class="who"><div class="avatar">K</div><div>Kevin<br>Nelson</div></div>
-      <button class="logout" onclick="sessionStorage.removeItem('laAdminKey'); sessionStorage.removeItem('laMode'); window.location.href='index.html'">Logout</button>
+      <h1>Offer Approval</h1>
+      <div class="who"><div class="avatar">K</div><div id="whoName">Kevin Nelson</div></div>
+      <button class="logout" onclick="sessionStorage.removeItem('laAdminKey'); sessionStorage.removeItem('laMode'); sessionStorage.removeItem('laRole'); window.location.href='index.html'">Logout</button>
     </div>
 
-    <div class="content">
+    <div class="content" id="content" style="display:none;">
       <h2 id="pageTitle">Offer Approval</h2>
+      <div class="stage-line">Current stage: <span class="pill" id="stagePill">—</span> <span id="stageHint"></span></div>
 
-      <div class="verified" id="verifiedNote">Property verified against Brevard County records. Ready for approval.</div>
+      <!-- Elizabeth's sign-off summary (shows when awaiting her signature) -->
+      <div class="ep-summary" id="epSummary">
+        <h3>Ready for Your Signature</h3>
+        <div class="s-row"><span>Approved Lot Stipend</span><span class="s-val" id="sStipend">—</span></div>
+        <div class="s-row"><span>Offer Amount</span><span class="s-val" id="sOffer">—</span></div>
+        <div class="s-row"><span>Premiums (extra cost)</span><span class="s-val" id="sPremium">—</span></div>
+        <div class="s-notes" id="sNotes">No notes from Kevin.</div>
+      </div>
 
+      <!-- County record / property card -->
       <div class="card">
-        <h3>Brevard County Record</h3>
-        <div class="field"><div class="lbl">Address</div><div class="val" id="cAddress">&mdash;</div></div>
-        <div class="field"><div class="lbl">Parcel Number</div><div class="val" id="cParcel">&mdash;</div></div>
-        <div class="field"><div class="lbl">Owner</div><div class="val" id="cOwner">&mdash;</div></div>
-        <div class="field"><div class="lbl">Owner Contact</div><div class="val" id="cOwnerContact">&mdash;</div></div>
-        <div class="field"><div class="lbl">Lot Size</div><div class="val" id="cLotSize">&mdash;</div></div>
-        <div class="field"><div class="lbl">Zoning</div><div class="val" id="cZoning">&mdash;</div></div>
-        <div class="field"><div class="lbl">Utilities</div><div class="val" id="cUtilities">&mdash;</div></div>
-        <div class="field"><div class="lbl">Tax Assessment</div><div class="val" id="cTax">&mdash;</div></div>
-        <div class="field"><div class="lbl">Environmental Flags</div><div class="val" id="cEnv">None detected</div></div>
-        <div class="field"><div class="lbl">Verify at County</div>
+        <h3>Brevard County Property Card</h3>
+        <div class="two-col">
+          <div class="field"><div class="lbl">Address</div><div class="val" id="cAddress">—</div></div>
+          <div class="field"><div class="lbl">Parcel</div><div class="val" id="cParcel">—</div></div>
+          <div class="field"><div class="lbl">Owner</div><div class="val" id="cOwner">—</div></div>
+          <div class="field"><div class="lbl">Owner Contact</div><div class="val" id="cOwnerContact">—</div></div>
+          <div class="field"><div class="lbl">Lot Size</div><div class="val" id="cLotSize">—</div></div>
+          <div class="field"><div class="lbl">Zoning</div><div class="val" id="cZoning">—</div></div>
+          <div class="field"><div class="lbl">Utilities</div><div class="val" id="cUtilities">—</div></div>
+          <div class="field"><div class="lbl">Tax Assessment</div><div class="val" id="cTax">—</div></div>
+        </div>
+        <div class="field" style="margin-top:12px;"><div class="lbl">Verify at County</div>
           <a class="county-link" href="https://www.bcpao.us/PropertySearch/" target="_blank" rel="noopener">Open County Records</a>
         </div>
+        <div class="hint">This property card is included in the seller's offer email and in Kevin's copy.</div>
       </div>
 
-      <div class="offer-card">
-        <div class="field"><div class="lbl">Property Address</div><div class="val" id="oAddress">&mdash;</div></div>
-        <div class="field"><div class="lbl">List Price</div><div class="val"><span id="oListPrice">&mdash;</span> <span class="sub" id="oListStatus"></span></div></div>
-        <div class="field"><div class="lbl">Listing Agent</div>
-          <div class="val" id="oAgent">&mdash;</div>
-          <div class="sub" id="oAgentBrokerage"></div>
-          <div class="sub" id="oAgentPhone"></div>
+      <!-- Deal details -->
+      <div class="card">
+        <h3>Deal Details</h3>
+        <div class="two-col">
+          <div>
+            <label class="form-label" for="utilityType">Utility Type (sets stipend)</label>
+            <select id="utilityType">
+              <option value="">Select…</option>
+              <option value="well-septic">Well / Septic</option>
+              <option value="water-septic">Water / Septic</option>
+              <option value="water-sewer">Water / Sewer</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="listingType">Off-Market or Listed</label>
+            <select id="listingType">
+              <option value="off-market">Off-Market</option>
+              <option value="listed">Listed (MLS)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="leadSource">Lead Source</label>
+            <select id="leadSource">
+              <option value="Direct Mail">Direct Mail / Mailer</option>
+              <option value="Email">Email</option>
+              <option value="QR Landing Page">QR Landing Page</option>
+              <option value="FSBO">FSBO</option>
+              <option value="Expired">Expired</option>
+              <option value="Off-Market">Off-Market</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="lbl">Approved Lot Stipend</div>
+            <div class="stipend-line"><b id="stipendVal">—</b> <span class="sub" id="stipendUtil"></span></div>
+          </div>
         </div>
-        <div class="field"><div class="lbl">Offer Amount</div>
-          <input type="text" id="offerAmount" aria-label="Offer amount" readonly>
-          <div class="muted">Default: $2K below asking</div>
-          <a class="edit-link" data-edit="offerAmount">Edit Offer</a>
-        </div>
-        <div class="field"><div class="lbl">Earnest Money Deposit (EMD)</div>
-          <input type="text" id="emd" value="$100" aria-label="Earnest money deposit" readonly>
-          <a class="edit-link" data-edit="emd">Edit EMD</a>
-        </div>
-        <div class="field"><div class="lbl">Commission</div>
-          <input type="text" id="commission" value="3%" aria-label="Commission" readonly>
-          <div class="muted">From listing details</div>
-          <a class="edit-link" data-edit="commission">Edit Commission</a>
-        </div>
-        <div class="field"><div class="lbl">Routing</div>
-          <div class="routing" id="routingBox">Will send to owner directly.</div>
+        <div class="warn" id="overWarn"><b>Heads up:</b> this offer is <span id="overAmt"></span> over the approved stipend. Kevin may proceed; the over-stipend flag will show on the pipeline.</div>
+      </div>
+
+      <!-- Offer terms -->
+      <div class="card">
+        <h3>Offer Terms</h3>
+        <div class="two-col">
+          <div>
+            <label class="form-label" for="offerAmount">Offer Amount</label>
+            <input type="text" id="offerAmount" inputmode="numeric" placeholder="$30,000">
+            <div class="hint">Default: $2K below asking (listed) or $30K (off-market)</div>
+          </div>
+          <div>
+            <label class="form-label" for="emd">Earnest Money Deposit (EMD)</label>
+            <input type="text" id="emd" value="$100">
+          </div>
+          <div>
+            <label class="form-label" for="commission">Commission</label>
+            <input type="text" id="commission" value="3%">
+            <div class="hint">3% default; 6% when from a listing</div>
+          </div>
+          <div class="field">
+            <div class="lbl">Offer Expiration</div>
+            <div class="val" id="expiryVal">Set when the offer is generated (14 days)</div>
+          </div>
         </div>
 
-        <div class="actions">
-          <button class="btn-approve" id="approveBtn">Approve &amp; Send Offer</button>
-          <button class="btn-cancel" id="cancelBtn">Cancel</button>
+        <!-- Premium picker -->
+        <div style="margin-top:16px;">
+          <label class="form-label">Is there a lot premium? <span style="color:#b02a1a;">*</span></label>
+          <div class="premium-toggle">
+            <label><input type="radio" name="hasPremium" value="no"> No</label>
+            <label><input type="radio" name="hasPremium" value="yes"> Yes</label>
+          </div>
+          <div class="premium-list" id="premiumList"></div>
+          <div class="premium-total" id="premiumTotal" style="display:none;"></div>
+          <div class="hint" id="premiumError" style="color:#b02a1a; display:none;">Please select Yes or No.</div>
         </div>
+      </div>
+
+      <!-- Kevin's notes to Elizabeth -->
+      <div class="card">
+        <h3>Notes to Elizabeth</h3>
+        <textarea id="kevinNotes" rows="3" placeholder="Anything Elizabeth should know before signing…"></textarea>
+      </div>
+
+      <!-- Timeline -->
+      <div class="card">
+        <h3>Contract Timeline</h3>
+        <div class="timeline">
+          <div class="t-row"><span class="t-lbl">Offer generated</span><span class="t-val" id="tGenerated">—</span></div>
+          <div class="t-row"><span class="t-lbl">Offer expires (14 days)</span><span class="t-val" id="tExpires">—</span></div>
+          <div class="t-row"><span class="t-lbl">Seller contract received</span><span class="t-val" id="tSellerRcvd">—</span></div>
+          <div class="t-row"><span class="t-lbl">Elizabeth signed (official)</span><span class="t-val" id="tEpSigned">—</span></div>
+          <div class="t-row"><span class="t-lbl">Inspection period ends</span><span class="t-val" id="tIp">—</span></div>
+          <div class="t-row"><span class="t-lbl">Contract closing date</span><span class="t-val" id="tDefaultClose">—</span></div>
+          <div class="t-row"><span class="t-lbl">Actual close (Thursday)</span><span class="t-val" id="tActualClose">—</span></div>
+        </div>
+        <div class="placeholder-note">Inspection period and closing offsets are placeholders (IP = sign + 10 days; closing = sign + 45 days) until the contract template is loaded. We close on the Thursday on/before the contract closing date.</div>
+      </div>
+
+      <!-- Documents -->
+      <div class="card">
+        <h3>Lot Documents</h3>
+        <ul class="doc-list" id="docList"><li class="empty">No documents uploaded yet.</li></ul>
+        <div class="upload-row">
+          <input type="file" id="docUpload" multiple>
+        </div>
+        <div class="hint">Attach the signed contract, survey, closing disclosure, title docs, etc. (Files are recorded on the lot; live storage connects with the backend.)</div>
+      </div>
+
+      <!-- Offer packet -->
+      <div class="card">
+        <h3>Offer Packet</h3>
+        <div class="hint">Generates the seller packet: blank contract template + Kevin's cover letter (with the 14-day expiration) + the county property card.</div>
+        <div class="actions" style="margin-top:12px;">
+          <button type="button" class="btn btn-outline" id="previewPacketBtn">Preview Cover Letter</button>
+        </div>
+        <div class="packet" id="packetPreview"></div>
+        <div class="hint" style="margin-top:8px;">Contract template: <span id="templateStatus">not yet uploaded — Elizabeth to provide</span>.</div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="card">
+        <h3>Notifications</h3>
+        <ul class="notif-list" id="notifList"><li class="empty">No notifications sent yet.</li></ul>
+        <div class="hint">Seller is notified when we receive their contract and when Elizabeth signs (official). Sending connects with the email service; events are logged here now.</div>
+      </div>
+
+      <!-- Primary action (varies by stage + role) -->
+      <div class="card" id="actionCard">
+        <h3>Next Step</h3>
+        <div class="actions" id="actionButtons"></div>
         <div class="message" id="message"></div>
       </div>
+
+      <a class="back-link" href="admin.html">&larr; Back to Pipeline</a>
     </div>
   </div>
 
   <script>
     const STORE_KEY = 'landAcqSubmissions';
     const API_LOTS = '/api/land-acq/lots';
+    const DEFAULT_STIPENDS = { 'well-septic': 30000, 'water-septic': 30000, 'water-sewer': 50000 };
+    const STIPEND_LABELS = { 'well-septic': 'Well / Septic', 'water-septic': 'Water / Septic', 'water-sewer': 'Water / Sewer' };
+    const STATUS_KEY = 'landAcqStipend';
+    const OFFER_VALID_DAYS = 14;
+    const IP_DAYS = 10;         // placeholder — confirm from contract
+    const DAYS_TO_CLOSE = 45;   // placeholder — confirm from contract
+    const PREMIUMS = [
+      { key: 'corner', label: 'Corner lot', amount: 8000 },
+      { key: 'extended-driveway', label: 'Extended driveway', amount: null },
+      { key: 'waterview', label: 'Waterview', amount: null },
+      { key: 'no-rear-neighbor', label: 'No rear neighbor', amount: null },
+      { key: 'oversized', label: 'Oversized lot', amount: null },
+      { key: 'cul-de-sac', label: 'Cul-de-sac', amount: null },
+      { key: 'other', label: 'Other', amount: null }
+    ];
+    const PILL_LABELS = {
+      'pending': 'New Lead', 'offer-sent': 'Offer Sent', 'seller-signed': 'Offer Accepted',
+      'pending-ep-sig': 'Pending EP Sig', 'ip': 'Inspection Period', 'manager-driven': 'Manager Driven',
+      'survey-rcvd': "Survey Rcv'd", 'cd-approved': 'CD Approved', 'ctc': 'Clear to Close',
+      'closed': 'Closed', 'declined': 'Declined'
+    };
+
     const params = new URLSearchParams(window.location.search);
     const lotId = params.get('id');
-    const messageEl = document.getElementById('message');
-    let mode = null;
-    let lot = null;
+    let mode = null, lot = null, stipendDefaults = Object.assign({}, DEFAULT_STIPENDS);
 
-    function adminHeaders() {
-      return { 'X-Admin-Key': sessionStorage.getItem('laAdminKey') || '', 'Content-Type': 'application/json' };
-    }
+    function currentUser() { return sessionStorage.getItem('laRole') || 'Kevin Nelson'; }
+    function isElizabeth() { return currentUser().toLowerCase().includes('elizabeth'); }
+    function adminHeaders() { return { 'X-Admin-Key': sessionStorage.getItem('laAdminKey') || '', 'Content-Type': 'application/json' }; }
+    function money(n) { return '$' + Number(n || 0).toLocaleString('en-US'); }
+    function num(v) { const n = Number(String(v == null ? '' : v).replace(/[^0-9.\-]/g, '')); return Number.isFinite(n) ? n : 0; }
+    function fmtDate(iso) { return iso ? new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '—'; }
+    function addDays(iso, d) { const x = new Date(iso); x.setDate(x.getDate() + d); return x.toISOString(); }
+    function thursdayOnOrBefore(iso) { const x = new Date(iso); const diff = (x.getDay() - 4 + 7) % 7; x.setDate(x.getDate() - diff); return x.toISOString(); }
 
     async function verifyPassword(password) {
       try {
@@ -186,159 +374,387 @@
       return lots.find(l => String(l.id) === String(lotId)) || null;
     }
 
-    function money(n) { return '$' + Number(n).toLocaleString(); }
+    async function loadStipends() {
+      if (mode === 'server') {
+        try {
+          const res = await fetch('/api/land-acq/settings', { headers: adminHeaders(), signal: AbortSignal.timeout(9000) });
+          if (res.ok) { const b = await res.json(); stipendDefaults = Object.assign({}, DEFAULT_STIPENDS, b.defaults); return; }
+        } catch (e) { /* fall through */ }
+      }
+      const raw = localStorage.getItem(STATUS_KEY);
+      if (raw) { try { stipendDefaults = Object.assign({}, DEFAULT_STIPENDS, JSON.parse(raw).defaults); } catch (e) {} }
+    }
 
-    // Lot fields originate from the public seller form — render as text only.
-    function setLines(el, lines) {
-      el.textContent = '';
-      lines.forEach((line, i) => {
-        if (i) el.appendChild(document.createElement('br'));
-        el.appendChild(document.createTextNode(line));
+    async function saveLot(set) {
+      if (mode === 'server') {
+        const res = await fetch(API_LOTS, { method: 'PATCH', headers: adminHeaders(), body: JSON.stringify({ id: lot.id, set: set }), signal: AbortSignal.timeout(9000) });
+        if (!res.ok) throw new Error('save failed');
+        Object.assign(lot, set);
+        return;
+      }
+      const lots = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+      const t = lots.find(l => String(l.id) === String(lot.id));
+      if (t) { Object.assign(t, set); localStorage.setItem(STORE_KEY, JSON.stringify(lots)); }
+      Object.assign(lot, set);
+    }
+
+    function inferUtilityType(l) {
+      if (l.utilityType) return l.utilityType;
+      const u = (l.utilities || '').toLowerCase();
+      if (!u) return '';
+      const water = /water:\s*city|city water/.test(u) && !/water:\s*none/.test(u);
+      const sewer = /sewer:\s*city|city sewer/.test(u) && !/sewer:\s*none/.test(u);
+      if (water && sewer) return 'water-sewer';
+      if (water && !sewer) return 'water-septic';
+      return 'well-septic';
+    }
+
+    function stipendForLot() {
+      if (typeof lot.lotStipend === 'number') return lot.lotStipend;
+      const t = document.getElementById('utilityType').value || inferUtilityType(lot);
+      return t ? stipendDefaults[t] : null;
+    }
+
+    // Render lot data as text, never innerHTML (public form input is untrusted).
+    function setLines(el, lines) { el.textContent = ''; lines.forEach((ln, i) => { if (i) el.appendChild(document.createElement('br')); el.appendChild(document.createTextNode(ln)); }); }
+
+    // ---------- Premium UI ----------
+    function buildPremiumList() {
+      const wrap = document.getElementById('premiumList');
+      wrap.innerHTML = '';
+      const saved = lot.premiums || [];
+      PREMIUMS.forEach(p => {
+        const row = document.createElement('div');
+        row.className = 'premium-row';
+        row.innerHTML = '<label class="p-check"><input type="checkbox"> <span></span></label><input type="text" placeholder="$0" inputmode="numeric">';
+        row.querySelector('span').textContent = p.label;
+        const chk = row.querySelector('input[type=checkbox]');
+        const amt = row.querySelector('input[type=text]');
+        chk.dataset.key = p.key;
+        const savedItem = saved.find(s => s.key === p.key);
+        if (savedItem) { chk.checked = true; amt.value = money(savedItem.amount); }
+        else if (p.amount != null) { amt.value = money(p.amount); }
+        chk.addEventListener('change', updatePremiumTotal);
+        amt.addEventListener('input', updatePremiumTotal);
+        wrap.appendChild(row);
+      });
+    }
+    function collectPremiums() {
+      const rows = document.querySelectorAll('#premiumList .premium-row');
+      const out = [];
+      rows.forEach(r => {
+        const chk = r.querySelector('input[type=checkbox]');
+        if (chk.checked) out.push({ key: chk.dataset.key, label: PREMIUMS.find(p => p.key === chk.dataset.key).label, amount: num(r.querySelector('input[type=text]').value) });
+      });
+      return out;
+    }
+    function updatePremiumTotal() {
+      const total = collectPremiums().reduce((a, p) => a + p.amount, 0);
+      const el = document.getElementById('premiumTotal');
+      el.style.display = 'block';
+      el.textContent = 'Total premium (extra cost): ' + money(total);
+    }
+
+    // ---------- Stipend + over warning ----------
+    function refreshStipend() {
+      const stip = stipendForLot();
+      document.getElementById('stipendVal').textContent = stip == null ? 'Set utility type' : money(stip);
+      const t = document.getElementById('utilityType').value || inferUtilityType(lot);
+      document.getElementById('stipendUtil').textContent = t ? '(' + STIPEND_LABELS[t] + ')' : '';
+      const offer = num(document.getElementById('offerAmount').value);
+      const warn = document.getElementById('overWarn');
+      if (stip != null && offer > stip) {
+        warn.classList.add('show');
+        document.getElementById('overAmt').textContent = money(offer - stip);
+      } else { warn.classList.remove('show'); }
+    }
+
+    // ---------- Cover letter ----------
+    function coverLetter() {
+      const addr = (lot.address || 'your property');
+      const exp = lot.offerExpires ? fmtDate(lot.offerExpires) : fmtDate(addDays(new Date().toISOString(), OFFER_VALID_DAYS));
+      const owner = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || 'there';
+      return 'Dear ' + owner + ',\n\n' +
+        'Thank you for the opportunity to make an offer on ' + addr + '. At Adams Homes, no one closes faster — we are a cash buyer, we handle everything, and there are no agents, commissions, or hidden fees.\n\n' +
+        'Your enclosed offer is firm and ready to sign electronically. Please note it expires on ' + exp + ', so we can keep your closing on our fast track. Once you sign, our team gets to work right away.\n\n' +
+        'I personally own your deal from start to finish. Call or text me anytime with questions.\n\n' +
+        'Warm regards,\nKevin Nelson\nLand Acquisition Manager, Adams Homes\n(407) 523-0908 · ecland@adamshomes.com';
+    }
+
+    // ---------- Documents ----------
+    function renderDocs() {
+      const list = document.getElementById('docList');
+      const docs = lot.documents || [];
+      list.innerHTML = '';
+      if (!docs.length) { list.innerHTML = '<li class="empty">No documents uploaded yet.</li>'; return; }
+      docs.forEach(d => {
+        const li = document.createElement('li');
+        li.innerHTML = '<span class="d-name"></span><span class="d-meta"></span>';
+        li.querySelector('.d-name').textContent = d.name;
+        li.querySelector('.d-meta').textContent = (d.size ? Math.round(d.size / 1024) + ' KB · ' : '') + fmtDate(d.at) + ' · ' + (d.by || '');
+        list.appendChild(li);
       });
     }
 
-    function initPage() {
-    if (!lot) {
-      document.getElementById('pageTitle').textContent = 'Offer Approval';
-      document.getElementById('verifiedNote').textContent = 'Lot not found. Return to the dashboard and select a property.';
-      document.querySelector('.offer-card .actions').style.display = 'none';
-    } else {
-      const shortAddr = (lot.address || '').split(',')[0];
-      document.getElementById('pageTitle').textContent = 'Offer Approval: ' + shortAddr;
-      if (!lot.verified && !lot.parcel) {
-        document.getElementById('verifiedNote').textContent = 'Awaiting verification against Brevard County records. Confirm details before approving.';
-      }
-
-      // County record card
-      document.getElementById('cAddress').textContent = lot.address || '—';
-      document.getElementById('cParcel').textContent = lot.parcel || 'Pending county lookup';
-      document.getElementById('cOwner').textContent = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '—';
-      setLines(document.getElementById('cOwnerContact'),
-        (lot.ownerContact || [lot.address, lot.phone, lot.email].filter(Boolean).join(' | ') || '—').split('|').map(s => s.trim()));
-      document.getElementById('cLotSize').textContent = lot.lotSize || '—';
-      document.getElementById('cZoning').textContent = lot.zoning || '—';
-      setLines(document.getElementById('cUtilities'), (lot.utilities || '—').split('/').map(s => s.trim()));
-      if (lot.taxValue) setLines(document.getElementById('cTax'), ['Value: ' + lot.taxValue, 'Annual Tax: ' + (lot.annualTax || '—')]);
-      else document.getElementById('cTax').textContent = '—';
-
-      // Offer card
-      document.getElementById('oAddress').textContent = lot.address || '—';
-      document.getElementById('oListPrice').textContent = lot.listPrice ? money(lot.listPrice) : (lot.listStatus || '—');
-      document.getElementById('oListStatus').textContent = lot.listPrice && lot.listStatus ? '(' + lot.listStatus + ')' : '';
-      if (lot.agentName) {
-        document.getElementById('oAgent').textContent = lot.agentName;
-        document.getElementById('oAgentBrokerage').textContent = lot.agentBrokerage || '';
-        document.getElementById('oAgentPhone').textContent = lot.agentPhone || '';
-      } else {
-        document.getElementById('oAgent').textContent = 'None (direct to owner)';
-      }
-
-      const defaultOffer = lot.offer
-        ? lot.offer
-        : (lot.listPrice ? money(lot.listPrice - 2000) : '$30,000');
-      document.getElementById('offerAmount').value = defaultOffer;
-      if (lot.emd) document.getElementById('emd').value = lot.emd;
-      if (lot.commission) document.getElementById('commission').value = lot.commission;
-      else if (lot.agentName) document.getElementById('commission').value = '6%';
-      document.querySelector('#commission ~ .muted').textContent = lot.agentName ? 'From listing details' : 'Default: 3%';
-
-      const routingBox = document.getElementById('routingBox');
-      if (lot.agentName && lot.agentEmail) {
-        routingBox.innerHTML = 'Will send to listing agent:<br><b></b><br><span></span>';
-        routingBox.querySelector('b').textContent = lot.agentName;
-        routingBox.querySelector('span').textContent = lot.agentEmail;
-      } else {
-        routingBox.innerHTML = 'Will send to owner directly:<br><b></b><br><span></span>';
-        routingBox.querySelector('b').textContent = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || 'Owner';
-        routingBox.querySelector('span').textContent = lot.email || (lot.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@')) || 'contact on file';
-      }
-    }
-    }
-
-    // Edit links unlock their input
-    document.querySelectorAll('.edit-link').forEach(a => {
-      a.addEventListener('click', () => {
-        const input = document.getElementById(a.dataset.edit);
-        input.removeAttribute('readonly');
-        input.focus();
-        input.select();
+    // ---------- Notifications ----------
+    function renderNotifs() {
+      const list = document.getElementById('notifList');
+      const ns = lot.notifications || [];
+      list.innerHTML = '';
+      if (!ns.length) { list.innerHTML = '<li class="empty">No notifications sent yet.</li>'; return; }
+      ns.forEach(n => {
+        const li = document.createElement('li');
+        li.innerHTML = '<b></b> ';
+        li.querySelector('b').textContent = n.type;
+        li.appendChild(document.createTextNode('to ' + n.to + ' · ' + fmtDate(n.at)));
+        list.appendChild(li);
       });
-    });
+    }
+    function logNotif(type, to) {
+      const ns = (lot.notifications || []).slice();
+      ns.unshift({ type: type, to: to, at: new Date().toISOString() });
+      return ns;
+    }
 
-    document.getElementById('approveBtn').addEventListener('click', async () => {
-      if (!lot) return;
-      const offerVal = Number(document.getElementById('offerAmount').value.replace(/[^0-9.\-]/g, ''));
-      const emdVal = Number(document.getElementById('emd').value.replace(/[^0-9.\-]/g, ''));
-      if (!(offerVal > 0)) return fail('Please enter valid offer amount');
-      if (!(emdVal > 0)) return fail('Please enter valid EMD amount');
-      const routingEmail = lot.agentEmail || lot.email ||
-        (lot.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@'));
-      if (!routingEmail) return fail('No valid routing email on file');
-      const set = {
-        status: 'offer-sent',
+    // ---------- Timeline render ----------
+    function renderTimeline() {
+      document.getElementById('tGenerated').textContent = fmtDate(lot.generatedAt);
+      document.getElementById('tExpires').textContent = fmtDate(lot.offerExpires);
+      document.getElementById('tSellerRcvd').textContent = fmtDate(lot.sellerReceivedAt);
+      document.getElementById('tEpSigned').textContent = fmtDate(lot.epSignedAt);
+      document.getElementById('tIp').textContent = fmtDate(lot.ipDate);
+      document.getElementById('tDefaultClose').textContent = fmtDate(lot.defaultCloseDate);
+      document.getElementById('tActualClose').textContent = fmtDate(lot.scheduledClose);
+    }
+
+    // ---------- Stage + actions ----------
+    function msg(text, ok) {
+      const m = document.getElementById('message');
+      m.className = 'message ' + (ok ? 'success' : 'error');
+      m.textContent = text;
+      m.style.display = 'block';
+    }
+
+    function renderStage() {
+      const st = lot.status || 'pending';
+      document.getElementById('stagePill').textContent = PILL_LABELS[st] || st;
+      const hints = {
+        'pending': 'New lead — generate and send the offer.',
+        'offer-sent': 'Offer sent to seller. Mark received once they sign in Dotloop.',
+        'seller-signed': 'Seller signed. Routing to Elizabeth for counter-signature.',
+        'pending-ep-sig': isElizabeth() ? 'Review the summary and sign to make it official.' : 'Awaiting Elizabeth’s signature.',
+        'ip': 'Executed. In inspection period.', 'manager-driven': 'Manager-driven review.',
+        'survey-rcvd': 'Survey received.', 'cd-approved': 'Closing disclosure approved.',
+        'ctc': 'Clear to close.', 'closed': 'Closed.', 'declined': 'Declined.'
+      };
+      document.getElementById('stageHint').textContent = hints[st] || '';
+
+      // Elizabeth summary
+      const ep = document.getElementById('epSummary');
+      if (st === 'pending-ep-sig') {
+        ep.classList.add('show');
+        document.getElementById('sStipend').textContent = (stipendForLot() == null ? '—' : money(stipendForLot()));
+        document.getElementById('sOffer').textContent = lot.offer || '—';
+        const prem = lot.premiums || [];
+        document.getElementById('sPremium').textContent = prem.length ? money(prem.reduce((a, p) => a + p.amount, 0)) + ' (' + prem.map(p => p.label).join(', ') + ')' : 'None';
+        document.getElementById('sNotes').textContent = lot.kevinNotes ? ('Kevin: ' + lot.kevinNotes) : 'No notes from Kevin.';
+      } else { ep.classList.remove('show'); }
+
+      // Action buttons by stage + role
+      const box = document.getElementById('actionButtons');
+      box.innerHTML = '';
+      const addBtn = (label, cls, fn) => { const b = document.createElement('button'); b.className = 'btn ' + cls; b.textContent = label; b.addEventListener('click', fn); box.appendChild(b); };
+
+      if (st === 'pending') {
+        addBtn('Generate & Send Offer via Dotloop', 'btn-primary', generateOffer);
+      } else if (st === 'offer-sent') {
+        addBtn('Mark Seller Contract Received', 'btn-navy', markSellerReceived);
+        addBtn('Resend Offer', 'btn-outline', generateOffer);
+      } else if (st === 'seller-signed' || st === 'pending-ep-sig') {
+        if (isElizabeth()) addBtn('Approve & Sign — Make It Official', 'btn-primary', elizabethSign);
+        else { const note = document.createElement('div'); note.className = 'hint'; note.textContent = 'Only Elizabeth can counter-sign. Sign in as Elizabeth to complete this step.'; box.appendChild(note); }
+      } else if (['ip','manager-driven','survey-rcvd','cd-approved','ctc'].includes(st)) {
+        addBtn('Advance to Next Stage', 'btn-navy', advanceStage);
+        addBtn('Mark Closed', 'btn-outline', markClosed);
+      } else {
+        const note = document.createElement('div'); note.className = 'hint'; note.textContent = 'No action available at this stage.'; box.appendChild(note);
+      }
+    }
+
+    // ---------- Actions ----------
+    function readForm() {
+      return {
+        utilityType: document.getElementById('utilityType').value || inferUtilityType(lot),
+        listingType: document.getElementById('listingType').value,
+        source: document.getElementById('leadSource').value,
         offer: document.getElementById('offerAmount').value.trim(),
         emd: document.getElementById('emd').value.trim(),
         commission: document.getElementById('commission').value.trim(),
-        routingEmail: routingEmail,
-        approvedAt: new Date().toISOString(),
-        approvedBy: 'Kevin Nelson'
+        kevinNotes: document.getElementById('kevinNotes').value.trim()
       };
-      if (mode === 'server') {
-        try {
-          const res = await fetch(API_LOTS, {
-            method: 'PATCH', headers: adminHeaders(),
-            body: JSON.stringify({ id: lot.id, set: set }),
-            signal: AbortSignal.timeout(9000)
-          });
-          if (!res.ok) return fail('Could not save the offer — please try again');
-        } catch (e) {
-          return fail('Could not reach the server — please try again');
-        }
-      } else {
-        const lots = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
-        const target = lots.find(l => String(l.id) === String(lot.id));
-        if (target) { Object.assign(target, set); localStorage.setItem(STORE_KEY, JSON.stringify(lots)); }
-      }
-      messageEl.classList.remove('error');
-      messageEl.classList.add('success');
-      messageEl.textContent = '✓ Offer sent to ' + routingEmail;
-      messageEl.style.display = 'block';
-      setTimeout(() => { window.location.href = 'admin.html'; }, 1500);
-    });
-
-    function fail(text) {
-      messageEl.classList.remove('success');
-      messageEl.classList.add('error');
-      messageEl.textContent = text;
-      messageEl.style.display = 'block';
+    }
+    function premiumChoiceValid() {
+      const choice = document.querySelector('input[name=hasPremium]:checked');
+      if (!choice) { document.getElementById('premiumError').style.display = 'block'; return null; }
+      document.getElementById('premiumError').style.display = 'none';
+      return choice.value === 'yes' ? collectPremiums() : [];
     }
 
-    document.getElementById('cancelBtn').addEventListener('click', () => {
-      window.location.href = 'admin.html';
+    async function generateOffer() {
+      const premiums = premiumChoiceValid();
+      if (premiums === null) return msg('Please select whether there is a lot premium.', false);
+      const offerVal = num(document.getElementById('offerAmount').value);
+      if (!(offerVal > 0)) return msg('Please enter a valid offer amount.', false);
+      const now = new Date().toISOString();
+      const set = Object.assign(readForm(), {
+        premiums: premiums,
+        lotStipend: stipendForLot(),
+        status: 'offer-sent',
+        generatedAt: now,
+        offerExpires: addDays(now, OFFER_VALID_DAYS),
+        sentVia: 'Dotloop (Kevin)'
+      });
+      try { await saveLot(set); } catch (e) { return msg('Could not save — please try again.', false); }
+      lot.offerExpires = set.offerExpires;
+      renderAll();
+      msg('Offer generated. Packet (contract + cover letter + property card) ready to send via Dotloop with Kevin’s login. Expires ' + fmtDate(set.offerExpires) + '.', true);
+    }
+
+    async function markSellerReceived() {
+      const now = new Date().toISOString();
+      const sellerEmail = lot.email || (lot.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@')) || 'seller';
+      const set = { status: 'pending-ep-sig', sellerReceivedAt: now, notifications: logNotif('Contract received — acknowledgment sent', sellerEmail) };
+      try { await saveLot(set); } catch (e) { return msg('Could not save — please try again.', false); }
+      renderAll();
+      msg('Seller contract received. Acknowledgment queued to ' + sellerEmail + '. Routed to Elizabeth for counter-signature.', true);
+    }
+
+    async function elizabethSign() {
+      if (!isElizabeth()) return msg('Only Elizabeth can sign.', false);
+      const now = new Date().toISOString();
+      const ip = addDays(now, IP_DAYS);
+      const defClose = addDays(now, DAYS_TO_CLOSE);
+      const actualClose = thursdayOnOrBefore(defClose);
+      const sellerEmail = lot.email || (lot.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@')) || 'seller';
+      const set = {
+        status: 'ip', epSignedAt: now, epSignedBy: currentUser(),
+        ipDate: ip, defaultCloseDate: defClose, scheduledClose: actualClose,
+        notifications: logNotif('Contract fully executed (official) — notice sent', sellerEmail)
+      };
+      try { await saveLot(set); } catch (e) { return msg('Could not save — please try again.', false); }
+      renderAll();
+      msg('Signed and official. Seller notified. Inspection period ends ' + fmtDate(ip) + '; closing ' + fmtDate(actualClose) + ' (Thursday).', true);
+    }
+
+    const NEXT_STAGE = { 'ip': 'manager-driven', 'manager-driven': 'survey-rcvd', 'survey-rcvd': 'cd-approved', 'cd-approved': 'ctc', 'ctc': 'closed' };
+    async function advanceStage() {
+      const next = NEXT_STAGE[lot.status];
+      if (!next) return;
+      const set = { status: next };
+      if (next === 'closed') set.closedAt = new Date().toISOString();
+      try { await saveLot(set); } catch (e) { return msg('Could not save — please try again.', false); }
+      renderAll();
+      msg('Advanced to ' + (PILL_LABELS[next] || next) + '.', true);
+    }
+    async function markClosed() {
+      try { await saveLot({ status: 'closed', closedAt: new Date().toISOString() }); } catch (e) { return msg('Could not save — please try again.', false); }
+      renderAll();
+      msg('Marked closed.', true);
+    }
+
+    // ---------- Populate + render ----------
+    function fillForm() {
+      const shortAddr = (lot.address || '').split(',')[0];
+      document.getElementById('pageTitle').textContent = 'Offer Approval: ' + (shortAddr || 'Lot');
+
+      // County card
+      document.getElementById('cAddress').textContent = lot.address || '—';
+      document.getElementById('cParcel').textContent = lot.parcel || 'Pending county lookup';
+      document.getElementById('cOwner').textContent = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '—';
+      setLines(document.getElementById('cOwnerContact'), (lot.ownerContact || [lot.address, lot.phone, lot.email].filter(Boolean).join(' | ') || '—').split('|').map(s => s.trim()));
+      document.getElementById('cLotSize').textContent = lot.lotSize || '—';
+      document.getElementById('cZoning').textContent = lot.zoning || '—';
+      setLines(document.getElementById('cUtilities'), (lot.utilities || '—').split('/').map(s => s.trim()));
+      document.getElementById('cTax').textContent = lot.taxValue ? ('Value: ' + lot.taxValue + (lot.annualTax ? ' · Tax: ' + lot.annualTax : '')) : '—';
+
+      // Deal details
+      document.getElementById('utilityType').value = lot.utilityType || inferUtilityType(lot) || '';
+      document.getElementById('listingType').value = lot.listingType || (lot.agentName ? 'listed' : 'off-market');
+      document.getElementById('leadSource').value = lot.source || 'Direct Mail';
+
+      // Offer terms
+      const defOffer = lot.offer || (lot.listPrice ? money(lot.listPrice - 2000) : '$30,000');
+      document.getElementById('offerAmount').value = defOffer;
+      if (lot.emd) document.getElementById('emd').value = lot.emd;
+      document.getElementById('commission').value = lot.commission || (lot.agentName ? '6%' : '3%');
+      document.getElementById('expiryVal').textContent = lot.offerExpires ? fmtDate(lot.offerExpires) : 'Set when the offer is generated (14 days)';
+
+      // Premium radio
+      if (lot.premiums) {
+        const has = lot.premiums.length ? 'yes' : 'no';
+        const r = document.querySelector('input[name=hasPremium][value=' + has + ']');
+        if (r) r.checked = true;
+        document.getElementById('premiumList').classList.toggle('show', has === 'yes');
+      }
+      document.getElementById('kevinNotes').value = lot.kevinNotes || '';
+    }
+
+    function renderAll() { fillForm(); buildPremiumList(); refreshStipend(); renderTimeline(); renderDocs(); renderNotifs(); renderStage(); if ((lot.premiums || []).length) updatePremiumTotal(); }
+
+    // ---------- Wiring ----------
+    document.getElementById('utilityType').addEventListener('change', refreshStipend);
+    document.getElementById('offerAmount').addEventListener('input', refreshStipend);
+    document.querySelectorAll('input[name=hasPremium]').forEach(r => r.addEventListener('change', function() {
+      document.getElementById('premiumList').classList.toggle('show', this.value === 'yes');
+      document.getElementById('premiumError').style.display = 'none';
+      if (this.value === 'yes') updatePremiumTotal(); else document.getElementById('premiumTotal').style.display = 'none';
+    }));
+    document.getElementById('previewPacketBtn').addEventListener('click', function() {
+      const p = document.getElementById('packetPreview');
+      p.textContent = coverLetter();
+      p.classList.toggle('show');
+    });
+    document.getElementById('docUpload').addEventListener('change', async function() {
+      const files = Array.from(this.files || []);
+      if (!files.length) return;
+      const docs = (lot.documents || []).slice();
+      files.forEach(f => docs.unshift({ name: f.name, size: f.size, at: new Date().toISOString(), by: currentUser() }));
+      try { await saveLot({ documents: docs }); renderDocs(); } catch (e) { msg('Could not record the upload — please try again.', false); }
+      this.value = '';
     });
 
     async function boot() {
       document.getElementById('gateOverlay').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+      document.getElementById('whoName').textContent = currentUser();
+      const parts = currentUser().split(' ');
+      document.querySelector('.topbar .avatar').textContent = (parts[0][0] || '') + (parts[1] ? parts[1][0] : '');
+      await loadStipends();
       lot = await loadLot();
-      initPage();
+      if (!lot) {
+        document.getElementById('pageTitle').textContent = 'Lot not found';
+        document.getElementById('stageHint').textContent = 'Return to the pipeline and pick a lot.';
+        document.getElementById('actionButtons').innerHTML = '';
+        return;
+      }
+      renderAll();
     }
 
     document.getElementById('gateForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const password = document.getElementById('gatePassword').value;
+      const role = document.getElementById('gateRole').value;
       const errEl = document.getElementById('gateError');
-      const btn = this.querySelector('button');
       if (!password) { errEl.style.display = 'block'; return; }
       errEl.style.display = 'none';
-      btn.disabled = true;
-      const label = btn.textContent;
-      btn.textContent = 'Checking…';
+      const btn = this.querySelector('button');
+      btn.disabled = true; const label = btn.textContent; btn.textContent = 'Checking…';
       const result = await verifyPassword(password);
-      btn.disabled = false;
-      btn.textContent = label;
+      btn.disabled = false; btn.textContent = label;
       if (result === 'invalid') { errEl.style.display = 'block'; return; }
       sessionStorage.setItem('laAdminKey', password);
       sessionStorage.setItem('laMode', result);
+      sessionStorage.setItem('laRole', role);
       mode = result;
       boot();
     });
