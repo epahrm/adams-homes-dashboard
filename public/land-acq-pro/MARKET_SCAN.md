@@ -65,13 +65,23 @@ Pipeline: **Gmail inbox → `/api/land-acq/ingest-email` → parse → buy-box t
 Until those are set the endpoint returns `{ configured: false }` and does
 nothing — safe to deploy before the mailbox is ready.
 
+### Two alert-email shapes (learned from a real Crexi alert)
+- **Address-inline** (Zillow, Realtor.com): the email lists street address +
+  price per property → full parse + auto-triage + suggested offer.
+- **Link-only** (Crexi and similar): the email gives only title + city +
+  acreage + a "View Property" link — no street address or price. The parser
+  captures those and files a 🟡 lead ("open listing to confirm"); Kevin clicks
+  through to get the address/price. (Crexi also skews commercial/multifamily,
+  often outside the residential buy box.)
+
 ### Honest status
 - Buy-box scorer + email parser: **built and unit-tested** against a realistic
-  sample (correct per-listing price/acreage/URL, non-Palm-Bay listings dropped).
+  Zillow sample *and the real Crexi alert format* — correct per-listing
+  price/acreage/URL, non-Palm-Bay listings dropped, link-only cards handled.
 - IMAP fetch: **can't be tested from the build sandbox** (no non-HTTPS egress) —
   validated on the first real deploy + alert.
-- Parser will be **fine-tuned against the first real alert email** (portal
-  formats vary); the generic extractor already handles the common structure.
+- Still want a real **Zillow/Realtor** alert to confirm their exact address +
+  price markup; the parser handles the common structure already.
 
 ## Next steps to go live
 1. Set the three env vars above; set up one saved-search alert → dedicated Gmail.

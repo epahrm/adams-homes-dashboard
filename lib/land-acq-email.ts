@@ -15,6 +15,9 @@ export type ParsedListing = {
   acres: number | null
   url: string | null
   source: string
+  // true when the email had no street address (link-only alert, e.g. Crexi):
+  // the lead still lands, flagged for Kevin to open the listing and confirm.
+  needsAddress?: boolean
 }
 
 const SENDER_SOURCE: Array<[RegExp, string]> = [
@@ -140,6 +143,47 @@ export function parseListingEmail(input: {
       url,
       source,
     })
+  }
+
+  // Fallback for link-only alerts (Crexi et al.) that carry no street address —
+  // capture the listing title, city, acreage, and the "View Property" link so
+  // the lead still reaches Kevin, flagged to open and confirm.
+  if (out.length === 0) out.push(...parseCardAlerts(rawHtml, body, source))
+  return out
+}
+
+// Title (no sentence punctuation, so it can't swallow the notice text) +
+// "Palm Bay, FL" + "Land | N acres".
+const CARD_RE =
+  /([A-Z0-9][A-Za-z0-9 '&/-]{2,48}?)\s+(Palm\s*Bay)\s*,?\s*FL\s+Land\s*[|·\-–]\s*([\d.]+)\s*acres?/gi
+
+function parseCardAlerts(rawHtml: string, body: string, source: string): ParsedListing[] {
+  const out: ParsedListing[] = []
+  const seen = new Set<string>()
+  // "View Property" links point at each listing (portal tracking URLs).
+  const propUrls: string[] = []
+  let hm: RegExpExecArray | null
+  const viewRe = /<a[^>]+href=["']?(https?:\/\/[^"'\s>]+)[^>]*>(?:[^<]|<(?!\/a))*?View\s+Property/gi
+  while ((hm = viewRe.exec(rawHtml)) !== null) propUrls.push(hm[1])
+
+  let m: RegExpExecArray | null
+  let n = 0
+  CARD_RE.lastIndex = 0
+  while ((m = CARD_RE.exec(body)) !== null) {
+    const title = m[1].replace(/\s+/g, ' ').trim()
+    const acres = parseFloat(m[3])
+    const key = (title + acres).toLowerCase().replace(/[^a-z0-9]/g, '')
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push({
+      address: title + ' — Palm Bay, FL',
+      listPrice: null,
+      acres: Number.isFinite(acres) ? acres : null,
+      url: propUrls[n] || propUrls[0] || null,
+      source,
+      needsAddress: true,
+    })
+    n++
   }
   return out
 }
