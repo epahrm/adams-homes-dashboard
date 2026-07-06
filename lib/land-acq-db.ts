@@ -33,6 +33,8 @@ export const pool =
 globalForPool.landAcqPool = pool
 
 export const LOT_STATUSES = [
+  'opportunity',      // buy-box market-scan match, pre-triage
+  'opportunity-hold', // held for a later campaign
   'pending',          // new lead, pre-offer
   'offer-sent',       // offer sent to seller
   'seller-signed',    // seller signed / offer accepted

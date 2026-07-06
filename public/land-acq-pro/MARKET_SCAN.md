@@ -41,13 +41,42 @@ FL DOR layer: `services9.arcgis.com/Gh9awoU677aKree0/ArcGIS/rest/services/Florid
 - **Red flags:** wetlands, landlocked, deed restriction, non-residential zoning
 - **Yellow flags:** flood zone A/AE, HOA, minor easement
 
-## Next steps to go live
-1. Confirm MLS/IDX access (unlocks the on-market feed).
-2. Build the `/api/land-acq/market-scan` endpoint: query the FL DOR layer for
-   Palm Bay vacant residential in the value range, de-dupe by parcel against
-   existing lots, insert new matches as `status: 'opportunity'`.
-3. Schedule it (Vercel Cron) — the handoff spec's Tuesday 2 AM cadence.
-4. Notify Kevin of new opportunities (wire once email is turned on).
+## Portal alerts (sites that prohibit scraping)
+Instead of scraping Zillow / Realtor.com / LoopNet / Crexi / Land.com /
+RealtyTrac, we use each site's own **saved-search email alerts** — a feature
+they offer — pointed at a dedicated Gmail. Reading mail sent to us is not
+scraping and violates no terms.
 
-Today the dashboard scores and triages opportunities from seeded scan results;
-wiring step 2 swaps the seed for the live feed with no UI changes.
+Pipeline: **Gmail inbox → `/api/land-acq/ingest-email` → parse → buy-box triage
+→ `opportunity` lots**. Built and wired:
+- `lib/land-acq-email.ts` — parses listing address / price / acreage / URL out
+  of the alert email text (source-agnostic; ignores non-Palm-Bay listings).
+- `app/api/land-acq/ingest-email/route.ts` — reads unread alerts over IMAP,
+  scores each with `scoreBuyBox`, inserts green/yellow matches as opportunities
+  (deduped by address), logs reds, marks the message read.
+- `vercel.json` cron runs it daily (`0 11 * * *` = 7 AM ET; change to taste).
+
+### Environment variables (add in Vercel → Settings → Environment Variables)
+- `LANDACQ_GMAIL_USER` — the dedicated Gmail address
+- `LANDACQ_GMAIL_APP_PASSWORD` — a Gmail **app password** (needs 2-Step on)
+- `CRON_SECRET` — any random string; lets the scheduled job authenticate
+  (Vercel sends it as `Authorization: Bearer …`)
+
+Until those are set the endpoint returns `{ configured: false }` and does
+nothing — safe to deploy before the mailbox is ready.
+
+### Honest status
+- Buy-box scorer + email parser: **built and unit-tested** against a realistic
+  sample (correct per-listing price/acreage/URL, non-Palm-Bay listings dropped).
+- IMAP fetch: **can't be tested from the build sandbox** (no non-HTTPS egress) —
+  validated on the first real deploy + alert.
+- Parser will be **fine-tuned against the first real alert email** (portal
+  formats vary); the generic extractor already handles the common structure.
+
+## Next steps to go live
+1. Set the three env vars above; set up one saved-search alert → dedicated Gmail.
+2. Forward the first real alert so the parser can be tuned to the exact format.
+3. Confirm MLS/IDX access (unlocks the richer on-market feed).
+4. Build `/api/land-acq/market-scan` for the FL DOR off-market feed (same
+   insert-as-`opportunity` pattern), on its own daily cron.
+5. Notify Kevin of new opportunities (wire once outbound email is turned on).
