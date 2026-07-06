@@ -162,19 +162,26 @@ async function noHorizontalOverflow(page) {
       (await page.locator('table thead th').allTextContents()).includes('Stipend'));
 
     // ---------- Data sync to admin ----------
-    const tableText = await page.textContent('#lotRows');
-    check('confirmed + research-request leads reach dashboard',
-      tableText.includes('123 Maple Avenue') && tableText.includes('Malabar'));
+    const leadsText = await page.textContent('#newLeadsList');
+    check('new leads (pending) reach the New Leads inbox',
+      leadsText.includes('123 Maple Avenue') && leadsText.includes('Malabar'));
+    check('new leads inbox visible', await page.locator('#newLeadsBlock').isVisible());
 
-    // ---------- Kevin flow: KPIs, filters, pagination ----------
-    const outreach = Number(await page.textContent('#kpiOutreach'));
-    check('outreach KPI populated', outreach > 0, String(outreach));
-    await page.selectOption('#fStatus', 'declined');
+    // ---------- Kevin flow: pipeline table, filters, calendar ----------
+    check('closing calendar renders two months', await page.locator('#calGrid .cal-month').count() === 2);
+    check('scheduled-to-close metric populated', Number(await page.textContent('#mScheduled')) >= 1);
+    // Table shows only active-contract lots (no closed/declined/pending)
+    const tbl = await page.textContent('#lotRows');
+    check('table excludes closed lots', !tbl.includes('200 Harbor'));
+    check('table excludes declined lots', !tbl.includes('987 Maple Drive'));
+    check('table shows active lots', tbl.includes('321 Elm Court'));
+    await page.selectOption('#fStatus', 'ready-to-close');
     await page.waitForTimeout(200);
-    check('declined filter works', (await page.textContent('#lotRows')).includes('987 Maple Drive'));
+    check('status filter works', (await page.textContent('#lotRows')).includes('88 Sable'));
     await page.selectOption('#fStatus', 'all');
     await page.waitForTimeout(200);
     check('showing count renders', /Showing \d+-\d+ of \d+ lots/.test(await page.textContent('#showingCount')));
+    check('target focuses on accepted contracts', (await page.textContent('.target')).includes('accepted contracts'));
 
     // ---------- Kevin flow: approval ----------
     await page.locator('#lotRows tr').first().click();

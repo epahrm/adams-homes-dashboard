@@ -34,17 +34,50 @@
     .target { background: #e6f4e8; border-left: 5px solid #1a5a3a; border-radius: 6px; padding: 16px 18px; font-size: 17px; margin-bottom: 24px; }
     .target b { color: #14401d; }
 
-    /* Stipend panel */
-    .stipend-panel { border: 2px solid #003d66; border-radius: 12px; background: #f3f8fd; padding: 18px 18px 12px; margin-bottom: 24px; }
-    .stipend-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
-    .stipend-head h3 { color: #003d66; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; }
-    .stipend-head .sub { display: block; font-size: 12px; letter-spacing: 0.3px; text-transform: none; color: #667; font-weight: 400; margin-top: 3px; }
-    .stipend-edit { background: white; border: 1px solid #003d66; color: #003d66; border-radius: 8px; padding: 9px 16px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; min-height: 40px; }
+    /* Stipend panel (compact) */
+    .stipend-panel { border: 1px solid #cfddea; border-radius: 10px; background: #f3f8fd; padding: 12px 14px; margin-bottom: 20px; }
+    .stipend-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .stipend-head h3 { color: #003d66; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .stipend-edit { background: white; border: 1px solid #003d66; color: #003d66; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; min-height: 36px; }
     .stipend-edit:hover { background: #eaf2fb; }
-    .stipend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
-    .stipend-tile { background: white; border: 1px solid #d5e2f0; border-radius: 10px; padding: 14px 16px; }
-    .stipend-tile .st-lbl { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #667; margin-bottom: 4px; }
-    .stipend-tile .st-val { font-size: 24px; font-weight: 800; color: #003d66; }
+    .stipend-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .stipend-tile { background: white; border: 1px solid #d5e2f0; border-radius: 8px; padding: 7px 12px; display: flex; align-items: baseline; gap: 8px; }
+    .stipend-tile .st-lbl { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: #667; }
+    .stipend-tile .st-val { font-size: 16px; font-weight: 800; color: #003d66; font-variant-numeric: tabular-nums; }
+    .stipend-updated { font-size: 12px; color: #778; margin-top: 8px; }
+    .stipend-updated b { color: #445; font-weight: 600; }
+
+    /* Metrics grid (compact) */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .mtile { background: white; border-left: 4px solid #1a5a3a; border-radius: 8px; padding: 12px 14px; }
+    .mtile .m-lbl { font-size: 12px; color: #556; margin-bottom: 4px; letter-spacing: 0.3px; }
+    .mtile .m-val { font-size: 22px; font-weight: 800; color: #003d66; font-variant-numeric: tabular-nums; }
+
+    /* New leads inbox */
+    .newleads { border: 2px solid #e8963c; border-radius: 12px; background: #fff8ef; padding: 14px 16px; margin-bottom: 24px; }
+    .newleads h3 { color: #8a5200; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .newleads h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: #a5762f; font-size: 13px; }
+    .lead-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
+    .lead-row:last-child { margin-bottom: 0; }
+    .lead-row:hover { background: #fdf3e6; }
+    .lead-row .l-addr { font-weight: 600; color: #003d66; font-size: 15px; }
+    .lead-row .l-meta { font-size: 13px; color: #667; margin-top: 2px; }
+    .lead-row .l-cta { flex-shrink: 0; font-size: 13px; font-weight: 700; color: #8a5200; }
+
+    /* Closing calendar */
+    .calendar-block { border: 2px solid #003d66; border-radius: 12px; background: #f7fafd; padding: 16px 16px 10px; margin-bottom: 24px; }
+    .calendar-block h3 { color: #003d66; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+    .cal-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .cal-month .cal-title { font-weight: 700; color: #003d66; margin-bottom: 8px; font-size: 15px; }
+    .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .cal-dow { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #99a; text-align: center; padding: 2px 0; }
+    .cal-cell { min-height: 40px; border: 1px solid #e3e9f0; border-radius: 6px; padding: 3px 4px; font-size: 11px; background: white; }
+    .cal-cell.empty { background: transparent; border: none; }
+    .cal-cell .cal-num { color: #99a; font-size: 10px; }
+    .cal-cell.today { border-color: #003d66; }
+    .cal-cell.has-close { background: #e6f0e8; border-color: #1a5a3a; }
+    .cal-close { display: block; margin-top: 2px; font-size: 10px; font-weight: 700; color: #14401d; line-height: 1.2; }
+    @media (min-width: 720px) { .cal-grid { grid-template-columns: 1fr 1fr; } }
     .stipend-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
     .stipend-field label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 5px; }
     .stipend-field input { width: 100%; padding: 11px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; }
@@ -175,29 +208,18 @@
       <div class="mode-banner" id="modeBanner">Offline demo mode &mdash; showing this browser's local data only. Live sync resumes when the server is reachable.</div>
       <h2>Palm Bay Lot Pipeline</h2>
 
-      <div class="kpi-grid">
-        <div class="kpi green"><div class="lbl">Outreach Sent</div><div class="num" id="kpiOutreach">0</div></div>
-        <div class="kpi orange"><div class="lbl">Pending Signature</div><div class="num" id="kpiPending">0</div></div>
-        <div class="kpi green"><div class="lbl">Due Diligence</div><div class="num" id="kpiDueDil">0</div></div>
-        <div class="kpi green"><div class="lbl">Post-Inspection</div><div class="num" id="kpiPostInsp">0</div></div>
-        <div class="kpi green"><div class="lbl">Ready to Close</div><div class="num" id="kpiReady">0</div></div>
-        <div class="kpi deepgreen"><div class="lbl">Closed</div><div class="num" id="kpiClosed">0</div></div>
-        <div class="kpi red"><div class="lbl">Declined</div><div class="num" id="kpiDeclined">0</div></div>
-      </div>
-
-      <div class="target"><b>Target:</b> 50 lots/month | <b>Current:</b> <span id="targetCurrent">0</span> sent <span id="targetCheck"></span></div>
-
-      <!-- Stipend settings -->
+      <!-- Compact stipend panel -->
       <div class="stipend-panel">
         <div class="stipend-head">
-          <h3>Approved Lot Stipends <span class="sub">Palm Bay &mdash; max price by utility type</span></h3>
-          <button type="button" class="stipend-edit" id="stipendEditBtn">Edit Stipends</button>
+          <h3>Approved Lot Stipend: Palm Bay</h3>
+          <button type="button" class="stipend-edit" id="stipendEditBtn">Update Stipend</button>
         </div>
         <div class="stipend-grid" id="stipendGrid"></div>
+        <div class="stipend-updated" id="stipendUpdated"></div>
         <form class="stipend-form" id="stipendForm" style="display:none;">
           <div class="stipend-fields" id="stipendFields"></div>
           <div class="stipend-form-actions">
-            <button type="submit" class="btn-green">Save Stipends</button>
+            <button type="submit" class="btn-green">Save Stipend</button>
             <button type="button" class="btn-outline" id="stipendCancel">Cancel</button>
           </div>
         </form>
@@ -208,24 +230,52 @@
         </details>
       </div>
 
-      <div class="filters">
-        <div class="filter-row"><label for="fCity">City:</label>
-          <select id="fCity"><option value="all">All Cities</option><option value="palm-bay" selected>Palm Bay</option></select>
+      <div class="kpi-grid">
+        <div class="kpi orange"><div class="lbl">Awaiting Signature</div><div class="num" id="kpiPending">0</div></div>
+        <div class="kpi green"><div class="lbl">Due Diligence</div><div class="num" id="kpiDueDil">0</div></div>
+        <div class="kpi green"><div class="lbl">Post-Inspection</div><div class="num" id="kpiPostInsp">0</div></div>
+        <div class="kpi green"><div class="lbl">Ready to Close</div><div class="num" id="kpiReady">0</div></div>
+        <div class="kpi deepgreen"><div class="lbl">Closed (MTD)</div><div class="num" id="kpiClosed">0</div></div>
+      </div>
+
+      <div class="target"><b>Target:</b> 50 accepted contracts/month | <b>Accepted this month:</b> <span id="targetCurrent">0</span> <span id="targetCheck"></span></div>
+
+      <!-- Quick metrics (compact) -->
+      <div class="metrics">
+        <h3>Quick Metrics</h3>
+        <div class="metrics-grid">
+          <div class="mtile"><div class="m-lbl">Closed This Month</div><div class="m-val" id="mClosedMonth">0</div></div>
+          <div class="mtile"><div class="m-lbl">Pending Closings</div><div class="m-val" id="mPendingClose">0</div></div>
+          <div class="mtile"><div class="m-lbl">Scheduled to Close</div><div class="m-val" id="mScheduled">0</div></div>
+          <div class="mtile"><div class="m-lbl">Offer Acceptance</div><div class="m-val" id="mAcceptance">&ndash;</div></div>
+          <div class="mtile"><div class="m-lbl">Avg Days to Close</div><div class="m-val" id="mDays">&ndash;</div></div>
+          <div class="mtile"><div class="m-lbl">Commission Tracked</div><div class="m-val" id="mCommission">&ndash;</div></div>
         </div>
+      </div>
+
+      <!-- Closing calendar: this month + next -->
+      <div class="calendar-block">
+        <h3>Closing Calendar</h3>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <!-- New leads awaiting a first offer (QR + research requests) -->
+      <div class="newleads" id="newLeadsBlock" style="display:none;">
+        <h3>New Leads <span>&mdash; awaiting first offer</span></h3>
+        <div id="newLeadsList"></div>
+      </div>
+
+      <div class="filters">
         <div class="filter-row"><label for="fStatus">Status:</label>
           <select id="fStatus">
-            <option value="all" selected>All Statuses</option>
-            <option value="pending">Pending</option>
+            <option value="all" selected>All Active</option>
             <option value="offer-sent">Offer Sent</option>
-            <option value="seller-signed">Seller Signed</option>
+            <option value="seller-signed">Offer Accepted</option>
             <option value="awaiting-signature">Awaiting Your Signature</option>
             <option value="executed">Executed</option>
-            <option value="signed">Signed</option>
             <option value="due-diligence">Due Diligence</option>
             <option value="post-inspection">Post-Inspection</option>
             <option value="ready-to-close">Ready to Close</option>
-            <option value="closed">Closed</option>
-            <option value="declined">Declined</option>
           </select>
         </div>
         <div class="filter-row"><label for="fDays">Days in Stage:</label>
@@ -246,14 +296,6 @@
             <option value="QR Landing Page">QR Landing Page</option>
           </select>
         </div>
-      </div>
-
-      <div class="metrics">
-        <h3>Quick Metrics</h3>
-        <div class="metric"><span class="m-lbl">Mail Conversion</span><span class="m-val" id="mConversion">&ndash;</span></div>
-        <div class="metric"><span class="m-lbl">Offer Acceptance</span><span class="m-val" id="mAcceptance">&ndash;</span></div>
-        <div class="metric"><span class="m-lbl">Avg Days to Close</span><span class="m-val" id="mDays">&ndash;</span></div>
-        <div class="metric"><span class="m-lbl">Commission Tracked</span><span class="m-val" id="mCommission">&ndash;</span></div>
       </div>
 
       <div class="table-wrap">
@@ -281,7 +323,7 @@
 
   <script>
     const STORE_KEY = 'landAcqSubmissions';
-    const SEED_FLAG = 'landAcqSeeded_v2';
+    const SEED_FLAG = 'landAcqSeeded_v3';
     const PAGE_SIZE = 6;
     const OUTREACH_BASELINE = 150; // direct-mail pieces sent before digital tracking began
     const API_LOTS = '/api/land-acq/lots';
@@ -351,13 +393,17 @@
       const existing = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
       const now = Date.now();
       const day = 86400000;
+      const iso = d => new Date(d).toISOString();
+      const dt = (mOff, dayOfMonth) => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth() + mOff, dayOfMonth, 12).toISOString(); };
       const seeds = [
-        { id: now - 1, address: '123 Maple Ave, Palm Bay, FL 32908', status: 'pending', source: 'Direct Mail', listPrice: 35000, listStatus: 'Active Listing', parcel: '2936-02GI-10509', owner: 'John Smith', ownerContact: '123 Maple Ave, Palm Bay, FL 32908 | (321) 555-1234 | john@email.com', lotSize: '0.23 acres (10,019 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$28,500', annualTax: '$495', agentName: 'John Johnson', agentBrokerage: 'Keller Williams Island Life', agentPhone: '941-123-4567', agentEmail: 'john@kw-islandlife.com', createdAt: new Date(now - 5 * day).toISOString() },
-        { id: now - 2, address: '456 Oak Street, Palm Bay, FL 32907', status: 'offer-sent', source: 'Direct Mail', listPrice: 40000, listStatus: 'Active Listing', parcel: '2937-11AB-20443', owner: 'Maria Garcia', ownerContact: '456 Oak Street, Palm Bay, FL 32907 | (321) 555-2288 | maria@email.com', lotSize: '0.25 acres (10,890 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$31,200', annualTax: '$540', agentName: 'Sarah Lee', agentBrokerage: 'RE/MAX Elite', agentPhone: '321-555-8890', agentEmail: 'sarah@remaxelite.com', offer: '$38,000', createdAt: new Date(now - 12 * day).toISOString() },
-        { id: now - 3, address: '789 Pine Road, Palm Bay, FL 32909', status: 'signed', source: 'Off-Market', listPrice: null, listStatus: 'Off-Market', parcel: '2938-07CD-31877', owner: 'Robert Chen', ownerContact: '789 Pine Road, Palm Bay, FL 32909 | (321) 555-3401 | rchen@email.com', lotSize: '0.28 acres (12,196 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$26,800', annualTax: '$463', offer: '$28,000', createdAt: new Date(now - 25 * day).toISOString() },
-        { id: now - 4, address: '321 Elm Court, Palm Bay, FL 32905', status: 'due-diligence', source: 'Direct Mail', listPrice: 32000, listStatus: 'Active Listing', parcel: '2939-04EF-40921', owner: 'Linda Torres', ownerContact: '321 Elm Court, Palm Bay, FL 32905 | (321) 555-4522 | ltorres@email.com', lotSize: '0.22 acres (9,583 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: City', taxValue: '$25,100', annualTax: '$438', agentName: 'Mike Davis', agentBrokerage: 'Coldwell Banker', agentPhone: '321-555-7712', agentEmail: 'mdavis@cbfl.com', offer: '$30,000', createdAt: new Date(now - 40 * day).toISOString() },
-        { id: now - 5, address: '654 Birch Lane, Palm Bay, FL 32908', status: 'pending', source: 'Expired', listPrice: null, listStatus: 'Expired', parcel: '2940-09GH-51230', owner: 'James Wright', ownerContact: '654 Birch Lane, Palm Bay, FL 32908 | (321) 555-6633 | jwright@email.com', lotSize: '0.24 acres (10,454 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$24,700', annualTax: '$429', createdAt: new Date(now - 8 * day).toISOString() },
-        { id: now - 6, address: '987 Maple Drive, Palm Bay, FL 32907', status: 'declined', source: 'FSBO', listPrice: null, listStatus: 'FSBO', parcel: '2941-05IJ-60874', owner: 'Patricia Moore', ownerContact: '987 Maple Drive, Palm Bay, FL 32907 | (321) 555-9080 | pmoore@email.com', lotSize: '0.26 acres (11,326 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$27,300', annualTax: '$471', createdAt: new Date(now - 90 * day).toISOString() }
+        { id: now - 1, address: '456 Oak Street, Palm Bay, FL 32907', status: 'offer-sent', source: 'Direct Mail', listPrice: 40000, listStatus: 'Active Listing', parcel: '2937-11AB-20443', owner: 'Maria Garcia', ownerContact: '456 Oak Street, Palm Bay, FL 32907 | (321) 555-2288 | maria@email.com', lotSize: '0.25 acres (10,890 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$31,200', annualTax: '$540', agentName: 'Sarah Lee', agentBrokerage: 'RE/MAX Elite', agentPhone: '321-555-8890', agentEmail: 'sarah@remaxelite.com', offer: '$38,000', createdAt: iso(now - 6 * day) },
+        { id: now - 2, address: '789 Pine Road, Palm Bay, FL 32909', status: 'seller-signed', source: 'Off-Market', listPrice: null, listStatus: 'Off-Market', parcel: '2938-07CD-31877', owner: 'Robert Chen', ownerContact: '789 Pine Road, Palm Bay, FL 32909 | (321) 555-3401 | rchen@email.com', lotSize: '0.28 acres (12,196 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$26,800', annualTax: '$463', offer: '$28,000', createdAt: iso(now - 10 * day), acceptedAt: iso(now - 3 * day), scheduledClose: dt(1, 12) },
+        { id: now - 3, address: '12 Cypress Way, Palm Bay, FL 32908', status: 'awaiting-signature', source: 'Direct Mail', listPrice: 52000, listStatus: 'Active Listing', parcel: '2942-06KL-70012', owner: 'David Nguyen', ownerContact: '12 Cypress Way, Palm Bay, FL 32908 | (321) 555-7744 | dnguyen@email.com', lotSize: '0.30 acres (13,068 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: City', taxValue: '$34,900', annualTax: '$605', agentName: 'Tom Reed', agentBrokerage: 'Century 21', agentPhone: '321-555-3322', agentEmail: 'tom@c21.com', offer: '$48,000', createdAt: iso(now - 4 * day), acceptedAt: iso(now - 1 * day), scheduledClose: dt(1, 3) },
+        { id: now - 4, address: '321 Elm Court, Palm Bay, FL 32905', status: 'due-diligence', source: 'Direct Mail', listPrice: 32000, listStatus: 'Active Listing', parcel: '2939-04EF-40921', owner: 'Linda Torres', ownerContact: '321 Elm Court, Palm Bay, FL 32905 | (321) 555-4522 | ltorres@email.com', lotSize: '0.22 acres (9,583 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: City', taxValue: '$25,100', annualTax: '$438', agentName: 'Mike Davis', agentBrokerage: 'Coldwell Banker', agentPhone: '321-555-7712', agentEmail: 'mdavis@cbfl.com', offer: '$30,000', createdAt: iso(now - 30 * day), acceptedAt: iso(now - 20 * day), scheduledClose: dt(0, 24) },
+        { id: now - 5, address: '88 Sable Palm St, Palm Bay, FL 32907', status: 'ready-to-close', source: 'Direct Mail', listPrice: 30000, listStatus: 'Active Listing', parcel: '2943-08MN-80233', owner: 'Grace Kim', ownerContact: '88 Sable Palm St, Palm Bay, FL 32907 | (321) 555-9911 | gkim@email.com', lotSize: '0.24 acres (10,454 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$27,600', annualTax: '$479', offer: '$31,000', createdAt: iso(now - 38 * day), acceptedAt: iso(now - 28 * day), scheduledClose: dt(0, 27) },
+        { id: now - 6, address: '15 Lakeview Dr, Palm Bay, FL 32909', status: 'post-inspection', source: 'Off-Market', listPrice: null, listStatus: 'Off-Market', parcel: '2944-03OP-90455', owner: 'Frank Ellis', ownerContact: '15 Lakeview Dr, Palm Bay, FL 32909 | (321) 555-1188 | fellis@email.com', lotSize: '0.33 acres (14,375 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$29,400', annualTax: '$511', offer: '$33,000', createdAt: iso(now - 22 * day), acceptedAt: iso(now - 15 * day), scheduledClose: dt(1, 5) },
+        { id: now - 7, address: '200 Harbor Dr, Palm Bay, FL 32905', status: 'closed', source: 'Direct Mail', listPrice: 29000, listStatus: 'Active Listing', parcel: '2945-02QR-10677', owner: 'Susan Park', ownerContact: '200 Harbor Dr, Palm Bay, FL 32905 | (321) 555-6600 | spark@email.com', lotSize: '0.21 acres (9,148 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$24,000', annualTax: '$418', offer: '$29,000', createdAt: iso(now - 62 * day), acceptedAt: iso(now - 50 * day), closedAt: dt(0, Math.max(1, new Date().getDate() - 2)) },
+        { id: now - 8, address: '987 Maple Drive, Palm Bay, FL 32907', status: 'declined', source: 'FSBO', listPrice: null, listStatus: 'FSBO', parcel: '2941-05IJ-60874', owner: 'Patricia Moore', ownerContact: '987 Maple Drive, Palm Bay, FL 32907 | (321) 555-9080 | pmoore@email.com', lotSize: '0.26 acres (11,326 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$27,300', annualTax: '$471', createdAt: iso(now - 90 * day) }
       ];
       const have = new Set(existing.map(s => (s.address || '').toLowerCase()));
       const merged = existing.concat(seeds.filter(s => !have.has(s.address.toLowerCase())));
@@ -394,13 +440,26 @@
       return Math.floor((Date.now() - new Date(lot.createdAt).getTime()) / 86400000);
     }
 
+    // Live-contract lifecycle statuses. The lot table shows these — from
+    // offer sent through each step — and a lot drops off once it closes.
+    const ACTIVE = ['offer-sent','seller-signed','signed','awaiting-signature','executed','due-diligence','post-inspection','ready-to-close'];
+    const ACCEPTED = ['seller-signed','signed','awaiting-signature','executed','due-diligence','post-inspection','ready-to-close','closed'];
+    const PENDING_CLOSE = ['seller-signed','signed','awaiting-signature','executed','due-diligence','post-inspection','ready-to-close'];
+
+    function inMonth(iso, offset) {
+      if (!iso) return false;
+      const d = new Date(iso), n = new Date();
+      const target = new Date(n.getFullYear(), n.getMonth() + (offset || 0), 1);
+      return d.getFullYear() === target.getFullYear() && d.getMonth() === target.getMonth();
+    }
+    function acceptedDate(l) { return l.acceptedAt || (ACCEPTED.includes(l.displayStatus) ? l.createdAt : null); }
+    function closedDate(l) { return l.closedAt || (l.displayStatus === 'closed' ? (l.updatedAt || l.createdAt) : null); }
+
     function applyFilters(lots) {
-      const city = document.getElementById('fCity').value;
       const status = document.getElementById('fStatus').value;
       const days = document.getElementById('fDays').value;
       const source = document.getElementById('fSource').value;
       return lots.filter(l => {
-        if (city === 'palm-bay' && !(l.address || '').toLowerCase().includes('palm bay')) return false;
         if (status !== 'all' && l.displayStatus !== status) return false;
         if (source !== 'all' && (l.source || 'QR Landing Page') !== source) return false;
         const d = daysIn(l);
@@ -423,43 +482,121 @@
       return l.listStatus || '—';
     }
 
+    const DOW = ['S','M','T','W','T','F','S'];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function renderCalendar(lots) {
+      const grid = document.getElementById('calGrid');
+      grid.innerHTML = '';
+      const today = new Date();
+      const scheduled = lots.filter(l => l.scheduledClose && l.displayStatus !== 'closed');
+      for (let off = 0; off <= 1; off++) {
+        const first = new Date(today.getFullYear(), today.getMonth() + off, 1);
+        const year = first.getFullYear(), month = first.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const startDow = first.getDay();
+        const monthEl = document.createElement('div');
+        monthEl.className = 'cal-month';
+        const title = document.createElement('div');
+        title.className = 'cal-title';
+        title.textContent = MONTHS[month] + ' ' + year;
+        monthEl.appendChild(title);
+        const days = document.createElement('div');
+        days.className = 'cal-days';
+        DOW.forEach(d => { const h = document.createElement('div'); h.className = 'cal-dow'; h.textContent = d; days.appendChild(h); });
+        for (let i = 0; i < startDow; i++) { const c = document.createElement('div'); c.className = 'cal-cell empty'; days.appendChild(c); }
+        for (let day = 1; day <= daysInMonth; day++) {
+          const cell = document.createElement('div');
+          cell.className = 'cal-cell';
+          const num = document.createElement('div');
+          num.className = 'cal-num';
+          num.textContent = day;
+          cell.appendChild(num);
+          if (off === 0 && day === today.getDate()) cell.classList.add('today');
+          const closings = scheduled.filter(l => {
+            const d = new Date(l.scheduledClose);
+            return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+          });
+          if (closings.length) {
+            cell.classList.add('has-close');
+            closings.forEach(l => {
+              const s = document.createElement('span');
+              s.className = 'cal-close';
+              s.textContent = (l.address || '').split(',')[0];
+              s.title = (l.address || '') + ' — ' + (PILL_LABELS[l.displayStatus] || l.displayStatus);
+              cell.appendChild(s);
+            });
+          }
+          days.appendChild(cell);
+        }
+        monthEl.appendChild(days);
+        grid.appendChild(monthEl);
+      }
+    }
+
     async function render() {
       const lots = await loadLots();
 
-      // KPIs
+      // KPIs (live pipeline stages; Closed shows this-month only)
       const count = st => lots.filter(l => l.displayStatus === st).length;
-      document.getElementById('kpiOutreach').textContent = OUTREACH_BASELINE + lots.length;
-      document.getElementById('kpiPending').textContent = count('pending');
+      document.getElementById('kpiPending').textContent = count('awaiting-signature');
       document.getElementById('kpiDueDil').textContent = count('due-diligence');
       document.getElementById('kpiPostInsp').textContent = count('post-inspection');
       document.getElementById('kpiReady').textContent = count('ready-to-close');
-      document.getElementById('kpiClosed').textContent = count('closed');
-      document.getElementById('kpiDeclined').textContent = count('declined');
+      const closedThisMonth = lots.filter(l => l.displayStatus === 'closed' && inMonth(closedDate(l), 0));
+      document.getElementById('kpiClosed').textContent = closedThisMonth.length;
 
-      const sent = OUTREACH_BASELINE + lots.length;
-      document.getElementById('targetCurrent').textContent = sent;
-      document.getElementById('targetCheck').textContent = sent >= 50 ? '✓' : '';
+      // Target: accepted contracts this month
+      const acceptedThisMonth = lots.filter(l => ACCEPTED.includes(l.displayStatus) && inMonth(acceptedDate(l), 0)).length;
+      document.getElementById('targetCurrent').textContent = acceptedThisMonth;
+      document.getElementById('targetCheck').textContent = acceptedThisMonth >= 50 ? '✓' : '';
 
       // Quick metrics
-      const conv = sent ? (lots.length / sent * 100) : 0;
-      document.getElementById('mConversion').textContent = conv.toFixed(1) + '%';
-      const offersOut = lots.filter(l => ['offer-sent','signed','due-diligence','post-inspection','ready-to-close','closed'].includes(l.displayStatus)).length;
-      const accepted = lots.filter(l => ['signed','due-diligence','post-inspection','ready-to-close','closed'].includes(l.displayStatus)).length;
-      document.getElementById('mAcceptance').textContent = offersOut ? (accepted / offersOut * 100).toFixed(1) + '%' : '—';
-      const closed = lots.filter(l => l.displayStatus === 'closed');
-      document.getElementById('mDays').textContent = closed.length
-        ? Math.round(closed.reduce((a, l) => a + daysIn(l), 0) / closed.length) + ' days'
-        : '68 days';
+      document.getElementById('mClosedMonth').textContent = closedThisMonth.length;
+      const pendingClose = lots.filter(l => PENDING_CLOSE.includes(l.displayStatus)).length;
+      document.getElementById('mPendingClose').textContent = pendingClose;
+      const scheduled = lots.filter(l => l.scheduledClose && new Date(l.scheduledClose) >= new Date(new Date().toDateString()) && l.displayStatus !== 'closed').length;
+      document.getElementById('mScheduled').textContent = scheduled;
+      const offersOut = lots.filter(l => ['offer-sent'].includes(l.displayStatus) || ACCEPTED.includes(l.displayStatus)).length;
+      const acceptedAll = lots.filter(l => ACCEPTED.includes(l.displayStatus)).length;
+      document.getElementById('mAcceptance').textContent = offersOut ? (acceptedAll / offersOut * 100).toFixed(1) + '%' : '—';
+      const closedAll = lots.filter(l => l.displayStatus === 'closed');
+      document.getElementById('mDays').textContent = closedAll.length
+        ? Math.round(closedAll.reduce((a, l) => a + Math.max(1, (new Date(closedDate(l)) - new Date(l.createdAt)) / 86400000), 0) / closedAll.length) + ' days'
+        : '—';
       const commission = lots.reduce((a, l) => {
-        if (!l.offer || !['signed','due-diligence','post-inspection','ready-to-close','closed'].includes(l.displayStatus)) return a;
+        if (!l.offer || !ACCEPTED.includes(l.displayStatus)) return a;
         const amt = Number(String(l.offer).replace(/[^0-9.]/g, '')) || 0;
         const pct = Number(String(l.commission || '6').replace(/[^0-9.]/g, '')) || 6;
         return a + amt * pct / 100;
       }, 0);
-      document.getElementById('mCommission').textContent = '$' + Math.round(commission).toLocaleString();
+      document.getElementById('mCommission').textContent = money(Math.round(commission));
 
-      // Table
-      const filtered = applyFilters(lots).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      // New leads inbox (pending, pre-offer)
+      const newLeads = lots.filter(l => l.displayStatus === 'pending').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const nlBlock = document.getElementById('newLeadsBlock');
+      const nlList = document.getElementById('newLeadsList');
+      if (newLeads.length) {
+        nlBlock.style.display = 'block';
+        nlList.innerHTML = '';
+        newLeads.forEach(l => {
+          const row = document.createElement('div');
+          row.className = 'lead-row';
+          row.innerHTML = '<div><div class="l-addr"></div><div class="l-meta"></div></div><div class="l-cta">Make Offer &rarr;</div>';
+          row.querySelector('.l-addr').textContent = l.address || '—';
+          row.querySelector('.l-meta').textContent = (l.source || 'QR Landing Page') + ' · ' + (l.owner || [l.firstName, l.lastName].filter(Boolean).join(' ') || 'Owner');
+          row.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+          nlList.appendChild(row);
+        });
+      } else {
+        nlBlock.style.display = 'none';
+      }
+
+      // Closing calendar (this month + next)
+      renderCalendar(lots);
+
+      // Table — active contract lots only (drops off once closed/declined/pre-offer)
+      const filtered = applyFilters(lots).filter(l => ACTIVE.includes(l.displayStatus)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
       if (currentPage > pages) currentPage = pages;
       const rows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
@@ -514,8 +651,7 @@
       const to = Math.min(currentPage * PAGE_SIZE, filtered.length);
       document.getElementById('showingCount').textContent = 'Showing ' + from + '-' + to + ' of ' + filtered.length + ' lots';
 
-      // Re-outreach footnote for declined lots
-      document.getElementById('footnote').style.display = lots.some(l => l.displayStatus === 'declined') ? 'block' : 'none';
+      document.getElementById('footnote').style.display = 'none';
     }
 
     // Export to CSV
@@ -584,6 +720,14 @@
         tile.children[1].textContent = money(stipendState.defaults[key]);
         grid.appendChild(tile);
       });
+      // Last-updated timestamp
+      const upd = document.getElementById('stipendUpdated');
+      if (stipendState.audit.length) {
+        const a = stipendState.audit[0];
+        upd.innerHTML = 'Last updated <b>' + new Date(a.when).toLocaleString() + '</b> by <b>' + a.changedBy + '</b>';
+      } else {
+        upd.textContent = 'Default stipend schedule — no changes yet.';
+      }
       // Audit list
       const list = document.getElementById('stipendAuditList');
       list.innerHTML = '';
@@ -660,7 +804,7 @@
     document.getElementById('exportPdf').addEventListener('click', () => window.print());
 
     document.getElementById('refreshBtn').addEventListener('click', render);
-    ['fCity','fStatus','fDays','fSource'].forEach(id =>
+    ['fStatus','fDays','fSource'].forEach(id =>
       document.getElementById(id).addEventListener('change', () => { currentPage = 1; render(); })
     );
 
