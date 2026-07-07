@@ -178,9 +178,9 @@ export const REFERRAL_SOURCES = [
 export const MANAGERS = [
   { name: 'Elizabeth Porter', title: 'Regional Manager', img: 'elizabeth-porter.jpg' },
   { name: 'Kristi Worley', title: 'Orlando', img: 'kristi-worley.jpg' },
-  { name: 'Eric Landrum', title: 'Jacksonville', img: 'eric-landrum.jpg' },
+  { name: 'Scott Harris', title: 'Jacksonville', img: 'scott-harris.jpg' },
   { name: 'Liza Carrasquillo', title: 'Daytona Beach', img: 'liza-carrasquillo.jpg' },
-  { name: 'Scott Harris', title: 'Melbourne', img: 'scott-harris.jpg' },
+  { name: 'Eric Landrum', title: 'Melbourne', img: 'eric-landrum.jpg' },
   { name: 'Bob Frein', title: 'Port St. Lucie', img: 'bob-frein.jpg' },
 ] as const
 
