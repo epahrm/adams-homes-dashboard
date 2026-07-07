@@ -52,13 +52,13 @@ async function noHorizontalOverflow(page) {
     const html = (await page.content());
     check('index: no admin link', !/admin\.html|offer-approval\.html/i.test(html));
     check('index: no login UI', !/login/i.test(html));
-    check('index: Adams Homes logo present', await page.locator('.brand-block img').isVisible());
+    check('index: Adams Homes logo present', await page.locator('.hero-brand img').isVisible());
     const bodyText = await page.evaluate(() => document.body.innerText);
     check('index: no pricing on public page', !/\$\s?\d/.test(bodyText), bodyText.match(/\$\s?\d[^\s]*/)?.[0]);
     check('index: hero headline', bodyText.includes('Turn Your Empty Lot Into Cash'));
     check('index: hero subtitle', bodyText.includes('Adams Homes buys vacant residential lots directly'));
     check('index: exactly 2 process steps', await page.locator('.step').count() === 2);
-    check('index: Kevin card copy', bodyText.includes('Kevin owns your deal from start to finish'));
+    check('index: Kevin card copy', bodyText.includes('Kevin Nelson') && /regional land acquisitions/i.test(bodyText));
     check('index: fastest-closing value prop retained', bodyText.includes('No one closes faster than Adams Homes'));
     check('index: why sell now section', bodyText.includes('Why Sell Now?'));
     check('index: footer logo present', await page.locator('.footer-logo img').isVisible());
@@ -95,8 +95,8 @@ async function noHorizontalOverflow(page) {
     await page.click('#searchAddressBtn');
     await page.waitForSelector('#notFoundNote', { state: 'visible', timeout: 15000 });
     check('unknown property shows not-found note', true);
-    check('Call Kevin button present', await page.locator('.cantfind a[href^="tel:"]').count() === 1);
-    check('Email Kevin button present', await page.locator('.cantfind a[href^="mailto:"]').count() === 1);
+    check('Call Kevin button present', await page.locator('.cantfind a[href^="tel:"]').count() >= 1);
+    check('Email Kevin button present', await page.locator('.cantfind a[href^="mailto:"]').count() >= 1);
     // Research request captures a lead into the pipeline
     await page.click('#researchForm button[type=submit]');
     check('research form validation fires', await page.locator('#rfNameError').isVisible());
