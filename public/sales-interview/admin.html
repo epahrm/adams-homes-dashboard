@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hiring Command Center - Adams Homes</title>
+  <style>
+    :root {
+      --blue: #1a5ba5; --blue-dark: #14508f; --blue-deep: #123a63;
+      --red: #c0432f; --green: #1a7a44; --orange: #e8963c;
+      --ink: #1a1a1a; --muted: #556; --ground: #f4f5f7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--ground); color: #333; }
+    .page { max-width: 1080px; margin: 0 auto; background: white; min-height: 100vh; }
+    .topbar { background: #003d66; color: white; padding: 20px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    .topbar h1 { font-size: 21px; }
+    .topbar .sub { font-size: 13px; color: #b9cde4; margin-top: 2px; }
+    .topbar .actions { display: flex; gap: 10px; }
+    .tb-btn { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 9px 16px; font-size: 14px; cursor: pointer; font-family: inherit; }
+    .tb-btn:hover { background: rgba(255,255,255,0.2); }
+    .content { padding: 22px; }
+
+    /* Login */
+    .login-card { max-width: 380px; margin: 80px auto; background: white; border: 1px solid #dde3ea; border-radius: 14px; padding: 30px; text-align: center; }
+    .login-card img { height: 76px; margin-bottom: 14px; }
+    .login-card h2 { color: var(--blue); margin-bottom: 16px; font-size: 20px; }
+    .login-card input { width: 100%; padding: 13px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; margin-bottom: 12px; font-family: inherit; }
+    .login-card button { width: 100%; padding: 13px; background: var(--blue); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .login-err { color: #b02a1a; font-size: 14px; margin-top: 10px; display: none; }
+
+    /* KPIs */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 22px; }
+    .kpi { border-radius: 10px; border: 2px solid #d5dce5; text-align: center; padding: 16px 8px; background: white; }
+    .kpi .lbl { font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase; color: #556; margin-bottom: 6px; }
+    .kpi .num { font-size: 32px; font-weight: 800; color: #003d66; }
+    .kpi.blue { border-color: var(--blue); background: #f2f7fc; }
+    .kpi.green { border-color: var(--green); background: #f2f9f3; }
+    .kpi.orange { border-color: var(--orange); background: #fdf6ea; }
+    .kpi.red { border-color: #d9534f; background: #fdf1f0; }
+
+    h2.sect { color: #003d66; font-size: 17px; letter-spacing: 0.5px; text-transform: uppercase; margin: 26px 0 12px; }
+    h2.sect small { text-transform: none; letter-spacing: 0; font-weight: 400; color: #778; font-size: 13px; }
+
+    /* Leaderboard table */
+    .tbl-wrap { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; background: white; }
+    th { background: #f0f4f9; color: #445; text-align: left; padding: 10px 12px; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+    td { padding: 11px 12px; border-top: 1px solid #eef1f5; vertical-align: middle; }
+    tr.clickable { cursor: pointer; }
+    tr.clickable:hover { background: #f6f9fd; }
+    .rank { font-weight: 800; color: #003d66; }
+    .div-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 10px; background: #f0f4f9; white-space: nowrap; }
+    .div-chip .dot { width: 9px; height: 9px; border-radius: 50%; }
+    .status-chip { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+    .st-applied { background: #eef1f5; color: #556; }
+    .st-video_complete { background: #e7f0fb; color: #14508f; }
+    .st-under_review { background: #fdf3e4; color: #a5651a; }
+    .st-advanced { background: #e3f2ea; color: #1a7a44; }
+    .st-hold { background: #f3ecfb; color: #6a3fb5; }
+    .st-declined { background: #fdecea; color: #b02a1a; }
+    .st-offer_sent { background: #dff3e7; color: #12693a; }
+    .st-hired { background: #1a7a44; color: white; }
+    .score-cell { font-weight: 800; font-variant-numeric: tabular-nums; color: #003d66; }
+    .flag-dot { color: #d9534f; font-weight: 800; }
+    .chat-dot { display: inline-block; background: var(--red); color: white; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 2px 8px; margin-left: 6px; }
+
+    /* Heatmap */
+    .heat-cell { text-align: center; font-weight: 800; border-radius: 6px; padding: 7px 0; font-size: 13px; color: white; min-width: 44px; }
+
+    /* Panels grid */
+    .panel-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    @media (min-width: 860px) { .panel-grid { grid-template-columns: 1fr 1fr; } }
+    .panel { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; background: white; }
+    .panel h3 { color: #003d66; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px; }
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; }
+    .bar-row .bl { width: 130px; color: #445; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-row .track { flex: 1; height: 16px; background: #eef1f5; border-radius: 999px; overflow: hidden; }
+    .bar-row .fill { height: 100%; border-radius: 999px; background: var(--blue); }
+    .bar-row .bv { width: 78px; text-align: right; font-weight: 700; color: #003d66; font-variant-numeric: tabular-nums; }
+
+    /* Modal */
+    .modal-back { position: fixed; inset: 0; background: rgba(10,20,35,0.55); display: none; z-index: 90; overflow-y: auto; padding: 24px 12px; }
+    .modal { max-width: 860px; margin: 0 auto; background: white; border-radius: 14px; overflow: hidden; }
+    .modal-head { background: #003d66; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .modal-head h2 { font-size: 20px; }
+    .modal-head .meta { font-size: 13px; color: #b9cde4; margin-top: 4px; }
+    .modal-close { background: none; border: none; color: white; font-size: 26px; cursor: pointer; line-height: 1; }
+    .modal-body { padding: 20px; }
+    .msection { margin-bottom: 24px; }
+    .msection h3 { color: var(--blue); font-size: 15px; margin-bottom: 10px; border-bottom: 2px solid #e7eef7; padding-bottom: 6px; }
+    .fact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; font-size: 14px; }
+    .fact .fl { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #778; }
+    .fact .fv { color: #223; word-break: break-all; }
+    .fact .fv a { color: var(--blue); }
+    .flag-list li { color: #b02a1a; font-size: 14px; margin: 4px 0 4px 18px; }
+    .preqa { background: #f6f8fb; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; font-size: 14px; }
+    .preqa .q { font-weight: 700; color: #334; margin-bottom: 4px; }
+
+    .vid-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+    @media (min-width: 700px) { .vid-grid { grid-template-columns: 1fr 1fr; } }
+    .vid-card { border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .vid-card video { width: 100%; aspect-ratio: 4/3; background: #0c1c2e; display: block; }
+    .vid-card .vc-cap { padding: 10px 12px; font-size: 13px; }
+    .vid-card .vc-cap b { color: var(--blue); display: block; margin-bottom: 2px; }
+    .vid-missing { padding: 26px 12px; text-align: center; color: #889; font-size: 13px; background: #f6f8fb; }
+
+    .score-form .sf-row { display: grid; grid-template-columns: 1fr; gap: 8px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+    @media (min-width: 700px) { .score-form .sf-row { grid-template-columns: 210px 170px 1fr; align-items: center; } }
+    .sf-comp b { font-size: 14px; color: #223; display: block; }
+    .sf-comp small { color: #889; font-size: 12px; }
+    .sf-stars { display: flex; gap: 4px; }
+    .sf-stars button { width: 30px; height: 30px; border-radius: 6px; border: 1px solid #c8d2de; background: white; font-weight: 800; cursor: pointer; color: #667; }
+    .sf-stars button.on { background: var(--blue); border-color: var(--blue); color: white; }
+    .sf-row input[type=text] { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; font-size: 13px; }
+    .inline-field { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    .inline-field label { font-size: 13px; font-weight: 700; color: #445; }
+    .inline-field input, .inline-field select { padding: 9px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; font-size: 14px; }
+
+    .btn { border: none; border-radius: 8px; padding: 11px 18px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-blue { background: var(--blue); color: white; } .btn-blue:hover { background: var(--blue-dark); }
+    .btn-green { background: var(--green); color: white; }
+    .btn-purple { background: #6a3fb5; color: white; }
+    .btn-redd { background: var(--red); color: white; }
+    .btn-outline { background: white; color: var(--blue); border: 1px solid var(--blue); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .decision-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .notify-line { margin: 10px 0; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+
+    .score-summary { font-size: 14px; margin-bottom: 12px; background: #f2f7fc; border-radius: 8px; padding: 10px 14px; }
+    .evidence-log { font-size: 13px; color: #445; margin-top: 8px; }
+    .evidence-log li { margin: 4px 0 4px 16px; }
+
+    /* Chat in modal */
+    .chat-box { border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .chat-msgs { max-height: 260px; overflow-y: auto; padding: 12px; background: #f6f8fb; }
+    .msg { max-width: 82%; border-radius: 12px; padding: 8px 12px; margin-bottom: 8px; font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+    .msg.admin { background: var(--blue); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
+    .msg.candidate { background: white; border: 1px solid #dde3ea; border-bottom-left-radius: 4px; }
+    .msg.system { background: #fdf3e4; border: 1px solid #f0dcc2; color: #6a4a12; font-size: 12px; margin: 8px auto; text-align: center; max-width: 95%; }
+    .chat-send { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #e2e8f0; }
+    .chat-send textarea { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 9px; font-family: inherit; font-size: 14px; resize: none; height: 42px; }
+
+    /* Settings modal reuses .modal */
+    .set-field { margin-bottom: 14px; }
+    .set-field label { display: block; font-size: 13px; font-weight: 700; color: #445; margin-bottom: 4px; }
+    .set-field input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; font-size: 14px; }
+    .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #123a63; color: white; border-radius: 999px; padding: 10px 22px; font-size: 14px; display: none; z-index: 200; }
+  </style>
+</head>
+<body>
+  <!-- Login -->
+  <div id="loginView">
+    <div class="login-card">
+      <img src="/adams-homes-logo.png" alt="Adams Homes">
+      <h2>Hiring Command Center</h2>
+      <input type="password" id="keyInput" placeholder="Admin access key">
+      <button id="loginBtn">Sign In</button>
+      <div class="login-err" id="loginErr">That key didn't work. Try again.</div>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div class="page" id="appView" style="display:none;">
+    <div class="topbar">
+      <div>
+        <h1>Sales Hiring Command Center</h1>
+        <div class="sub">Virtual video interviews &mdash; East Central Florida</div>
+      </div>
+      <div class="actions">
+        <button class="tb-btn" id="copyApplyBtn">Copy Careers Link</button>
+        <button class="tb-btn" id="settingsBtn">Settings</button>
+        <button class="tb-btn" id="refreshBtn">Refresh</button>
+        <button class="tb-btn" id="logoutBtn">Log Out</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="kpi-grid" id="kpis"></div>
+
+      <h2 class="sect">Leaderboard <small>&mdash; weighted score across the 6 competencies; click a candidate to review &amp; score</small></h2>
+      <div class="tbl-wrap"><table id="leaderTable"><thead><tr>
+        <th>#</th><th>Candidate</th><th>Office</th><th>Status</th><th>Videos</th><th>Weighted</th><th>Scorers</th><th>Source</th>
+      </tr></thead><tbody></tbody></table></div>
+
+      <h2 class="sect">Competency Heat Map <small>&mdash; average score per competency (1 red &rarr; 5 green)</small></h2>
+      <div class="tbl-wrap"><table id="heatTable"><thead></thead><tbody></tbody></table></div>
+
+      <div class="panel-grid" style="margin-top:26px;">
+        <div class="panel"><h3>Manager Calibration</h3><div id="calibPanel"></div></div>
+        <div class="panel"><h3>Office / Division Breakdown</h3><div id="divPanel"></div></div>
+        <div class="panel"><h3>Referral Source Performance</h3><div id="srcPanel"></div></div>
+        <div class="panel"><h3>Decline Reasons</h3><div id="declinePanel"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Candidate modal -->
+  <div class="modal-back" id="candModalBack">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2 id="cmName"></h2>
+          <div class="meta" id="cmMeta"></div>
+        </div>
+        <button class="modal-close" id="cmClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="msection">
+          <h3>Application &amp; Vetting</h3>
+          <div class="fact-grid" id="cmFacts"></div>
+          <ul class="flag-list" id="cmFlags"></ul>
+        </div>
+        <div class="msection">
+          <h3>Written Pre-Interview Answers</h3>
+          <div id="cmPreQA"></div>
+        </div>
+        <div class="msection">
+          <h3>Video Interview</h3>
+          <div class="vid-grid" id="cmVideos"></div>
+        </div>
+        <div class="msection">
+          <h3>Score This Candidate</h3>
+          <div class="score-summary" id="cmScoreSummary"></div>
+          <div class="inline-field">
+            <label for="cmManager">Scoring as manager:</label>
+            <input type="text" id="cmManager" placeholder="Your name" style="min-width:220px;">
+          </div>
+          <div class="score-form" id="cmScoreForm"></div>
+          <button class="btn btn-blue" id="cmSaveScores">Save My Scores</button>
+          <span id="cmScoreNote" style="font-size:13px; color:#b02a1a; margin-left:10px;"></span>
+        </div>
+        <div class="msection">
+          <h3>Decision</h3>
+          <div class="notify-line">
+            <input type="checkbox" id="cmNotify" checked>
+            <label for="cmNotify">Email the candidate about this decision (also posted to their chat)</label>
+          </div>
+          <div class="decision-row">
+            <button class="btn btn-green" data-status="advanced">Advance to Next Round</button>
+            <button class="btn btn-purple" data-status="hold">Hold</button>
+            <button class="btn btn-redd" data-status="declined">Decline...</button>
+            <button class="btn btn-blue" data-status="offer_sent">Send Offer</button>
+            <button class="btn btn-outline" data-status="hired">Mark Hired</button>
+          </div>
+          <div class="inline-field" id="declineReasonRow" style="display:none; margin-top:10px;">
+            <label for="cmDeclineReason">Decline reason:</label>
+            <select id="cmDeclineReason">
+              <option value="salary">Salary expectations</option>
+              <option value="role_fit">Role fit</option>
+              <option value="other_opportunity">Took another opportunity</option>
+              <option value="experience">Experience level</option>
+              <option value="assessment">Assessment results</option>
+              <option value="no_show">Didn't complete interview</option>
+              <option value="other">Other</option>
+            </select>
+            <button class="btn btn-redd" id="confirmDecline">Confirm Decline</button>
+          </div>
+        </div>
+        <div class="msection">
+          <h3>Candidate Chat</h3>
+          <div class="chat-box">
+            <div class="chat-msgs" id="cmChat"></div>
+            <div class="chat-send">
+              <textarea id="cmChatText" placeholder="Reply to the candidate..."></textarea>
+              <button class="btn btn-blue" id="cmChatSend">Send</button>
+            </div>
+          </div>
+        </div>
+        <div class="msection">
+          <h3>Interview Link</h3>
+          <div style="font-size:13px; color:#445; word-break:break-all;" id="cmLink"></div>
+          <button class="btn btn-outline" id="cmCopyLink" style="margin-top:8px;">Copy Link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div class="modal-back" id="setModalBack">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-head"><h2>Platform Settings</h2><button class="modal-close" id="setClose">&times;</button></div>
+      <div class="modal-body">
+        <div class="set-field"><label>Job title (careers page headline)</label><input id="set_job_title" placeholder="New Home Sales Agent"></div>
+        <div class="set-field"><label>Job blurb (careers page subtitle)</label><input id="set_job_blurb"></div>
+        <div class="set-field"><label>Brand video URL (60s &mdash; "what it's like to work here")</label><input id="set_brand_video_url" placeholder="YouTube / Vimeo / MP4 link"></div>
+        <div class="set-field"><label>Model tour video URL (90s)</label><input id="set_model_tour_url"></div>
+        <div class="set-field"><label>Onboarding preview video URL (2min &mdash; first 90 days)</label><input id="set_onboarding_preview_url"></div>
+        <button class="btn btn-blue" id="saveSettings">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = '/api/interview';
+    let KEY = localStorage.getItem('vi_admin_key') || '';
+    let CANDS = [];
+    let COMPS = [];
+    let DIVS = [];
+    let PRE_QS = [];
+    let UNREAD = {};
+    let currentCand = null;
+    let chatTimer = null;
+
+    const STATUS_LABELS = {
+      applied: 'Applied', video_complete: 'Video Done', under_review: 'In Review',
+      advanced: 'Advanced', hold: 'Hold', declined: 'Declined',
+      offer_sent: 'Offer Sent', hired: 'Hired',
+    };
+    const DECLINE_LABELS = {
+      salary: 'Salary', role_fit: 'Role fit', other_opportunity: 'Other opportunity',
+      experience: 'Experience', assessment: 'Assessment', no_show: 'No-show', other: 'Other',
+    };
+    const SOURCE_LABELS = {
+      linkedin: 'LinkedIn', instagram: 'Instagram', facebook: 'Facebook', indeed: 'Indeed',
+      website: 'Website', internal_referral: 'Internal referral', job_fair: 'Job fair', other: 'Other',
+    };
+
+    function el(id) { return document.getElementById(id); }
+    function toast(msg) {
+      const t = el('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2600);
+    }
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function hdrs() { return { 'x-admin-key': KEY, 'Content-Type': 'application/json' }; }
+
+    // ---------- Scoring math ----------
+    function candScores(c) {
+      // avg per competency across managers, then weight
+      const byComp = {};
+      (c.scores || []).forEach(s => {
+        (byComp[s.competency] = byComp[s.competency] || []).push(s.score);
+      });
+      const compAvg = {};
+      let weighted = 0, weightUsed = 0;
+      COMPS.forEach(comp => {
+        const arr = byComp[comp.key];
+        if (arr && arr.length) {
+          const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+          compAvg[comp.key] = avg;
+          weighted += avg * comp.weight;
+          weightUsed += comp.weight;
+        }
+      });
+      return {
+        compAvg,
+        weighted: weightUsed ? (weighted / weightUsed) : null,
+        managers: [...new Set((c.scores || []).map(s => s.manager))],
+      };
+    }
+    function heatColor(v) {
+      // 1 -> red, 3 -> orange, 5 -> green
+      if (v == null) return '#c3ccd6';
+      const stops = { 1: [217,83,79], 2: [232,150,60], 3: [232,150,60], 4: [26,122,68], 5: [26,122,68] };
+      const lo = Math.max(1, Math.floor(v)), hi = Math.min(5, lo + 1);
+      const t = v - lo;
+      const a = stops[lo], b = stops[hi] || a;
+      return 'rgb(' + a.map((x, i) => Math.round(x + (b[i] - x) * t)).join(',') + ')';
+    }
+
+    // ---------- Load & render ----------
+    async function loadAll() {
+      const [cRes, qRes, mRes] = await Promise.all([
+        fetch(API + '/candidates', { headers: hdrs() }),
+        fetch(API + '/questions').then(r => r.json()),
+        fetch(API + '/messages', { headers: hdrs() }).then(r => r.json()).catch(() => ({ unread: {} })),
+      ]);
+      if (cRes.status === 401) throw new Error('unauthorized');
+      const cData = await cRes.json();
+      CANDS = cData.candidates || [];
+      COMPS = qRes.competencies || [];
+      DIVS = qRes.divisions || [];
+      PRE_QS = qRes.preInterviewQuestions || [];
+      window.QUESTIONS = qRes.questions || [];
+      UNREAD = mRes.unread || {};
+      render();
+    }
+
+    function render() {
+      const active = CANDS.filter(c => c.status !== 'declined');
+      const kpis = [
+        { lbl: 'Applicants', num: CANDS.length, cls: '' },
+        { lbl: 'Videos Complete', num: CANDS.filter(c => ['video_complete','under_review','advanced','hold','offer_sent','hired'].includes(c.status) || c.videosComplete >= (window.QUESTIONS||[]).length && c.videosComplete > 0).length, cls: 'blue' },
+        { lbl: 'In Review', num: CANDS.filter(c => c.status === 'under_review').length, cls: 'orange' },
+        { lbl: 'Advanced', num: CANDS.filter(c => ['advanced','offer_sent','hired'].includes(c.status)).length, cls: 'green' },
+        { lbl: 'Offers Sent', num: CANDS.filter(c => ['offer_sent','hired'].includes(c.status)).length, cls: 'green' },
+        { lbl: 'Declined', num: CANDS.filter(c => c.status === 'declined').length, cls: 'red' },
+      ];
+      el('kpis').innerHTML = kpis.map(k =>
+        '<div class="kpi ' + k.cls + '"><div class="lbl">' + k.lbl + '</div><div class="num">' + k.num + '</div></div>'
+      ).join('');
+
+      // Leaderboard
+      const ranked = CANDS.map(c => ({ c, s: candScores(c) }))
+        .sort((a, b) => (b.s.weighted ?? -1) - (a.s.weighted ?? -1) || new Date(a.c.createdAt) - new Date(b.c.createdAt));
+      el('leaderTable').querySelector('tbody').innerHTML = ranked.map((r, i) => {
+        const d = DIVS.find(x => x.code === r.c.division) || { color: '#888', name: r.c.division };
+        const unread = UNREAD[String(r.c.id)] || 0;
+        return '<tr class="clickable" data-id="' + r.c.id + '">' +
+          '<td class="rank">' + (r.s.weighted != null ? (i + 1) : '&mdash;') + '</td>' +
+          '<td><b>' + esc(r.c.name) + '</b>' +
+            ((r.c.flags || []).length ? ' <span class="flag-dot" title="' + esc((r.c.flags||[]).join('; ')) + '">&#9873;</span>' : '') +
+            (unread ? '<span class="chat-dot">' + unread + ' new</span>' : '') + '</td>' +
+          '<td><span class="div-chip"><span class="dot" style="background:' + d.color + '"></span>' + r.c.division + '</span></td>' +
+          '<td><span class="status-chip st-' + r.c.status + '">' + (STATUS_LABELS[r.c.status] || r.c.status) + '</span></td>' +
+          '<td>' + r.c.videosComplete + '/' + (window.QUESTIONS || []).length + '</td>' +
+          '<td class="score-cell">' + (r.s.weighted != null ? r.s.weighted.toFixed(2) : '&mdash;') + '</td>' +
+          '<td>' + r.s.managers.length + '</td>' +
+          '<td>' + (SOURCE_LABELS[r.c.referralSource] || r.c.referralSource) + '</td>' +
+          '</tr>';
+      }).join('') || '<tr><td colspan="8" style="text-align:center;color:#889;padding:26px;">No applicants yet. Share the careers link to get started.</td></tr>';
+      el('leaderTable').querySelectorAll('tr.clickable').forEach(tr => {
+        tr.onclick = () => openCandidate(Number(tr.dataset.id));
+      });
+
+      // Heat map
+      el('heatTable').querySelector('thead').innerHTML =
+        '<tr><th>Candidate</th>' + COMPS.map(c => '<th title="weight ' + c.weight + '%">' + esc(c.label) + '</th>').join('') + '</tr>';
+      const scored = ranked.filter(r => r.s.weighted != null);
+      el('heatTable').querySelector('tbody').innerHTML = scored.map(r =>
+        '<tr><td><b>' + esc(r.c.name) + '</b></td>' + COMPS.map(comp => {
+          const v = r.s.compAvg[comp.key];
+          return '<td><div class="heat-cell" style="background:' + heatColor(v) + '">' + (v != null ? v.toFixed(1) : '&mdash;') + '</div></td>';
+        }).join('') + '</tr>'
+      ).join('') || '<tr><td colspan="' + (COMPS.length + 1) + '" style="text-align:center;color:#889;padding:22px;">Scores will appear here as managers review interviews.</td></tr>';
+
+      renderCalibration();
+      renderBreakdown('divPanel', c => c.division, code => {
+        const d = DIVS.find(x => x.code === code);
+        return d ? code + ' — ' + d.name : code;
+      });
+      renderSources();
+      renderDeclines();
+    }
+
+    function renderCalibration() {
+      const perMgr = {};
+      let all = [];
+      CANDS.forEach(c => (c.scores || []).forEach(s => {
+        (perMgr[s.manager] = perMgr[s.manager] || []).push(s.score);
+        all.push(s.score);
+      }));
+      const overall = all.length ? all.reduce((a, b) => a + b, 0) / all.length : 0;
+      const rows = Object.entries(perMgr).map(([m, arr]) => {
+        const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+        return { m, avg, n: arr.length, delta: avg - overall };
+      }).sort((a, b) => b.n - a.n);
+      el('calibPanel').innerHTML = rows.length
+        ? '<div style="font-size:12px;color:#778;margin-bottom:8px;">Overall average: <b>' + overall.toFixed(2) + '</b>. A manager more than &plusmn;0.75 off is scoring too ' + 'harsh/lenient — recalibrate.</div>' +
+          rows.map(r => {
+            const off = Math.abs(r.delta) > 0.75;
+            return '<div class="bar-row"><div class="bl">' + esc(r.m) + '</div><div class="track"><div class="fill" style="width:' + (r.avg / 5 * 100) + '%;background:' + (off ? '#d9534f' : '#1a5ba5') + '"></div></div><div class="bv">' + r.avg.toFixed(2) + ' (' + r.n + ')</div></div>';
+          }).join('')
+        : '<div style="color:#889;font-size:13px;">No manager scores yet.</div>';
+    }
+
+    function renderBreakdown(panelId, keyFn, labelFn) {
+      const groups = {};
+      CANDS.forEach(c => {
+        const k = keyFn(c);
+        (groups[k] = groups[k] || []).push(c);
+      });
+      const rows = Object.entries(groups).map(([k, arr]) => {
+        const scoredVals = arr.map(c => candScores(c).weighted).filter(v => v != null);
+        const avg = scoredVals.length ? scoredVals.reduce((a, b) => a + b, 0) / scoredVals.length : null;
+        return { k, n: arr.length, avg };
+      }).sort((a, b) => b.n - a.n);
+      const max = Math.max(1, ...rows.map(r => r.n));
+      el(panelId).innerHTML = rows.length ? rows.map(r =>
+        '<div class="bar-row"><div class="bl">' + esc(labelFn(r.k)) + '</div><div class="track"><div class="fill" style="width:' + (r.n / max * 100) + '%"></div></div><div class="bv">' + r.n + (r.avg != null ? ' &middot; ' + r.avg.toFixed(2) : '') + '</div></div>'
+      ).join('') : '<div style="color:#889;font-size:13px;">No data yet.</div>';
+    }
+
+    function renderSources() {
+      const groups = {};
+      CANDS.forEach(c => (groups[c.referralSource] = groups[c.referralSource] || []).push(c));
+      const rows = Object.entries(groups).map(([k, arr]) => {
+        const adv = arr.filter(c => ['advanced', 'offer_sent', 'hired'].includes(c.status)).length;
+        return { k, n: arr.length, rate: arr.length ? adv / arr.length : 0 };
+      }).sort((a, b) => b.n - a.n);
+      const max = Math.max(1, ...rows.map(r => r.n));
+      el('srcPanel').innerHTML = rows.length ? rows.map(r =>
+        '<div class="bar-row"><div class="bl">' + esc(SOURCE_LABELS[r.k] || r.k) + '</div><div class="track"><div class="fill" style="width:' + (r.n / max * 100) + '%;background:#1a7a44"></div></div><div class="bv">' + r.n + ' &middot; ' + Math.round(r.rate * 100) + '%</div></div>'
+      ).join('') + '<div style="font-size:11px;color:#889;margin-top:6px;">count &middot; advance rate</div>'
+        : '<div style="color:#889;font-size:13px;">No data yet.</div>';
+    }
+
+    function renderDeclines() {
+      const declined = CANDS.filter(c => c.status === 'declined');
+      const groups = {};
+      declined.forEach(c => {
+        const k = c.declineReason || 'other';
+        groups[k] = (groups[k] || 0) + 1;
+      });
+      const rows = Object.entries(groups).sort((a, b) => b[1] - a[1]);
+      const max = Math.max(1, ...rows.map(r => r[1]));
+      el('declinePanel').innerHTML = rows.length ? rows.map(([k, n]) =>
+        '<div class="bar-row"><div class="bl">' + esc(DECLINE_LABELS[k] || k) + '</div><div class="track"><div class="fill" style="width:' + (n / max * 100) + '%;background:#c0432f"></div></div><div class="bv">' + n + '</div></div>'
+      ).join('') : '<div style="color:#889;font-size:13px;">No declines recorded.</div>';
+    }
+
+    // ---------- Candidate modal ----------
+    async function openCandidate(id) {
+      currentCand = CANDS.find(c => c.id === id);
+      if (!currentCand) return;
+      const c = currentCand;
+      const d = DIVS.find(x => x.code === c.division) || { name: c.division };
+      el('cmName').textContent = c.name;
+      el('cmMeta').innerHTML = esc(c.division + ' — ' + d.name) + ' &middot; ' + esc(c.email || '') +
+        (c.phone ? ' &middot; ' + esc(c.phone) : '') + ' &middot; applied ' + new Date(c.createdAt).toLocaleDateString();
+      const data = c.data || {};
+      const facts = [
+        ['Status', STATUS_LABELS[c.status] || c.status],
+        ['Referral source', SOURCE_LABELS[c.referralSource] || c.referralSource],
+        ['Sales experience', (data.yearsSalesExperience || 0) + ' years'],
+        ['LinkedIn', data.linkedinUrl ? '<a href="' + esc(data.linkedinUrl) + '" target="_blank" rel="noopener">open profile</a>' : '—'],
+        ['Resume', data.resumeUrl ? '<a href="' + esc(data.resumeUrl) + '" target="_blank" rel="noopener">open resume</a>' : '—'],
+        ['Social', esc(data.socialHandles || '—')],
+        ['License', data.hasLicense ? ('Yes' + (data.licenseNumber ? ' — #' + esc(data.licenseNumber) : '')) : 'No'],
+        ['Decline reason', c.declineReason ? (DECLINE_LABELS[c.declineReason] || c.declineReason) : '—'],
+      ];
+      el('cmFacts').innerHTML = facts.map(f =>
+        '<div class="fact"><div class="fl">' + f[0] + '</div><div class="fv">' + f[1] + '</div></div>').join('');
+      el('cmFlags').innerHTML = (c.flags || []).map(f => '<li>&#9873; ' + esc(f) + '</li>').join('');
+      el('cmPreQA').innerHTML = PRE_QS.map((q, i) =>
+        '<div class="preqa"><div class="q">' + esc(q) + '</div><div>' + esc((data.preInterviewAnswers || [])[i] || '(no answer)') + '</div></div>').join('');
+
+      // Videos
+      const respRes = await fetch(API + '/responses?candidateId=' + c.id, { headers: hdrs() }).then(r => r.json()).catch(() => ({ responses: [] }));
+      const byQ = {};
+      (respRes.responses || []).forEach(r => { byQ[r.questionId] = r; });
+      el('cmVideos').innerHTML = (window.QUESTIONS || []).map((q, i) => {
+        const r = byQ[q.id];
+        const comp = COMPS.find(x => x.key === q.competency);
+        const cap = '<div class="vc-cap"><b>Q' + (i + 1) + ' — ' + esc(comp ? comp.label : q.competency) + '</b>' + esc(q.text) + '</div>';
+        if (r && r.uploadState === 'complete') {
+          const src = API + '/responses?candidateId=' + c.id + '&questionId=' + q.id + '&key=' + encodeURIComponent(KEY);
+          return '<div class="vid-card"><video controls preload="none" src="' + src + '"></video>' + cap + '</div>';
+        }
+        return '<div class="vid-card"><div class="vid-missing">No answer recorded yet</div>' + cap + '</div>';
+      }).join('');
+
+      renderScoreForm();
+      el('declineReasonRow').style.display = 'none';
+      el('cmLink').textContent = location.origin + '/sales-interview/interview.html?token=' + c.token;
+      el('candModalBack').style.display = 'block';
+      loadChat();
+      clearInterval(chatTimer);
+      chatTimer = setInterval(loadChat, 12000);
+    }
+
+    function renderScoreForm() {
+      const c = currentCand;
+      const s = candScores(c);
+      el('cmScoreSummary').innerHTML = s.weighted != null
+        ? '<b>Weighted score: ' + s.weighted.toFixed(2) + ' / 5</b> &middot; scored by ' + s.managers.map(esc).join(', ')
+        : 'Not scored yet — be the first.';
+      const mgr = el('cmManager').value.trim();
+      const mine = {};
+      (c.scores || []).forEach(sc => { if (sc.manager === mgr) mine[sc.competency] = sc; });
+      el('cmScoreForm').innerHTML = COMPS.map(comp => {
+        const existing = mine[comp.key];
+        return '<div class="sf-row" data-comp="' + comp.key + '">' +
+          '<div class="sf-comp"><b>' + esc(comp.label) + '</b><small>weight ' + comp.weight + '% &middot; 1 = weak evidence, 5 = exceptional</small></div>' +
+          '<div class="sf-stars">' + [1, 2, 3, 4, 5].map(n =>
+            '<button type="button" data-v="' + n + '" class="' + (existing && existing.score === n ? 'on' : '') + '">' + n + '</button>').join('') + '</div>' +
+          '<input type="text" placeholder="Evidence — one sentence of proof (required)" value="' + esc(existing ? existing.evidence : '') + '">' +
+          '</div>';
+      }).join('');
+      el('cmScoreForm').querySelectorAll('.sf-stars button').forEach(btn => {
+        btn.onclick = () => {
+          btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('on'));
+          btn.classList.add('on');
+        };
+      });
+      // evidence log
+      const evid = (c.scores || []).map(sc =>
+        '<li><b>' + esc(sc.manager) + '</b> — ' + esc((COMPS.find(x => x.key === sc.competency) || {}).label || sc.competency) + ': ' + sc.score + '/5 — ' + esc(sc.evidence) + '</li>').join('');
+      if (evid) el('cmScoreSummary').innerHTML += '<ul class="evidence-log">' + evid + '</ul>';
+    }
+    el('cmManager').addEventListener('change', renderScoreForm);
+
+    el('cmSaveScores').onclick = async () => {
+      const mgr = el('cmManager').value.trim();
+      const note = el('cmScoreNote');
+      note.textContent = '';
+      if (!mgr) { note.textContent = 'Enter your name first.'; return; }
+      const entries = [];
+      for (const row of el('cmScoreForm').querySelectorAll('.sf-row')) {
+        const on = row.querySelector('.sf-stars button.on');
+        const evidence = row.querySelector('input').value.trim();
+        if (!on) continue; // allow partial scoring per manager specialization
+        if (evidence.length < 10) {
+          note.textContent = 'Evidence required (a real sentence) for every competency you score.';
+          return;
+        }
+        entries.push({ competency: row.dataset.comp, score: Number(on.dataset.v), evidence });
+      }
+      if (!entries.length) { note.textContent = 'Pick at least one score.'; return; }
+      const res = await fetch(API + '/scores', {
+        method: 'POST', headers: hdrs(),
+        body: JSON.stringify({ candidateId: currentCand.id, manager: mgr, scores: entries }),
+      });
+      const data = await res.json();
+      if (!res.ok) { note.textContent = data.error || 'Save failed.'; return; }
+      localStorage.setItem('vi_manager_name', mgr);
+      toast('Scores saved');
+      await loadAll();
+      currentCand = CANDS.find(c => c.id === currentCand.id);
+      renderScoreForm();
+    };
+
+    // Decisions
+    document.querySelectorAll('.decision-row .btn').forEach(btn => {
+      btn.onclick = async () => {
+        const status = btn.dataset.status;
+        if (status === 'declined') {
+          el('declineReasonRow').style.display = 'flex';
+          return;
+        }
+        await applyDecision(status, null);
+      };
+    });
+    el('confirmDecline').onclick = () => applyDecision('declined', el('cmDeclineReason').value);
+    async function applyDecision(status, declineReason) {
+      const res = await fetch(API + '/candidates', {
+        method: 'PATCH', headers: hdrs(),
+        body: JSON.stringify({
+          id: currentCand.id, status,
+          declineReason,
+          notify: el('cmNotify').checked,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast(data.error || 'Update failed'); return; }
+      toast(STATUS_LABELS[status] + (data.notified ? ' — candidate emailed' : (el('cmNotify').checked ? ' — email not configured; posted to chat' : '')));
+      await loadAll();
+      currentCand = CANDS.find(c => c.id === currentCand.id);
+      openCandidate(currentCand.id);
+    }
+
+    // Chat
+    async function loadChat() {
+      if (!currentCand) return;
+      const data = await fetch(API + '/messages?candidateId=' + currentCand.id, { headers: hdrs() }).then(r => r.json()).catch(() => null);
+      if (!data || !data.messages) return;
+      const box = el('cmChat');
+      box.innerHTML = data.messages.map(m => '<div class="msg ' + m.sender + '">' + esc(m.body) + '</div>').join('')
+        || '<div class="msg system">No messages yet.</div>';
+      box.scrollTop = box.scrollHeight;
+    }
+    el('cmChatSend').onclick = async () => {
+      const text = el('cmChatText').value.trim();
+      if (!text) return;
+      el('cmChatText').value = '';
+      await fetch(API + '/messages', {
+        method: 'POST', headers: hdrs(),
+        body: JSON.stringify({ candidateId: currentCand.id, body: text }),
+      });
+      loadChat();
+    };
+    el('cmChatText').addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); el('cmChatSend').onclick(); }
+    });
+
+    el('cmClose').onclick = () => {
+      el('candModalBack').style.display = 'none';
+      clearInterval(chatTimer);
+      currentCand = null;
+      loadAll();
+    };
+    el('cmCopyLink').onclick = () => {
+      navigator.clipboard.writeText(el('cmLink').textContent).then(() => toast('Interview link copied'));
+    };
+
+    // ---------- Settings ----------
+    el('settingsBtn').onclick = async () => {
+      const data = await fetch(API + '/settings', { headers: hdrs() }).then(r => r.json());
+      const s = data.settings || {};
+      ['job_title', 'job_blurb', 'brand_video_url', 'model_tour_url', 'onboarding_preview_url'].forEach(k => {
+        el('set_' + k).value = s[k] || '';
+      });
+      el('setModalBack').style.display = 'block';
+    };
+    el('setClose').onclick = () => { el('setModalBack').style.display = 'none'; };
+    el('saveSettings').onclick = async () => {
+      const settings = {};
+      ['job_title', 'job_blurb', 'brand_video_url', 'model_tour_url', 'onboarding_preview_url'].forEach(k => {
+        settings[k] = el('set_' + k).value.trim();
+      });
+      const res = await fetch(API + '/settings', { method: 'POST', headers: hdrs(), body: JSON.stringify({ settings }) });
+      if (res.ok) { toast('Settings saved'); el('setModalBack').style.display = 'none'; }
+      else toast('Save failed');
+    };
+
+    // ---------- Shell ----------
+    el('copyApplyBtn').onclick = () => {
+      navigator.clipboard.writeText(location.origin + '/sales-interview/').then(() => toast('Careers link copied'));
+    };
+    el('refreshBtn').onclick = () => loadAll().then(() => toast('Refreshed'));
+    el('logoutBtn').onclick = () => {
+      localStorage.removeItem('vi_admin_key');
+      location.reload();
+    };
+    el('loginBtn').onclick = tryLogin;
+    el('keyInput').addEventListener('keydown', ev => { if (ev.key === 'Enter') tryLogin(); });
+    async function tryLogin() {
+      KEY = el('keyInput').value.trim();
+      try {
+        await loadAll();
+        localStorage.setItem('vi_admin_key', KEY);
+        el('loginView').style.display = 'none';
+        el('appView').style.display = 'block';
+        el('cmManager').value = localStorage.getItem('vi_manager_name') || '';
+      } catch (e) {
+        el('loginErr').style.display = 'block';
+      }
+    }
+    (async function boot() {
+      if (KEY) {
+        try {
+          await loadAll();
+          el('loginView').style.display = 'none';
+          el('appView').style.display = 'block';
+          el('cmManager').value = localStorage.getItem('vi_manager_name') || '';
+          return;
+        } catch (e) { /* fall through to login */ }
+      }
+      el('loginView').style.display = 'block';
+    })();
+  </script>
+</body>
+</html>

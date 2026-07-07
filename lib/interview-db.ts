@@ -218,6 +218,17 @@ async function createTables() {
       value      TEXT NOT NULL DEFAULT '',
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
+
+    CREATE TABLE IF NOT EXISTS vi_messages (
+      id           BIGSERIAL PRIMARY KEY,
+      candidate_id BIGINT NOT NULL REFERENCES vi_candidates(id) ON DELETE CASCADE,
+      sender       TEXT NOT NULL CHECK (sender IN ('candidate', 'admin', 'system')),
+      body         TEXT NOT NULL,
+      read_by_admin     BOOLEAN NOT NULL DEFAULT FALSE,
+      read_by_candidate BOOLEAN NOT NULL DEFAULT FALSE,
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+    CREATE INDEX IF NOT EXISTS vi_messages_candidate_idx ON vi_messages (candidate_id, created_at);
   `)
 
   // Seed the default question set once.

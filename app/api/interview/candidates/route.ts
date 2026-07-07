@@ -10,6 +10,7 @@ import {
   REFERRAL_SOURCES,
   PRE_INTERVIEW_QUESTIONS,
 } from '@/lib/interview-db'
+import { defaultNotification, sendCandidateNotification, NotifyKind } from '@/lib/interview-email'
 
 export const dynamic = 'force-dynamic'
 
@@ -231,7 +232,30 @@ export async function PATCH(request: NextRequest) {
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
-    return NextResponse.json({ candidate: toCandidate(result.rows[0], true) })
+    const updated = result.rows[0] as CandidateRow
+
+    // Optional candidate notification on round transitions
+    // ("notify them if they make it to the next round or if we've eliminated them").
+    let notified = false
+    const notifiable: Record<string, NotifyKind> = {
+      advanced: 'advanced',
+      declined: 'declined',
+      offer_sent: 'offer_sent',
+    }
+    if (body.notify === true && body.status && notifiable[body.status]) {
+      const divName =
+        DIVISIONS.find((d) => d.code === updated.division)?.name || updated.division
+      const n = defaultNotification(notifiable[body.status], updated.name, divName)
+      notified = await sendCandidateNotification(updated.email, n.subject, n.html, n.text)
+      // Record the decision in the candidate's chat thread either way, so
+      // they see it on their interview page even if email is unconfigured.
+      await pool.query(
+        `INSERT INTO vi_messages (candidate_id, sender, body, read_by_admin)
+         VALUES ($1, 'system', $2, TRUE)`,
+        [updated.id, n.text]
+      )
+    }
+    return NextResponse.json({ candidate: toCandidate(updated, true), notified })
   } catch (e) {
     console.error('[interview] PATCH candidate failed:', e)
     return NextResponse.json({ error: 'Database unavailable' }, { status: 503 })

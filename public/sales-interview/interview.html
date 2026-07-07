@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Interview - Adams Homes</title>
+  <style>
+    :root {
+      --blue: #1a5ba5; --blue-dark: #14508f; --blue-deep: #123a63;
+      --red: #c0432f; --red-dark: #a5361f;
+      --ink: #1a1a1a; --muted: #555; --ground: #eef2f7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--ground); color: var(--ink); font-size: 16px; }
+    .container { max-width: 720px; margin: 0 auto; padding: 0 16px 60px; }
+
+    .site-header { background: white; }
+    .site-header .inner { max-width: 720px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; }
+    .site-header img { height: 56px; }
+    .progress-pill { background: var(--ground); border-radius: 999px; padding: 8px 16px; font-size: 14px; font-weight: 700; color: var(--blue-deep); }
+    .brand-band { height: 5px; background: var(--red); }
+    .brand-band::after { content: ''; display: block; height: 2px; background: var(--blue); margin-top: 2px; }
+
+    .card { background: white; border: 1px solid #dde3ea; border-radius: 14px; padding: 24px 22px; margin-top: 22px; }
+    .card h1 { color: var(--blue); font-size: 24px; margin-bottom: 12px; }
+    .card h2 { color: var(--blue); font-size: 20px; margin-bottom: 10px; }
+    .card p { color: #444; line-height: 1.6; margin-bottom: 10px; }
+    .tips { background: var(--ground); border-radius: 10px; padding: 14px 16px; margin: 14px 0; }
+    .tips li { margin: 6px 0 6px 18px; font-size: 14px; color: #444; }
+
+    .btn { display: block; width: 100%; padding: 15px; border-radius: 8px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; border: none; text-align: center; min-height: 52px; margin-top: 12px; }
+    .btn-red { background: var(--red); color: white; }
+    .btn-red:hover { background: var(--red-dark); }
+    .btn-blue { background: var(--blue); color: white; }
+    .btn-blue:hover { background: var(--blue-dark); }
+    .btn-outline { background: white; color: var(--blue); border: 2px solid var(--blue); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .competency-tag { display: inline-block; background: #eef4fb; color: var(--blue-deep); border: 1px solid #c9dcf0; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border-radius: 999px; padding: 5px 12px; margin-bottom: 12px; }
+    .question-text { font-size: 20px; font-weight: 700; line-height: 1.45; color: var(--ink); margin-bottom: 16px; }
+
+    .stage { position: relative; border-radius: 12px; overflow: hidden; background: #0c1c2e; }
+    .stage video { width: 100%; aspect-ratio: 4/3; display: block; object-fit: cover; background: #0c1c2e; }
+    .stage .overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(12,28,46,0.82); color: white; text-align: center; padding: 20px; }
+    .overlay .big { font-size: 52px; font-weight: 800; margin: 8px 0; font-variant-numeric: tabular-nums; }
+    .overlay .lbl { font-size: 15px; letter-spacing: 1px; text-transform: uppercase; color: #b9cde4; }
+    .rec-bar { position: absolute; top: 12px; left: 12px; display: none; align-items: center; gap: 8px; background: rgba(0,0,0,0.55); border-radius: 999px; padding: 6px 14px; color: white; font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+    .rec-bar .dot { width: 11px; height: 11px; border-radius: 50%; background: #ff4d4d; animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0.25; } }
+
+    .status-note { text-align: center; font-size: 14px; color: #667; margin-top: 10px; min-height: 20px; }
+    .upload-track { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-top: 12px; display: none; }
+    .upload-track .fill { height: 100%; width: 0%; background: #1a7a44; transition: width 0.2s; }
+
+    .done-check { width: 76px; height: 76px; border-radius: 50%; background: #e3f2ea; color: #1a7a44; font-size: 40px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .center { text-align: center; }
+
+    .qlist { margin-top: 14px; }
+    .qlist .qrow { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 14px; }
+    .qlist .qrow.done { color: #1a7a44; }
+    .qlist .qrow.todo { color: #667; }
+
+    .error-card { border: 2px solid #d9534f; background: #fdecea; color: #8a2a1a; border-radius: 12px; padding: 20px; margin-top: 22px; display: none; }
+
+    /* Chat widget */
+    .chat-fab { position: fixed; right: 18px; bottom: 18px; width: 58px; height: 58px; border-radius: 50%; background: var(--blue); color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.25); z-index: 50; }
+    .chat-fab .badge { position: absolute; top: -4px; right: -4px; background: var(--red); color: white; font-size: 12px; font-weight: 800; border-radius: 999px; min-width: 20px; height: 20px; display: none; align-items: center; justify-content: center; padding: 0 5px; }
+    .chat-panel { position: fixed; right: 14px; bottom: 86px; width: min(360px, calc(100vw - 28px)); height: 420px; background: white; border: 1px solid #cfd8e3; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); display: none; flex-direction: column; overflow: hidden; z-index: 50; }
+    .chat-head { background: var(--blue); color: white; padding: 12px 16px; font-weight: 700; }
+    .chat-head small { display: block; font-weight: 400; font-size: 12px; color: #cfe0f2; }
+    .chat-body { flex: 1; overflow-y: auto; padding: 12px; background: #f6f8fb; }
+    .msg { max-width: 82%; border-radius: 12px; padding: 9px 12px; margin-bottom: 8px; font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+    .msg.candidate { background: var(--blue); color: white; margin-left: auto; border-bottom-right-radius: 4px; }
+    .msg.admin { background: white; border: 1px solid #dde3ea; border-bottom-left-radius: 4px; }
+    .msg.system { background: #fdf3e4; border: 1px solid #f0dcc2; color: #6a4a12; font-size: 13px; margin: 10px auto; text-align: center; max-width: 95%; }
+    .chat-input { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #e2e8f0; background: white; }
+    .chat-input textarea { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 9px; font-family: inherit; font-size: 14px; resize: none; height: 42px; }
+    .chat-input button { background: var(--blue); color: white; border: none; border-radius: 8px; padding: 0 16px; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <img src="/adams-homes-logo.png" alt="Adams Homes">
+      <div class="progress-pill" id="progressPill">Video Interview</div>
+    </div>
+  </header>
+  <div class="brand-band"></div>
+
+  <div class="container">
+    <div class="error-card" id="errorCard"></div>
+
+    <!-- Welcome / camera check -->
+    <div class="card" id="welcomeCard" style="display:none;">
+      <h1>Welcome, <span id="candName"></span>!</h1>
+      <p>This is your Adams Homes video interview: <b><span id="qCount"></span> questions</b>, about 15 minutes total. For each question you'll get quiet time to think, then the camera records your answer.</p>
+      <div class="tips">
+        <ul>
+          <li><b>One retake</b> is allowed per question &mdash; treat each answer like a real conversation with a buyer.</li>
+          <li>Find a quiet, well-lit spot. Prop your phone at eye level or use a computer.</li>
+          <li>Dress like you're meeting a buyer at the model home.</li>
+        </ul>
+      </div>
+      <div class="qlist" id="qlist"></div>
+      <button class="btn btn-blue" id="cameraBtn">Turn On My Camera</button>
+      <button class="btn btn-red" id="startBtn" style="display:none;">Start the Interview</button>
+      <div class="status-note" id="welcomeNote"></div>
+      <div class="stage" id="checkStage" style="display:none; margin-top:14px;">
+        <video id="checkVideo" autoplay muted playsinline></video>
+      </div>
+    </div>
+
+    <!-- Question flow -->
+    <div class="card" id="questionCard" style="display:none;">
+      <div class="competency-tag" id="qTag"></div>
+      <div class="question-text" id="qText"></div>
+      <div class="stage">
+        <video id="liveVideo" autoplay muted playsinline></video>
+        <video id="reviewVideo" controls playsinline style="display:none;"></video>
+        <div class="overlay" id="prepOverlay">
+          <div class="lbl">Think time &mdash; recording starts in</div>
+          <div class="big" id="prepCount"></div>
+          <button class="btn btn-red" style="width:auto; padding:12px 26px;" id="skipPrepBtn">I'm Ready — Start Recording</button>
+        </div>
+        <div class="rec-bar" id="recBar"><span class="dot"></span><span id="recCount"></span></div>
+      </div>
+      <div id="recControls" style="display:none;">
+        <button class="btn btn-red" id="stopBtn">Stop Recording</button>
+      </div>
+      <div id="reviewControls" style="display:none;">
+        <button class="btn btn-blue" id="acceptBtn">Use This Answer &amp; Continue</button>
+        <button class="btn btn-outline" id="retakeBtn">Re-record (1 retake allowed)</button>
+      </div>
+      <div class="upload-track" id="uploadTrack"><div class="fill" id="uploadFill"></div></div>
+      <div class="status-note" id="qNote"></div>
+    </div>
+
+    <!-- Done -->
+    <div class="card center" id="doneCard" style="display:none;">
+      <div class="done-check">&#10003;</div>
+      <h1>Interview complete — nicely done!</h1>
+      <p>All your answers are in. Our sales managers score every interview on the same six competencies, and you'll hear from us soon &mdash; usually within days.</p>
+      <p style="font-size:14px; color:#667;">Questions in the meantime? Use the chat bubble in the corner &mdash; it goes straight to the hiring team.</p>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <button class="chat-fab" id="chatFab" style="display:none;">&#128172;<span class="badge" id="chatBadge"></span></button>
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-head">Hiring Team Chat<small>Ask us anything — we reply here and by email.</small></div>
+    <div class="chat-body" id="chatBody"></div>
+    <div class="chat-input">
+      <textarea id="chatText" placeholder="Type a question..."></textarea>
+      <button id="chatSend">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api/interview';
+    const token = new URLSearchParams(location.search).get('token');
+    let candidate = null;
+    let questions = [];
+    let queue = []; // unanswered questions
+    let current = null;
+    let stream = null;
+    let recorder = null;
+    let chunks = [];
+    let recordedBlob = null;
+    let recordedMime = 'video/webm';
+    let recordStartedAt = 0;
+    let retakeUsed = false;
+    let prepTimer = null, recTimer = null;
+
+    function el(id) { return document.getElementById(id); }
+    function fail(msg) {
+      const e = el('errorCard');
+      e.textContent = msg;
+      e.style.display = 'block';
+    }
+    function pickMime() {
+      const options = ['video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4'];
+      for (const m of options) {
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
+      }
+      return '';
+    }
+
+    async function init() {
+      if (!token) return fail('This interview link is missing its token. Please use the exact link from your application confirmation.');
+      let cRes, qRes;
+      try {
+        [cRes, qRes] = await Promise.all([
+          fetch(API + '/candidates?token=' + encodeURIComponent(token)).then(r => r.json()),
+          fetch(API + '/questions').then(r => r.json()),
+        ]);
+      } catch (e) {
+        return fail('Could not reach the interview server. Check your connection and refresh.');
+      }
+      if (!cRes.candidate) return fail(cRes.error || 'Invalid interview link.');
+      candidate = cRes.candidate;
+      questions = qRes.questions || [];
+      const compLabels = {};
+      (qRes.competencies || []).forEach(c => compLabels[c.key] = c.label);
+      questions.forEach(q => q.compLabel = compLabels[q.competency] || q.competency);
+      const answered = new Set(cRes.candidate.answeredQuestionIds || []);
+      queue = questions.filter(q => !answered.has(q.id));
+
+      el('chatFab').style.display = 'block';
+      pollChat();
+      setInterval(pollChat, 15000);
+
+      if (queue.length === 0) {
+        el('doneCard').style.display = 'block';
+        el('progressPill').textContent = 'Complete';
+        return;
+      }
+      el('candName').textContent = candidate.name.split(' ')[0];
+      el('qCount').textContent = questions.length;
+      const list = el('qlist');
+      questions.forEach((q, i) => {
+        const row = document.createElement('div');
+        const done = answered.has(q.id);
+        row.className = 'qrow ' + (done ? 'done' : 'todo');
+        row.innerHTML = (done ? '&#10003;' : '&#9675;') + ' Question ' + (i + 1) + ' &mdash; ' + q.compLabel;
+        list.appendChild(row);
+      });
+      el('welcomeCard').style.display = 'block';
+      updatePill();
+    }
+
+    function updatePill() {
+      const total = questions.length;
+      const done = total - queue.length;
+      el('progressPill').textContent = done >= total ? 'Complete' : 'Question ' + Math.min(done + 1, total) + ' of ' + total;
+    }
+
+    el('cameraBtn').onclick = async () => {
+      el('welcomeNote').textContent = 'Requesting camera & microphone...';
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+          audio: true,
+        });
+        el('checkVideo').srcObject = stream;
+        el('checkStage').style.display = 'block';
+        el('cameraBtn').style.display = 'none';
+        el('startBtn').style.display = 'block';
+        el('welcomeNote').textContent = 'Looking good? Hit start when you\'re ready.';
+      } catch (e) {
+        el('welcomeNote').textContent = '';
+        fail('We need camera and microphone access to record your interview. Please allow access in your browser settings, then refresh this page.');
+      }
+    };
+
+    el('startBtn').onclick = () => {
+      el('welcomeCard').style.display = 'none';
+      nextQuestion();
+    };
+
+    function nextQuestion() {
+      if (queue.length === 0) {
+        if (stream) stream.getTracks().forEach(t => t.stop());
+        el('questionCard').style.display = 'none';
+        el('doneCard').style.display = 'block';
+        updatePill();
+        return;
+      }
+      current = queue[0];
+      retakeUsed = false;
+      recordedBlob = null;
+      updatePill();
+      el('qTag').textContent = current.compLabel;
+      el('qText').textContent = current.text;
+      el('reviewVideo').style.display = 'none';
+      el('liveVideo').style.display = 'block';
+      el('liveVideo').srcObject = stream;
+      el('reviewControls').style.display = 'none';
+      el('recControls').style.display = 'none';
+      el('uploadTrack').style.display = 'none';
+      el('qNote').textContent = '';
+      el('questionCard').style.display = 'block';
+      startPrep();
+    }
+
+    function startPrep() {
+      let left = current.prepSeconds;
+      el('prepOverlay').style.display = 'flex';
+      el('prepCount').textContent = left;
+      clearInterval(prepTimer);
+      prepTimer = setInterval(() => {
+        left--;
+        el('prepCount').textContent = left;
+        if (left <= 0) { clearInterval(prepTimer); startRecording(); }
+      }, 1000);
+    }
+    el('skipPrepBtn').onclick = () => { clearInterval(prepTimer); startRecording(); };
+
+    function startRecording() {
+      el('prepOverlay').style.display = 'none';
+      chunks = [];
+      recordedMime = pickMime();
+      try {
+        recorder = new MediaRecorder(stream, recordedMime ? {
+          mimeType: recordedMime,
+          videoBitsPerSecond: 700000,
+          audioBitsPerSecond: 64000,
+        } : undefined);
+      } catch (e) {
+        return fail('Recording is not supported in this browser. Try Chrome, Edge or Safari.');
+      }
+      recordedMime = recorder.mimeType || recordedMime || 'video/webm';
+      recorder.ondataavailable = ev => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+      recorder.onstop = onRecorded;
+      recorder.start(1000);
+      recordStartedAt = Date.now();
+      let left = current.answerSeconds;
+      el('recBar').style.display = 'flex';
+      el('recCount').textContent = fmt(left);
+      el('recControls').style.display = 'block';
+      clearInterval(recTimer);
+      recTimer = setInterval(() => {
+        left--;
+        el('recCount').textContent = fmt(left);
+        if (left <= 0) stopRecording();
+      }, 1000);
+    }
+    function fmt(s) { return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+    function stopRecording() {
+      clearInterval(recTimer);
+      el('recBar').style.display = 'none';
+      el('recControls').style.display = 'none';
+      if (recorder && recorder.state !== 'inactive') recorder.stop();
+    }
+    el('stopBtn').onclick = stopRecording;
+
+    function onRecorded() {
+      recordedBlob = new Blob(chunks, { type: recordedMime.split(';')[0] });
+      const url = URL.createObjectURL(recordedBlob);
+      el('liveVideo').style.display = 'none';
+      const rv = el('reviewVideo');
+      rv.src = url;
+      rv.style.display = 'block';
+      el('reviewControls').style.display = 'block';
+      el('retakeBtn').style.display = retakeUsed ? 'none' : 'block';
+      el('qNote').textContent = 'Review your answer, then continue' + (retakeUsed ? '.' : ' or use your one retake.');
+    }
+
+    el('retakeBtn').onclick = () => {
+      retakeUsed = true;
+      recordedBlob = null;
+      el('reviewControls').style.display = 'none';
+      el('reviewVideo').style.display = 'none';
+      el('liveVideo').style.display = 'block';
+      el('qNote').textContent = '';
+      startPrep();
+    };
+
+    el('acceptBtn').onclick = async () => {
+      if (!recordedBlob) return;
+      const CHUNK = 3 * 1024 * 1024;
+      const parts = Math.ceil(recordedBlob.size / CHUNK);
+      const duration = Math.round((Date.now() - recordStartedAt) / 1000);
+      el('acceptBtn').disabled = true;
+      el('retakeBtn').disabled = true;
+      el('uploadTrack').style.display = 'block';
+      el('qNote').textContent = 'Uploading your answer... don\'t close this page.';
+      try {
+        for (let i = 0; i < parts; i++) {
+          const slice = recordedBlob.slice(i * CHUNK, Math.min((i + 1) * CHUNK, recordedBlob.size));
+          const params = new URLSearchParams({
+            token: token,
+            questionId: String(current.id),
+            part: String(i),
+            last: i === parts - 1 ? '1' : '0',
+            mime: recordedMime.split(';')[0],
+            duration: String(duration),
+          });
+          let ok = false, lastErr = '';
+          for (let attempt = 0; attempt < 3 && !ok; attempt++) {
+            const res = await fetch(API + '/responses?' + params.toString(), { method: 'POST', body: slice });
+            if (res.ok) { ok = true; break; }
+            lastErr = (await res.json().catch(() => ({}))).error || ('HTTP ' + res.status);
+            await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
+          }
+          if (!ok) throw new Error(lastErr || 'Upload failed');
+          el('uploadFill').style.width = Math.round(((i + 1) / parts) * 100) + '%';
+        }
+        queue.shift();
+        el('acceptBtn').disabled = false;
+        el('retakeBtn').disabled = false;
+        nextQuestion();
+      } catch (e) {
+        el('qNote').textContent = 'Upload failed: ' + e.message + ' — check your connection and tap "Use This Answer" again.';
+        el('acceptBtn').disabled = false;
+      }
+    };
+
+    // ------- Chat -------
+    let chatOpen = false;
+    el('chatFab').onclick = () => {
+      chatOpen = !chatOpen;
+      el('chatPanel').style.display = chatOpen ? 'flex' : 'none';
+      if (chatOpen) pollChat();
+    };
+    async function pollChat() {
+      try {
+        const res = await fetch(API + '/messages?token=' + encodeURIComponent(token));
+        const data = await res.json();
+        if (!data.messages) return;
+        const body = el('chatBody');
+        const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 30;
+        body.innerHTML = data.messages.map(m =>
+          '<div class="msg ' + m.sender + '">' + escapeHtml(m.body) + '</div>'
+        ).join('') || '<div class="msg system">No messages yet. Ask us anything!</div>';
+        if (atBottom || chatOpen) body.scrollTop = body.scrollHeight;
+        const unread = data.messages.filter(m => m.sender !== 'candidate' && !m.readByCandidate).length;
+        const badge = el('chatBadge');
+        badge.style.display = unread > 0 && !chatOpen ? 'flex' : 'none';
+        badge.textContent = unread;
+      } catch (e) { /* transient */ }
+    }
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    el('chatSend').onclick = sendChat;
+    el('chatText').addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); sendChat(); }
+    });
+    async function sendChat() {
+      const text = el('chatText').value.trim();
+      if (!text) return;
+      el('chatText').value = '';
+      try {
+        await fetch(API + '/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token, body: text }),
+        });
+        pollChat();
+      } catch (e) { /* transient */ }
+    }
+
+    init();
+  </script>
+</body>
+</html>
