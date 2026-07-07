@@ -443,7 +443,7 @@
       <h3>Off-Market Sweep <span style="font-weight:400; font-size:13px; color:#667;">— blind mailers</span></h3>
       <div class="m-sub">These lots aren't listed for sale, so there's <b>no asking price</b> — it's a blind mailer. Every lot gets your <b>$30k stipend offer</b> (Well/Septic default, since county records carry no utilities), sendable up to <b>$40k</b>. The value filter below is the county's <i>assessed</i> land value, used only to target lots in your offer range. (Priced, on-market lots come from the portal alerts instead.)</div>
       <div class="m-grid">
-        <div><label for="swMinAcres">Min lot size (acres)</label><input type="number" id="swMinAcres" step="0.01" value="0.20"></div>
+        <div><label for="swMinAcres">Min lot size (acres)</label><input type="number" id="swMinAcres" step="0.01" value="0.22"></div>
         <div><label for="swMaxAcres">Max lot size (acres)</label><input type="number" id="swMaxAcres" step="0.1" value="2"></div>
         <div><label for="swMaxValue">Max assessed land value ($)</label><input type="number" id="swMaxValue" step="1000" value="40000"></div>
         <div><label for="swLimit">How many to pull</label>
@@ -604,7 +604,8 @@
     // reaches Kevin. Edit these once, and the whole scan re-triages.
     const BUY_BOX = {
       zips: ['32905', '32906', '32907', '32908', '32909'],
-      minAcres: 0.2, maxAcres: 2,
+      minAcres: 0.22, maxAcres: 2,   // Palm Bay: 0.22 ac floor (standard lots ~0.23) — adjust as needed
+
       defaultOffer: 30000,      // starting cash offer (Kevin can override)
       showWindow: 10000,        // show lots up to $10k over stipend (offer & negotiate)
       floodReview: ['A', 'AE'], // insurable but needs sign-off

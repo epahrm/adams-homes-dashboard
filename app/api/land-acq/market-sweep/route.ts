@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const v = Number(p.get(k))
     return Number.isFinite(v) ? v : d
   }
-  const minAcres = Math.max(0, num('minAcres', 0.2))
+  const minAcres = Math.max(0, num('minAcres', 0.22))
   const maxAcres = Math.max(minAcres, num('maxAcres', 2))
   const maxValue = Math.max(1000, num('maxValue', 40000))
   const absentee = p.get('absentee') !== '0' // default on

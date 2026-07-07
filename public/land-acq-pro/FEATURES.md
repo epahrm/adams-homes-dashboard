@@ -26,7 +26,7 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 - ✅ **Add existing deal/contract** — drop an in-progress deal into the pipeline at any stage
 
 ## 3. Buy box & green/yellow/red triage
-- ✅ Locked **buy box**: Palm Bay ZIPs, vacant residential, 0.25–2 acres, utility rules, price ceilings
+- ✅ Locked **buy box**: Palm Bay ZIPs, vacant residential, 0.22–2 acres, utility rules, price ceilings
 - ✅ **Stipends by utility type** (Well/Septic $30k, Water/Septic $30k, Water/Sewer $50k), editable with a full audit log
 - ✅ Palm Bay lots **default to Well/Septic ($30k)** unless the listing says otherwise
 - ✅ **$10k show-window** — shows lots up to $10k over stipend (offer & negotiate); excludes anything higher
@@ -97,7 +97,7 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 - 🔜 Full campaign analytics (scans-over-time, conversion funnel, template A/B), opt-out management
 
 ## Planned next (in priority order)
-- 🔜 **Off-market county sweep** (nightly buy-box discovery from county data)
+- 🔜 **Nightly auto-run** of the off-market sweep + email ingest (the sweep tool itself is built)
 - 🔜 **Motivation ranking** — prioritize out-of-area / long-tenure / tax-delinquent owners
 - 🔜 **"Needs attention" alerts** — offers pending, IP dates, Thursday closings due
 - 🔜 **Automated email send** (offer distribution) + **admin settings** page (editable contact, company info, default offer/EMD/commission)
