@@ -287,7 +287,9 @@ async function noHorizontalOverflow(page) {
     await page.waitForSelector('#lotRows tr');
     await page.selectOption('#fStatus', 'pending-ep-sig');
     await page.waitForTimeout(200);
-    await page.locator('#lotRows tr').first().click();
+    // Data rows only — the table now has phase-title header rows too.
+    check('pipeline table shows a phase title row', await page.locator('#lotRows tr.phase-row').count() >= 1);
+    await page.locator('#lotRows tr:not(.phase-row)').first().click();
     await page.waitForSelector('#epSummary.show', { timeout: 10000 });
     check('EP sign-off summary shows for Elizabeth', await page.locator('#epSummary.show').isVisible());
     check('EP summary lists stipend + offer', (await page.textContent('#epSummary')).includes('Approved Lot Stipend'));
