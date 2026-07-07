@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Land Acquisition Pipeline - Adams Homes</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f5f7; color: #333; }
+    .page { max-width: 900px; margin: 0 auto; background: white; min-height: 100vh; }
+
+    /* Header */
+    .topbar { background: #003d66; color: white; padding: 24px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    .topbar h1 { font-size: 24px; line-height: 1.25; flex: 1 1 200px; }
+    .topbar .who { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+    .topbar .avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+    .logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 10px 22px; min-height: 44px; font-size: 15px; cursor: pointer; font-family: inherit; }
+    .logout:hover { background: rgba(255,255,255,0.2); }
+
+    .content { padding: 24px 22px 48px; }
+    .content > h2 { color: #003d66; font-size: 32px; margin: 6px 0 22px; }
+
+    /* KPI cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi { border-radius: 10px; border: 2px solid; text-align: center; padding: 22px 10px; }
+    .kpi .lbl { font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: #444; margin-bottom: 10px; }
+    .kpi .num { font-size: 40px; font-weight: 800; color: #003d66; }
+    .kpi.green { border-color: #1a5a3a; background: linear-gradient(180deg, #f2f9f3, #e2f1e4); }
+    .kpi.orange { border-color: #e8963c; background: linear-gradient(180deg, #fdf3e4, #fbe4c2); }
+    .kpi.deepgreen { border-color: #1a5a3a; background: linear-gradient(180deg, #e4f3e6, #cfe9d3); }
+    .kpi.red { border-color: #d9534f; background: linear-gradient(180deg, #fdeaea, #fbd8d8); }
+
+    /* Target banner */
+    .target { background: #e6f4e8; border-left: 5px solid #1a5a3a; border-radius: 6px; padding: 16px 18px; font-size: 17px; margin-bottom: 24px; }
+    .target b { color: #14401d; }
+
+    /* Stipend panel (compact) */
+    .stipend-panel { border: 1px solid #cfddea; border-radius: 10px; background: #f3f8fd; padding: 12px 14px; margin-bottom: 20px; }
+    .stipend-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .stipend-head h3 { color: #003d66; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .stipend-edit { background: white; border: 1px solid #003d66; color: #003d66; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; min-height: 36px; }
+    .stipend-edit:hover { background: #eaf2fb; }
+    .stipend-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .stipend-tile { background: white; border: 1px solid #d5e2f0; border-radius: 8px; padding: 7px 12px; display: flex; align-items: baseline; gap: 8px; }
+    .stipend-tile .st-lbl { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: #667; }
+    .stipend-tile .st-val { font-size: 16px; font-weight: 800; color: #003d66; font-variant-numeric: tabular-nums; }
+    .stipend-updated { font-size: 12px; color: #778; margin-top: 8px; }
+    .stipend-updated b { color: #445; font-weight: 600; }
+
+    /* Metrics grid (compact) */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .mtile { background: white; border-left: 4px solid #1a5a3a; border-radius: 8px; padding: 12px 14px; }
+    .mtile .m-lbl { font-size: 12px; color: #556; margin-bottom: 4px; letter-spacing: 0.3px; }
+    .mtile .m-val { font-size: 22px; font-weight: 800; color: #003d66; font-variant-numeric: tabular-nums; }
+
+    /* New leads inbox */
+    .newleads { border: 2px solid #e8963c; border-radius: 12px; background: #fff8ef; padding: 14px 16px; margin-bottom: 24px; }
+    .newleads h3 { color: #8a5200; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .newleads h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: #a5762f; font-size: 13px; }
+    .lead-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
+    .lead-row:last-child { margin-bottom: 0; }
+    .lead-row:hover { background: #fdf3e6; }
+    .lead-row .l-addr { font-weight: 600; color: #003d66; font-size: 15px; }
+    .lead-row .l-meta { font-size: 13px; color: #667; margin-top: 2px; }
+    .lead-row .l-cta { flex-shrink: 0; font-size: 13px; font-weight: 700; color: #8a5200; }
+
+    /* New Opportunities — buy-box scan with green/yellow/red triage */
+    .opps { border: 2px solid #1a5ba5; border-radius: 12px; background: #f2f7fc; padding: 14px 16px; margin-bottom: 24px; }
+    .opps h3 { color: #123a63; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+    .opps h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: #4a6b8f; font-size: 13px; }
+    .opps .opps-sub { font-size: 12px; color: #5a7290; margin-bottom: 12px; }
+    .opp-row { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #d3e0ee; border-left-width: 5px; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+    .opp-row.green { border-left-color: #1a7a44; }
+    .opp-row.yellow { border-left-color: #e8963c; }
+    .opp-main { flex: 1; min-width: 0; }
+    .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; }
+    .opp-meta { font-size: 13px; color: #667; margin-top: 2px; }
+    .opp-reason { font-size: 12px; margin-top: 4px; }
+    .opp-row.green .opp-reason { color: #1a7a44; }
+    .opp-row.yellow .opp-reason { color: #a5651a; }
+    .light { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+    .light::before { content: ''; width: 9px; height: 9px; border-radius: 50%; }
+    .light.green { background: #e3f2ea; color: #1a7a44; } .light.green::before { background: #1a7a44; }
+    .light.yellow { background: #fdf1e2; color: #a5651a; } .light.yellow::before { background: #e8963c; }
+    .light.red { background: #fdecea; color: #b02a1a; } .light.red::before { background: #d92e43; }
+    .opp-offer { font-weight: 800; color: #123a63; font-size: 15px; white-space: nowrap; }
+    .opp-offer span { display: block; font-size: 10px; font-weight: 600; color: #5a7290; text-transform: uppercase; letter-spacing: 0.5px; }
+    .opp-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+    .opp-actions button { font-family: inherit; font-size: 12px; font-weight: 700; border-radius: 6px; padding: 6px 12px; cursor: pointer; border: 1px solid transparent; }
+    .opp-btn-add { background: #1a5ba5; color: #fff; }
+    .opp-btn-add:hover { background: #14508f; }
+    .opp-btn-skip, .opp-btn-hold { background: #fff; border-color: #c3cfdc; color: #4a6b8f; }
+    .opp-btn-skip:hover, .opp-btn-hold:hover { background: #eef4fb; }
+    .opps-rejected { margin-top: 6px; }
+    .opps-rejected summary { font-size: 12px; color: #8a3a28; cursor: pointer; font-weight: 600; }
+    .opps-rejected .rej-row { font-size: 12px; color: #777; padding: 6px 4px; border-bottom: 1px solid #eee; }
+    .opps-rejected .rej-row b { color: #555; }
+    @media (max-width: 560px) { .opp-row { flex-wrap: wrap; } .opp-actions { flex-direction: row; width: 100%; } .opp-actions button { flex: 1; } }
+
+    /* Closing calendar */
+    .calendar-block { border: 2px solid #003d66; border-radius: 12px; background: #f7fafd; padding: 16px 16px 10px; margin-bottom: 24px; }
+    .calendar-block h3 { color: #003d66; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .cal-summary { font-size: 14px; color: #445; margin-bottom: 14px; }
+    .cal-summary b { color: #003d66; font-size: 16px; }
+    a.cal-close { text-decoration: none; cursor: pointer; }
+    a.cal-close:hover { text-decoration: underline; }
+    .cal-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .cal-month .cal-title { font-weight: 700; color: #003d66; margin-bottom: 8px; font-size: 15px; }
+    .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .cal-dow { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #99a; text-align: center; padding: 2px 0; }
+    .cal-cell { min-height: 40px; border: 1px solid #e3e9f0; border-radius: 6px; padding: 3px 4px; font-size: 11px; background: white; }
+    .cal-cell.empty { background: transparent; border: none; }
+    .cal-cell .cal-num { color: #99a; font-size: 10px; }
+    .cal-cell.today { border-color: #003d66; }
+    .cal-cell.has-close { background: #e6f0e8; border-color: #1a5a3a; }
+    .cal-close { display: block; margin-top: 2px; font-size: 10px; font-weight: 700; color: #14401d; line-height: 1.2; }
+    @media (min-width: 720px) { .cal-grid { grid-template-columns: 1fr 1fr; } }
+    .stipend-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    .stipend-field label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 5px; }
+    .stipend-field input { width: 100%; padding: 11px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; }
+    .stipend-form-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stipend-form-actions button { padding: 11px 18px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; min-height: 44px; }
+    .stipend-msg { margin-top: 10px; font-size: 14px; display: none; }
+    .stipend-msg.ok { color: #14401d; display: block; }
+    .stipend-msg.err { color: #b02a1a; display: block; }
+    .stipend-audit { margin-top: 12px; }
+    .stipend-audit summary { cursor: pointer; font-size: 14px; color: #003d66; font-weight: 600; }
+    .stipend-audit ul { list-style: none; margin-top: 10px; }
+    .stipend-audit li { font-size: 13px; color: #445; padding: 6px 0; border-top: 1px solid #e0e8f1; }
+    .stipend-audit li.empty { color: #889; border-top: none; }
+    .stipend-audit li b { color: #003d66; }
+
+    td.stipend-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    td.stipend-cell .over { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 700; color: #b02a1a; background: #fdecea; border: 1px solid #f3c3bb; border-radius: 6px; padding: 1px 6px; letter-spacing: 0.5px; }
+    tr.over-stipend { background: #fef7f6 !important; }
+
+    /* Filters */
+    .filters { border: 1px solid #ddd; border-radius: 10px; background: #fafafa; padding: 20px 18px; margin-bottom: 24px; }
+    .filter-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .filter-row:last-child { margin-bottom: 0; }
+    .filter-row label { font-size: 16px; color: #333; font-weight: 600; min-width: 110px; }
+    .filter-row select { padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-family: inherit; background: white; }
+
+    /* Quick metrics */
+    .metrics { border: 2px solid #003d66; border-radius: 12px; background: #eaf2fb; padding: 20px 18px; margin-bottom: 26px; }
+    .metrics h3 { color: #003d66; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+    .metric { background: white; border-left: 4px solid #1a5a3a; border-radius: 6px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .metric:last-child { margin-bottom: 0; }
+    .metric .m-lbl { font-size: 15px; color: #333; }
+    .metric .m-val { font-size: 20px; font-weight: 800; color: #003d66; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin-bottom: 18px; }
+    table { width: 100%; border-collapse: collapse; min-width: 340px; }
+    thead th { text-align: left; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: white; padding: 12px 10px; background: #003d66; }
+    tbody td { padding: 16px 10px; border-bottom: 1px solid #e2e2e2; font-size: 16px; vertical-align: middle; }
+    tbody tr { cursor: pointer; }
+    tbody tr:hover { background: #f0f5fa; }
+    tbody tr:nth-child(odd) { background: #fafafa; }
+    tbody tr:nth-child(odd):hover { background: #f0f5fa; }
+    td.addr { color: #003d66; font-weight: 600; }
+    .pill { display: inline-block; padding: 7px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
+    .pill.pending { background: #fbe9a9; color: #6d5410; }
+    .pill.offer-sent { background: #cde9f0; color: #145263; }
+    .pill.seller-signed { background: #cfe0fb; color: #1c3f7a; }
+    .pill.pending-ep-sig { background: #ffe0b3; color: #8a5200; }
+    .pill.ip { background: #fbe0c2; color: #7a4a10; }
+    .pill.manager-driven { background: #dcd6f5; color: #3b2f7a; }
+    .pill.survey-rcvd { background: #d7e8f5; color: #1c4a6e; }
+    .pill.cd-approved { background: #cfe9e2; color: #12594a; }
+    .pill.ctc { background: #d4eed7; color: #1c5426; }
+    .pill.closed { background: #b8e3bd; color: #14401d; }
+    .pill.declined { background: #f6cdd3; color: #7a1f2b; }
+    .empty { text-align: center; color: #888; padding: 30px 10px !important; cursor: default; }
+
+    /* Pagination */
+    .pager { display: flex; gap: 10px; justify-content: center; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .pager button { border: 1px solid #ccc; background: white; color: #1663c7; border-radius: 8px; padding: 10px 18px; min-height: 44px; font-size: 16px; cursor: pointer; font-family: inherit; }
+    .pager button.cur { background: #1a5a3a; border-color: #1a5a3a; color: white; font-weight: 700; }
+    .pager button:disabled { color: #aaa; cursor: not-allowed; }
+
+    .footnote { background: #fdf6df; border: 1px solid #e5c664; border-radius: 8px; padding: 14px 16px; font-size: 15px; color: #6d5410; margin-bottom: 20px; display: none; }
+
+    /* Action buttons */
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .actions button { flex: 1 1 120px; padding: 14px 10px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-green { background: #1a5a3a; border: 2px solid #1a5a3a; color: white; }
+    .btn-green:hover { background: #14472e; }
+    .btn-outline { background: white; border: 2px solid #003d66; color: #003d66; }
+    .btn-outline:hover { background: #eaf2fb; }
+    .btn-navy { background: #003d66; border: 2px solid #003d66; color: white; }
+    .btn-navy:hover { background: #0a4f8e; }
+
+    /* Pipeline toolbar */
+    .pipeline-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+    .pipeline-head h2 { margin: 0; }
+    .pipeline-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pipeline-tools button { font-size: 13px; padding: 9px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .import-msg { margin: 10px 0 4px; padding: 10px 14px; border-radius: 8px; font-size: 14px; }
+    .import-msg.ok { background: #e3f2ea; color: #14401d; border: 1px solid #bcd8c6; }
+    .import-msg.err { background: #fdecea; color: #b02a1a; border: 1px solid #f3c3bb; }
+
+    /* Modal (Add Deal) */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3,20,38,0.55); z-index: 200; display: none; align-items: flex-start; justify-content: center; padding: 30px 16px; overflow-y: auto; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: #fff; border-radius: 14px; max-width: 640px; width: 100%; padding: 24px 24px 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.3); }
+    .modal h3 { color: #003d66; font-size: 20px; margin-bottom: 4px; }
+    .modal .m-sub { color: #667; font-size: 13px; margin-bottom: 16px; }
+    .modal .m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal label { display: block; font-size: 12px; font-weight: 700; color: #445; margin-bottom: 4px; }
+    .modal input, .modal select { width: 100%; padding: 10px 12px; border: 1px solid #ccd3db; border-radius: 8px; font-size: 15px; font-family: inherit; }
+    .modal .m-full { grid-column: 1 / -1; }
+    .modal .m-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+    .modal .m-err { color: #b02a1a; font-size: 13px; margin-top: 8px; display: none; }
+    @media (max-width: 560px) { .modal .m-grid { grid-template-columns: 1fr; } }
+
+    .back-link { display: inline-block; margin-top: 22px; color: #003d66; font-size: 14px; text-decoration: none; font-weight: 600; }
+    .back-link:hover { text-decoration: underline; }
+
+    @media (max-width: 560px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .content > h2 { font-size: 26px; }
+      thead th, tbody td { padding: 10px 6px; font-size: 14px; }
+    }
+    /* Admin password gate */
+    .gate-overlay { position: fixed; inset: 0; background: #003d66; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .gate { background: white; border-radius: 12px; max-width: 400px; width: 100%; padding: 32px 28px; }
+    .gate h2 { color: #003d66; font-size: 22px; margin-bottom: 6px; }
+    .gate p { color: #666; font-size: 14px; margin-bottom: 18px; }
+    .gate input { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; margin-bottom: 8px; }
+    .gate input:focus { outline: none; border-color: #003d66; box-shadow: 0 0 0 3px rgba(0,61,102,0.12); }
+    .gate .gate-label { display: block; text-align: left; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .gate select { width: 100%; padding: 12px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; margin-bottom: 12px; background: white; }
+    .gate .gate-error { color: #c62828; font-size: 14px; margin-bottom: 8px; display: none; }
+    .gate button { width: 100%; padding: 14px; background: #003d66; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 6px; }
+    .gate button:hover { background: #0a4f8e; }
+    .mode-banner { background: #fdf6df; border: 1px solid #e5c664; border-radius: 8px; padding: 12px 16px; font-size: 14px; color: #6d5410; margin-bottom: 18px; display: none; }
+
+    /* Realtor CRM */
+    .realtor-crm { border: 1px solid #dbe3ec; border-radius: 12px; background: #fff; padding: 4px 16px 14px; }
+    .realtor-crm summary { cursor: pointer; font-weight: 700; color: #123a63; font-size: 15px; padding: 12px 0; letter-spacing: 0.3px; }
+    .realtor-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .realtor-table th { text-align: left; color: #778; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 8px 10px; border-bottom: 2px solid #e6e9ee; }
+    .realtor-table td { padding: 10px; border-bottom: 1px solid #eef1f5; vertical-align: top; }
+    .realtor-table .r-name { font-weight: 700; color: #003d66; }
+    .realtor-table .r-brok { color: #667; font-size: 13px; }
+    .realtor-table .r-contact { color: #445; font-size: 13px; line-height: 1.5; }
+    .realtor-table .r-count { font-weight: 800; color: #1a5ba5; font-size: 16px; }
+    .realtor-table .r-pipe { color: #556; font-size: 13px; }
+
+    @media print {
+      .topbar .logout, .filters, .actions, .pager, .back-link { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="gate-overlay" id="gateOverlay">
+    <div class="gate">
+      <h2>Admin Access</h2>
+      <p>Enter the admin password to open the pipeline.</p>
+      <form id="gateForm">
+        <label class="gate-label" for="gateRole">Sign in as</label>
+        <select id="gateRole" aria-label="Sign in as">
+          <option value="Kevin Nelson">Kevin Nelson</option>
+          <option value="Elizabeth Porter">Elizabeth Porter</option>
+        </select>
+        <input type="password" id="gatePassword" placeholder="Password" aria-label="Admin password" autocomplete="current-password">
+        <div class="gate-error" id="gateError">Invalid password</div>
+        <button type="submit">Unlock Dashboard</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="topbar">
+      <h1>Land Acquisition Pipeline</h1>
+      <div class="who"><div class="avatar">K</div><div>Kevin Nelson |<br>Palm Bay Division</div></div>
+      <button class="logout" onclick="sessionStorage.removeItem('laAdminKey'); sessionStorage.removeItem('laMode'); sessionStorage.removeItem('laRole'); window.location.href='index.html'">Logout</button>
+    </div>
+
+    <div class="content">
+      <div class="mode-banner" id="modeBanner">Offline demo mode &mdash; showing this browser's local data only. Live sync resumes when the server is reachable.</div>
+      <div class="pipeline-head">
+        <h2>Palm Bay Lot Pipeline</h2>
+        <div class="pipeline-tools">
+          <button class="btn-navy" id="addDealBtn">+ Add Deal / Contract</button>
+          <button class="btn-green" id="importBtn">Import Contacts (CSV)</button>
+          <button class="btn-outline" id="postcardBtn">Postcards / QR</button>
+          <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
+        </div>
+      </div>
+      <div class="import-msg" id="importMsg" style="display:none;"></div>
+
+      <!-- Compact stipend panel -->
+      <div class="stipend-panel">
+        <div class="stipend-head">
+          <h3>Approved Lot Stipend: Palm Bay</h3>
+          <button type="button" class="stipend-edit" id="stipendEditBtn">Update Stipend</button>
+        </div>
+        <div class="stipend-grid" id="stipendGrid"></div>
+        <div class="stipend-updated" id="stipendUpdated"></div>
+        <form class="stipend-form" id="stipendForm" style="display:none;">
+          <div class="stipend-fields" id="stipendFields"></div>
+          <div class="stipend-form-actions">
+            <button type="submit" class="btn-green">Save Stipend</button>
+            <button type="button" class="btn-outline" id="stipendCancel">Cancel</button>
+          </div>
+        </form>
+        <div class="stipend-msg" id="stipendMsg"></div>
+        <details class="stipend-audit">
+          <summary>Change history</summary>
+          <ul id="stipendAuditList"><li class="empty">No changes recorded yet.</li></ul>
+        </details>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi orange"><div class="lbl">Pending EP Sig</div><div class="num" id="kpiEpSig">0</div></div>
+        <div class="kpi green"><div class="lbl">Inspection Period</div><div class="num" id="kpiIp">0</div></div>
+        <div class="kpi green"><div class="lbl">Manager Driven</div><div class="num" id="kpiManager">0</div></div>
+        <div class="kpi green"><div class="lbl">Survey Rcv'd</div><div class="num" id="kpiSurvey">0</div></div>
+        <div class="kpi green"><div class="lbl">CD Approved</div><div class="num" id="kpiCd">0</div></div>
+        <div class="kpi green"><div class="lbl">Clear to Close</div><div class="num" id="kpiCtc">0</div></div>
+        <div class="kpi deepgreen"><div class="lbl">Closed (MTD)</div><div class="num" id="kpiClosed">0</div></div>
+      </div>
+
+      <div class="target"><b>Target:</b> 50 accepted contracts/month | <b>Accepted this month:</b> <span id="targetCurrent">0</span> <span id="targetCheck"></span></div>
+
+      <!-- Quick metrics (compact) -->
+      <div class="metrics">
+        <h3>Quick Metrics</h3>
+        <div class="metrics-grid">
+          <div class="mtile"><div class="m-lbl">Closed This Month</div><div class="m-val" id="mClosedMonth">0</div></div>
+          <div class="mtile"><div class="m-lbl">Pending Closings</div><div class="m-val" id="mPendingClose">0</div></div>
+          <div class="mtile"><div class="m-lbl">Scheduled to Close</div><div class="m-val" id="mScheduled">0</div></div>
+          <div class="mtile"><div class="m-lbl">Offer Acceptance</div><div class="m-val" id="mAcceptance">&ndash;</div></div>
+          <div class="mtile"><div class="m-lbl">Avg Days to Close</div><div class="m-val" id="mDays">&ndash;</div></div>
+        </div>
+      </div>
+
+      <!-- Closing calendar: this month + next -->
+      <div class="calendar-block">
+        <h3>Closing Calendar</h3>
+        <div class="cal-summary" id="calSummary"></div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <!-- Buy-box market scan: green/yellow/red triage of found lots -->
+      <div class="opps" id="oppsBlock" style="display:none;">
+        <h3>New Opportunities <span>&mdash; buy-box market scan</span></h3>
+        <div class="opps-sub" id="oppsSub"></div>
+        <div id="oppsList"></div>
+        <details class="opps-rejected" id="oppsRejected" style="display:none;">
+          <summary></summary>
+          <div id="oppsRejectedList"></div>
+        </details>
+      </div>
+
+      <!-- Seller declined an offer: prompt Kevin to re-offer every 30 days -->
+      <div class="opps" id="reofferBlock" style="display:none; border-color:#8a5200; background:#fff8ef;">
+        <h3 style="color:#8a5200;">Re-offer Due <span>&mdash; seller declined, 30-day follow-up</span></h3>
+        <div class="opps-sub" id="reofferSub"></div>
+        <div id="reofferList"></div>
+      </div>
+
+      <!-- New leads awaiting a first offer (QR + research requests) -->
+      <div class="newleads" id="newLeadsBlock" style="display:none;">
+        <h3>New Leads <span>&mdash; awaiting first offer</span></h3>
+        <div id="newLeadsList"></div>
+      </div>
+
+      <div class="filters">
+        <div class="filter-row"><label for="fStatus">Status:</label>
+          <select id="fStatus">
+            <option value="all" selected>All Active</option>
+            <option value="offer-sent">Offer Sent</option>
+            <option value="seller-signed">Offer Accepted</option>
+            <option value="pending-ep-sig">Pending EP Signature</option>
+            <option value="ip">Inspection Period</option>
+            <option value="manager-driven">Manager Driven</option>
+            <option value="survey-rcvd">Survey Rcv'd</option>
+            <option value="cd-approved">CD Approved</option>
+            <option value="ctc">Clear to Close</option>
+          </select>
+        </div>
+        <div class="filter-row"><label for="fDays">Days in Stage:</label>
+          <select id="fDays">
+            <option value="all" selected>All</option>
+            <option value="0-30">0&ndash;30 days</option>
+            <option value="31-60">31&ndash;60 days</option>
+            <option value="60+">60+ days</option>
+          </select>
+        </div>
+        <div class="filter-row"><label for="fSource">Source:</label>
+          <select id="fSource">
+            <option value="all" selected>All Sources</option>
+            <option value="Direct Mail">Direct Mail</option>
+            <option value="FSBO">FSBO</option>
+            <option value="Expired">Expired</option>
+            <option value="Off-Market">Off-Market</option>
+            <option value="QR Landing Page">QR Landing Page</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Address</th><th>List Price</th><th>Stipend</th><th>Status</th></tr></thead>
+          <tbody id="lotRows"></tbody>
+        </table>
+      </div>
+
+      <div class="pager" id="pager"></div>
+
+      <div style="text-align:center; color:#666; font-size:14px; margin-bottom:20px;" id="showingCount"></div>
+
+      <!-- Realtor CRM: every listing agent we've engaged, with their lots -->
+      <details class="realtor-crm" id="realtorCrm" style="margin-bottom:20px;">
+        <summary id="realtorSummary">Realtor CRM</summary>
+        <div class="table-wrap">
+          <table class="realtor-table">
+            <thead><tr><th>Realtor / Brokerage</th><th>Contact</th><th>Lots</th><th>Pipeline</th></tr></thead>
+            <tbody id="realtorRows"></tbody>
+          </table>
+        </div>
+      </details>
+
+      <div class="footnote" id="footnote">* Re-outreach scheduled in 87 days</div>
+
+      <div class="actions">
+        <button class="btn-green" id="exportCsv">Export to CSV</button>
+        <button class="btn-green" id="exportPdf">Export to PDF</button>
+        <button class="btn-outline" id="refreshBtn">Refresh Data</button>
+      </div>
+
+      <a class="back-link" href="index.html">&larr; Back to Landing Page</a>
+    </div>
+  </div>
+
+  <!-- Postcard / QR batch modal -->
+  <div class="modal-overlay" id="postcardOverlay">
+    <div class="modal">
+      <h3>Postcard / QR Batch</h3>
+      <div class="m-sub">Generate a tracking QR + recipient list for a mailer. Drop the QR on your postcard artwork; owners who scan it are tracked back to this batch.</div>
+      <div class="m-grid">
+        <div><label for="pcBatchName">Batch name</label><input type="text" id="pcBatchName" placeholder="e.g. July Campaign A"></div>
+        <div><label for="pcPool">Recipients</label>
+          <select id="pcPool">
+            <option value="opportunity">New Opportunities (mailer pool)</option>
+            <option value="all">All active lots with a mailing address</option>
+          </select>
+        </div>
+        <div class="m-full" id="pcCount" style="font-size:13px;color:#556;"></div>
+        <div class="m-full" style="text-align:center; border:1px solid #e6e9ee; border-radius:10px; padding:14px; background:#fafcff;">
+          <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#778; margin-bottom:8px;">Batch QR (put this on the postcard)</div>
+          <img id="pcQrImg" alt="Batch QR" style="width:200px; height:200px; display:none; margin:0 auto; border:1px solid #eee;">
+          <div id="pcQrNote" style="font-size:13px; color:#8a3a28;">Enter a batch name to generate the QR.</div>
+          <div id="pcQrUrl" style="font-size:12px; color:#667; margin-top:8px; word-break:break-all;"></div>
+          <a id="pcQrDownload" style="display:none; font-size:13px; font-weight:700; color:#1a5ba5; text-decoration:none;">Download QR PNG</a>
+        </div>
+        <div class="m-full">
+          <label>Postcard artwork (upload when ready — placeholder)</label>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <label style="font-size:13px;">Front <input type="file" id="pcFront" accept="image/*,.pdf"></label>
+            <label style="font-size:13px;">Back <input type="file" id="pcBack" accept="image/*,.pdf"></label>
+          </div>
+          <div id="pcArtNote" style="font-size:12px; color:#667; margin-top:4px;">Artwork is stored by filename for now; real file storage is on the launch checklist.</div>
+        </div>
+      </div>
+      <div class="m-actions">
+        <button type="button" class="btn-outline" id="pcCancel">Close</button>
+        <button type="button" class="btn-green" id="pcMailingList">Download Mailing List (CSV)</button>
+        <button type="button" class="btn-navy" id="pcQrSheet">Printable QR Sheet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Deal / Contract modal -->
+  <div class="modal-overlay" id="addDealOverlay">
+    <div class="modal">
+      <h3>Add Deal / Contract</h3>
+      <div class="m-sub">Enter an existing or in-progress deal and drop it into the pipeline at the right stage.</div>
+      <form id="addDealForm">
+        <div class="m-grid">
+          <div class="m-full"><label for="dAddress">Property Address *</label><input type="text" id="dAddress" placeholder="123 Main St SE, Palm Bay, FL 32909" required></div>
+          <div><label for="dOwner">Owner / Seller</label><input type="text" id="dOwner" placeholder="Full name"></div>
+          <div><label for="dOwnerContact">Owner Contact</label><input type="text" id="dOwnerContact" placeholder="Phone / email / mailing"></div>
+          <div><label for="dStage">Pipeline Stage *</label>
+            <select id="dStage">
+              <option value="pending">New Lead (pre-offer)</option>
+              <option value="offer-sent">Offer Sent</option>
+              <option value="seller-signed">Offer Accepted (seller signed)</option>
+              <option value="pending-ep-sig">Pending EP Signature</option>
+              <option value="ip">Inspection Period</option>
+              <option value="manager-driven">Manager Driven</option>
+              <option value="survey-rcvd">Survey Rcv'd</option>
+              <option value="cd-approved">CD Approved</option>
+              <option value="ctc">Clear to Close</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <div><label for="dOffer">Offer Amount</label><input type="text" id="dOffer" placeholder="$30,000"></div>
+          <div><label for="dUtility">Utility Type</label>
+            <select id="dUtility">
+              <option value="">Default (Well/Septic $30k)</option>
+              <option value="well-septic">Well / Septic</option>
+              <option value="water-septic">Water / Septic</option>
+              <option value="water-sewer">Water / Sewer</option>
+            </select>
+          </div>
+          <div><label for="dListing">Off-Market or Listed</label>
+            <select id="dListing"><option value="off-market">Off-Market</option><option value="listed">Listed (MLS)</option></select>
+          </div>
+          <div><label for="dSource">Lead Source</label>
+            <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Referral</option><option>Other</option></select>
+          </div>
+          <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
+          <div><label for="dAgentBrokerage">Brokerage</label><input type="text" id="dAgentBrokerage" placeholder="Brokerage"></div>
+          <div><label for="dAccepted">Accepted Date</label><input type="date" id="dAccepted"></div>
+          <div><label for="dClose">Scheduled Close</label><input type="date" id="dClose"></div>
+        </div>
+        <div class="m-err" id="dErr">Please enter a property address.</div>
+        <div class="m-actions">
+          <button type="button" class="btn-outline" id="dCancel">Cancel</button>
+          <button type="submit" class="btn-navy">Add to Pipeline</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const STORE_KEY = 'landAcqSubmissions';
+    const SEED_FLAG = 'landAcqSeeded_v6';
+    const PAGE_SIZE = 6;
+    const OUTREACH_BASELINE = 150; // direct-mail pieces sent before digital tracking began
+    const API_LOTS = '/api/land-acq/lots';
+    const API_SETTINGS = '/api/land-acq/settings';
+    const STIPEND_KEY = 'landAcqStipend';
+    const DEFAULT_STIPENDS = { 'well-septic': 30000, 'water-septic': 30000, 'water-sewer': 50000 };
+    const STIPEND_LABELS = { 'well-septic': 'Well / Septic', 'water-septic': 'Water / Septic', 'water-sewer': 'Water / Sewer' };
+    let currentPage = 1;
+    let mode = null;          // 'server' = shared store (Kevin + Elizabeth), 'local' = offline demo
+    let lastLots = [];        // last loaded lots, for exports
+    let stipendState = { defaults: Object.assign({}, DEFAULT_STIPENDS), audit: [] };
+
+    function currentUser() { return sessionStorage.getItem('laRole') || 'Admin'; }
+
+    function adminHeaders() {
+      return { 'X-Admin-Key': sessionStorage.getItem('laAdminKey') || '' };
+    }
+
+    function money(n) { return '$' + Number(n || 0).toLocaleString('en-US'); }
+
+    // Infer a lot's utility type from its county utilities text so the right
+    // stipend applies even before Kevin sets it explicitly.
+    function inferUtilityType(l) {
+      if (l.utilityType) return l.utilityType;
+      const u = (l.utilities || '').toLowerCase();
+      // Palm Bay default: Well/Septic ($30k stipend) unless the listing says
+      // city water/sewer.
+      if (!u) return 'well-septic';
+      const water = /water:\s*city|city water|water:\s*available/.test(u) && !/water:\s*none/.test(u);
+      const sewer = /sewer:\s*city|city sewer/.test(u) && !/sewer:\s*none/.test(u);
+      if (water && sewer) return 'water-sewer';
+      if (water && !sewer) return 'water-septic';
+      return 'well-septic';
+    }
+
+    // The stipend that applies to a lot: its saved snapshot if set, otherwise
+    // the current default for its (inferred) utility type.
+    function lotStipend(l) {
+      if (typeof l.lotStipend === 'number') return l.lotStipend;
+      const t = inferUtilityType(l);
+      return t ? stipendState.defaults[t] : null;
+    }
+
+    // ---- Buy box (locked purchasing filters) --------------------------------
+    // Palm Bay pilot. Off-market lots come from the FL DOR / county assessment
+    // API (authoritative). Every candidate is scored against these before it
+    // reaches Kevin. Edit these once, and the whole scan re-triages.
+    const BUY_BOX = {
+      zips: ['32905', '32906', '32907', '32908', '32909'],
+      minAcres: 0.25, maxAcres: 2,
+      defaultOffer: 30000,      // starting cash offer (Kevin can override)
+      showWindow: 10000,        // show lots up to $10k over stipend (offer & negotiate)
+      floodReview: ['A', 'AE'], // insurable but needs sign-off
+    };
+
+    function acresOf(l) {
+      if (typeof l.acres === 'number') return l.acres;
+      const m = String(l.lotSize || '').match(/([\d.]+)\s*acre/i);
+      return m ? parseFloat(m[1]) : null;
+    }
+
+    // Returns { light: 'green'|'yellow'|'red', reasons: [...], offer } for a lot.
+    // RED  = fails a hard buy-box rule (auto-rejected, logged).
+    // YELLOW = buyable but needs Kevin/Elizabeth review (over stipend, a yellow
+    //          flag, or missing data).
+    // GREEN = meets every rule, at/under stipend, no flags — ready to send.
+    function evaluateBuyBox(l) {
+      const red = [], yellow = [];
+      const acres = acresOf(l);
+      const stipend = lotStipend(l);
+      const price = typeof l.listPrice === 'number' ? l.listPrice
+        : (typeof l.offerSuggested === 'number' ? l.offerSuggested : BUY_BOX.defaultOffer);
+      // Offer never exceeds the stipend — Kevin offers his max and negotiates.
+      const offer = stipend != null ? Math.min(price, stipend) : price;
+
+      // Hard fails → RED
+      if (stipend != null && price > stipend + BUY_BOX.showWindow)
+        red.push('Asking ' + money(price) + ' is over ' + money(BUY_BOX.showWindow) + ' above ' + money(stipend) + ' stipend');
+      if (l.hasStructure) red.push('Has a structure (not a vacant lot)');
+      if (l.zoningClass && !/resid/i.test(l.zoningClass)) red.push('Zoning not residential');
+      if (acres != null && (acres < BUY_BOX.minAcres || acres > BUY_BOX.maxAcres))
+        red.push('Lot ' + acres + ' ac outside ' + BUY_BOX.minAcres + '–' + BUY_BOX.maxAcres + ' ac');
+      if (l.wetlands) red.push('Wetlands on parcel');
+      if (l.landlocked) red.push('No road access (landlocked)');
+      if (l.deedRestricted) red.push('Deed restriction prohibits builder');
+      if (/shared|mobile/i.test(l.utilities || '')) red.push('Utilities not acceptable (shared/mobile)');
+
+      // Needs review → YELLOW
+      if (stipend != null && price > stipend && price <= stipend + BUY_BOX.showWindow)
+        yellow.push(money(price) + ' is ' + money(price - stipend) + ' over ' + money(stipend) + ' stipend — offer & negotiate');
+      if (l.floodZone && BUY_BOX.floodReview.includes(String(l.floodZone).toUpperCase()))
+        yellow.push('Flood zone ' + l.floodZone + ' — insurable, needs sign-off');
+      if (l.hoa) yellow.push('HOA restriction');
+      if (l.minorEasement) yellow.push('Minor easement');
+      if (/auction|foreclos/i.test(l.listStatus || '')) yellow.push('Auction/foreclosure — review process');
+      // On-market lots reach the seller via the listing agent; parcel is pulled
+      // at offer time. Only off-market leads need owner/parcel to go green.
+      const onMarket = typeof l.listPrice === 'number' || !!l.agentBrokerage || /listing|active|auction/i.test(l.listStatus || '');
+      if (!onMarket && (!l.parcel || !(l.ownerContact || l.owner)))
+        yellow.push('Missing owner/parcel — verify before offer');
+
+      const light = red.length ? 'red' : (yellow.length ? 'yellow' : 'green');
+      const reasons = red.length ? red : (yellow.length ? yellow : ['Meets every buy-box rule — ready to send']);
+      return { light, reasons, offer };
+    }
+
+    // Persist a single lot change (Add / Skip / Hold from the opportunity queue).
+    async function patchLot(id, set) {
+      if (mode === 'server') {
+        try {
+          await fetch(API_LOTS, { method: 'PATCH',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, adminHeaders()),
+            body: JSON.stringify({ id, set }), signal: AbortSignal.timeout(9000) });
+        } catch (e) { /* keep UI responsive; next load reconciles */ }
+      } else {
+        const lots = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+        const t = lots.find(l => String(l.id) === String(id));
+        if (t) { Object.assign(t, set); localStorage.setItem(STORE_KEY, JSON.stringify(lots)); }
+      }
+      render();
+    }
+
+    function offerNumber(l) {
+      if (!l.offer) return null;
+      const n = Number(String(l.offer).replace(/[^0-9.]/g, ''));
+      return Number.isFinite(n) && n > 0 ? n : null;
+    }
+
+    async function verifyPassword(password) {
+      try {
+        const res = await fetch(API_LOTS, { headers: { 'X-Admin-Key': password }, signal: AbortSignal.timeout(9000) });
+        if (res.ok) return 'server';
+        if (res.status === 401) return 'invalid';
+      } catch (e) { /* offline */ }
+      return 'local'; // server unreachable: offline demo mode with local data
+    }
+
+    async function fetchServerLots() {
+      const res = await fetch(API_LOTS, { headers: adminHeaders(), signal: AbortSignal.timeout(9000) });
+      if (!res.ok) throw new Error('lots fetch failed: ' + res.status);
+      return (await res.json()).lots || [];
+    }
+
+    // Seed the pipeline once with Kevin's existing Palm Bay lots so the
+    // dashboard reflects work already in flight.
+    function seedIfNeeded() {
+      if (localStorage.getItem(SEED_FLAG)) return;
+      const existing = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+      const now = Date.now();
+      const day = 86400000;
+      const iso = d => new Date(d).toISOString();
+      const dt = (mOff, dayOfMonth) => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth() + mOff, dayOfMonth, 12).toISOString(); };
+      const seeds = [
+        { id: now - 1, address: '456 Oak Street, Palm Bay, FL 32907', status: 'offer-sent', source: 'Direct Mail', listPrice: 40000, listStatus: 'Active Listing', parcel: '2937-11AB-20443', owner: 'Maria Garcia', ownerContact: '456 Oak Street, Palm Bay, FL 32907 | (321) 555-2288 | maria@email.com', lotSize: '0.25 acres (10,890 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$31,200', annualTax: '$540', agentName: 'Sarah Lee', agentBrokerage: 'RE/MAX Elite', agentPhone: '321-555-8890', agentEmail: 'sarah@remaxelite.com', offer: '$38,000', createdAt: iso(now - 6 * day) },
+        { id: now - 2, address: '789 Pine Road, Palm Bay, FL 32909', status: 'seller-signed', source: 'Off-Market', listPrice: null, listStatus: 'Off-Market', parcel: '2938-07CD-31877', owner: 'Robert Chen', ownerContact: '789 Pine Road, Palm Bay, FL 32909 | (321) 555-3401 | rchen@email.com', lotSize: '0.28 acres (12,196 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$26,800', annualTax: '$463', offer: '$28,000', createdAt: iso(now - 10 * day), acceptedAt: iso(now - 3 * day), scheduledClose: dt(1, 12) },
+        { id: now - 3, address: '12 Cypress Way, Palm Bay, FL 32908', status: 'pending-ep-sig', source: 'Direct Mail', listPrice: 52000, listStatus: 'Active Listing', parcel: '2942-06KL-70012', owner: 'David Nguyen', ownerContact: '12 Cypress Way, Palm Bay, FL 32908 | (321) 555-7744 | dnguyen@email.com', lotSize: '0.30 acres (13,068 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: City', taxValue: '$34,900', annualTax: '$605', agentName: 'Tom Reed', agentBrokerage: 'Century 21', agentPhone: '321-555-3322', agentEmail: 'tom@c21.com', offer: '$48,000', createdAt: iso(now - 4 * day), acceptedAt: iso(now - 1 * day), scheduledClose: dt(1, 3) },
+        { id: now - 4, address: '321 Elm Court, Palm Bay, FL 32905', status: 'ip', source: 'Direct Mail', listPrice: 32000, listStatus: 'Active Listing', parcel: '2939-04EF-40921', owner: 'Linda Torres', ownerContact: '321 Elm Court, Palm Bay, FL 32905 | (321) 555-4522 | ltorres@email.com', lotSize: '0.22 acres (9,583 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: City', taxValue: '$25,100', annualTax: '$438', agentName: 'Mike Davis', agentBrokerage: 'Coldwell Banker', agentPhone: '321-555-7712', agentEmail: 'mdavis@cbfl.com', offer: '$30,000', createdAt: iso(now - 30 * day), acceptedAt: iso(now - 20 * day), scheduledClose: dt(0, 24) },
+        { id: now - 5, address: '88 Sable Palm St, Palm Bay, FL 32907', status: 'ctc', source: 'Direct Mail', listPrice: 30000, listStatus: 'Active Listing', parcel: '2943-08MN-80233', owner: 'Grace Kim', ownerContact: '88 Sable Palm St, Palm Bay, FL 32907 | (321) 555-9911 | gkim@email.com', lotSize: '0.24 acres (10,454 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$27,600', annualTax: '$479', offer: '$31,000', createdAt: iso(now - 38 * day), acceptedAt: iso(now - 28 * day), scheduledClose: dt(0, 27) },
+        { id: now - 6, address: '15 Lakeview Dr, Palm Bay, FL 32909', status: 'manager-driven', source: 'Off-Market', listPrice: null, listStatus: 'Off-Market', parcel: '2944-03OP-90455', owner: 'Frank Ellis', ownerContact: '15 Lakeview Dr, Palm Bay, FL 32909 | (321) 555-1188 | fellis@email.com', lotSize: '0.33 acres (14,375 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$29,400', annualTax: '$511', offer: '$33,000', createdAt: iso(now - 22 * day), acceptedAt: iso(now - 15 * day), scheduledClose: dt(1, 5) },
+        { id: now - 9, address: '42 Redfish Ct, Palm Bay, FL 32909', status: 'survey-rcvd', source: 'Direct Mail', listPrice: 36000, listStatus: 'Active Listing', parcel: '2946-07ST-11888', owner: 'Alan Cross', ownerContact: '42 Redfish Ct, Palm Bay, FL 32909 | (321) 555-2020 | across@email.com', lotSize: '0.27 acres (11,761 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: City', taxValue: '$30,100', annualTax: '$523', offer: '$34,500', createdAt: iso(now - 26 * day), acceptedAt: iso(now - 18 * day), scheduledClose: dt(0, 28) },
+        { id: now - 10, address: '77 Marlin Way, Palm Bay, FL 32908', status: 'cd-approved', source: 'Direct Mail', listPrice: 31000, listStatus: 'Active Listing', parcel: '2947-01UV-22999', owner: 'Beth Nolan', ownerContact: '77 Marlin Way, Palm Bay, FL 32908 | (321) 555-3030 | bnolan@email.com', lotSize: '0.23 acres (10,019 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$28,200', annualTax: '$490', offer: '$29,500', createdAt: iso(now - 33 * day), acceptedAt: iso(now - 24 * day), scheduledClose: dt(1, 8) },
+        { id: now - 7, address: '200 Harbor Dr, Palm Bay, FL 32905', status: 'closed', source: 'Direct Mail', listPrice: 29000, listStatus: 'Active Listing', parcel: '2945-02QR-10677', owner: 'Susan Park', ownerContact: '200 Harbor Dr, Palm Bay, FL 32905 | (321) 555-6600 | spark@email.com', lotSize: '0.21 acres (9,148 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$24,000', annualTax: '$418', offer: '$29,000', createdAt: iso(now - 62 * day), acceptedAt: iso(now - 50 * day), closedAt: dt(0, Math.max(1, new Date().getDate() - 2)) },
+        { id: now - 8, address: '987 Maple Drive, Palm Bay, FL 32907', status: 'declined', source: 'FSBO', listPrice: null, listStatus: 'FSBO', parcel: '2941-05IJ-60874', owner: 'Patricia Moore', ownerContact: '987 Maple Drive, Palm Bay, FL 32907 | (321) 555-9080 | pmoore@email.com', lotSize: '0.26 acres (11,326 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$27,300', annualTax: '$471', createdAt: iso(now - 90 * day) },
+
+        // Real on-market Palm Bay lots (Zillow saved-search) awaiting Kevin's triage.
+        { id: now - 20, status: 'opportunity', source: 'Zillow', address: '951 Weslaco St SE, Palm Bay, FL 32909', listStatus: 'Active Listing', listPrice: 27500, zoningClass: 'Residential', mls: '1059125', agentBrokerage: 'Space Coast AOR', createdAt: iso(now - 1 * day) },
+        { id: now - 21, status: 'opportunity', source: 'Zillow', address: '842 Darlington Ave SW, Palm Bay, FL 32908', listStatus: 'Active Listing', listPrice: 39000, zoningClass: 'Residential', mls: '1081538', agentBrokerage: 'Space Coast AOR', createdAt: iso(now - 1 * day) },
+        { id: now - 22, status: 'opportunity', source: 'Zillow', address: '2617 Ja Bombardier Blvd SW, Palm Bay, FL 32908', listStatus: 'Active Listing', listPrice: 22900, zoningClass: 'Residential', mls: '2026019833', agentBrokerage: 'Keller Williams Island Life RE', createdAt: iso(now - 1 * day) },
+        { id: now - 23, status: 'opportunity', source: 'Zillow', address: 'Corner of Rebus Ave & Harper Blvd SW, Palm Bay, FL 32908', listStatus: 'Active Listing', listPrice: 45500, zoningClass: 'Residential', mls: '1081639', agentBrokerage: 'Space Coast AOR', createdAt: iso(now - 2 * day) },
+        { id: now - 24, status: 'opportunity', source: 'Zillow', address: '506 White Cap Ct NW, Palm Bay, FL 32907', listStatus: 'Auction', listPrice: 30000, zoningClass: 'Residential', mls: '11833418', agentBrokerage: 'Ashland Auction Group', lotNote: 'Auction listing', createdAt: iso(now - 2 * day) },
+        { id: now - 25, status: 'opportunity', source: 'Zillow', address: 'Merganser & Slimtwig Ave, Palm Bay, FL 32908', listStatus: 'Active Listing', listPrice: 32000, zoningClass: 'Residential', mls: 'A12047551', agentBrokerage: 'Douglas Elliman', createdAt: iso(now - 2 * day) },
+        { id: now - 26, status: 'opportunity', source: 'Zillow', address: '124 Deeyan Ave NW, Palm Bay, FL 32907', listStatus: 'Active Listing', listPrice: 45000, zoningClass: 'Residential', mls: '1081559', agentBrokerage: 'Space Coast AOR', createdAt: iso(now - 3 * day) },
+        // Seller declined an earlier offer — 30-day follow-up now due.
+        { id: now - 27, status: 'offer-denied', source: 'Zillow', address: '318 Abetti Rd SE, Palm Bay, FL 32909', listStatus: 'Active Listing', listPrice: 31000, zoningClass: 'Residential', mls: '1077410', agentBrokerage: 'Space Coast AOR', offer: '$30,000', deniedAt: iso(now - 32 * day), nextReviewAt: iso(now - 2 * day), createdAt: iso(now - 45 * day) }
+      ];
+      const have = new Set(existing.map(s => (s.address || '').toLowerCase()));
+      const merged = existing.concat(seeds.filter(s => !have.has(s.address.toLowerCase())));
+      localStorage.setItem(STORE_KEY, JSON.stringify(merged));
+      localStorage.setItem(SEED_FLAG, '1');
+    }
+
+    const LEGACY_STATUS = {
+      'new': 'pending', 'qualified': 'pending',
+      'awaiting-signature': 'pending-ep-sig', 'signed': 'seller-signed',
+      'executed': 'ip', 'due-diligence': 'ip',
+      'post-inspection': 'survey-rcvd', 'ready-to-close': 'ctc'
+    };
+
+    function tagStatuses(lots) {
+      lots.forEach(l => { l.displayStatus = LEGACY_STATUS[l.status] || l.status; });
+      return lots;
+    }
+
+    async function loadLots() {
+      if (mode === 'server') {
+        try {
+          lastLots = tagStatuses(await fetchServerLots());
+          document.getElementById('modeBanner').style.display = 'none';
+          return lastLots;
+        } catch (e) {
+          // Server hiccup: keep showing the last good data.
+          document.getElementById('modeBanner').style.display = 'block';
+          return lastLots;
+        }
+      }
+      lastLots = tagStatuses(JSON.parse(localStorage.getItem(STORE_KEY) || '[]'));
+      return lastLots;
+    }
+
+    function daysIn(lot) {
+      return Math.floor((Date.now() - new Date(lot.createdAt).getTime()) / 86400000);
+    }
+
+    // Live-contract lifecycle statuses. The lot table shows these — from
+    // offer sent through each step — and a lot drops off once it closes.
+    const ACTIVE = ['offer-sent','seller-signed','pending-ep-sig','ip','manager-driven','survey-rcvd','cd-approved','ctc'];
+    const ACCEPTED = ['seller-signed','pending-ep-sig','ip','manager-driven','survey-rcvd','cd-approved','ctc','closed'];
+    const PENDING_CLOSE = ['seller-signed','pending-ep-sig','ip','manager-driven','survey-rcvd','cd-approved','ctc'];
+
+    function inMonth(iso, offset) {
+      if (!iso) return false;
+      const d = new Date(iso), n = new Date();
+      const target = new Date(n.getFullYear(), n.getMonth() + (offset || 0), 1);
+      return d.getFullYear() === target.getFullYear() && d.getMonth() === target.getMonth();
+    }
+    function acceptedDate(l) { return l.acceptedAt || (ACCEPTED.includes(l.displayStatus) ? l.createdAt : null); }
+    function closedDate(l) { return l.closedAt || (l.displayStatus === 'closed' ? (l.updatedAt || l.createdAt) : null); }
+
+    function applyFilters(lots) {
+      const status = document.getElementById('fStatus').value;
+      const days = document.getElementById('fDays').value;
+      const source = document.getElementById('fSource').value;
+      return lots.filter(l => {
+        if (status !== 'all' && l.displayStatus !== status) return false;
+        if (source !== 'all' && (l.source || 'QR Landing Page') !== source) return false;
+        const d = daysIn(l);
+        if (days === '0-30' && d > 30) return false;
+        if (days === '31-60' && (d < 31 || d > 60)) return false;
+        if (days === '60+' && d < 61) return false;
+        return true;
+      });
+    }
+
+    const PILL_LABELS = {
+      'pending': 'NEW LEAD', 'offer-sent': 'OFFER SENT', 'seller-signed': 'OFFER ACCEPTED',
+      'pending-ep-sig': 'PENDING EP SIG', 'ip': 'INSPECTION', 'manager-driven': 'MANAGER DRIVEN',
+      'survey-rcvd': "SURVEY RCV'D", 'cd-approved': 'CD APPROVED', 'ctc': 'CLEAR TO CLOSE',
+      'closed': 'CLOSED', 'declined': 'DECLINED'
+    };
+
+    function listPriceLabel(l) {
+      if (l.listPrice) return '$' + Number(l.listPrice).toLocaleString();
+      return l.listStatus || '—';
+    }
+
+    const DOW = ['S','M','T','W','T','F','S'];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function renderCalendar(lots) {
+      const grid = document.getElementById('calGrid');
+      grid.innerHTML = '';
+      const today = new Date();
+      const todayMid = new Date(today.toDateString());
+      const scheduled = lots.filter(l => l.scheduledClose && l.displayStatus !== 'closed');
+
+      // Summary: closings left this month vs scheduled next month
+      const leftThisMonth = scheduled.filter(l => inMonth(l.scheduledClose, 0) && new Date(l.scheduledClose) >= todayMid).length;
+      const nextMonthCount = scheduled.filter(l => inMonth(l.scheduledClose, 1)).length;
+      document.getElementById('calSummary').innerHTML =
+        '<b>' + leftThisMonth + '</b> closing' + (leftThisMonth === 1 ? '' : 's') + ' left this month &middot; ' +
+        '<b>' + nextMonthCount + '</b> scheduled next month';
+
+      for (let off = 0; off <= 1; off++) {
+        const first = new Date(today.getFullYear(), today.getMonth() + off, 1);
+        const year = first.getFullYear(), month = first.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const startDow = first.getDay();
+        const monthEl = document.createElement('div');
+        monthEl.className = 'cal-month';
+        const title = document.createElement('div');
+        title.className = 'cal-title';
+        title.textContent = MONTHS[month] + ' ' + year;
+        monthEl.appendChild(title);
+        const days = document.createElement('div');
+        days.className = 'cal-days';
+        DOW.forEach(d => { const h = document.createElement('div'); h.className = 'cal-dow'; h.textContent = d; days.appendChild(h); });
+        for (let i = 0; i < startDow; i++) { const c = document.createElement('div'); c.className = 'cal-cell empty'; days.appendChild(c); }
+        for (let day = 1; day <= daysInMonth; day++) {
+          const cell = document.createElement('div');
+          cell.className = 'cal-cell';
+          const num = document.createElement('div');
+          num.className = 'cal-num';
+          num.textContent = day;
+          cell.appendChild(num);
+          if (off === 0 && day === today.getDate()) cell.classList.add('today');
+          const closings = scheduled.filter(l => {
+            const d = new Date(l.scheduledClose);
+            return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+          });
+          if (closings.length) {
+            cell.classList.add('has-close');
+            closings.forEach(l => {
+              const a = document.createElement('a');
+              a.className = 'cal-close';
+              a.href = 'offer-approval.html?id=' + l.id;
+              a.textContent = (l.address || '').split(',')[0];
+              a.title = 'Open deal: ' + (l.address || '') + ' — ' + (PILL_LABELS[l.displayStatus] || l.displayStatus);
+              a.addEventListener('click', e => e.stopPropagation());
+              cell.appendChild(a);
+            });
+          }
+          days.appendChild(cell);
+        }
+        monthEl.appendChild(days);
+        grid.appendChild(monthEl);
+      }
+    }
+
+    // New Opportunities — buy-box scan results with green/yellow/red triage.
+    function renderOpportunities(lots) {
+      const block = document.getElementById('oppsBlock');
+      const list = document.getElementById('oppsList');
+      const sub = document.getElementById('oppsSub');
+      const rejWrap = document.getElementById('oppsRejected');
+      const rejList = document.getElementById('oppsRejectedList');
+      const opps = lots.filter(l => l.status === 'opportunity');
+      if (!opps.length) { block.style.display = 'none'; return; }
+
+      const scored = opps.map(l => ({ l, ev: evaluateBuyBox(l) }));
+      const order = { green: 0, yellow: 1 };
+      const actionable = scored.filter(s => s.ev.light !== 'red')
+        .sort((a, b) => (order[a.ev.light] - order[b.ev.light]) || (new Date(b.l.createdAt) - new Date(a.l.createdAt)));
+      const rejected = scored.filter(s => s.ev.light === 'red');
+
+      const greenN = actionable.filter(s => s.ev.light === 'green').length;
+      const yellowN = actionable.filter(s => s.ev.light === 'yellow').length;
+      block.style.display = 'block';
+      sub.textContent = greenN + ' ready to send · ' + yellowN + ' need review'
+        + (rejected.length ? ' · ' + rejected.length + ' auto-rejected' : '');
+
+      list.innerHTML = '';
+      actionable.forEach(({ l, ev }) => {
+        const row = document.createElement('div');
+        row.className = 'opp-row ' + ev.light;
+
+        const badge = document.createElement('span');
+        badge.className = 'light ' + ev.light;
+        badge.textContent = ev.light === 'green' ? 'Ready' : 'Review';
+
+        const main = document.createElement('div');
+        main.className = 'opp-main';
+        const addr = document.createElement('div'); addr.className = 'opp-addr';
+        addr.textContent = l.address || '—';
+        const meta = document.createElement('div'); meta.className = 'opp-meta';
+        const util = inferUtilityType(l);
+        meta.textContent = [l.source || 'Market Scan', acresOf(l) != null ? acresOf(l) + ' ac' : null,
+          util ? STIPEND_LABELS[util] : null].filter(Boolean).join(' · ');
+        const reason = document.createElement('div'); reason.className = 'opp-reason';
+        reason.textContent = (ev.light === 'green' ? '✓ ' : '⚠ ') + ev.reasons.join(' · ');
+        main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+
+        const offer = document.createElement('div'); offer.className = 'opp-offer';
+        const oLbl = document.createElement('span'); oLbl.textContent = 'Suggested offer';
+        offer.appendChild(oLbl); offer.appendChild(document.createTextNode(money(ev.offer)));
+
+        const actions = document.createElement('div'); actions.className = 'opp-actions';
+        const add = document.createElement('button'); add.className = 'opp-btn-add'; add.textContent = 'Send Offer';
+        add.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+        const hold = document.createElement('button'); hold.className = 'opp-btn-hold'; hold.textContent = 'Hold';
+        hold.addEventListener('click', () => patchLot(l.id, { status: 'opportunity-hold' }));
+        const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Unsuitable';
+        skip.title = 'Remove permanently — will not be shown again';
+        skip.addEventListener('click', () => { if (confirm('Mark ' + (l.address || 'this lot') + ' unsuitable? It will be removed and never shown again.')) patchLot(l.id, { status: 'dismissed', dismissedAt: new Date().toISOString() }); });
+        actions.appendChild(add); actions.appendChild(hold); actions.appendChild(skip);
+
+        row.appendChild(badge); row.appendChild(main); row.appendChild(offer); row.appendChild(actions);
+        list.appendChild(row);
+      });
+
+      if (rejected.length) {
+        rejWrap.style.display = 'block';
+        rejWrap.querySelector('summary').textContent = '🔴 ' + rejected.length + ' auto-rejected (buy-box fail) — view reasons';
+        rejList.innerHTML = '';
+        rejected.forEach(({ l, ev }) => {
+          const r = document.createElement('div'); r.className = 'rej-row';
+          const b = document.createElement('b'); b.textContent = (l.address || '—') + ': ';
+          r.appendChild(b); r.appendChild(document.createTextNode(ev.reasons.join('; ')));
+          rejList.appendChild(r);
+        });
+      } else {
+        rejWrap.style.display = 'none';
+      }
+    }
+
+    // Re-offer Due — seller-declined lots whose 30-day review has come up.
+    function renderReoffer(lots) {
+      const block = document.getElementById('reofferBlock');
+      const list = document.getElementById('reofferList');
+      const now = Date.now();
+      const due = lots.filter(l => l.status === 'offer-denied'
+        && (!l.nextReviewAt || new Date(l.nextReviewAt).getTime() <= now))
+        .sort((a, b) => new Date(a.nextReviewAt || 0) - new Date(b.nextReviewAt || 0));
+      if (!due.length) { block.style.display = 'none'; return; }
+      block.style.display = 'block';
+      document.getElementById('reofferSub').textContent =
+        due.length + ' declined ' + (due.length === 1 ? 'lot is' : 'lots are') + ' due for a follow-up offer (still listed?).';
+      list.innerHTML = '';
+      due.forEach(l => {
+        const row = document.createElement('div');
+        row.className = 'opp-row yellow';
+        const main = document.createElement('div'); main.className = 'opp-main';
+        const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
+        const meta = document.createElement('div'); meta.className = 'opp-meta';
+        meta.textContent = 'Declined ' + (l.deniedAt ? new Date(l.deniedAt).toLocaleDateString() : '—')
+          + (typeof l.listPrice === 'number' ? ' · was asking ' + money(l.listPrice) : '');
+        const reason = document.createElement('div'); reason.className = 'opp-reason';
+        reason.textContent = '⚠ 30-day follow-up due — send another offer if still listed';
+        main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+        const actions = document.createElement('div'); actions.className = 'opp-actions';
+        const send = document.createElement('button'); send.className = 'opp-btn-add'; send.textContent = 'Send Update';
+        send.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+        const snooze = document.createElement('button'); snooze.className = 'opp-btn-hold'; snooze.textContent = 'Reviewed — 30d';
+        snooze.addEventListener('click', () => patchLot(l.id, { nextReviewAt: new Date(now + 30 * 86400000).toISOString() }));
+        const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Unsuitable';
+        skip.addEventListener('click', () => { if (confirm('Mark ' + (l.address || 'this lot') + ' unsuitable? It will be removed and never shown again.')) patchLot(l.id, { status: 'dismissed', dismissedAt: new Date().toISOString() }); });
+        actions.appendChild(send); actions.appendChild(snooze); actions.appendChild(skip);
+        row.appendChild(main); row.appendChild(actions);
+        list.appendChild(row);
+      });
+    }
+
+    // Realtor CRM — one row per listing agent/brokerage, with their lots.
+    const ACTIVE_OFFER = ['offer-sent', 'seller-signed', 'pending-ep-sig', 'ip', 'manager-driven', 'survey-rcvd', 'cd-approved', 'ctc'];
+    function renderRealtors(lots) {
+      const crm = document.getElementById('realtorCrm');
+      const rows = document.getElementById('realtorRows');
+      const map = new Map();
+      lots.forEach(l => {
+        const brokerage = (l.agentBrokerage || '').trim();
+        const name = (l.agentName || '').trim();
+        if (!brokerage && !name) return;
+        const key = (l.agentEmail || name || brokerage).toLowerCase().trim();
+        if (!map.has(key)) map.set(key, { name: '', brokerage: '', phone: '', email: '', lots: [] });
+        const e = map.get(key);
+        if (!e.name && name) e.name = name;
+        if (!e.brokerage && brokerage) e.brokerage = brokerage;
+        if (!e.phone && l.agentPhone) e.phone = l.agentPhone;
+        if (!e.email && l.agentEmail) e.email = l.agentEmail;
+        e.lots.push(l);
+      });
+      const realtors = Array.from(map.values()).sort((a, b) => b.lots.length - a.lots.length);
+      document.getElementById('realtorSummary').textContent = 'Realtor CRM — ' + realtors.length + ' contact' + (realtors.length === 1 ? '' : 's');
+      if (!realtors.length) { crm.style.display = 'none'; return; }
+      crm.style.display = 'block';
+      rows.innerHTML = '';
+      realtors.forEach(r => {
+        const tr = document.createElement('tr');
+        const c1 = document.createElement('td');
+        const nm = document.createElement('div'); nm.className = 'r-name'; nm.textContent = r.name || r.brokerage || '—';
+        c1.appendChild(nm);
+        if (r.name && r.brokerage) { const bk = document.createElement('div'); bk.className = 'r-brok'; bk.textContent = r.brokerage; c1.appendChild(bk); }
+        const c2 = document.createElement('td'); c2.className = 'r-contact';
+        c2.textContent = [r.phone, r.email].filter(Boolean).join(' · ') || 'No direct contact yet';
+        const c3 = document.createElement('td');
+        const cnt = document.createElement('span'); cnt.className = 'r-count'; cnt.textContent = r.lots.length; c3.appendChild(cnt);
+        const c4 = document.createElement('td'); c4.className = 'r-pipe';
+        const st = l => l.displayStatus || l.status;
+        const opps = r.lots.filter(l => l.status === 'opportunity').length;
+        const offers = r.lots.filter(l => ACTIVE_OFFER.includes(st(l))).length;
+        const closed = r.lots.filter(l => st(l) === 'closed').length;
+        c4.textContent = [opps ? opps + ' to offer' : null, offers ? offers + ' in progress' : null, closed ? closed + ' closed' : null].filter(Boolean).join(' · ') || '—';
+        tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4);
+        rows.appendChild(tr);
+      });
+    }
+
+    async function render() {
+      const lots = await loadLots();
+      renderOpportunities(lots);
+      renderReoffer(lots);
+      renderRealtors(lots);
+
+      // KPIs (live pipeline stages; Closed shows this-month only)
+      const count = st => lots.filter(l => l.displayStatus === st).length;
+      document.getElementById('kpiEpSig').textContent = count('pending-ep-sig');
+      document.getElementById('kpiIp').textContent = count('ip');
+      document.getElementById('kpiManager').textContent = count('manager-driven');
+      document.getElementById('kpiSurvey').textContent = count('survey-rcvd');
+      document.getElementById('kpiCd').textContent = count('cd-approved');
+      document.getElementById('kpiCtc').textContent = count('ctc');
+      const closedThisMonth = lots.filter(l => l.displayStatus === 'closed' && inMonth(closedDate(l), 0));
+      document.getElementById('kpiClosed').textContent = closedThisMonth.length;
+
+      // Target: accepted contracts this month
+      const acceptedThisMonth = lots.filter(l => ACCEPTED.includes(l.displayStatus) && inMonth(acceptedDate(l), 0)).length;
+      document.getElementById('targetCurrent').textContent = acceptedThisMonth;
+      document.getElementById('targetCheck').textContent = acceptedThisMonth >= 50 ? '✓' : '';
+
+      // Quick metrics
+      document.getElementById('mClosedMonth').textContent = closedThisMonth.length;
+      const pendingClose = lots.filter(l => PENDING_CLOSE.includes(l.displayStatus)).length;
+      document.getElementById('mPendingClose').textContent = pendingClose;
+      const scheduled = lots.filter(l => l.scheduledClose && new Date(l.scheduledClose) >= new Date(new Date().toDateString()) && l.displayStatus !== 'closed').length;
+      document.getElementById('mScheduled').textContent = scheduled;
+      const offersOut = lots.filter(l => ['offer-sent'].includes(l.displayStatus) || ACCEPTED.includes(l.displayStatus)).length;
+      const acceptedAll = lots.filter(l => ACCEPTED.includes(l.displayStatus)).length;
+      document.getElementById('mAcceptance').textContent = offersOut ? (acceptedAll / offersOut * 100).toFixed(1) + '%' : '—';
+      const closedAll = lots.filter(l => l.displayStatus === 'closed');
+      document.getElementById('mDays').textContent = closedAll.length
+        ? Math.round(closedAll.reduce((a, l) => a + Math.max(1, (new Date(closedDate(l)) - new Date(l.createdAt)) / 86400000), 0) / closedAll.length) + ' days'
+        : '—';
+
+      // New leads inbox (pending, pre-offer)
+      const newLeads = lots.filter(l => l.displayStatus === 'pending').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const nlBlock = document.getElementById('newLeadsBlock');
+      const nlList = document.getElementById('newLeadsList');
+      if (newLeads.length) {
+        nlBlock.style.display = 'block';
+        nlList.innerHTML = '';
+        newLeads.forEach(l => {
+          const row = document.createElement('div');
+          row.className = 'lead-row';
+          row.innerHTML = '<div><div class="l-addr"></div><div class="l-meta"></div></div><div class="l-cta">Make Offer &rarr;</div>';
+          row.querySelector('.l-addr').textContent = l.address || '—';
+          row.querySelector('.l-meta').textContent = (l.source || 'QR Landing Page') + ' · ' + (l.owner || [l.firstName, l.lastName].filter(Boolean).join(' ') || 'Owner');
+          row.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+          nlList.appendChild(row);
+        });
+      } else {
+        nlBlock.style.display = 'none';
+      }
+
+      // Closing calendar (this month + next)
+      renderCalendar(lots);
+
+      // Table — active contract lots only (drops off once closed/declined/pre-offer)
+      const filtered = applyFilters(lots).filter(l => ACTIVE.includes(l.displayStatus)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      if (currentPage > pages) currentPage = pages;
+      const rows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+      const tbody = document.getElementById('lotRows');
+      tbody.innerHTML = '';
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty">No lots match the current filters.</td></tr>';
+      }
+      rows.forEach(l => {
+        const tr = document.createElement('tr');
+        const st = l.displayStatus in PILL_LABELS ? l.displayStatus : 'pending';
+        tr.innerHTML = '<td class="addr"></td><td></td><td class="stipend-cell"></td><td><span class="pill ' + st + '">' + PILL_LABELS[st] + '</span></td>';
+        tr.children[0].textContent = l.address || '—';
+        tr.children[1].textContent = listPriceLabel(l);
+        // Stipend cell + over-stipend flag
+        const stip = lotStipend(l);
+        const offer = offerNumber(l);
+        const stipCell = tr.children[2];
+        if (stip == null) {
+          stipCell.textContent = '—';
+        } else {
+          stipCell.textContent = money(stip);
+          if (offer != null && offer > stip) {
+            const flag = document.createElement('span');
+            flag.className = 'over';
+            flag.textContent = 'OVER';
+            flag.title = 'Offer ' + money(offer) + ' exceeds the stipend';
+            stipCell.appendChild(flag);
+            tr.classList.add('over-stipend');
+          }
+        }
+        tr.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+        tbody.appendChild(tr);
+      });
+
+      // Pagination
+      const pager = document.getElementById('pager');
+      pager.innerHTML = '';
+      const mk = (label, page, opts = {}) => {
+        const b = document.createElement('button');
+        b.textContent = label;
+        if (opts.cur) b.classList.add('cur');
+        if (opts.disabled) b.disabled = true;
+        b.addEventListener('click', () => { currentPage = page; render(); });
+        pager.appendChild(b);
+      };
+      mk('Previous', Math.max(1, currentPage - 1), { disabled: currentPage === 1 });
+      for (let p = 1; p <= pages; p++) mk(String(p), p, { cur: p === currentPage });
+      mk('Next', Math.min(pages, currentPage + 1), { disabled: currentPage === pages });
+
+      const from = filtered.length ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
+      const to = Math.min(currentPage * PAGE_SIZE, filtered.length);
+      document.getElementById('showingCount').textContent = 'Showing ' + from + '-' + to + ' of ' + filtered.length + ' lots';
+
+      document.getElementById('footnote').style.display = 'none';
+    }
+
+    // Export to CSV
+    document.getElementById('exportCsv').addEventListener('click', () => {
+      const lots = applyFilters(lastLots);
+      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const head = ['Address','List Price','Stipend','Utility Type','Status','Source','Owner','Parcel','Offer','Created'];
+      const lines = [head.join(',')].concat(lots.map(l => {
+        const stip = lotStipend(l);
+        return [l.address, listPriceLabel(l), stip == null ? '' : money(stip), STIPEND_LABELS[inferUtilityType(l)] || '', PILL_LABELS[l.displayStatus] || l.displayStatus, l.source || 'QR Landing Page', l.owner || '', l.parcel || '', l.offer || '', l.createdAt].map(esc).join(',');
+      }));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'palm-bay-lot-pipeline.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // ---------- Import contacts (CSV) + Add Deal ----------
+    function importMsg(text, ok) {
+      const el = document.getElementById('importMsg');
+      el.textContent = text; el.className = 'import-msg ' + (ok ? 'ok' : 'err'); el.style.display = 'block';
+    }
+
+    // Persist a batch of new lots (server bulk-insert or local store), dedup by address.
+    async function importLots(newLots) {
+      if (!newLots.length) return { added: 0, duplicates: 0, failed: 0 };
+      if (mode === 'server') {
+        const res = await fetch(API_LOTS.replace('/lots', '/import'), {
+          method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, adminHeaders()),
+          body: JSON.stringify({ lots: newLots }), signal: AbortSignal.timeout(15000)
+        });
+        if (!res.ok) throw new Error('import failed: ' + res.status);
+        return await res.json();
+      }
+      // Local/demo mode
+      const store = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+      const have = new Set(store.map(l => (l.address || '').toLowerCase().replace(/[^a-z0-9]/g, '')));
+      let added = 0, duplicates = 0;
+      const now = Date.now();
+      newLots.forEach((l, i) => {
+        const key = (l.address || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!key) return;
+        if (have.has(key)) { duplicates++; return; }
+        have.add(key);
+        store.push(Object.assign({ id: now + i, status: 'opportunity', createdAt: new Date().toISOString() }, l));
+        added++;
+      });
+      localStorage.setItem(STORE_KEY, JSON.stringify(store));
+      return { added, duplicates, failed: 0 };
+    }
+
+    // Minimal CSV parser (handles quoted fields + embedded commas/quotes).
+    function parseCsv(text) {
+      const rows = []; let row = [], field = '', inQ = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQ) {
+          if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
+          else field += c;
+        } else if (c === '"') inQ = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; if (field !== '' || row.length) { row.push(field); rows.push(row); row = []; field = ''; } }
+        else field += c;
+      }
+      if (field !== '' || row.length) { row.push(field); rows.push(row); }
+      return rows;
+    }
+
+    function pick(obj, keys) { for (const k of keys) if (obj[k] != null && obj[k] !== '') return obj[k]; return ''; }
+
+    document.getElementById('importBtn').addEventListener('click', () => document.getElementById('csvFile').click());
+    document.getElementById('csvFile').addEventListener('change', async function() {
+      const file = this.files && this.files[0];
+      this.value = '';
+      if (!file) return;
+      try {
+        const rows = parseCsv(await file.text());
+        if (rows.length < 2) { importMsg('That CSV has no data rows.', false); return; }
+        const headers = rows[0].map(h => h.trim().toLowerCase());
+        const idx = {}; headers.forEach((h, i) => idx[h] = i);
+        const get = (r, names) => { for (const n of names) if (idx[n] != null) return (r[idx[n]] || '').trim(); return ''; };
+        const lots = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i]; if (!r.length || r.every(c => !String(c).trim())) continue;
+          const address = get(r, ['address', 'property address', 'site address']);
+          if (!address) continue;
+          const phone = get(r, ['owner phone', 'phone']);
+          const email = get(r, ['owner email', 'email']);
+          const mailing = get(r, ['mailing address', 'owner mailing address']);
+          const contact = [mailing, phone, email].filter(Boolean).join(' | ');
+          lots.push({
+            address,
+            owner: get(r, ['owner name', 'owner']),
+            ownerContact: contact || undefined,
+            lotSize: get(r, ['lot size', 'acres']) || undefined,
+            source: get(r, ['source']) || 'Imported Contact',
+            lotNote: get(r, ['notes', 'note']) || undefined,
+            status: 'opportunity'
+          });
+        }
+        if (!lots.length) { importMsg('No rows with a valid Address were found. Required column: Address.', false); return; }
+        importMsg('Importing ' + lots.length + ' contact' + (lots.length === 1 ? '' : 's') + '…', true);
+        const res = await importLots(lots);
+        importMsg('Imported ' + res.added + ' new · ' + res.duplicates + ' already in system' + (res.failed ? ' · ' + res.failed + ' failed' : '') + '.', true);
+        render();
+      } catch (e) {
+        importMsg('Could not read that file. Use a .csv with an Address column.', false);
+      }
+    });
+
+    // Add Deal modal
+    const dealOverlay = document.getElementById('addDealOverlay');
+    function openDeal() { dealOverlay.classList.add('show'); }
+    function closeDeal() { dealOverlay.classList.remove('show'); document.getElementById('addDealForm').reset(); document.getElementById('dErr').style.display = 'none'; }
+    document.getElementById('addDealBtn').addEventListener('click', openDeal);
+    document.getElementById('dCancel').addEventListener('click', closeDeal);
+    dealOverlay.addEventListener('click', e => { if (e.target === dealOverlay) closeDeal(); });
+    document.getElementById('addDealForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const address = document.getElementById('dAddress').value.trim();
+      if (!address) { document.getElementById('dErr').style.display = 'block'; return; }
+      const val = id => document.getElementById(id).value.trim();
+      const iso = d => d ? new Date(d + 'T12:00:00').toISOString() : undefined;
+      const listed = val('dListing') === 'listed';
+      const lot = {
+        address,
+        status: document.getElementById('dStage').value,
+        owner: val('dOwner') || undefined,
+        ownerContact: val('dOwnerContact') || undefined,
+        offer: val('dOffer') || undefined,
+        utilityType: val('dUtility') || undefined,
+        listingType: val('dListing'),
+        source: val('dSource') || 'Direct Mail',
+        agentName: listed ? (val('dAgentName') || undefined) : undefined,
+        agentBrokerage: listed ? (val('dAgentBrokerage') || undefined) : undefined,
+        acceptedAt: iso(val('dAccepted')),
+        scheduledClose: iso(val('dClose'))
+      };
+      try {
+        await importLots([lot]);
+        closeDeal();
+        importMsg('Deal added: ' + address, true);
+        render();
+      } catch (err) { document.getElementById('dErr').textContent = 'Could not add the deal — try again.'; document.getElementById('dErr').style.display = 'block'; }
+    });
+
+    // ---------- Postcard / QR batch ----------
+    const pcOverlay = document.getElementById('postcardOverlay');
+    function batchSlug() {
+      const n = document.getElementById('pcBatchName').value.trim();
+      return n ? n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : '';
+    }
+    function pcPoolLots() {
+      const pool = document.getElementById('pcPool').value;
+      if (pool === 'all') return lastLots.filter(l => ACTIVE.includes(l.displayStatus) && (l.ownerContact || l.owner));
+      return lastLots.filter(l => l.status === 'opportunity');
+    }
+    function refreshPostcard() {
+      const slug = batchSlug();
+      const lots = pcPoolLots();
+      document.getElementById('pcCount').textContent = lots.length + ' recipient' + (lots.length === 1 ? '' : 's') + ' in this batch.';
+      const img = document.getElementById('pcQrImg'), note = document.getElementById('pcQrNote'),
+        urlEl = document.getElementById('pcQrUrl'), dl = document.getElementById('pcQrDownload');
+      if (!slug) { img.style.display = 'none'; dl.style.display = 'none'; urlEl.textContent = ''; note.style.display = 'block'; note.textContent = 'Enter a batch name to generate the QR.'; return; }
+      const trackUrl = location.origin + '/land-acq-pro/?b=' + slug;
+      const qrSrc = '/api/land-acq/qr?size=600&data=' + encodeURIComponent(trackUrl);
+      img.src = qrSrc; img.style.display = 'inline-block';
+      note.style.display = 'none';
+      urlEl.textContent = trackUrl;
+      dl.href = qrSrc; dl.download = 'qr-' + slug + '.png'; dl.style.display = 'inline-block';
+    }
+    document.getElementById('postcardBtn').addEventListener('click', () => { pcOverlay.classList.add('show'); refreshPostcard(); });
+    document.getElementById('pcCancel').addEventListener('click', () => pcOverlay.classList.remove('show'));
+    pcOverlay.addEventListener('click', e => { if (e.target === pcOverlay) pcOverlay.classList.remove('show'); });
+    document.getElementById('pcBatchName').addEventListener('input', refreshPostcard);
+    document.getElementById('pcPool').addEventListener('change', refreshPostcard);
+    document.getElementById('pcFront').addEventListener('change', function () { if (this.files[0]) document.getElementById('pcArtNote').textContent = 'Front: ' + this.files[0].name + ' ✓ (stored by name for now)'; });
+    document.getElementById('pcBack').addEventListener('change', function () { if (this.files[0]) document.getElementById('pcArtNote').textContent = 'Back: ' + this.files[0].name + ' ✓ (stored by name for now)'; });
+
+    document.getElementById('pcMailingList').addEventListener('click', () => {
+      const lots = pcPoolLots();
+      if (!lots.length) { importMsg('No recipients in this batch yet.', false); return; }
+      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const head = ['Owner Name', 'Mailing / Contact', 'Property Address', 'Parcel', 'Lot Size'];
+      const lines = [head.join(',')].concat(lots.map(l =>
+        [l.owner || '', l.ownerContact || '', l.address || '', l.parcel || '', l.lotSize || ''].map(esc).join(',')));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = 'mailing-list-' + (batchSlug() || 'batch') + '.csv'; a.click(); URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('pcQrSheet').addEventListener('click', () => {
+      const slug = batchSlug();
+      if (!slug) { importMsg('Enter a batch name first.', false); return; }
+      const lots = pcPoolLots();
+      const w = window.open('', '_blank');
+      if (!w) return;
+      const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const cards = lots.map(l => {
+        const track = location.origin + '/land-acq-pro/?b=' + slug + '&p=' + l.id;
+        const qr = '/api/land-acq/qr?size=360&data=' + encodeURIComponent(track);
+        return '<div class="c"><img src="' + qr + '"><div class="a">' + esc(l.address) + '</div><div class="o">' + esc(l.owner || '') + '</div><div class="m">' + esc(l.ownerContact || '') + '</div></div>';
+      }).join('');
+      w.document.write('<!doctype html><meta charset="utf-8"><title>QR Sheet — ' + esc(slug) + '</title>' +
+        '<style>body{font-family:Arial,sans-serif;margin:24px;color:#1a1a1a}h1{color:#003d66;font-size:20px}' +
+        '.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.c{border:1px solid #ccc;border-radius:8px;padding:12px;text-align:center;page-break-inside:avoid}' +
+        '.c img{width:150px;height:150px}.a{font-weight:700;font-size:13px;margin-top:6px}.o{font-size:12px;color:#333}.m{font-size:11px;color:#667}' +
+        '@media print{.no-print{display:none}}</style>' +
+        '<h1>Postcard QR Sheet — ' + esc(slug) + ' (' + lots.length + ')</h1>' +
+        '<p class="no-print">Each QR is unique to its property for per-lot scan tracking. Print, or use for variable-data mailing.</p>' +
+        '<div class="grid">' + cards + '</div>');
+      w.document.close();
+    });
+
+    // ---------- Stipend settings (shared, audit-logged) ----------
+    async function loadStipends() {
+      if (mode === 'server') {
+        try {
+          const res = await fetch(API_SETTINGS, { headers: adminHeaders(), signal: AbortSignal.timeout(9000) });
+          if (res.ok) {
+            const body = await res.json();
+            stipendState = { defaults: Object.assign({}, DEFAULT_STIPENDS, body.defaults), audit: body.audit || [] };
+            return;
+          }
+        } catch (e) { /* fall through to local */ }
+      }
+      const raw = localStorage.getItem(STIPEND_KEY);
+      stipendState = raw ? JSON.parse(raw) : { defaults: Object.assign({}, DEFAULT_STIPENDS), audit: [] };
+    }
+
+    async function saveStipends(nextDefaults) {
+      const changedBy = currentUser();
+      const when = new Date().toISOString();
+      if (mode === 'server') {
+        const res = await fetch(API_SETTINGS, {
+          method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, adminHeaders()),
+          body: JSON.stringify({ defaults: nextDefaults, changedBy }), signal: AbortSignal.timeout(9000)
+        });
+        if (!res.ok) throw new Error('save failed');
+        stipendState = await res.json();
+        return;
+      }
+      // Offline demo: record audit entries locally.
+      const audit = stipendState.audit.slice();
+      Object.keys(nextDefaults).forEach(key => {
+        const from = Number(stipendState.defaults[key] ?? DEFAULT_STIPENDS[key]);
+        if (from !== nextDefaults[key]) audit.unshift({ key, from, to: nextDefaults[key], changedBy, when });
+      });
+      stipendState = { defaults: nextDefaults, audit: audit.slice(0, 200) };
+      localStorage.setItem(STIPEND_KEY, JSON.stringify(stipendState));
+    }
+
+    function renderStipends() {
+      const grid = document.getElementById('stipendGrid');
+      grid.innerHTML = '';
+      Object.keys(DEFAULT_STIPENDS).forEach(key => {
+        const tile = document.createElement('div');
+        tile.className = 'stipend-tile';
+        tile.innerHTML = '<div class="st-lbl"></div><div class="st-val"></div>';
+        tile.children[0].textContent = STIPEND_LABELS[key];
+        tile.children[1].textContent = money(stipendState.defaults[key]);
+        grid.appendChild(tile);
+      });
+      // Last-updated timestamp
+      const upd = document.getElementById('stipendUpdated');
+      if (stipendState.audit.length) {
+        const a = stipendState.audit[0];
+        upd.innerHTML = 'Last updated <b>' + new Date(a.when).toLocaleString() + '</b> by <b>' + a.changedBy + '</b>';
+      } else {
+        upd.textContent = 'Default stipend schedule — no changes yet.';
+      }
+      // Audit list
+      const list = document.getElementById('stipendAuditList');
+      list.innerHTML = '';
+      if (!stipendState.audit.length) {
+        list.innerHTML = '<li class="empty">No changes recorded yet.</li>';
+      } else {
+        stipendState.audit.forEach(a => {
+          const li = document.createElement('li');
+          const d = new Date(a.when).toLocaleString();
+          li.innerHTML = '<b></b> changed <b></b> from <span></span> to <span></span> &middot; <span></span>';
+          li.children[0].textContent = a.changedBy;
+          li.children[1].textContent = STIPEND_LABELS[a.key] || a.key;
+          li.children[2].textContent = money(a.from);
+          li.children[3].textContent = money(a.to);
+          li.children[4].textContent = d;
+          list.appendChild(li);
+        });
+      }
+    }
+
+    document.getElementById('stipendEditBtn').addEventListener('click', () => {
+      const fields = document.getElementById('stipendFields');
+      fields.innerHTML = '';
+      Object.keys(DEFAULT_STIPENDS).forEach(key => {
+        const wrap = document.createElement('div');
+        wrap.className = 'stipend-field';
+        wrap.innerHTML = '<label></label><input type="number" min="0" step="500">';
+        wrap.querySelector('label').textContent = STIPEND_LABELS[key] + ' ($)';
+        const input = wrap.querySelector('input');
+        input.value = stipendState.defaults[key];
+        input.dataset.key = key;
+        fields.appendChild(wrap);
+      });
+      document.getElementById('stipendForm').style.display = 'block';
+      document.getElementById('stipendEditBtn').style.display = 'none';
+    });
+
+    document.getElementById('stipendCancel').addEventListener('click', () => {
+      document.getElementById('stipendForm').style.display = 'none';
+      document.getElementById('stipendEditBtn').style.display = '';
+      document.getElementById('stipendMsg').className = 'stipend-msg';
+    });
+
+    document.getElementById('stipendForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const msg = document.getElementById('stipendMsg');
+      const next = {};
+      let valid = true;
+      this.querySelectorAll('input[data-key]').forEach(inp => {
+        const n = Number(inp.value);
+        if (!Number.isFinite(n) || n < 0) valid = false;
+        next[inp.dataset.key] = Math.round(n);
+      });
+      if (!valid) { msg.className = 'stipend-msg err'; msg.textContent = 'Please enter valid amounts.'; return; }
+      const btn = this.querySelector('button[type=submit]');
+      btn.disabled = true;
+      try {
+        await saveStipends(next);
+        renderStipends();
+        render();
+        msg.className = 'stipend-msg ok';
+        msg.textContent = 'Saved by ' + currentUser() + '. Change recorded in history.';
+        document.getElementById('stipendForm').style.display = 'none';
+        document.getElementById('stipendEditBtn').style.display = '';
+      } catch (err) {
+        msg.className = 'stipend-msg err';
+        msg.textContent = 'Could not save — please try again.';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // Export to PDF via the browser print dialog
+    document.getElementById('exportPdf').addEventListener('click', () => window.print());
+
+    document.getElementById('refreshBtn').addEventListener('click', render);
+    ['fStatus','fDays','fSource'].forEach(id =>
+      document.getElementById(id).addEventListener('change', () => { currentPage = 1; render(); })
+    );
+
+    function applyUser() {
+      const name = currentUser();
+      const parts = name.split(' ');
+      document.querySelector('.topbar .avatar').textContent = (parts[0][0] || '') + (parts[1] ? parts[1][0] : '');
+      document.querySelector('.topbar .who div:last-child').innerHTML = name + ' |<br>Palm Bay Division';
+    }
+
+    async function boot() {
+      document.getElementById('gateOverlay').style.display = 'none';
+      document.getElementById('modeBanner').style.display = mode === 'local' ? 'block' : 'none';
+      applyUser();
+      if (mode === 'local') seedIfNeeded();
+      await loadStipends();
+      renderStipends();
+      render();
+      setInterval(async () => { await loadStipends(); renderStipends(); render(); }, 5000);
+    }
+
+    document.getElementById('gateForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const password = document.getElementById('gatePassword').value;
+      const role = document.getElementById('gateRole').value;
+      const errEl = document.getElementById('gateError');
+      if (!password) { errEl.style.display = 'block'; return; }
+      errEl.style.display = 'none';
+      const btn = this.querySelector('button');
+      btn.disabled = true;
+      const label = btn.textContent;
+      btn.textContent = 'Checking…';
+      const result = await verifyPassword(password);
+      btn.disabled = false;
+      btn.textContent = label;
+      if (result === 'invalid') { errEl.style.display = 'block'; return; }
+      sessionStorage.setItem('laAdminKey', password);
+      sessionStorage.setItem('laMode', result);
+      sessionStorage.setItem('laRole', role);
+      mode = result;
+      boot();
+    });
+
+    // Already unlocked this session?
+    if (sessionStorage.getItem('laAdminKey')) {
+      mode = sessionStorage.getItem('laMode') || 'local';
+      boot();
+    }
+  </script>
+</body>
+</html>

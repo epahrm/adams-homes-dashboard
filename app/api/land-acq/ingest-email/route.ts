@@ -1,0 +1,113 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { ImapFlow } from 'imapflow'
+import { simpleParser } from 'mailparser'
+import { pool, ensureTable, isAdmin, addressKey } from '@/lib/land-acq-db'
+import { parseListingEmail } from '@/lib/land-acq-email'
+import { scoreBuyBox } from '@/lib/land-acq-buybox'
+
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
+// Reads saved-search alert emails from the dedicated Gmail (the sanctioned way
+// to cover portals that prohibit scraping — we only read mail sent to us),
+// parses each listing, scores it against the buy box, and files the matches as
+// 'opportunity' lots for Kevin's dashboard. Triggered daily by Vercel Cron.
+
+const GMAIL_USER = process.env.LANDACQ_GMAIL_USER
+const GMAIL_PASS = process.env.LANDACQ_GMAIL_APP_PASSWORD
+const CRON_SECRET = process.env.CRON_SECRET
+
+function authorized(req: NextRequest): boolean {
+  if (isAdmin(req.headers.get('x-admin-key'))) return true
+  const auth = req.headers.get('authorization') || ''
+  return !!CRON_SECRET && auth === `Bearer ${CRON_SECRET}`
+}
+
+export async function GET(req: NextRequest) {
+  if (!authorized(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  if (!GMAIL_USER || !GMAIL_PASS) {
+    return NextResponse.json({
+      configured: false,
+      message:
+        'Set LANDACQ_GMAIL_USER and LANDACQ_GMAIL_APP_PASSWORD in the environment to enable the email scan.',
+    })
+  }
+
+  const client = new ImapFlow({
+    host: 'imap.gmail.com',
+    port: 993,
+    secure: true,
+    auth: { user: GMAIL_USER, pass: GMAIL_PASS },
+    logger: false,
+  })
+
+  let scanned = 0
+  let added = 0
+  let rejected = 0
+  let duplicates = 0
+  const byLight: Record<string, number> = { green: 0, yellow: 0, red: 0 }
+
+  try {
+    await ensureTable()
+    await client.connect()
+    const lock = await client.getMailboxLock('INBOX')
+    try {
+      // Only unread messages, so each alert is processed once.
+      const uids = await client.search({ seen: false }, { uid: true })
+      for (const uid of uids || []) {
+        const msg = await client.fetchOne(String(uid), { source: true }, { uid: true })
+        if (!msg || !msg.source) continue
+        const mail = await simpleParser(msg.source as Buffer)
+        const from = mail.from?.text || ''
+        const listings = parseListingEmail({
+          from,
+          subject: mail.subject || '',
+          html: typeof mail.html === 'string' ? mail.html : '',
+          text: mail.text || '',
+        })
+        for (const li of listings) {
+          scanned++
+          const triage = scoreBuyBox({ address: li.address, acres: li.acres ?? undefined, listPrice: li.listPrice ?? undefined })
+          byLight[triage.light]++
+          if (triage.light === 'red') { rejected++; continue }
+          const data = {
+            source: 'Portal Alert · ' + li.source,
+            listPrice: li.listPrice,
+            acres: li.acres,
+            url: li.url,
+            listStatus: 'Active Listing',
+            mls: li.mls,
+            agentBrokerage: li.brokerage,
+            offerSuggested: triage.offer,
+            scanLight: triage.light,
+            scanReasons: triage.reasons,
+            addedBy: 'email-scan',
+            sourceEmail: from,
+          }
+          const res = await pool.query(
+            `INSERT INTO land_acq_lots (address, address_key, status, data)
+             VALUES ($1, $2, 'opportunity', $3)
+             ON CONFLICT (address_key) DO NOTHING RETURNING id`,
+            [li.address, addressKey(li.address), JSON.stringify(data)]
+          )
+          if (res.rows.length) added++
+          else duplicates++
+        }
+        // Mark handled so we don't re-scan it next run.
+        await client.messageFlagsAdd(String(uid), ['\\Seen'], { uid: true })
+      }
+    } finally {
+      lock.release()
+    }
+    await client.logout()
+  } catch (e) {
+    console.error('[land-acq] email ingest failed:', e)
+    try { await client.logout() } catch { /* already closed */ }
+    return NextResponse.json({ error: 'ingest_failed', detail: String(e) }, { status: 502 })
+  }
+
+  return NextResponse.json({ configured: true, scanned, added, duplicates, rejected, byLight })
+}

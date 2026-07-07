@@ -71,7 +71,8 @@
       "Bash(node -e ' *)",
       "Bash(curl -s https://adams-homes-dashboard.vercel.app/api/env-test)",
       "Bash(curl -s https://adams-homes-dashboard.vercel.app/api/db-test)",
-      "Bash(python3 -m json.tool)"
+      "Bash(python3 -m json.tool)",
+      "mcp__bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a__send_later"
     ]
   }
 }
