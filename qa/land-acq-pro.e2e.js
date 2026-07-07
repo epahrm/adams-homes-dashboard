@@ -196,6 +196,17 @@ async function noHorizontalOverflow(page) {
       await page.locator('#offerFollowBlock').isVisible());
     check('offer follow-up shows a computed due date',
       /follow-up due/i.test(await page.textContent('#offerFollowList')));
+    // Secondary action button (e.g. "Followed up — 3d") has a distinct filled
+    // background so the two buttons stand apart.
+    check('secondary action button has a distinct filled background',
+      (await page.locator('#offerFollowList .opp-btn-hold').first().evaluate(el => getComputedStyle(el).backgroundColor)) === 'rgb(232, 150, 60)');
+
+    // ---------- Receipt upload on mailing costs ----------
+    check('receipt upload control present on mailing modal',
+      (await page.locator('#mReceiptBtn').count()) === 1 && (await page.locator('#mReceiptFile').count()) === 1);
+    const rcptAccept = await page.getAttribute('#mReceiptFile', 'accept');
+    check('receipt input accepts pdf and images',
+      /pdf/i.test(rcptAccept) && /(image|jpe?g)/i.test(rcptAccept));
 
     // ---------- Data sync to admin ----------
     const leadsText = await page.textContent('#newLeadsBlock');
