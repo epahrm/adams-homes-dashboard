@@ -10,13 +10,27 @@ import {
   SCORE_ANCHORS,
   ADVANCEMENT,
   SESSION_SLOTS,
+  DEFAULT_QUESTIONS,
 } from '@/lib/interview-db'
 
 export const dynamic = 'force-dynamic'
 
 // Public: active interview questions (used by interview.html and live.html)
-// plus the shared constants the front-end pages need.
+// plus the shared constants the front-end pages need. Everything except the
+// video-question list is a constant, and the default question set matches
+// what a fresh database seeds (ids 1-5) — so this endpoint always answers,
+// even if the database is unreachable, and the application form never
+// blocks on connectivity.
 export async function GET() {
+  const constants = {
+    competencies: COMPETENCIES,
+    divisions: DIVISIONS,
+    appQuestions: APP_QUESTIONS,
+    managers: MANAGERS,
+    scoreAnchors: SCORE_ANCHORS,
+    advancement: ADVANCEMENT,
+    sessionSlots: SESSION_SLOTS,
+  }
   try {
     await ensureTables()
     const result = await pool.query(
@@ -32,17 +46,23 @@ export async function GET() {
         prepSeconds: q.prep_seconds,
         answerSeconds: q.answer_seconds,
       })),
-      competencies: COMPETENCIES,
-      divisions: DIVISIONS,
-      appQuestions: APP_QUESTIONS,
-      managers: MANAGERS,
-      scoreAnchors: SCORE_ANCHORS,
-      advancement: ADVANCEMENT,
-      sessionSlots: SESSION_SLOTS,
+      ...constants,
     })
   } catch (e) {
-    console.error('[interview] GET questions failed:', e)
-    return NextResponse.json({ error: 'Database unavailable' }, { status: 503 })
+    console.error('[interview] GET questions failed, serving defaults:', e)
+    return NextResponse.json({
+      questions: DEFAULT_QUESTIONS.map((q, i) => ({
+        id: i + 1,
+        ord: i + 1,
+        competency: q.competency,
+        text: q.text,
+        listenFor: q.listenFor,
+        prepSeconds: q.prepSeconds,
+        answerSeconds: q.answerSeconds,
+      })),
+      ...constants,
+      dbFallback: true,
+    })
   }
 }
 

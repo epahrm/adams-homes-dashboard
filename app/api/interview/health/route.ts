@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { pool, ensureTables } from '@/lib/interview-db'
+import { pool, ensureTables, dbTarget } from '@/lib/interview-db'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   const report: Record<string, unknown> = {
     env_DATABASE_URL: !!process.env.DATABASE_URL,
+    target: dbTarget(),
     node: process.version,
   }
   try {

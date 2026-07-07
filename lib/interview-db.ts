@@ -35,6 +35,16 @@ export function isAdmin(key: string | null | undefined): boolean {
   return !!key && key === ADMIN_KEY
 }
 
+// Sanitized connection target (no password) for the health endpoint.
+export function dbTarget(): { host: string; port: string; user: string } {
+  try {
+    const u = new URL(databaseUrl)
+    return { host: u.hostname, port: u.port, user: u.username }
+  } catch {
+    return { host: 'unparseable', port: '', user: '' }
+  }
+}
+
 const globalForPool = global as unknown as {
   interviewPool?: Pool
   interviewTablesReady?: Promise<unknown>
