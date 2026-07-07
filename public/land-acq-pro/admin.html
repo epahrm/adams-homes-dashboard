@@ -326,10 +326,12 @@
         <h2>Palm Bay Lot Pipeline</h2>
         <div class="pipeline-tools">
           <button class="btn-navy" id="addDealBtn">+ Add Deal / Contract</button>
+          <button class="btn-navy" id="contractBtn">Upload Contract (PDF)</button>
           <button class="btn-green" id="importBtn">Import Contacts (CSV)</button>
           <button class="btn-navy" id="sweepBtn">Off-Market Sweep</button>
           <button class="btn-outline" id="postcardBtn">Postcards / QR</button>
           <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
+          <input type="file" id="contractFile" accept="application/pdf,.pdf" style="display:none">
         </div>
       </div>
       <div class="import-msg" id="importMsg" style="display:none;"></div>
@@ -2005,6 +2007,36 @@
     function closeDeal() { dealOverlay.classList.remove('show'); document.getElementById('addDealForm').reset(); document.getElementById('dErr').style.display = 'none'; }
     document.getElementById('addDealBtn').addEventListener('click', openDeal);
     document.getElementById('dCancel').addEventListener('click', closeDeal);
+
+    // ---------- Upload Contract (PDF) -> read -> pre-fill Add Deal for review ----------
+    document.getElementById('contractBtn').addEventListener('click', () => document.getElementById('contractFile').click());
+    document.getElementById('contractFile').addEventListener('change', async function() {
+      const file = this.files && this.files[0]; this.value = '';
+      if (!file) return;
+      importMsg('Reading “' + file.name + '”…', true);
+      try {
+        const fd = new FormData(); fd.append('file', file);
+        const res = await fetch(API_LOTS.replace('/lots', '/parse-contract'), {
+          method: 'POST', headers: adminHeaders(), body: fd, signal: AbortSignal.timeout(30000)
+        });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) { importMsg(j.error || 'Could not read that PDF — use Add Deal to enter it manually.', false); return; }
+        const f = j.fields || {};
+        openDeal();
+        document.getElementById('dAddress').value = f.address || '';
+        document.getElementById('dOwner').value = f.owner || '';
+        if (f.offer) document.getElementById('dOffer').value = f.offer;
+        document.getElementById('dStage').value = 'offer-sent';   // a contract means an offer is out
+        if (f.legal) document.getElementById('dOwnerContact').value = 'Legal: ' + f.legal;
+        const got = ['address', 'owner', 'offer', 'legal'].filter(k => f[k]).length;
+        importMsg(got
+          ? 'Read “' + (j.fileName || file.name) + '”. Review the pre-filled details' + (f.legal ? ' (legal: ' + f.legal + ')' : '') + ', pick the stage, and confirm to add it.'
+          : (j.note || 'Couldn’t auto-detect the fields — enter them below and save.'), true);
+      } catch (e) {
+        importMsg('Could not read that PDF — use Add Deal to enter it manually.', false);
+      }
+    });
+
     dealOverlay.addEventListener('click', e => { if (e.target === dealOverlay) closeDeal(); });
     document.getElementById('addDealForm').addEventListener('submit', async function(e) {
       e.preventDefault();
