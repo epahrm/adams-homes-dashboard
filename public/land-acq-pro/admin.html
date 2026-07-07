@@ -96,6 +96,11 @@
     .opp-row.red { border-left-color: #c0392b; }
     .opp-row.red .opp-reason { color: #c0392b; font-weight: 600; }
     .opp-empty { color: #6b7d90; font-size: 13px; font-style: italic; padding: 6px 2px; }
+    .opps-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .sweep-btn { padding: 8px 14px; font-size: 13px; font-weight: 600; min-height: 40px; }
+    .sweep-msg { font-size: 13px; margin: 8px 0 4px; padding: 8px 10px; border-radius: 6px; background: #eef4fb; color: #244; }
+    .sweep-msg.ok { background: #e8f2ec; color: #14401d; }
+    .sweep-msg.warn { background: #fdf3e6; color: #8a5200; }
     .opp-main { flex: 1; min-width: 0; }
     .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; }
     .opp-meta { font-size: 13px; color: #667; margin-top: 2px; }
@@ -435,7 +440,11 @@
       <!-- Buy-box opportunities: respond to every one (Send Offer or Unsuitable) -->
       <!-- ON-MARKET box: listed lots within stipend + $10k -->
       <div class="opps" id="oppsOnMarket" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
-        <h3 style="color:#0a4f8e;">On-Market Opportunities <span>&mdash; listed lots in the buy box · respond to each</span></h3>
+        <div class="opps-head">
+          <h3 style="color:#0a4f8e;">On-Market Opportunities <span>&mdash; listed lots in the buy box · respond to each</span></h3>
+          <button type="button" class="btn-outline sweep-btn" id="sweepNowBtn">Sweep Now</button>
+        </div>
+        <div class="sweep-msg" id="sweepMsg" style="display:none;"></div>
         <div class="opps-sub" id="onMktSub"></div>
         <div id="onMktList"></div>
       </div>
@@ -1932,6 +1941,32 @@
     document.getElementById('addMailBtn').addEventListener('click', () => opsModal('mailOverlay').classList.add('show'));
     document.getElementById('addCancelBtn').addEventListener('click', () => opsModal('cancelOverlay').classList.add('show'));
     document.getElementById('reviewCancelBtn').addEventListener('click', () => opsModal('cancelReviewOverlay').classList.add('show'));
+
+    // Manual on-market sweep: read the saved-search inbox now and file matches.
+    document.getElementById('sweepNowBtn').addEventListener('click', async function() {
+      const btn = this, msg = document.getElementById('sweepMsg'), label = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Sweeping…';
+      msg.style.display = 'block'; msg.className = 'sweep-msg'; msg.textContent = 'Checking the on-market inbox…';
+      try {
+        const res = await fetch('/api/land-acq/ingest-email', { headers: adminHeaders(), signal: AbortSignal.timeout(60000) });
+        const j = await res.json().catch(() => ({}));
+        if (j.configured === false) {
+          msg.className = 'sweep-msg warn';
+          msg.textContent = 'On-market feed isn’t connected yet — add the dedicated Gmail credentials in Vercel (see the on-market setup guide) to go live.';
+        } else if (res.ok) {
+          msg.className = 'sweep-msg ok';
+          msg.textContent = 'Swept: ' + (j.added || 0) + ' new · ' + (j.duplicates || 0) + ' already had · ' + (j.rejected || 0) + ' outside the buy box.';
+          render();
+        } else {
+          msg.className = 'sweep-msg warn';
+          msg.textContent = 'Sweep failed — ' + (j.error || 'please try again shortly') + '.';
+        }
+      } catch (e) {
+        msg.className = 'sweep-msg warn';
+        msg.textContent = 'Could not reach the feed — check the connection and try again.';
+      }
+      btn.disabled = false; btn.textContent = label;
+    });
 
     // Subscription receipt/invoice upload: read a PDF/JPEG and pre-fill what we
     // can (vendor→name, total→cost, date→renewal). File is attached by name.

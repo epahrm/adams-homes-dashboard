@@ -190,6 +190,8 @@ async function noHorizontalOverflow(page) {
       await page.locator('#oppsOnMarket').isVisible());
     check('off-market opportunities box visible (empty-state ok)',
       await page.locator('#oppsOffMarket').isVisible());
+    check('on-market Sweep Now control present',
+      await page.locator('#sweepNowBtn').isVisible());
 
     // ---------- Offer Follow-Up Due (offer sent 3+ days, no movement) ----------
     check('offer follow-up block shows for a stale offer-sent lot',
