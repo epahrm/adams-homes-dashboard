@@ -92,9 +92,12 @@
     .section .lede { text-align: center; color: var(--muted); font-size: 17px; max-width: 560px; margin: 0 auto 8px; }
 
     /* Why Adams Homes bullets — centered under the heading */
-    .why-list { max-width: 620px; margin: 22px auto 0; list-style: none; text-align: center; }
-    .why-list li { margin-bottom: 14px; font-size: 18px; color: #333; line-height: 1.5; }
-    .why-list li::before { content: '•  '; color: var(--red); font-weight: 700; }
+    .why-grid { display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 900px; margin: 26px auto 0; text-align: left; }
+    @media (min-width: 760px) { .why-grid { grid-template-columns: 1fr 1fr; } }
+    .why-item { display: flex; gap: 15px; align-items: flex-start; background: #fff; border: 1px solid #e6e9ee; border-left: 4px solid var(--blue); border-radius: 12px; padding: 20px 22px; box-shadow: 0 3px 14px rgba(3,20,38,0.06); }
+    .why-item .why-ic { font-size: 26px; line-height: 1; flex-shrink: 0; }
+    .why-item b { display: block; color: var(--blue); font-size: 17px; margin-bottom: 4px; letter-spacing: -0.2px; }
+    .why-item span { display: block; color: #556; font-size: 14.5px; line-height: 1.45; }
 
     /* Value props */
     .values { display: grid; gap: 22px; grid-template-columns: 1fr; margin-top: 12px; }
@@ -216,7 +219,7 @@
         <div class="hero-copy">
           <div class="eyebrow">Palm Bay Vacant Land</div>
           <h1>Turn Your Empty Lot Into Cash</h1>
-          <p class="subtitle">One of America's largest homebuilders, Adams Homes buys vacant residential lots directly &mdash; with our own cash. No agents, no fees, no banks, no waiting. Get a fair cash offer and close in days, not months.</p>
+          <p class="subtitle">One of America's largest homebuilders, Adams Homes buys vacant residential lots directly. No agents, no fees, no banks, no waiting. Get a cash offer that closes in days, not months.</p>
           <div class="hero-ctas">
             <a class="hero-cta primary" href="#start">See My Cash Offer</a>
             <a class="hero-cta ghost" href="#why">Why Adams Homes</a>
@@ -227,7 +230,7 @@
           <div class="hc-row">No agents, brokers, or commissions</div>
           <div class="hc-row">No financing &mdash; funds ready now</div>
           <div class="hc-row">We handle all the paperwork</div>
-          <div class="hc-figure"><div class="lbl">Typical response</div><div class="amt">Within 24 hours</div></div>
+          <div class="hc-figure"><div class="lbl">Offers sent Mon&ndash;Fri</div><div class="amt">Let's Get Started</div></div>
         </div>
       </div>
     </div>
@@ -247,12 +250,12 @@
   <section class="section" id="why">
     <div class="container">
       <h2>Why Adams Homes?</h2>
-      <ul class="why-list">
-        <li>One of America's largest homebuilders &mdash; 50,000+ homes across 28 markets</li>
-        <li>We buy with our own cash &mdash; no banks, no financing, no delays</li>
-        <li>We've purchased more than 75,000 lots nationwide</li>
-        <li>A full-time local team, backed by national resources</li>
-      </ul>
+      <div class="why-grid">
+        <div class="why-item"><span class="why-ic">&#127942;</span><div><b>65,000+ homes built</b><span>One of America's largest homebuilders &mdash; across 28 markets.</span></div></div>
+        <div class="why-item"><span class="why-ic">&#9889;</span><div><b>No banks, no financing, no delays</b><span>Nothing to wait on &mdash; we move fast and keep it simple.</span></div></div>
+        <div class="why-item"><span class="why-ic">&#128205;</span><div><b>75,000+ lots purchased</b><span>We've done this nationwide, many times over.</span></div></div>
+        <div class="why-item"><span class="why-ic">&#129309;</span><div><b>A full-time local team</b><span>Right here in Palm Bay, with a proven reputation.</span></div></div>
+      </div>
     </div>
   </section>
 
