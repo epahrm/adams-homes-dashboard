@@ -25,5 +25,7 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  // Include '/' explicitly — the negative-lookahead matcher alone does not run
+  // middleware on the bare root path.
+  matcher: ['/', '/((?!_next/static|_next/image|favicon.ico).*)'],
 }
