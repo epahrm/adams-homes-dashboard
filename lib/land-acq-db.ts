@@ -111,5 +111,10 @@ export function isAdmin(key: string | null): boolean {
 }
 
 export function addressKey(address: string): string {
-  return address.toLowerCase().replace(/[^a-z0-9]/g, '')
+  return address
+    .toLowerCase()
+    // Drop a trailing city/state/zip so the same lot dedupes whether it arrives
+    // as "951 Weslaco St SE" or "951 Weslaco St SE, Palm Bay, FL 32909".
+    .replace(/,?\s*(?:palm bay|west melbourne|melbourne|malabar|grant|valkaria)?\s*,?\s*fl\s*\d{5}(?:-\d{4})?\s*$/i, '')
+    .replace(/[^a-z0-9]/g, '')
 }

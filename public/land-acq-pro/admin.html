@@ -156,9 +156,10 @@
 
     /* Table */
     .table-wrap { overflow-x: auto; margin-bottom: 18px; }
-    table { width: 100%; border-collapse: collapse; min-width: 340px; }
-    thead th { text-align: left; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: white; padding: 12px 10px; background: #003d66; }
-    tbody td { padding: 16px 10px; border-bottom: 1px solid #e2e2e2; font-size: 16px; vertical-align: middle; }
+    table { width: 100%; max-width: 900px; border-collapse: collapse; min-width: 340px; }
+    thead th:first-child, tbody td:first-child { width: 46%; }
+    thead th { text-align: left; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: white; padding: 10px 12px; background: #003d66; }
+    tbody td { padding: 10px 12px; border-bottom: 1px solid #e8e8e8; font-size: 15px; vertical-align: middle; }
     tbody tr { cursor: pointer; }
     tbody tr:hover { background: #f0f5fa; }
     tbody tr:nth-child(odd) { background: #fafafa; }
@@ -336,6 +337,12 @@
       </div>
       <div class="import-msg" id="importMsg" style="display:none;"></div>
 
+      <!-- New leads (QR + research requests) — first thing Kevin sees on login -->
+      <div class="newleads" id="newLeadsBlock" style="display:none;">
+        <h3>New Leads <span>&mdash; awaiting first offer</span></h3>
+        <div id="newLeadsList"></div>
+      </div>
+
       <!-- Compact stipend panel -->
       <div class="stipend-panel">
         <div class="stipend-head">
@@ -422,12 +429,6 @@
         <div id="followupList"></div>
       </div>
 
-      <!-- New leads awaiting a first offer (QR + research requests) -->
-      <div class="newleads" id="newLeadsBlock" style="display:none;">
-        <h3>New Leads <span>&mdash; awaiting first offer</span></h3>
-        <div id="newLeadsList"></div>
-      </div>
-
       <div class="filters">
         <div class="filter-row"><label for="fStatus">Status:</label>
           <select id="fStatus">
@@ -496,7 +497,7 @@
           <div class="ops-block-head">
             <h4>Commissions to Adams Homes <span class="ops-hint" id="commHint"></span></h4>
           </div>
-          <div class="ops-note">Buyer-side commission on <b>on-market (listed) deals only</b> — credited to Adams and deducted from cash to close. Off-market deals are $0. Shows whether Kevin is holding the full 3% or giving it away.</div>
+          <div class="ops-note">Buyer-side commission on <b>on-market (listed) deals only</b> — credited to Adams and deducted from cash to close. Off-market deals are $0.</div>
           <div class="table-wrap">
             <table class="ops-table" id="commTable">
               <thead><tr><th>Property</th><th>Contract</th><th>Rate</th><th>Commission</th><th>Confirmed</th><th>Hold</th></tr></thead>
