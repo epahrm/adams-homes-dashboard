@@ -41,6 +41,13 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 - ✅ **Unsuitable = removed permanently** (the scan can never re-add it)
 - ✅ **Seller declines → 30-day re-offer:** lot resurfaces in a **Re-offer Due** list prompting a follow-up if still listed
 
+## 4b. Follow-up automation (Follow Up Boss–style — never let a lead go cold)
+- ✅ **Multi-touch cadence** — every seller lead rides a fixed sequence (Call → Call → Text → 2nd mailer → final re-offer over ~30 days); most land deals close on the 4th–7th touch, so the system drives them there
+- ✅ **Follow-Ups Due** dashboard section — a daily task list of exactly who to contact today, with the channel, the step (e.g. "Step 2 of 5 · Call"), and how overdue
+- ✅ **Log Touch** advances the sequence and records a **timestamped touch history** on the lead (who, when, channel) — the per-seller communication timeline
+- ✅ **Snooze / Open** per lead; cadence auto-completes when the sequence is exhausted
+- ✅ **Speed-to-lead alert** — the instant a seller submits, Kevin gets an email/text alert (email-to-SMS supported) so he can call while the lead is hot (activates when outbound email is turned on; safe no-op until then)
+
 ## 5. Offer & contract
 - ✅ Kevin's **offer-approval screen**: deal details, stipend check, offer terms (3% commission, $100 EMD defaults), premiums, notes to Elizabeth
 - ✅ **Specialty premiums** (corner $8k preset, extended driveway, waterview, no rear neighbor, oversized, cul-de-sac, other) — separate from stipend
@@ -86,7 +93,8 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 - ✅ **Accounts & Subscriptions tracker** — every paid data site / tool / vendor with its **login, cost, billing cycle (monthly/annual/one-time/"confirm RI"), and next renewal date**; renewals due within 30 days are flagged so nothing lapses
   - 🔒 **Passwords are not stored** — a "credential location" field points at your shared password manager instead (security by design)
 - ✅ **Postcard / mailing costs** — per-batch log with **print cost and postage kept as separate lines**, rolled up to a running total + total postage
-- ✅ **ROI tiles** — Deals Contracted · Mailing Spend · **Cost per Contract** (mail spend ÷ contracts) · Subscriptions/yr · Cancellations
+- ✅ **ROI tiles** — Deals Contracted · Mailing Spend · **Cost per Contract** (mail spend ÷ contracts) · Commissions Held · Subscriptions/yr · Cancellations
+- ✅ **Lead source performance** — leads, contracted, closed, and **conversion rate by source**, ranked, so you know which lists/channels actually convert (not just what they cost)
 - ✅ **Cancelled-contract tracker** — log terminated contracts with a **reason** (Location, Neighbor, Soils, Endangered species, Title/fraud, Other) and see the reason breakdown at a glance
 - ✅ **Commission tracker (Adams Homes)** — buyer-side commission on **on-market (listed) deals only** (off-market = $0). Default **3%**, Kevin confirms per deal (it can vary), shown live in dollars as a **cash-to-close deduction**. The dashboard rolls up **total commission held, average %, and how many deals kept the full 3% vs. were reduced/waived** — so leadership can see whether Kevin is holding the rate or giving it away
 

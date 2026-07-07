@@ -62,6 +62,12 @@ export async function POST(request: NextRequest) {
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'duplicate' }, { status: 409 })
     }
+    // Speed-to-lead: alert Kevin the moment a seller submits (no-op until
+    // outbound email is configured). Fire-and-forget — never block the insert.
+    try {
+      const { sendLeadAlert } = await import('@/lib/land-acq-notify')
+      void sendLeadAlert({ address, owner: data.owner, phone: data.phone, email: data.email, source: data.source })
+    } catch { /* alerting must never fail the submission */ }
     return NextResponse.json({ lot: toLot(result.rows[0]) }, { status: 201 })
   } catch (e) {
     console.error('[land-acq] POST lot failed:', e)

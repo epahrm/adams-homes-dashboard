@@ -72,6 +72,8 @@
     .opp-row { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #d3e0ee; border-left-width: 5px; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
     .opp-row.green { border-left-color: #1a7a44; }
     .opp-row.yellow { border-left-color: #e8963c; }
+    .opp-row.blue { border-left-color: #0a4f8e; }
+    .opp-row.blue .opp-reason { color: #0a4f8e; font-weight: 600; }
     .opp-main { flex: 1; min-width: 0; }
     .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; }
     .opp-meta { font-size: 13px; color: #667; margin-top: 2px; }
@@ -400,6 +402,13 @@
         <div id="reofferList"></div>
       </div>
 
+      <!-- Follow-Up Cadence: keeps every seller lead on a multi-touch sequence -->
+      <div class="opps" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
+        <h3 style="color:#0a4f8e;">Follow-Ups Due <span>&mdash; keep every lead on the cadence</span></h3>
+        <div class="opps-sub" id="followupSub"></div>
+        <div id="followupList"></div>
+      </div>
+
       <!-- New leads awaiting a first offer (QR + research requests) -->
       <div class="newleads" id="newLeadsBlock" style="display:none;">
         <h3>New Leads <span>&mdash; awaiting first offer</span></h3>
@@ -479,6 +488,20 @@
             <table class="ops-table" id="commTable">
               <thead><tr><th>Property</th><th>Contract</th><th>Rate</th><th>Commission</th><th>Confirmed</th><th>Hold</th></tr></thead>
               <tbody id="commRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Lead source performance: conversion, not just cost -->
+        <div class="ops-block">
+          <div class="ops-block-head">
+            <h4>Lead Source Performance <span class="ops-hint" id="srcHint"></span></h4>
+          </div>
+          <div class="ops-note">Which sources actually convert — so you know where the next mailer dollar should go.</div>
+          <div class="table-wrap">
+            <table class="ops-table" id="srcTable">
+              <thead><tr><th>Source</th><th>Leads</th><th>Contracted</th><th>Closed</th><th>Conversion</th></tr></thead>
+              <tbody id="srcRows"></tbody>
             </table>
           </div>
         </div>
@@ -1199,6 +1222,84 @@
       });
     }
 
+    // ---------- Follow-Up Cadence (FUB-style multi-touch sequence) ----------
+    // Every seller lead rides a fixed touch sequence so nothing goes cold.
+    // Kevin logs each touch, which advances the sequence and records a timeline
+    // entry on the lot. Notifications (instant Kevin alert) hook in via notifyNewLead().
+    const CADENCE = [
+      { label: 'First contact — call the seller', channel: 'Call', day: 0 },
+      { label: 'Follow-up call', channel: 'Call', day: 3 },
+      { label: 'Text check-in', channel: 'Text', day: 7 },
+      { label: 'Second-touch mailer', channel: 'Mail', day: 14 },
+      { label: 'Final follow-up + re-offer', channel: 'Call', day: 30 }
+    ];
+    // Leads still being worked toward a first deal ride the cadence.
+    const CADENCE_STAGES = ['pending', 'opportunity', 'offer-sent'];
+
+    function cadenceState(l) {
+      const step = typeof l.cadenceStep === 'number' ? l.cadenceStep : 0;
+      if (step >= CADENCE.length) return { done: true, step };
+      const base = l.cadenceStart || l.createdAt || new Date().toISOString();
+      const dueAt = typeof l.cadenceNextAt === 'string'
+        ? l.cadenceNextAt
+        : new Date(new Date(base).getTime() + CADENCE[step].day * 86400000).toISOString();
+      return { done: false, step, action: CADENCE[step], dueAt };
+    }
+    function logTouch(l) {
+      const cs = cadenceState(l);
+      if (cs.done) return;
+      const log = Array.isArray(l.cadenceLog) ? l.cadenceLog.slice() : [];
+      log.unshift({ step: cs.step, label: cs.action.label, channel: cs.action.channel, at: new Date().toISOString(), by: currentUser() });
+      const nextStep = cs.step + 1;
+      let nextAt = null;
+      if (nextStep < CADENCE.length) {
+        const gap = Math.max(1, CADENCE[nextStep].day - CADENCE[cs.step].day);
+        nextAt = new Date(Date.now() + gap * 86400000).toISOString();
+      }
+      patchLot(l.id, { cadenceStep: nextStep, cadenceNextAt: nextAt, cadenceLog: log });
+    }
+
+    function renderFollowups(lots) {
+      const block = document.getElementById('followupBlock');
+      const list = document.getElementById('followupList');
+      const now = Date.now();
+      const due = lots
+        .filter(l => CADENCE_STAGES.includes(l.displayStatus || l.status))
+        .map(l => ({ l, cs: cadenceState(l) }))
+        .filter(x => !x.cs.done && new Date(x.cs.dueAt).getTime() <= now)
+        .sort((a, b) => new Date(a.cs.dueAt) - new Date(b.cs.dueAt));
+      if (!due.length) { block.style.display = 'none'; return; }
+      block.style.display = 'block';
+      const overdue = due.filter(x => (now - new Date(x.cs.dueAt).getTime()) > 86400000).length;
+      document.getElementById('followupSub').textContent =
+        due.length + ' follow-up' + (due.length === 1 ? '' : 's') + ' due' + (overdue ? ' · ' + overdue + ' overdue' : '') + ' — log each touch to advance the cadence.';
+      list.innerHTML = '';
+      due.forEach(({ l, cs }) => {
+        const row = document.createElement('div'); row.className = 'opp-row blue';
+        const main = document.createElement('div'); main.className = 'opp-main';
+        const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
+        const daysOver = Math.floor((now - new Date(cs.dueAt).getTime()) / 86400000);
+        const touches = Array.isArray(l.cadenceLog) ? l.cadenceLog.length : 0;
+        const meta = document.createElement('div'); meta.className = 'opp-meta';
+        meta.textContent = 'Step ' + (cs.step + 1) + ' of ' + CADENCE.length + ' · ' + cs.action.channel +
+          (daysOver > 0 ? ' · ' + daysOver + 'd overdue' : ' · due today') +
+          (touches ? ' · ' + touches + ' touch' + (touches === 1 ? '' : 'es') + ' logged' : '');
+        const reason = document.createElement('div'); reason.className = 'opp-reason';
+        reason.textContent = '➡ ' + cs.action.label;
+        main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+        const actions = document.createElement('div'); actions.className = 'opp-actions';
+        const done = document.createElement('button'); done.className = 'opp-btn-add'; done.textContent = 'Log Touch ✓';
+        done.addEventListener('click', () => logTouch(l));
+        const snooze = document.createElement('button'); snooze.className = 'opp-btn-hold'; snooze.textContent = 'Snooze 3d';
+        snooze.addEventListener('click', () => patchLot(l.id, { cadenceNextAt: new Date(now + 3 * 86400000).toISOString() }));
+        const open = document.createElement('button'); open.className = 'opp-btn-skip'; open.textContent = 'Open';
+        open.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+        actions.appendChild(done); actions.appendChild(snooze); actions.appendChild(open);
+        row.appendChild(main); row.appendChild(actions);
+        list.appendChild(row);
+      });
+    }
+
     // Realtor CRM — one row per listing agent/brokerage, with their lots.
     const ACTIVE_OFFER = ['offer-sent', 'seller-signed', 'pending-ep-sig', 'ip', 'manager-driven', 'survey-rcvd', 'cd-approved', 'ctc'];
     function renderRealtors(lots) {
@@ -1418,6 +1519,33 @@
         ? (money(commTotal) + ' retained · avg ' + avgPct + '% · ' + fullCount + ' full 3% · ' + reducedCount + ' reduced/waived')
         : '';
 
+      // --- Lead source performance (conversion by source) ---
+      const srcRows = document.getElementById('srcRows'); srcRows.textContent = '';
+      const srcMap = new Map();
+      lastLots.forEach(l => {
+        const s = (l.source || 'Unknown').trim() || 'Unknown';
+        if (!srcMap.has(s)) srcMap.set(s, { leads: 0, contracted: 0, closed: 0 });
+        const e = srcMap.get(s); e.leads++;
+        const st = l.displayStatus || l.status;
+        if (ACCEPTED.includes(st)) e.contracted++;
+        if (st === 'closed') e.closed++;
+      });
+      const srcRanked = Array.from(srcMap.entries())
+        .map(([source, v]) => Object.assign({ source, conv: v.leads ? v.contracted / v.leads : 0 }, v))
+        .sort((a, b) => b.contracted - a.contracted || b.leads - a.leads);
+      if (!srcRanked.length) emptyRow(srcRows, 5, 'No leads yet.');
+      srcRanked.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(r.source, 'o-svc'));
+        tr.appendChild(cell(String(r.leads)));
+        tr.appendChild(cell(String(r.contracted)));
+        tr.appendChild(cell(String(r.closed)));
+        tr.appendChild(badgeCell(Math.round(r.conv * 100) + '%', r.conv >= 0.1 ? 'ok' : r.conv > 0 ? 'soon' : 'gray'));
+        srcRows.appendChild(tr);
+      });
+      const bestSrc = srcRanked.find(r => r.contracted > 0);
+      document.getElementById('srcHint').textContent = bestSrc ? ('top converter: ' + bestSrc.source) : '';
+
       // --- ROI tiles (mailing spend is the direct acquisition cost) ---
       const contracts = lastLots.filter(l => ACCEPTED.includes(l.displayStatus || l.status)).length;
       const closed = lastLots.filter(l => (l.displayStatus || l.status) === 'closed').length;
@@ -1503,6 +1631,7 @@
       const lots = await loadLots();
       renderOpportunities(lots);
       renderReoffer(lots);
+      renderFollowups(lots);
       renderRealtors(lots);
       loadAllOps();
 
