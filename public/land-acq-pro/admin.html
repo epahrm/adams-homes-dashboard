@@ -99,6 +99,7 @@
     .opp-main { flex: 1; min-width: 0; }
     .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; }
     .opp-meta { font-size: 13px; color: #667; margin-top: 2px; }
+    .opp-last { font-size: 12.5px; color: #8a6d3b; margin-top: 2px; font-style: italic; }
     .opp-reason { font-size: 12px; margin-top: 4px; }
     .opp-row.green .opp-reason { color: #1a7a44; }
     .opp-row.yellow .opp-reason { color: #a5651a; }
@@ -189,6 +190,12 @@
     tbody tr:nth-child(odd) { background: #fafafa; }
     tbody tr:nth-child(odd):hover { background: #f0f5fa; }
     td.addr { color: #003d66; font-weight: 600; }
+    tr.phase-row { cursor: default; }
+    tr.phase-row:hover, tr.phase-row:nth-child(odd):hover { background: inherit; }
+    tr.phase-row td { padding: 10px 12px 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; border-bottom: 2px solid #e6e9ee; background: #fff; }
+    tr.phase-row.phase-awaiting td { color: #145263; border-bottom-color: #cde9f0; }
+    tr.phase-row.phase-signing td { color: #8a5200; border-bottom-color: #f0dcc2; }
+    tr.phase-row.phase-contract td { color: #14532d; border-bottom-color: #cfe8d8; }
     .pill { display: inline-block; padding: 7px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
     .pill.pending { background: #fbe9a9; color: #6d5410; }
     .pill.offer-sent { background: #cde9f0; color: #145263; }
@@ -414,6 +421,25 @@
         <div class="bb-where" id="buyBoxWhere"></div>
       </details>
 
+      <!-- Buy-box opportunities: respond to every one (Send Offer or Unsuitable) -->
+      <!-- ON-MARKET box: listed lots within stipend + $10k -->
+      <div class="opps" id="oppsOnMarket" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
+        <h3 style="color:#0a4f8e;">On-Market Opportunities <span>&mdash; listed lots in the buy box · respond to each</span></h3>
+        <div class="opps-sub" id="onMktSub"></div>
+        <div id="onMktList"></div>
+      </div>
+      <!-- OFF-MARKET box: county-sweep lots within the buy box -->
+      <div class="opps" id="oppsOffMarket" style="display:none;">
+        <h3>Off-Market Opportunities <span>&mdash; county-sweep lots in the buy box · respond to each</span></h3>
+        <div class="opps-sub" id="offMktSub"></div>
+        <div id="offMktList"></div>
+      </div>
+      <!-- Shared auto-rejected (over $10k / buy-box fail) -->
+      <details class="opps-rejected" id="oppsRejected" style="display:none; margin-bottom:20px;">
+        <summary></summary>
+        <div id="oppsRejectedList"></div>
+      </details>
+
       <div class="kpi-grid">
         <div class="kpi orange"><div class="lbl">Pending EP Sig</div><div class="num" id="kpiEpSig">0</div></div>
         <div class="kpi green"><div class="lbl">Inspection Period</div><div class="num" id="kpiIp">0</div></div>
@@ -444,25 +470,6 @@
         <div class="cal-summary" id="calSummary"></div>
         <div class="cal-grid" id="calGrid"></div>
       </div>
-
-      <!-- Buy-box opportunities: respond to every one (Send Offer or Unsuitable) -->
-      <!-- ON-MARKET box: listed lots within stipend + $10k -->
-      <div class="opps" id="oppsOnMarket" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
-        <h3 style="color:#0a4f8e;">On-Market Opportunities <span>&mdash; listed lots in the buy box · respond to each</span></h3>
-        <div class="opps-sub" id="onMktSub"></div>
-        <div id="onMktList"></div>
-      </div>
-      <!-- OFF-MARKET box: county-sweep lots within the buy box -->
-      <div class="opps" id="oppsOffMarket" style="display:none;">
-        <h3>Off-Market Opportunities <span>&mdash; county-sweep lots in the buy box · respond to each</span></h3>
-        <div class="opps-sub" id="offMktSub"></div>
-        <div id="offMktList"></div>
-      </div>
-      <!-- Shared auto-rejected (over $10k / buy-box fail) -->
-      <details class="opps-rejected" id="oppsRejected" style="display:none; margin-bottom:20px;">
-        <summary></summary>
-        <div id="oppsRejectedList"></div>
-      </details>
 
       <!-- Offer sent but not moving toward Elizabeth's signature within 3 days -->
       <div class="opps" id="offerFollowBlock" style="display:none; border-color:#c0392b; background:#fdf3f1;">
@@ -1097,6 +1104,21 @@
     const ACCEPTED = ['seller-signed','pending-ep-sig','ip','manager-driven','survey-rcvd','cd-approved','ctc','closed'];
     const PENDING_CLOSE = ['seller-signed','pending-ep-sig','ip','manager-driven','survey-rcvd','cd-approved','ctc'];
 
+    // High-level pipeline phase for the deal table, so each lot carries a plain
+    // title telling us what we're waiting on.
+    function pipelinePhase(l) {
+      const s = l.displayStatus || l.status;
+      if (s === 'offer-sent') return 'awaiting';           // we sent it, waiting on the seller
+      if (s === 'seller-signed' || s === 'pending-ep-sig') return 'signing'; // signatures in flight
+      return 'contract';                                    // under contract, working to close
+    }
+    const PHASE_TITLE = {
+      awaiting: 'Awaiting Seller Response — offer sent',
+      signing: 'Signatures In Progress — accepted, being signed',
+      contract: 'Under Contract — pending close'
+    };
+    const PHASE_ORDER = { awaiting: 0, signing: 1, contract: 2 };
+
     function inMonth(iso, offset) {
       if (!iso) return false;
       const d = new Date(iso), n = new Date();
@@ -1535,9 +1557,15 @@
         meta.textContent = 'Step ' + (cs.step + 1) + ' of ' + CADENCE.length + ' · ' + cs.action.channel +
           (daysOver > 0 ? ' · ' + daysOver + 'd overdue' : ' · due today') +
           (touches ? ' · ' + touches + ' touch' + (touches === 1 ? '' : 'es') + ' logged' : '');
+        // Last activity taken, so Kevin sees what was already done and what's next.
+        const lastTouch = (Array.isArray(l.cadenceLog) && l.cadenceLog[0]) ? l.cadenceLog[0] : null;
+        const last = document.createElement('div'); last.className = 'opp-last';
+        last.textContent = lastTouch
+          ? 'Last activity: ' + lastTouch.channel + ' on ' + new Date(lastTouch.at).toLocaleDateString() + (lastTouch.by ? ' · ' + lastTouch.by : '')
+          : 'Last activity: none yet — first touch';
         const reason = document.createElement('div'); reason.className = 'opp-reason';
-        reason.textContent = '➡ ' + cs.action.label;
-        main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+        reason.textContent = '➡ Next: ' + cs.action.label;
+        main.appendChild(addr); main.appendChild(meta); main.appendChild(last); main.appendChild(reason);
         const actions = document.createElement('div'); actions.className = 'opp-actions';
         const done = document.createElement('button'); done.className = 'opp-btn-add'; done.textContent = 'Log Touch ✓';
         done.addEventListener('click', () => logTouch(l));
@@ -2004,8 +2032,11 @@
       // Closing calendar (this month + next)
       renderCalendar(lots);
 
-      // Table — active contract lots only (drops off once closed/declined/pre-offer)
-      const filtered = applyFilters(lots).filter(l => ACTIVE.includes(l.displayStatus)).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      // Table — active contract lots only (drops off once closed/declined/pre-offer).
+      // Grouped by pipeline phase so each block carries a plain-English title.
+      const filtered = applyFilters(lots).filter(l => ACTIVE.includes(l.displayStatus))
+        .sort((a, b) => (PHASE_ORDER[pipelinePhase(a)] - PHASE_ORDER[pipelinePhase(b)])
+          || (new Date(b.createdAt) - new Date(a.createdAt)));
       const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
       if (currentPage > pages) currentPage = pages;
       const rows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
@@ -2014,7 +2045,17 @@
       if (!rows.length) {
         tbody.innerHTML = '<tr><td colspan="4" class="empty">No lots match the current filters.</td></tr>';
       }
+      let curPhase = null;
       rows.forEach(l => {
+        const phase = pipelinePhase(l);
+        if (phase !== curPhase) {
+          curPhase = phase;
+          const hr = document.createElement('tr');
+          hr.className = 'phase-row phase-' + phase;
+          const hc = document.createElement('td'); hc.colSpan = 4;
+          hc.textContent = PHASE_TITLE[phase];
+          hr.appendChild(hc); tbody.appendChild(hr);
+        }
         const tr = document.createElement('tr');
         const st = l.displayStatus in PILL_LABELS ? l.displayStatus : 'pending';
         tr.innerHTML = '<td class="addr"></td><td></td><td class="stipend-cell"></td><td><span class="pill ' + st + '">' + PILL_LABELS[st] + '</span></td>';
