@@ -52,13 +52,25 @@ const globalForPool = global as unknown as {
 
 const isLocalDb = /@(localhost|127\.0\.0\.1)[:/]/.test(databaseUrl)
 
+// pg treats sslmode=require/prefer in the connection string as verify-full
+// and it overrides any ssl config object — against Supabase's pooler (whose
+// CA isn't in Node's trust store) every connection then fails with
+// SELF_SIGNED_CERT_IN_CHAIN. Normalize remote URLs to sslmode=no-verify
+// (TLS on, chain verification off), the one mode that holds at the
+// connection-string level.
+if (!isLocalDb) {
+  databaseUrl = databaseUrl
+    .replace(/([?&])sslmode=[^&]*(&?)/g, (_m, lead, trail) => (trail ? lead : ''))
+    .replace(/[?&]$/, '')
+  databaseUrl += (databaseUrl.includes('?') ? '&' : '?') + 'sslmode=no-verify'
+}
+
 export const pool =
   globalForPool.interviewPool ||
   new Pool({
     connectionString: databaseUrl,
     max: 3,
     connectionTimeoutMillis: 8000,
-    ssl: isLocalDb ? undefined : { rejectUnauthorized: false },
   })
 globalForPool.interviewPool = pool
 
