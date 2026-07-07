@@ -179,8 +179,8 @@ export const MANAGERS = [
   { name: 'Elizabeth Porter', title: 'Regional Manager', img: 'elizabeth-porter.jpg' },
   { name: 'Kristi Worley', title: 'Orlando', img: 'kristi-worley.jpg' },
   { name: 'Scott Harris', title: 'Jacksonville', img: 'scott-harris.jpg' },
-  { name: 'Liza Carrasquillo', title: 'Daytona Beach', img: 'liza-carrasquillo.jpg' },
-  { name: 'Eric Landrum', title: 'Melbourne', img: 'eric-landrum.jpg' },
+  { name: 'Eric Landrum', title: 'Daytona Beach', img: 'eric-landrum.jpg' },
+  { name: 'Liza Carrasquillo', title: 'Melbourne', img: 'liza-carrasquillo.jpg' },
   { name: 'Bob Frein', title: 'Port St. Lucie', img: 'bob-frein.jpg' },
 ] as const
 
