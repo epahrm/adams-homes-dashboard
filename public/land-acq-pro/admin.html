@@ -1342,9 +1342,6 @@
       const reason = document.createElement('div'); reason.className = 'opp-reason';
       reason.textContent = (ev.light === 'green' ? '✓ ' : '⚠ ') + ev.reasons.join(' · ');
       main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
-      const offer = document.createElement('div'); offer.className = 'opp-offer';
-      const oLbl = document.createElement('span'); oLbl.textContent = 'Suggested offer';
-      offer.appendChild(oLbl); offer.appendChild(document.createTextNode(money(ev.offer)));
       const actions = document.createElement('div'); actions.className = 'opp-actions';
       const add = document.createElement('button'); add.className = 'opp-btn-add'; add.textContent = 'Send Offer';
       add.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
@@ -1354,7 +1351,7 @@
       skip.title = 'Remove permanently — will not be shown again';
       skip.addEventListener('click', () => { if (confirm('Mark ' + (l.address || 'this lot') + ' unsuitable? It will be removed and never shown again.')) patchLot(l.id, { status: 'dismissed', dismissedAt: new Date().toISOString() }); });
       actions.appendChild(add); actions.appendChild(hold); actions.appendChild(skip);
-      row.appendChild(badge); row.appendChild(main); row.appendChild(offer); row.appendChild(actions);
+      row.appendChild(badge); row.appendChild(main); row.appendChild(actions);
       return row;
     }
 
