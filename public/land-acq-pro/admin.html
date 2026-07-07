@@ -106,6 +106,8 @@
     .opp-meta { font-size: 13px; color: #667; margin-top: 2px; }
     .opp-last { font-size: 12.5px; color: #8a6d3b; margin-top: 2px; font-style: italic; }
     .opp-reason { font-size: 12px; margin-top: 4px; }
+    .opp-listing-link { display: inline-block; margin-top: 5px; font-size: 12.5px; font-weight: 700; color: #0a4f8e; text-decoration: none; }
+    .opp-listing-link:hover { text-decoration: underline; }
     .opp-row.green .opp-reason { color: #1a7a44; }
     .opp-row.yellow .opp-reason { color: #a5651a; }
     .light { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
@@ -566,6 +568,7 @@
             <option value="FSBO">FSBO</option>
             <option value="Expired">Expired</option>
             <option value="Off-Market">Off-Market</option>
+            <option value="Wholesaler">Wholesaler</option>
             <option value="QR Landing Page">QR Landing Page</option>
           </select>
         </div>
@@ -1330,6 +1333,16 @@
       leads.forEach(l => list.appendChild(buildLeadRow(l, showSource)));
     }
 
+    // Link to the online listing Kevin can click straight through to. If the
+    // sweep captured the real listing URL we use it; otherwise we fall back to a
+    // web search for the address so he can still pull the listing up.
+    function listingUrl(l) {
+      if (l.listingUrl) return l.listingUrl;
+      const a = (l.address || '').trim();
+      if (!a) return null;
+      return 'https://www.google.com/search?q=' + encodeURIComponent(a + ' lot for sale');
+    }
+
     // Build one opportunity row (Send Offer / Hold / Unsuitable). Unsuitable
     // removes the lot permanently so it never returns to the feed.
     function buildOppRow(l, ev) {
@@ -1349,6 +1362,16 @@
       const reason = document.createElement('div'); reason.className = 'opp-reason';
       reason.textContent = (ev.light === 'green' ? '✓ ' : '⚠ ') + ev.reasons.join(' · ');
       main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+      // On-market lots link straight to the listing Kevin found online.
+      if (isListedLot(l)) {
+        const url = listingUrl(l);
+        if (url) {
+          const link = document.createElement('a'); link.className = 'opp-listing-link';
+          link.href = url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+          link.textContent = 'View listing ↗';
+          main.appendChild(link);
+        }
+      }
       const actions = document.createElement('div'); actions.className = 'opp-actions';
       const add = document.createElement('button'); add.className = 'opp-btn-add'; add.textContent = 'Send Offer';
       add.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
@@ -1471,7 +1494,11 @@
     // due date is the send date + 3 days, auto-calculated. Kevin gets a nudge
     // to chase the seller/agent so it doesn't stall.
     const OFFER_FOLLOW_DAYS = 3;
-    function offerSentAt(l) { return l.generatedAt || l.offerSentAt || l.createdAt || null; }
+    // Keep the action queues short on screen — render at most this many rows and
+    // note the true total so the page stays scannable with a large backlog.
+    const FOLLOWUP_CAP = 10;
+    function capNote(total) { return total > FOLLOWUP_CAP ? ' · showing first ' + FOLLOWUP_CAP + ' of ' + total : ''; }
+    function offerSentAt(l) { return l.offerConfirmedSentAt || l.generatedAt || l.offerSentAt || l.createdAt || null; }
     function offerDueAt(l) {
       const s = offerSentAt(l);
       if (!s) return null;
@@ -1490,11 +1517,12 @@
         .sort((a, b) => a.dueAt - b.dueAt);
       if (!due.length) { block.style.display = 'none'; return; }
       block.style.display = 'block';
+      const total = due.length;
       document.getElementById('offerFollowSub').textContent =
-        due.length + ' offer' + (due.length === 1 ? '' : 's') + ' sent ' + OFFER_FOLLOW_DAYS
-        + '+ days ago with no movement toward signature — follow up to keep it alive.';
+        total + ' offer' + (total === 1 ? '' : 's') + ' sent ' + OFFER_FOLLOW_DAYS
+        + '+ days ago with no movement toward signature — follow up to keep it alive.' + capNote(total);
       list.innerHTML = '';
-      due.forEach(({ l, sent, dueAt }) => {
+      due.slice(0, FOLLOWUP_CAP).forEach(({ l, sent, dueAt }) => {
         const row = document.createElement('div'); row.className = 'opp-row red';
         const main = document.createElement('div'); main.className = 'opp-main';
         const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
@@ -1529,9 +1557,9 @@
       if (!due.length) { block.style.display = 'none'; return; }
       block.style.display = 'block';
       document.getElementById('reofferSub').textContent =
-        due.length + ' declined ' + (due.length === 1 ? 'lot is' : 'lots are') + ' due for a follow-up offer (still listed?).';
+        due.length + ' declined ' + (due.length === 1 ? 'lot is' : 'lots are') + ' due for a follow-up offer (still listed?).' + capNote(due.length);
       list.innerHTML = '';
-      due.forEach(l => {
+      due.slice(0, FOLLOWUP_CAP).forEach(l => {
         const row = document.createElement('div');
         row.className = 'opp-row yellow';
         const main = document.createElement('div'); main.className = 'opp-main';
@@ -1606,9 +1634,9 @@
       if (!due.length) { block.style.display = 'none'; return; }
       block.style.display = 'block';
       document.getElementById('thankYouSub').textContent =
-        due.length + ' closed ' + (due.length === 1 ? 'deal is' : 'deals are') + ' 1+ week out — send the stork thank-you & referral card.';
+        due.length + ' closed ' + (due.length === 1 ? 'deal is' : 'deals are') + ' 1+ week out — send the stork thank-you & referral card.' + capNote(due.length);
       list.innerHTML = '';
-      due.forEach(({ l, closed }) => {
+      due.slice(0, FOLLOWUP_CAP).forEach(({ l, closed }) => {
         const days = Math.floor((now - new Date(closed).getTime()) / 86400000);
         const row = document.createElement('div'); row.className = 'opp-row green';
         const main = document.createElement('div'); main.className = 'opp-main';
@@ -1643,9 +1671,9 @@
       block.style.display = 'block';
       const overdue = due.filter(x => (now - new Date(x.cs.dueAt).getTime()) > 86400000).length;
       document.getElementById('followupSub').textContent =
-        due.length + ' follow-up' + (due.length === 1 ? '' : 's') + ' due' + (overdue ? ' · ' + overdue + ' overdue' : '') + ' — log each touch to advance the cadence.';
+        due.length + ' follow-up' + (due.length === 1 ? '' : 's') + ' due' + (overdue ? ' · ' + overdue + ' overdue' : '') + ' — log each touch to advance the cadence.' + capNote(due.length);
       list.innerHTML = '';
-      due.forEach(({ l, cs }) => {
+      due.slice(0, FOLLOWUP_CAP).forEach(({ l, cs }) => {
         const row = document.createElement('div'); row.className = 'opp-row blue';
         const main = document.createElement('div'); main.className = 'opp-main';
         const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';

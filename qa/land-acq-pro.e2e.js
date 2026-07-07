@@ -231,6 +231,11 @@ async function noHorizontalOverflow(page) {
       await page.locator('#oppsOffMarket').isVisible());
     check('on-market Sweep Now control present',
       await page.locator('#sweepNowBtn').isVisible());
+    // On-market opportunities link straight through to the listing found online.
+    check('on-market opportunity row has a View listing link',
+      (await page.locator('#oppsOnMarket a.opp-listing-link').count()) >= 1);
+    check('View listing link opens in a new tab',
+      (await page.locator('#oppsOnMarket a.opp-listing-link').first().getAttribute('target')) === '_blank');
 
     // ---------- Offer Follow-Up Due (offer sent 3+ days, no movement) ----------
     check('offer follow-up block shows for a stale offer-sent lot',
