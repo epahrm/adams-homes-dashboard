@@ -79,11 +79,14 @@ globalForPool.interviewPool = pool
 // ---------------------------------------------------------------------------
 
 // ECF offices from the final landing page prototype (07/07/2026).
+// Office colors: classy, on-brand palette anchored to the Adams Homes navy
+// and red. Managers and their office's candidates share the same color on
+// the live interview screen.
 export const DIVISIONS = [
   {
     code: 'JAX',
     name: 'Jacksonville',
-    color: '#d9534f',
+    color: '#d51f35',
     counties: 'Baker, St. Johns, Clay, Putnam, Flagler',
     address: '11570 San Jose Blvd. Suite 15, Jacksonville FL 32223',
     img: 'jax.jpg',
@@ -91,7 +94,7 @@ export const DIVISIONS = [
   {
     code: 'ORL',
     name: 'Orlando',
-    color: '#1a7a44',
+    color: '#217a4b',
     counties: 'Seminole, Orange',
     address: '4401 Vineland Rd. Suite A-11, Orlando FL 32811',
     img: 'orl.jpg',
@@ -99,7 +102,7 @@ export const DIVISIONS = [
   {
     code: 'DAY',
     name: 'Daytona Beach',
-    color: '#1a5ba5',
+    color: '#3f88c5',
     counties: 'Brevard, Indian River',
     address: '1440 N. Nova Rd., Suite 303, Daytona Beach FL 32117',
     img: 'day.jpg',
@@ -107,7 +110,7 @@ export const DIVISIONS = [
   {
     code: 'MEL',
     name: 'Melbourne',
-    color: '#7a4fb5',
+    color: '#233982',
     counties: 'Brevard',
     address: '3840 West Eau Gallie Blvd. Suite 106, Melbourne FL 32934',
     img: 'mel.jpg',
@@ -115,7 +118,7 @@ export const DIVISIONS = [
   {
     code: 'PSL',
     name: 'Port St. Lucie',
-    color: '#e8963c',
+    color: '#b3802f',
     counties: 'St. Lucie, Okeechobee',
     address: '751 SE Port St Lucie Blvd., Port St. Lucie FL 34984',
     divisional: true,
@@ -208,12 +211,12 @@ export const REFERRAL_SOURCES = [
 // Photos live at public/sales-interview/img/managers/<img>; the UI shows
 // initials until a photo file exists.
 export const MANAGERS = [
-  { name: 'Elizabeth Porter', title: 'Regional Manager', img: 'elizabeth-porter.jpg' },
-  { name: 'Kristi Worley', title: 'Melbourne', img: 'kristi-worley.jpg' },
-  { name: 'Scott Harris', title: 'Jacksonville', img: 'scott-harris.jpg' },
-  { name: 'Eric Landrum', title: 'Daytona Beach', img: 'eric-landrum.jpg' },
-  { name: 'Liza Carrasquillo', title: 'Orlando', img: 'liza-carrasquillo.jpg' },
-  { name: 'Bob Frein', title: 'Port St. Lucie', img: 'bob-frein.jpg' },
+  { name: 'Elizabeth Porter', title: 'Regional Manager', division: null, img: 'elizabeth-porter.jpg' },
+  { name: 'Kristi Worley', title: 'Melbourne', division: 'MEL', img: 'kristi-worley.jpg' },
+  { name: 'Scott Harris', title: 'Jacksonville', division: 'JAX', img: 'scott-harris.jpg' },
+  { name: 'Eric Landrum', title: 'Daytona Beach', division: 'DAY', img: 'eric-landrum.jpg' },
+  { name: 'Liza Carrasquillo', title: 'Orlando', division: 'ORL', img: 'liza-carrasquillo.jpg' },
+  { name: 'Bob Frein', title: 'Port St. Lucie', division: 'PSL', img: 'bob-frein.jpg' },
 ] as const
 
 // The finalized 20 application questions (from the 07/07/2026 landing page

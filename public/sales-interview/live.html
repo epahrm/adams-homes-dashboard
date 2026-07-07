@@ -93,7 +93,7 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
 .mgr-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
 .mgr-card { border: 2px solid var(--border); border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; background: white; }
 .mgr-card:hover { border-color: var(--navy); }
-.mgr-card.on { border-color: var(--red); background: #fdf2f2; }
+.mgr-card.on { background: #f4f7fd; outline: 3px solid var(--red); outline-offset: 1px; }
 .mgr-card .m-av { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 6px; background: var(--navy); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px; overflow: hidden; }
 .mgr-card .m-av img { width: 100%; height: 100%; object-fit: cover; }
 .mgr-card .m-nm { font-size: 11px; font-weight: 700; color: #223; line-height: 1.25; }
@@ -296,15 +296,24 @@ function initials(name) {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 }
 
+// Office color shared by a manager and every candidate applying to that
+// office (e.g., Kristi = Melbourne navy, so all Melbourne applicants carry
+// navy too). Elizabeth (regional) gets neutral charcoal.
+function divColor(code) {
+  const d = (META && META.divisions || []).find(x => x.code === code);
+  return d ? d.color : '#4a5568';
+}
+
 function renderManagers() {
   const current = el('mgrPick').value;
   el('mgrStrip').innerHTML = (META.managers || []).map(m => {
     const name = m.name || m;
     const title = m.title || '';
+    const color = divColor(m.division);
     const img = m.img ? '/sales-interview/img/managers/' + m.img : '';
-    return `<div class="mgr-card ${current === name ? 'on' : ''}" onclick="pickManager('${esc(name)}')">
-      <div class="m-av">${img ? `<img src="${esc(img)}" alt="${esc(name)}" onerror="this.replaceWith(document.createTextNode('${initials(name)}'))">` : initials(name)}</div>
-      <div class="m-nm">${esc(name)}</div><div class="m-ti">${esc(title)}</div></div>`;
+    return `<div class="mgr-card ${current === name ? 'on' : ''}" style="border-color:${color};" onclick="pickManager('${esc(name)}')">
+      <div class="m-av" style="background:${color};box-shadow:0 0 0 3px ${color};">${img ? `<img src="${esc(img)}" alt="${esc(name)}" onerror="this.replaceWith(document.createTextNode('${initials(name)}'))">` : initials(name)}</div>
+      <div class="m-nm">${esc(name)}</div><div class="m-ti" style="color:${color};font-weight:700;">${esc(title)}</div></div>`;
   }).join('');
 }
 
@@ -417,9 +426,10 @@ function renderParticipants() {
   }
   box.innerHTML = SESSION.assignments.map(a => {
     const scored = SESSION.scores.some(s => s.candidateId === a.candidateId);
-    return `<span class="part-chip ${selectedCandidate && selectedCandidate.id === a.candidateId ? 'selected' : ''}" onclick="pickCandidate(${a.candidateId})">
-      <span class="pc-av">${initials(a.name)}</span>${esc(a.name)}
-      <span class="pc-slot">B${a.slot}</span>
+    const color = divColor(a.division);
+    return `<span class="part-chip ${selectedCandidate && selectedCandidate.id === a.candidateId ? 'selected' : ''}" style="border-color:${color};" onclick="pickCandidate(${a.candidateId})">
+      <span class="pc-av" style="background:${color};">${initials(a.name)}</span>${esc(a.name)}
+      <span class="pc-slot" style="background:${color}1c;color:${color};">${esc(a.division)} · B${a.slot}</span>
       <span class="pc-status ${scored ? 'scored' : 'waiting'}">${scored ? 'scored' : 'waiting'}</span></span>`;
   }).join('');
 }
@@ -427,10 +437,11 @@ function renderParticipants() {
 function renderUnassigned() {
   const used = assignedIds();
   const eligible = CANDS.filter(c => !used.has(c.id) && !['declined', 'hired', 'offer_sent', 'pooled'].includes(c.status));
-  el('unassigned').innerHTML = eligible.map(c =>
-    `<div class="cand-chip"><div><div class="nm">${esc(c.name)}</div><div class="dv">${esc(c.division)} · ${esc(c.status)}${c.videosComplete ? ' · 🎥' + c.videosComplete : ''}</div></div>
-     <div class="assign-btns">${[1, 2, 3].map(s => `<button onclick="assign(${c.id},${s})">${s}</button>`).join('')}</div></div>`
-  ).join('') || '<div class="hint">Everyone is assigned (or no eligible candidates yet).</div>';
+  el('unassigned').innerHTML = eligible.map(c => {
+    const color = divColor(c.division);
+    return `<div class="cand-chip" style="border-left:5px solid ${color};"><div><div class="nm">${esc(c.name)}</div><div class="dv" style="color:${color};font-weight:700;">${esc(c.division)}</div><div class="dv">${esc(c.status)}${c.videosComplete ? ' · 🎥' + c.videosComplete : ''}</div></div>
+     <div class="assign-btns">${[1, 2, 3].map(s => `<button onclick="assign(${c.id},${s})">${s}</button>`).join('')}</div></div>`;
+  }).join('') || '<div class="hint">Everyone is assigned (or no eligible candidates yet).</div>';
 }
 
 window.assign = async function (candidateId, slot) {
@@ -514,9 +525,10 @@ function renderSlots() {
         </div>
       </div>
       <div class="slot-body">
-        <div class="slot-cands">${cands.map(a =>
-          `<span class="slot-cand ${selectedCandidate && selectedCandidate.id === a.candidateId ? 'selected' : ''}" onclick="pickCandidate(${a.candidateId})">${esc(a.name)} <button onclick="event.stopPropagation();unassign(${a.candidateId})" title="Remove">×</button></span>`
-        ).join('') || '<div class="slot-empty">No candidates assigned — use the 1/2/3 buttons on the left.</div>'}</div>
+        <div class="slot-cands">${cands.map(a => {
+          const color = divColor(a.division);
+          return `<span class="slot-cand ${selectedCandidate && selectedCandidate.id === a.candidateId ? 'selected' : ''}" style="border-color:${color};color:${color};background:${color}14;" onclick="pickCandidate(${a.candidateId})">${esc(a.name)} <span style="font-size:10px;font-weight:800;">${esc(a.division)}</span> <button onclick="event.stopPropagation();unassign(${a.candidateId})" title="Remove">×</button></span>`;
+        }).join('') || '<div class="slot-empty">No candidates assigned — use the 1/2/3 buttons on the left.</div>'}</div>
       </div>
     </div>`;
   }).join('');
@@ -666,7 +678,7 @@ function renderBoard() {
   el('liveBoard').innerHTML = rows.map(({ a, v, r }, i) => {
     return `<div class="lb-row">
       <div class="lb-head">
-        <span class="nm" style="cursor:pointer;" onclick="pickCandidate(${a.candidateId})">${v.avg != null ? (i + 1) + '. ' : ''}${esc(a.name)}</span>
+        <span class="nm" style="cursor:pointer;" onclick="pickCandidate(${a.candidateId})"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${divColor(a.division)};margin-right:6px;"></span>${v.avg != null ? (i + 1) + '. ' : ''}${esc(a.name)}</span>
         <span style="display:flex;gap:8px;align-items:center;">
           <span class="rec-chips">${r.hire ? `<span class="rec-chip hire">H${r.hire}</span>` : ''}${r.maybe ? `<span class="rec-chip maybe">M${r.maybe}</span>` : ''}${r.no ? `<span class="rec-chip no">N${r.no}</span>` : ''}</span>
           <span class="lb-avg">${v.avg != null ? v.avg.toFixed(2) : '—'}</span>
