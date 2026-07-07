@@ -45,3 +45,4 @@ dev.db-wal
 
 .vercel
 .env*
+*.tsbuildinfo
