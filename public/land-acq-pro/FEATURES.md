@@ -20,7 +20,7 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 - ✅ **On-market via saved-search email alerts** (the legal alternative to scraping): the system reads alert emails from Zillow, Realtor.com, Crexi, Land.com, LoopNet, RealtyTrac and parses each listing — address, price, acreage, MLS #, brokerage, link
   - ✅ Handles both "full-detail" alerts (address + price) and "link-only" alerts (Crexi)
   - ✅ Automatically ignores non–Palm Bay listings
-- 🔜 **Off-market county sweep** — nightly scan of every vacant residential Palm Bay parcel in the buy box (biggest volume lever; data source validated)
+- ✅ **Off-market county sweep** — dashboard tool that pulls vacant residential Palm Bay lots in the buy box straight from county records (owner + mailing address), with tunable filters (lot size, max land value, absentee-owners-only). Preview the count, **download the mailing list**, or add them to the worklist. ~14,000 absentee-owned buy-box lots available.
 - 🟡 **On-market MLS/IDX feed** — pending confirmation of MLS access
 - ✅ **CSV contact upload** — Kevin bulk-imports owner/mailer contact lists (dedupes automatically)
 - ✅ **Add existing deal/contract** — drop an in-progress deal into the pipeline at any stage

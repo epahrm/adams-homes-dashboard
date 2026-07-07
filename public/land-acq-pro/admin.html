@@ -285,6 +285,7 @@
         <div class="pipeline-tools">
           <button class="btn-navy" id="addDealBtn">+ Add Deal / Contract</button>
           <button class="btn-green" id="importBtn">Import Contacts (CSV)</button>
+          <button class="btn-navy" id="sweepBtn">Off-Market Sweep</button>
           <button class="btn-outline" id="postcardBtn">Postcards / QR</button>
           <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
         </div>
@@ -433,6 +434,30 @@
       </div>
 
       <a class="back-link" href="index.html">&larr; Back to Landing Page</a>
+    </div>
+  </div>
+
+  <!-- Off-Market Sweep modal -->
+  <div class="modal-overlay" id="sweepOverlay">
+    <div class="modal">
+      <h3>Off-Market Sweep</h3>
+      <div class="m-sub">Pulls vacant residential Palm Bay lots from county records (owner + mailing address) for direct mail. Tune the buy box, preview the count, then export the mailing list or add them to the worklist.</div>
+      <div class="m-grid">
+        <div><label for="swMinAcres">Min lot size (acres)</label><input type="number" id="swMinAcres" step="0.01" value="0.20"></div>
+        <div><label for="swMaxAcres">Max lot size (acres)</label><input type="number" id="swMaxAcres" step="0.1" value="2"></div>
+        <div><label for="swMaxValue">Max land value ($)</label><input type="number" id="swMaxValue" step="1000" value="40000"></div>
+        <div><label for="swLimit">How many to pull</label>
+          <select id="swLimit"><option>20</option><option selected>50</option><option>100</option><option>250</option><option>500</option></select>
+        </div>
+        <div class="m-full"><label style="display:flex; align-items:center; gap:8px; font-weight:600;"><input type="checkbox" id="swAbsentee" checked style="width:auto;"> Absentee owners only (mailing address outside Palm Bay — most motivated)</label></div>
+        <div class="m-full" id="swResult" style="font-size:14px; color:#556;">Set your filters and click Preview Count.</div>
+      </div>
+      <div class="m-actions">
+        <button type="button" class="btn-outline" id="swCancel">Close</button>
+        <button type="button" class="btn-outline" id="swPreview">Preview Count</button>
+        <button type="button" class="btn-green" id="swCsv">Download Mailing List</button>
+        <button type="button" class="btn-navy" id="swAdd">Add to Worklist</button>
+      </div>
     </div>
   </div>
 
@@ -1336,6 +1361,51 @@
         '<p class="no-print">Each QR is unique to its property for per-lot scan tracking. Print, or use for variable-data mailing.</p>' +
         '<div class="grid">' + cards + '</div>');
       w.document.close();
+    });
+
+    // ---------- Off-Market Sweep (county buy-box mailer generator) ----------
+    const swOverlay = document.getElementById('sweepOverlay');
+    function swMsg(t) { document.getElementById('swResult').textContent = t; }
+    function swParams(extra) {
+      const q = new URLSearchParams();
+      q.set('minAcres', document.getElementById('swMinAcres').value || '0.2');
+      q.set('maxAcres', document.getElementById('swMaxAcres').value || '2');
+      q.set('maxValue', document.getElementById('swMaxValue').value || '40000');
+      q.set('absentee', document.getElementById('swAbsentee').checked ? '1' : '0');
+      q.set('limit', document.getElementById('swLimit').value || '50');
+      Object.entries(extra || {}).forEach(([k, v]) => q.set(k, v));
+      return q.toString();
+    }
+    async function swFetch(countOnly) {
+      if (mode !== 'server') { swMsg('The sweep runs on the live site (it queries the county API).'); return null; }
+      try {
+        const res = await fetch('/api/land-acq/market-sweep?' + swParams(countOnly ? { count: '1' } : {}),
+          { headers: adminHeaders(), signal: AbortSignal.timeout(28000) });
+        if (!res.ok) { swMsg('County lookup failed (' + res.status + ').'); return null; }
+        return await res.json();
+      } catch (e) { swMsg('County lookup timed out — try a smaller pull.'); return null; }
+    }
+    document.getElementById('sweepBtn').addEventListener('click', () => { swOverlay.classList.add('show'); swMsg('Set your filters and click Preview Count.'); });
+    document.getElementById('swCancel').addEventListener('click', () => swOverlay.classList.remove('show'));
+    swOverlay.addEventListener('click', e => { if (e.target === swOverlay) swOverlay.classList.remove('show'); });
+    document.getElementById('swPreview').addEventListener('click', async () => {
+      swMsg('Counting…'); const d = await swFetch(true);
+      if (d) swMsg((d.count || 0).toLocaleString() + ' vacant lots match your buy box.');
+    });
+    document.getElementById('swCsv').addEventListener('click', async () => {
+      swMsg('Pulling list…'); const d = await swFetch(false); if (!d || !d.lots) return;
+      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const head = ['Owner', 'Owner Mailing Address', 'Property Address', 'Parcel', 'Acres', 'Land Value'];
+      const lines = [head.join(',')].concat(d.lots.map(l => [l.owner, l.ownerContact, l.address, l.parcel, l.acres, l.taxValue].map(esc).join(',')));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'off-market-mailer.csv'; a.click(); URL.revokeObjectURL(a.href);
+      swMsg('Downloaded ' + d.lots.length + ' recipients.');
+    });
+    document.getElementById('swAdd').addEventListener('click', async () => {
+      swMsg('Pulling list…'); const d = await swFetch(false); if (!d || !d.lots) return;
+      const lots = d.lots.map(l => ({ address: l.address, owner: l.owner, ownerContact: l.ownerContact, acres: l.acres, lotSize: l.lotSize, taxValue: l.taxValue, parcel: l.parcel, source: l.source, listStatus: l.listStatus, status: 'opportunity' }));
+      try { const r = await importLots(lots); swMsg('Added ' + r.added + ' to the worklist · ' + r.duplicates + ' already there.'); render(); }
+      catch (e) { swMsg('Could not add to the worklist (is the database up?).'); }
     });
 
     // ---------- Stipend settings (shared, audit-logged) ----------
