@@ -177,10 +177,15 @@ async function noHorizontalOverflow(page) {
       (await page.locator('table thead th').allTextContents()).includes('Stipend'));
 
     // ---------- Data sync to admin ----------
-    const leadsText = await page.textContent('#newLeadsList');
+    const leadsText = await page.textContent('#newLeadsBlock');
     check('new leads (pending) reach the New Leads inbox',
       leadsText.includes('123 Maple Avenue') && leadsText.includes('Malabar'));
     check('new leads inbox visible', await page.locator('#newLeadsBlock').isVisible());
+    // Inbound/QR leads route to the urgent "Website Leads" group with a count.
+    check('website leads group visible for inbound QR leads',
+      await page.locator('#nlWebGroup').isVisible());
+    check('website leads count shown',
+      Number(await page.textContent('#nlWebCount')) >= 1);
 
     // ---------- Kevin flow: pipeline table, filters, calendar ----------
     check('closing calendar renders two months', await page.locator('#calGrid .cal-month').count() === 2);
@@ -204,8 +209,8 @@ async function noHorizontalOverflow(page) {
     check('target focuses on accepted contracts', (await page.textContent('.target')).includes('accepted contracts'));
 
     // ---------- Approval: generate an offer on a New Lead ----------
-    await page.waitForSelector('#newLeadsList .lead-row');
-    await page.locator('#newLeadsList .lead-row').first().click();
+    await page.waitForSelector('#newLeadsBlock .lead-row');
+    await page.locator('#newLeadsBlock .lead-row').first().click();
     await page.waitForSelector('#actionButtons button', { timeout: 10000 });
     check('approval screen loads lot', (await page.textContent('#pageTitle')).includes('Offer Approval:'));
     await page.locator('#actionButtons button', { hasText: 'Generate' }).click();

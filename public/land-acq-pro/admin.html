@@ -54,15 +54,24 @@
     .mtile .m-val { font-size: 22px; font-weight: 800; color: #003d66; font-variant-numeric: tabular-nums; }
 
     /* New leads inbox */
-    .newleads { border: 2px solid #e8963c; border-radius: 12px; background: #fff8ef; padding: 14px 16px; margin-bottom: 24px; }
-    .newleads h3 { color: #8a5200; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .newleads { border: 2px solid #e8963c; border-radius: 12px; background: #fff8ef; padding: 14px 16px; margin-bottom: 24px; max-width: 760px; }
+    .nl-group { margin-bottom: 16px; }
+    .nl-group:last-child { margin-bottom: 0; }
+    .newleads h3 { color: #8a5200; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
     .newleads h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: #a5762f; font-size: 13px; }
-    .lead-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
+    .newleads h3 .nl-count { margin-left: auto; background: #e8963c; color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0; min-width: 22px; text-align: center; padding: 2px 8px; border-radius: 11px; }
+    #nlWebGroup h3 { color: #b3400a; }
+    #nlWebGroup h3 .nl-count { background: #c0392b; }
+    .nl-urgent-note { font-size: 12px; color: #b3400a; margin-bottom: 8px; font-weight: 600; }
+    .lead-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer; }
+    #nlWebGroup .lead-row { border-color: #f2c6ba; }
     .lead-row:last-child { margin-bottom: 0; }
     .lead-row:hover { background: #fdf3e6; }
+    .lead-row .l-main { min-width: 0; flex: 1; }
     .lead-row .l-addr { font-weight: 600; color: #003d66; font-size: 15px; }
     .lead-row .l-meta { font-size: 13px; color: #667; margin-top: 2px; }
-    .lead-row .l-cta { flex-shrink: 0; font-size: 13px; font-weight: 700; color: #8a5200; }
+    .lead-row .l-src { display: inline-block; background: #eef4fb; color: #1a5ba5; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; padding: 2px 7px; border-radius: 4px; margin-top: 4px; }
+    .lead-row .l-cta { flex-shrink: 0; font-size: 13px; font-weight: 700; color: #8a5200; white-space: nowrap; }
 
     /* New Opportunities — buy-box scan with green/yellow/red triage */
     .opps { border: 2px solid #1a5ba5; border-radius: 12px; background: #f2f7fc; padding: 14px 16px; margin-bottom: 24px; }
@@ -337,10 +346,21 @@
       </div>
       <div class="import-msg" id="importMsg" style="display:none;"></div>
 
-      <!-- New leads (QR + research requests) — first thing Kevin sees on login -->
+      <!-- New leads — first thing Kevin sees on login. Split by urgency:
+           inbound website/QR leads (sellers reaching out to us) are the most
+           urgent; on-market leads are lots we sourced and can contract now. -->
       <div class="newleads" id="newLeadsBlock" style="display:none;">
-        <h3>New Leads <span>&mdash; awaiting first offer</span></h3>
-        <div id="newLeadsList"></div>
+        <div class="nl-group" id="nlWebGroup" style="display:none;">
+          <h3>Website Leads <span>&mdash; sellers reaching out for an offer</span>
+            <span class="nl-count" id="nlWebCount">0</span></h3>
+          <div class="nl-urgent-note">Most urgent &mdash; these sellers came to us. Respond first.</div>
+          <div id="nlWebList"></div>
+        </div>
+        <div class="nl-group" id="nlMktGroup" style="display:none;">
+          <h3>On-Market Leads <span>&mdash; listed lots ready to contract</span>
+            <span class="nl-count" id="nlMktCount">0</span></h3>
+          <div id="nlMktList"></div>
+        </div>
       </div>
 
       <!-- Compact stipend panel -->
@@ -1130,6 +1150,48 @@
           (!!l.agentBrokerage || !!l.agentName || typeof l.listPrice === 'number' || /listing|active|auction/i.test(l.listStatus || '')));
     }
 
+    // A "website lead" is a seller who reached out to us through the QR /
+    // seller landing page (they want an offer). Everything else pending is a
+    // lot we sourced from a listing site and can contract on directly.
+    function isWebLead(l) {
+      return /qr|landing|research|seller confirmed|general inquiry|website|web lead/i.test(l.source || 'QR Landing Page');
+    }
+
+    // One New-Leads row. On-market rows carry a source · listing-title tag
+    // (Zillow, Land.com, etc.); website rows show how the seller reached us.
+    function buildLeadRow(l, showSource) {
+      const row = document.createElement('div');
+      row.className = 'lead-row';
+      const main = document.createElement('div'); main.className = 'l-main';
+      const addr = document.createElement('div'); addr.className = 'l-addr';
+      addr.textContent = l.address || '—';
+      const meta = document.createElement('div'); meta.className = 'l-meta';
+      meta.textContent = l.owner || [l.firstName, l.lastName].filter(Boolean).join(' ') || 'Owner';
+      const tag = document.createElement('div'); tag.className = 'l-src';
+      if (showSource) {
+        const title = typeof l.listPrice === 'number' ? 'Listed ' + money(l.listPrice)
+          : (l.listStatus || l.listingTitle || 'Active Listing');
+        tag.textContent = (l.source || 'On-Market') + ' · ' + title;
+      } else {
+        tag.textContent = (l.source || 'QR Landing Page') + (l.preferredContact ? ' · prefers ' + l.preferredContact : '');
+      }
+      main.appendChild(addr); main.appendChild(meta); main.appendChild(tag);
+      const cta = document.createElement('div'); cta.className = 'l-cta'; cta.innerHTML = 'Make Offer &rarr;';
+      row.appendChild(main); row.appendChild(cta);
+      row.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+      return row;
+    }
+
+    function renderLeadGroup(groupId, listId, countId, leads, showSource) {
+      const group = document.getElementById(groupId);
+      const list = document.getElementById(listId);
+      list.innerHTML = '';
+      if (!leads.length) { group.style.display = 'none'; return; }
+      group.style.display = 'block';
+      document.getElementById(countId).textContent = leads.length;
+      leads.forEach(l => list.appendChild(buildLeadRow(l, showSource)));
+    }
+
     // Build one opportunity row (Send Offer / Hold / Unsuitable). Unsuitable
     // removes the lot permanently so it never returns to the feed.
     function buildOppRow(l, ev) {
@@ -1708,25 +1770,17 @@
         ? Math.round(closedAll.reduce((a, l) => a + Math.max(1, (new Date(closedDate(l)) - new Date(l.createdAt)) / 86400000), 0) / closedAll.length) + ' days'
         : '—';
 
-      // New leads inbox (pending, pre-offer)
+      // New leads inbox (pending, pre-offer), split by urgency:
+      //  - Website leads: sellers who came to us via the QR / seller page.
+      //    These are people asking for an offer — respond to them first.
+      //  - On-Market leads: listed lots we sourced (Zillow, Land.com, etc.)
+      //    that we can contract right away; we tag each with its source.
       const newLeads = lots.filter(l => l.displayStatus === 'pending').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      const nlBlock = document.getElementById('newLeadsBlock');
-      const nlList = document.getElementById('newLeadsList');
-      if (newLeads.length) {
-        nlBlock.style.display = 'block';
-        nlList.innerHTML = '';
-        newLeads.forEach(l => {
-          const row = document.createElement('div');
-          row.className = 'lead-row';
-          row.innerHTML = '<div><div class="l-addr"></div><div class="l-meta"></div></div><div class="l-cta">Make Offer &rarr;</div>';
-          row.querySelector('.l-addr').textContent = l.address || '—';
-          row.querySelector('.l-meta').textContent = (l.source || 'QR Landing Page') + ' · ' + (l.owner || [l.firstName, l.lastName].filter(Boolean).join(' ') || 'Owner');
-          row.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
-          nlList.appendChild(row);
-        });
-      } else {
-        nlBlock.style.display = 'none';
-      }
+      const webLeads = newLeads.filter(isWebLead);
+      const mktLeads = newLeads.filter(l => !isWebLead(l));
+      renderLeadGroup('nlWebGroup', 'nlWebList', 'nlWebCount', webLeads, false);
+      renderLeadGroup('nlMktGroup', 'nlMktList', 'nlMktCount', mktLeads, true);
+      document.getElementById('newLeadsBlock').style.display = (webLeads.length || mktLeads.length) ? 'block' : 'none';
 
       // Closing calendar (this month + next)
       renderCalendar(lots);
