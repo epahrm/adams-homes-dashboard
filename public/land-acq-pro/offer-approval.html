@@ -187,8 +187,10 @@
           <div class="field"><div class="lbl">Utilities</div><div class="val" id="cUtilities">—</div></div>
           <div class="field"><div class="lbl">Tax Assessment</div><div class="val" id="cTax">—</div></div>
         </div>
-        <div class="field" style="margin-top:12px;"><div class="lbl">Verify at County</div>
+        <div class="field" style="margin-top:12px;"><div class="lbl">County Record</div>
+          <button type="button" id="pullCountyBtn" style="margin-right:10px; padding:8px 14px; font-family:inherit; font-size:14px; font-weight:700; color:#fff; background:#1a5ba5; border:none; border-radius:8px; cursor:pointer;">Pull County Record</button>
           <a class="county-link" href="https://www.bcpao.us/PropertySearch/" target="_blank" rel="noopener">Open County Records</a>
+          <span id="countyMsg" class="hint" style="display:none; margin-left:8px;"></span>
         </div>
         <div class="hint">This property card is included in the seller's offer email and in Kevin's copy.</div>
       </div>
@@ -594,7 +596,8 @@
         'pending-ep-sig': isElizabeth() ? 'Review the summary and sign to make it official.' : 'Awaiting Elizabeth’s signature.',
         'ip': 'Executed. In inspection period.', 'manager-driven': 'Manager-driven review.',
         'survey-rcvd': 'Survey received.', 'cd-approved': 'Closing disclosure approved.',
-        'ctc': 'Clear to close.', 'closed': 'Closed.', 'declined': 'Declined.'
+        'ctc': 'Clear to close.', 'closed': 'Closed.', 'declined': 'Declined.',
+        'offer-denied': 'Seller declined — 30-day follow-up scheduled.'
       };
       document.getElementById('stageHint').textContent = hints[st] || '';
 
@@ -619,6 +622,10 @@
       } else if (st === 'offer-sent') {
         addBtn('Mark Seller Contract Received', 'btn-navy', markSellerReceived);
         addBtn('Resend Offer', 'btn-outline', generateOffer);
+        addBtn('Seller Declined', 'btn-outline', sellerDeclined);
+      } else if (st === 'offer-denied') {
+        addBtn('Send Follow-up Offer', 'btn-primary', generateOffer);
+        addBtn('Mark Unsuitable', 'btn-outline', markUnsuitable);
       } else if (st === 'seller-signed' || st === 'pending-ep-sig') {
         if (isElizabeth()) addBtn('Approve & Sign — Make It Official', 'btn-primary', elizabethSign);
         else { const note = document.createElement('div'); note.className = 'hint'; note.textContent = 'Only Elizabeth can counter-sign. Sign in as Elizabeth to complete this step.'; box.appendChild(note); }
@@ -781,6 +788,61 @@
       catch (e) { msg('Could not save the note — please try again.', false); }
     });
 
+    // ---------- County record (on-demand parcel enrichment) ----------
+    function countyMsg(text, ok) {
+      const el = document.getElementById('countyMsg');
+      if (!text) { el.style.display = 'none'; return; }
+      el.textContent = text; el.style.color = ok ? '#1a7a44' : '#a5361f'; el.style.display = 'inline';
+    }
+
+    async function pullCounty(auto) {
+      if (mode !== 'server') { if (!auto) countyMsg('County lookup needs the live site.', false); return; }
+      const btn = document.getElementById('pullCountyBtn');
+      btn.disabled = true; const lbl = btn.textContent; btn.textContent = 'Looking up…';
+      try {
+        const res = await fetch('/api/land-acq/parcel?address=' + encodeURIComponent(lot.address || ''),
+          { headers: adminHeaders(), signal: AbortSignal.timeout(10000) });
+        const d = await res.json();
+        if (!d || !d.found) { countyMsg(auto ? '' : 'No county match for this address.', false); return; }
+        const set = { countyPulledAt: new Date().toISOString() };
+        if (d.parcel) set.parcel = d.parcel;
+        if (d.owner) set.owner = d.owner;
+        if (d.ownerContact) set.ownerContact = d.ownerContact;
+        if (d.lotSize) set.lotSize = d.lotSize;
+        if (typeof d.acres === 'number') set.acres = d.acres;
+        if (d.zoningClass) set.zoning = d.zoningClass;
+        if (d.taxValue) set.taxValue = d.taxValue;
+        if (d.useDesc) set.useDesc = d.useDesc;
+        if (typeof d.hasStructure === 'boolean') set.hasStructure = d.hasStructure;
+        await saveLot(set); renderAll();
+        countyMsg(d.hasStructure
+          ? '⚠ County shows a STRUCTURE on this parcel — confirm it is a vacant lot.'
+          : '✓ Pulled: ' + (d.owner || 'owner') + ' · parcel ' + (d.parcel || '—'), !d.hasStructure);
+      } catch (e) {
+        countyMsg(auto ? '' : 'County lookup failed — try again.', false);
+      } finally { btn.disabled = false; btn.textContent = lbl; }
+    }
+    document.getElementById('pullCountyBtn').addEventListener('click', () => pullCounty(false));
+
+    async function sellerDeclined() {
+      if (!confirm('Record that the seller declined this offer? It will resurface in 30 days for a follow-up if still listed.')) return;
+      const now = Date.now();
+      try {
+        await saveLot({ status: 'offer-denied', deniedAt: new Date(now).toISOString(), nextReviewAt: new Date(now + 30 * 86400000).toISOString() });
+        lot.status = 'offer-denied'; renderAll();
+        msg('Seller decline recorded — it will resurface in 30 days for a follow-up.', true);
+      } catch (e) { msg('Could not record the decline — try again.', false); }
+    }
+
+    async function markUnsuitable() {
+      if (!confirm('Mark this lot unsuitable? It will be removed and never shown again.')) return;
+      try {
+        await saveLot({ status: 'dismissed', dismissedAt: new Date().toISOString() });
+        lot.status = 'dismissed'; renderAll();
+        msg('Lot marked unsuitable and removed from the worklist.', true);
+      } catch (e) { msg('Could not update the lot — try again.', false); }
+    }
+
     async function boot() {
       document.getElementById('gateOverlay').style.display = 'none';
       document.getElementById('content').style.display = 'block';
@@ -796,6 +858,8 @@
         return;
       }
       renderAll();
+      // Auto-pull the county record when Kevin opens a lot that has no parcel yet.
+      if (!lot.parcel && !lot.countyPulledAt) pullCounty(true);
     }
 
     document.getElementById('gateForm').addEventListener('submit', async function(e) {

@@ -25,10 +25,21 @@ Every showable lot stays in the **New Opportunities** queue until Kevin acts:
 - **Unsuitable** → `dismissed`: removed and **never shown again**. The row is
   kept so the unique address key blocks the scan from ever re-adding it.
 
-**Seller declines an offer →** the lot becomes `offer-denied` with a
-`nextReviewAt` 30 days out. When that date arrives it surfaces in the
-**Re-offer Due** section prompting Kevin to send another offer if it's still
-listed (**Reviewed — 30d** re-arms the timer; **Unsuitable** drops it).
+**Seller declines an offer →** on the offer screen Kevin clicks **Seller
+Declined**, which sets `offer-denied` with a `nextReviewAt` 30 days out. When
+that date arrives the lot surfaces in the **Re-offer Due** section prompting a
+follow-up if it's still listed (**Reviewed — 30d** re-arms the timer;
+**Unsuitable** drops it).
+
+## On-demand county enrichment (`/api/land-acq/parcel`)
+When Kevin opens a lot to make an offer, the offer screen auto-pulls the county
+record for that address (or he clicks **Pull County Record**). Source: the City
+of Palm Bay parcel service (public ArcGIS, no bot-wall). It fills **owner, owner
+mailing address, parcel #, acreage, land use, and value**, and confirms the lot
+is **vacant** (UseCode `0010`) vs. flags a structure. This is what completes a
+🟡 "verify" lead into a ready offer packet. Addresses without a street number
+(intersections) return no match rather than guessing. Verified live against real
+Palm Bay lots.
 
 ## Data sources — the honest version
 Live-scraping the big portals is **not** a durable foundation:
