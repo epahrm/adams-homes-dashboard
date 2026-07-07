@@ -5,20 +5,12 @@ import { Pool } from 'pg'
 // dedicated table managed with plain SQL so the onboarding-dashboard Prisma
 // schema stays untouched. The table self-provisions on first use.
 
-let databaseUrl =
-  process.env.DATABASE_URL ||
-  'postgresql://postgres.tbzuajwitwonwojqshew:AdamsHomes1991!@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public'
-
-if (databaseUrl.includes('AdamsHomes1991!')) {
-  databaseUrl = databaseUrl.replace('AdamsHomes1991!', 'AdamsHomes1991%21')
-}
-
-// Drop any query params (e.g. schema=, sslmode=, pgbouncer=). In particular,
-// sslmode=require makes node-postgres verify the server certificate and reject
-// Supabase's shared-pooler chain with SELF_SIGNED_CERT_IN_CHAIN. TLS is instead
-// governed entirely by the ssl option on the Pool below (rejectUnauthorized:
-// false), which is what Supabase's pooler needs.
-databaseUrl = databaseUrl.split('?')[0]
+// The Postgres connection comes from the DATABASE_URL env var (set in Vercel —
+// never committed). Strip any query params (e.g. sslmode=require, which makes
+// node-postgres verify the server cert and reject Supabase's shared-pooler
+// chain with SELF_SIGNED_CERT_IN_CHAIN); TLS is governed by the Pool's ssl
+// option below (rejectUnauthorized:false), which the Supabase pooler needs.
+const databaseUrl = (process.env.DATABASE_URL || '').split('?')[0]
 
 // Shared password for the admin pages (Kevin + Elizabeth). Override in the
 // Vercel project env settings.
