@@ -78,10 +78,9 @@
     }
 
     /* Stats trust band */
-    .hero-brand { display: inline-flex; align-items: center; gap: 18px; background: #fff; padding: 13px 24px; border-radius: 12px; margin-bottom: 26px; box-shadow: 0 10px 26px rgba(3,20,38,0.28); }
-    .hero-brand img { height: 62px; display: block; }
-    .hero-brand .hb-tag { font-size: 16px; font-weight: 700; color: var(--blue); border-left: 1px solid #d5dee8; padding-left: 18px; letter-spacing: 0.2px; white-space: nowrap; }
-    @media (max-width: 640px) { .hero-brand { padding: 10px 16px; gap: 12px; } .hero-brand img { height: 46px; } .hero-brand .hb-tag { font-size: 13px; padding-left: 12px; } }
+    .hero-brand { display: block; width: fit-content; margin: 0 auto 26px; background: #fff; padding: 8px 18px; border-radius: 12px; box-shadow: 0 10px 26px rgba(3,20,38,0.28); }
+    .hero-brand img { height: 104px; width: auto; display: block; }
+    @media (max-width: 640px) { .hero-brand { padding: 7px 14px; } .hero-brand img { height: 88px; } }
 
     .direct-contact { font-size: 13px; color: #667; margin-top: 12px; line-height: 1.55; }
     .direct-contact a { color: var(--blue); font-weight: 600; text-decoration: none; }
@@ -149,6 +148,14 @@
     .p-field .lbl { color: #778; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
     .p-field .val { font-size: 17px; color: var(--ink); }
     .confirm { background: #e8f2ec; border-left: 5px solid #1a7a44; border-radius: 6px; padding: 18px; font-size: 17px; color: #14401d; margin-top: 20px; display: none; }
+    .contact-capture { display: none; margin-top: 22px; padding-top: 20px; border-top: 2px dashed #d6e0ec; }
+    .contact-capture h4 { color: var(--blue); font-size: 19px; margin-bottom: 6px; text-wrap: balance; }
+    .contact-capture .cc-sub { color: #555; font-size: 15px; line-height: 1.5; margin-bottom: 16px; }
+    .contact-capture .rf-group { margin-bottom: 12px; }
+    .cc-pref { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 4px 0 2px; }
+    .cc-pref-lbl { width: 100%; color: #778; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+    .cc-pref label { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; color: var(--ink); cursor: pointer; }
+    .cc-pref input[type="radio"] { width: auto; margin: 0; }
     .message { padding: 14px; border-radius: 8px; margin-top: 16px; display: none; font-size: 16px; }
     .message.success { background: #e8f2ec; color: #14401d; border: 1px solid #bcd8c6; }
     .message.error { background: #fdecea; color: #b02a1a; border: 1px solid #f3c3bb; }
@@ -191,8 +198,9 @@
 
     /* Footer */
     .site-footer { background: var(--blue-deep); color: white; text-align: center; padding: 40px 20px 44px; }
-    .footer-logo { display: inline-block; background: white; border-radius: 12px; padding: 18px 26px; margin-bottom: 20px; }
-    .footer-logo img { height: 76px; width: auto; display: block; }
+    .footer-logo { display: inline-block; background: white; border-radius: 12px; padding: 12px 22px; margin-bottom: 20px; }
+    .footer-logo img { height: 124px; width: auto; display: block; max-width: 100%; }
+    @media (max-width: 640px) { .footer-logo { padding: 10px 16px; } .footer-logo img { height: 100px; } }
     .site-footer p { color: #d3deec; font-size: 15px; line-height: 1.7; }
     .site-footer .tag { font-size: 16px; color: #eaf1f8; }
     .footer-links { margin: 14px 0 6px; font-size: 15px; }
@@ -214,7 +222,7 @@
   <!-- Hero (logo lives inside the blue box; no white header bar above) -->
   <section class="hero">
     <div class="container">
-      <div class="hero-brand"><img src="adams-homes-logo.png" alt="Adams Homes"><span class="hb-tag">Value, Simplified&trade;</span></div>
+      <div class="hero-brand"><img src="adams-homes-logo.png" alt="Adams Homes"></div>
       <div class="hero-grid">
         <div class="hero-copy">
           <div class="eyebrow">Palm Bay Vacant Land</div>
@@ -230,7 +238,7 @@
           <div class="hc-row">No agents, brokers, or commissions</div>
           <div class="hc-row">No financing &mdash; funds ready now</div>
           <div class="hc-row">We handle all the paperwork</div>
-          <div class="hc-figure"><div class="lbl">No obligation, no pressure</div><div class="amt">Let's get started</div></div>
+          <div class="hc-figure"><div class="lbl">No obligation offer</div><div class="amt">Let's get started</div></div>
         </div>
       </div>
     </div>
@@ -251,9 +259,8 @@
     <div class="container">
       <h2>Why Adams Homes?</h2>
       <div class="why-grid">
-        <div class="why-item"><span class="why-ic">&#127942;</span><div><b>65,000+ homes built</b><span>One of America's largest homebuilders &mdash; across 28 markets.</span></div></div>
+        <div class="why-item"><span class="why-ic">&#127942;</span><div><b>65,000+ homes built</b><span>One of America's largest homebuilders &mdash; across more than 30 markets.</span></div></div>
         <div class="why-item"><span class="why-ic">&#9889;</span><div><b>No banks, no financing, no delays</b><span>Nothing to wait on &mdash; we move fast and keep it simple.</span></div></div>
-        <div class="why-item"><span class="why-ic">&#128205;</span><div><b>75,000+ lots purchased</b><span>We've done this nationwide, many times over.</span></div></div>
         <div class="why-item"><span class="why-ic">&#129309;</span><div><b>A full-time local team</b><span>Right here in Palm Bay, with a proven reputation.</span></div></div>
       </div>
     </div>
@@ -329,7 +336,35 @@
           <div class="p-field"><div class="lbl">Utilities</div><div class="val" id="recUtilities"></div></div>
           <button type="button" class="btn btn-blue" id="confirmBtn">Yes, this is my property</button>
           <button type="button" class="btn btn-outline" id="searchAgainBtn" style="margin-top:12px;">No, search again</button>
-          <div class="confirm" id="confirmMsg">Property verified. Kevin will send your custom offer within one business day.</div>
+
+          <!-- Seller contact capture — where do we send the offer? -->
+          <div class="contact-capture" id="contactCapture">
+            <h4>Where should we send your offer?</h4>
+            <p class="cc-sub">Enter your details and Kevin will send your custom cash offer within one business day. No obligation.</p>
+            <form id="offerContactForm" novalidate>
+              <div class="rf-group">
+                <input type="text" id="ccName" placeholder="Your full name *" autocomplete="name">
+                <div class="field-error" id="ccNameError">Please enter your name.</div>
+              </div>
+              <div class="rf-group">
+                <input type="tel" id="ccPhone" placeholder="Phone *" autocomplete="tel">
+                <div class="field-error" id="ccPhoneError">Please enter a phone number.</div>
+              </div>
+              <div class="rf-group">
+                <input type="email" id="ccEmail" placeholder="Email *" autocomplete="email">
+                <div class="field-error" id="ccEmailError">Please enter a valid email.</div>
+              </div>
+              <div class="rf-group cc-pref">
+                <span class="cc-pref-lbl">Best way to reach you</span>
+                <label><input type="radio" name="ccPref" value="Phone" checked> Phone</label>
+                <label><input type="radio" name="ccPref" value="Text"> Text</label>
+                <label><input type="radio" name="ccPref" value="Email"> Email</label>
+              </div>
+              <button type="submit" class="btn btn-red">Send Me My Offer</button>
+            </form>
+          </div>
+
+          <div class="confirm" id="confirmMsg">Thank you! Kevin will send your custom offer within one business day.</div>
           <div class="message" id="resultMessage"></div>
         </div>
       </div>
@@ -467,7 +502,11 @@
       resultPanel.style.display = 'block';
       confirmMsg.style.display = 'none';
       resultMessage.style.display = 'none';
-      document.getElementById('confirmBtn').disabled = false;
+      const cc = document.getElementById('contactCapture');
+      if (cc) { cc.style.display = 'none'; document.getElementById('offerContactForm').reset(); }
+      const confirmBtn = document.getElementById('confirmBtn');
+      confirmBtn.disabled = false;
+      confirmBtn.style.display = 'block';
       document.getElementById('recAddress').textContent = record.address || '—';
       document.getElementById('recOwner').textContent = record.owner || '—';
       document.getElementById('recLotSize').textContent = record.lotSize || 'Kevin will verify';
@@ -546,31 +585,69 @@
       return saveLocal(lead);
     }
 
-    document.getElementById('confirmBtn').addEventListener('click', async function() {
+    // "Yes, this is my property" now reveals the contact form so we can
+    // actually reach the seller — the lead is not saved until they give us a
+    // way to send the offer.
+    const contactCapture = document.getElementById('contactCapture');
+    document.getElementById('confirmBtn').addEventListener('click', function() {
       if (!matchedRecord) return;
+      this.style.display = 'none';
+      contactCapture.style.display = 'block';
+      // Pre-fill the seller's name from the county record if we have it.
+      const nameInput = document.getElementById('ccName');
+      if (matchedRecord.owner && !nameInput.value) nameInput.value = ownerDisplayName(matchedRecord.owner);
+      if (matchedRecord.ownerEmail) document.getElementById('ccEmail').value = matchedRecord.ownerEmail;
+      contactCapture.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      nameInput.focus();
+    });
+
+    // County owner names come through as "LAST, FIRST" — flip to "First Last"
+    // so the pre-filled name reads naturally for the seller.
+    function ownerDisplayName(owner) {
+      const m = (owner || '').match(/^\s*([^,]+),\s*(.+?)\s*$/);
+      return m ? (m[2] + ' ' + m[1]).replace(/\s+/g, ' ').trim() : owner;
+    }
+
+    document.getElementById('offerContactForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
       const rec = matchedRecord;
-      this.disabled = true;
+      if (!rec) return;
+      const name = document.getElementById('ccName').value.trim();
+      const phone = document.getElementById('ccPhone').value.trim();
+      const email = document.getElementById('ccEmail').value.trim();
+      const pref = (document.querySelector('input[name="ccPref"]:checked') || {}).value || 'Phone';
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      showError('ccNameError', !name);
+      showError('ccPhoneError', !phone);
+      showError('ccEmailError', !emailOk);
+      if (!name || !phone || !emailOk) return;
+      const btn = this.querySelector('button');
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Sending…';
       const result = await saveLead({
         address: rec.address,
-        firstName: (rec.owner || '').split(' ')[0],
-        lastName: (rec.owner || '').split(' ').slice(1).join(' '),
-        email: rec.ownerEmail || '', phone: '',
-        parcel: rec.parcel, owner: rec.owner, ownerContact: rec.ownerContact,
+        firstName: name.split(' ')[0],
+        lastName: name.split(' ').slice(1).join(' '),
+        sellerName: name, email, phone, preferredContact: pref,
+        parcel: rec.parcel, owner: rec.owner,
+        ownerContact: [name, phone, email].filter(Boolean).join(' | ') + ' | prefers ' + pref,
         lotSize: rec.lotSize, zoning: rec.zoning, utilities: rec.utilities,
         taxValue: rec.taxValue, annualTax: rec.annualTax,
         listPrice: rec.listPrice, listStatus: rec.listStatus,
         agentName: rec.agentName, agentBrokerage: rec.agentBrokerage,
         agentPhone: rec.agentPhone, agentEmail: rec.agentEmail,
-        verified: true
+        source: 'Seller Confirmed', verified: true
       });
+      btn.disabled = false; btn.textContent = label;
       if (result === 'duplicate') {
         resultMessage.className = 'message error';
         resultMessage.textContent = 'This property has already been submitted. Kevin will send your offer within one business day.';
         resultMessage.style.display = 'block';
-        this.disabled = false;
         return;
       }
+      contactCapture.style.display = 'none';
       confirmMsg.style.display = 'block';
+      confirmMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
 
     // "Can't find" research request — captures a lead into the pipeline.

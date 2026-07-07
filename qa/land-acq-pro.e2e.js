@@ -77,16 +77,31 @@ async function noHorizontalOverflow(page) {
     await page.waitForSelector('#resultPanel', { state: 'visible' });
     check('search by name finds county record',
       (await page.textContent('#recOwner')).trim() === 'John Smith');
+    // "Yes, this is my property" reveals the contact-capture form (we need a
+    // way to reach the seller before we save the lead).
     await page.click('#confirmBtn');
+    await page.waitForSelector('#contactCapture', { state: 'visible', timeout: 15000 });
+    check('contact form shown after confirming property',
+      await page.locator('#offerContactForm #ccPhone').isVisible());
+    check('seller name pre-filled from record',
+      (await page.inputValue('#ccName')).trim().length > 0);
+    // Submitting with valid contact info saves the lead and shows confirmation.
+    await page.fill('#ccPhone', '(321) 555-0100');
+    await page.fill('#ccEmail', 'seller@example.com');
+    await page.click('#offerContactForm button[type="submit"]');
     await page.waitForSelector('#confirmMsg', { state: 'visible', timeout: 15000 });
     check('confirmation message shows',
-      (await page.textContent('#confirmMsg')).includes('Property verified'));
+      (await page.textContent('#confirmMsg')).toLowerCase().includes('offer'));
 
     // Duplicate handling
     await page.fill('#streetAddress', '123 Maple Avenue');
     await page.click('#searchAddressBtn');
     await page.waitForSelector('#resultPanel', { state: 'visible' });
     await page.click('#confirmBtn');
+    await page.waitForSelector('#contactCapture', { state: 'visible', timeout: 15000 });
+    await page.fill('#ccPhone', '(321) 555-0101');
+    await page.fill('#ccEmail', 'dupe@example.com');
+    await page.click('#offerContactForm button[type="submit"]');
     await page.waitForSelector('#resultMessage.error', { state: 'visible', timeout: 15000 });
     check('duplicate submission blocked', true);
 
