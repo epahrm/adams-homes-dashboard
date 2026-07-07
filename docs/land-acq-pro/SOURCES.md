@@ -16,14 +16,15 @@ free account on each portal and point its alert emails at
 | **Crexi** | Free | Free | Saved search → alerts → Gmail | Parser ✅ confirmed (you already get Crexi alerts) — repoint to the Gmail |
 | **Land.com** (LandWatch / Lands of America) | Free | Free | Saved search → alerts → Gmail | Same pipeline; confirm on first alert |
 | **LoopNet** | Free | Free | Saved search → alerts → Gmail | Same pipeline (commercial-heavy) |
-| **RealtyTrac** (foreclosures) | **Paid** | ~$30–50/mo | Only if you want foreclosure leads; else skip (county court records are free) | Optional — flag if you want it |
-| **MLS / IDX** | Via broker | Membership/feed | Confirm IDX/RETS/Spark access through Kevin/broker | ⏳ Pending your IDX answer |
+| **Zillow — foreclosure filter** | Free | Free | Same saved search with the **Foreclosures/Pre-foreclosure** filter on → alerts → Gmail | Same parser; flagged as distressed |
+| **RealtyTrac** (pre-foreclosure + foreclosure) | **Paid** | ~$30–50/mo | Aggregates distressed/court data into a clean feed; account **export (CSV) → Import Contacts**, or email alerts → Gmail | Recommended for distressed; CSV import works today |
+| **MLS / IDX** | Via broker | Membership/feed | **Not available right now** — using portal alerts instead until you have IDX | ⏸ Deferred (no IDX for now) |
 
-## Public sources — no account, already wired
-| Source | Access | Status |
-| --- | --- | --- |
-| **Brevard County / City of Palm Bay parcel + assessment data** | Public GIS API — no login | ✅ **Integrated.** Powers the on-demand county lookup at offer time AND the off-market mailer sweep (~14,000 absentee buy-box lots) |
-| **Brevard County court records** (foreclosure filings) | Public records | 🔜 Not wired yet (later phase); free |
+## Public / distressed sources
+| Source | Access | How it feeds in | Status |
+| --- | --- | --- | --- |
+| **Tax assessor records** (City of Palm Bay / Brevard parcel + assessment) | Public GIS API — no login | Direct query | ✅ **Integrated.** Powers seller search, on-demand county lookup at offer time, AND the off-market sweep (~14,000 absentee buy-box lots) |
+| **Brevard County court records** (foreclosure / *lis pendens* filings) | Public records (Clerk of Court) | Distressed/pre-foreclosure leads | 🔜 Needs a lookup path — the Clerk's portal isn't a clean API; likely **RealtyTrac (paid) or a periodic manual pull** is the practical source. Flag if you want me to investigate a direct wire. |
 
 ## What access *I* currently have
 - ✅ **County / parcel data** — live, free, no account (built in).

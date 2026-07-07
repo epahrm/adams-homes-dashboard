@@ -222,10 +222,17 @@
               <option value="Email">Email</option>
               <option value="QR Landing Page">QR Landing Page</option>
               <option value="FSBO">FSBO</option>
+              <option value="Wholesaler">Wholesaler</option>
               <option value="Expired">Expired</option>
               <option value="Off-Market">Off-Market</option>
               <option value="Other">Other</option>
             </select>
+          </div>
+          <div class="field m-full" id="wholesalerCheck" style="display:none; grid-column:1 / -1;">
+            <label style="display:flex; align-items:flex-start; gap:9px; font-size:13.5px; color:#7a3a12; background:#fff7ef; border:1px solid #f0d6b8; border-radius:8px; padding:11px 13px; font-weight:600;">
+              <input type="checkbox" id="wholesalerConfirmed" style="width:auto; margin-top:2px;">
+              <span>Wholesaler deal &mdash; I confirmed this property is <b>not currently listed for sale</b> on any public site (Zillow, Realtor.com, Crexi, etc.) before making this offer.</span>
+            </label>
           </div>
           <div class="field">
             <div class="lbl">Approved Lot Stipend</div>
@@ -730,6 +737,7 @@
         commissionPct: resolveCommission().pct,
         commissionAmt: resolveCommission().amt,
         commissionConfirmed: document.getElementById('commissionConfirmed').checked,
+        wholesalerConfirmed: document.getElementById('wholesalerConfirmed').checked,
         kevinNotes: document.getElementById('kevinNotes').value.trim(),
         agentName: document.getElementById('agentName').value.trim(),
         agentBrokerage: document.getElementById('agentBrokerage').value.trim(),
@@ -750,11 +758,23 @@
       return choice.value === 'yes' ? collectPremiums() : [];
     }
 
+    // Show the "not already listed" confirmation only for wholesaler deals.
+    function toggleWholesaler() {
+      const isWholesaler = document.getElementById('leadSource').value === 'Wholesaler';
+      document.getElementById('wholesalerCheck').style.display = isWholesaler ? 'block' : 'none';
+    }
+
     async function generateOffer() {
       const premiums = premiumChoiceValid();
       if (premiums === null) return msg('Please select whether there is a lot premium.', false);
       const offerVal = num(document.getElementById('offerAmount').value);
       if (!(offerVal > 0)) return msg('Please enter a valid offer amount.', false);
+      // Wholesaler gate: don't let an offer go out until Kevin confirms the
+      // property isn't already listed for sale on a public site.
+      if (document.getElementById('leadSource').value === 'Wholesaler' && !document.getElementById('wholesalerConfirmed').checked) {
+        document.getElementById('wholesalerCheck').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return msg('Wholesaler deal: first confirm the property is not already listed for sale on a public site.', false);
+      }
       const now = new Date().toISOString();
       const set = Object.assign(readForm(), {
         premiums: premiums,
@@ -832,6 +852,8 @@
       const listed = lot.listingType || ((lot.agentBrokerage || lot.agentName || /listing|active|auction/i.test(lot.listStatus || '')) ? 'listed' : 'off-market');
       document.getElementById('listingType').value = listed;
       document.getElementById('leadSource').value = lot.source || 'Direct Mail';
+      document.getElementById('wholesalerConfirmed').checked = !!lot.wholesalerConfirmed;
+      toggleWholesaler();
 
       // Listing agent / realtor — auto-filled from the listing
       document.getElementById('agentName').value = lot.agentName || '';
@@ -841,8 +863,14 @@
       document.getElementById('mlsNum').value = lot.mls || '';
       toggleAgentCard();
 
-      // Offer terms
-      const defOffer = lot.offer || (lot.listPrice ? money(lot.listPrice - 2000) : '$30,000');
+      // Offer terms. Default: on-market (listed) opens $2k below the stipend
+      // (room to negotiate up to the stipend); off-market opens at the stipend.
+      const stip = stipendForLot();
+      let defOffer;
+      if (lot.offer) defOffer = lot.offer;
+      else if (listed === 'listed' && stip != null) defOffer = money(Math.max(0, stip - 2000));
+      else if (stip != null) defOffer = money(stip);
+      else defOffer = '$30,000';
       document.getElementById('offerAmount').value = defOffer;
       if (lot.emd) document.getElementById('emd').value = lot.emd;
       // Off-market deals carry no third-party commission; listed deals default 3%.
@@ -876,6 +904,7 @@
     });
     document.getElementById('offerAmount').addEventListener('input', () => { refreshStipend(); updateCommissionHint(); });
     document.getElementById('commission').addEventListener('input', updateCommissionHint);
+    document.getElementById('leadSource').addEventListener('change', toggleWholesaler);
     document.querySelectorAll('input[name=hasPremium]').forEach(r => r.addEventListener('change', function() {
       document.getElementById('premiumList').classList.toggle('show', this.value === 'yes');
       document.getElementById('premiumError').style.display = 'none';

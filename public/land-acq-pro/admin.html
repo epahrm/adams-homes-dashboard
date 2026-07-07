@@ -97,6 +97,9 @@
     .opps-rejected summary { font-size: 12px; color: #8a3a28; cursor: pointer; font-weight: 600; }
     .opps-rejected .rej-row { font-size: 12px; color: #777; padding: 6px 4px; border-bottom: 1px solid #eee; }
     .opps-rejected .rej-row b { color: #555; }
+    .opp-more { display: block; width: 100%; margin-top: 4px; padding: 11px; border: 1px dashed #b9c8da; background: #fff; color: #0a4f8e; font-weight: 700; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; }
+    .opp-more:hover { background: #eef5fd; }
+    .opp-showing { text-align: center; color: #889; font-size: 13px; padding: 8px; }
     @media (max-width: 560px) { .opp-row { flex-wrap: wrap; } .opp-actions { flex-direction: row; width: 100%; } .opp-actions button { flex: 1; } }
 
     /* Closing calendar */
@@ -384,16 +387,24 @@
         <div class="cal-grid" id="calGrid"></div>
       </div>
 
-      <!-- Buy-box market scan: green/yellow/red triage of found lots -->
-      <div class="opps" id="oppsBlock" style="display:none;">
-        <h3>New Opportunities <span>&mdash; buy-box market scan</span></h3>
-        <div class="opps-sub" id="oppsSub"></div>
-        <div id="oppsList"></div>
-        <details class="opps-rejected" id="oppsRejected" style="display:none;">
-          <summary></summary>
-          <div id="oppsRejectedList"></div>
-        </details>
+      <!-- Buy-box opportunities: respond to every one (Send Offer or Unsuitable) -->
+      <!-- ON-MARKET box: listed lots within stipend + $10k -->
+      <div class="opps" id="oppsOnMarket" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
+        <h3 style="color:#0a4f8e;">On-Market Opportunities <span>&mdash; listed lots in the buy box · respond to each</span></h3>
+        <div class="opps-sub" id="onMktSub"></div>
+        <div id="onMktList"></div>
       </div>
+      <!-- OFF-MARKET box: county-sweep lots within the buy box -->
+      <div class="opps" id="oppsOffMarket" style="display:none;">
+        <h3>Off-Market Opportunities <span>&mdash; county-sweep lots in the buy box · respond to each</span></h3>
+        <div class="opps-sub" id="offMktSub"></div>
+        <div id="offMktList"></div>
+      </div>
+      <!-- Shared auto-rejected (over $10k / buy-box fail) -->
+      <details class="opps-rejected" id="oppsRejected" style="display:none; margin-bottom:20px;">
+        <summary></summary>
+        <div id="oppsRejectedList"></div>
+      </details>
 
       <!-- Seller declined an offer: prompt Kevin to re-offer every 30 days -->
       <div class="opps" id="reofferBlock" style="display:none; border-color:#8a5200; background:#fff8ef;">
@@ -572,8 +583,8 @@
       <div class="m-sub">These lots aren't listed for sale, so there's <b>no asking price</b> — it's a blind mailer. Every lot gets your <b>$30k stipend offer</b> (Well/Septic default, since county records carry no utilities), sendable up to <b>$40k</b>. The value filter below is the county's <i>assessed</i> land value, used only to target lots in your offer range. (Priced, on-market lots come from the portal alerts instead.)</div>
       <div class="m-grid">
         <div><label for="swMinAcres">Min lot size (acres)</label><input type="number" id="swMinAcres" step="0.01" value="0.22"></div>
-        <div><label for="swMaxAcres">Max lot size (acres)</label><input type="number" id="swMaxAcres" step="0.1" value="2"></div>
-        <div><label for="swMaxValue">Max assessed land value ($)</label><input type="number" id="swMaxValue" step="1000" value="40000"></div>
+        <div><label for="swMaxAcres">Max lot size (acres)</label><input type="number" id="swMaxAcres" step="0.01" value="0.45"></div>
+        <div><label for="swMaxValue">Max assessed land value ($)</label><input type="number" id="swMaxValue" step="1000" value="50000"></div>
         <div><label for="swLimit">How many to pull</label>
           <select id="swLimit"><option>20</option><option selected>50</option><option>100</option><option>250</option><option>500</option></select>
         </div>
@@ -664,7 +675,7 @@
             <select id="dListing"><option value="off-market">Off-Market</option><option value="listed">Listed (MLS)</option></select>
           </div>
           <div><label for="dSource">Lead Source</label>
-            <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Referral</option><option>Other</option></select>
+            <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Wholesaler</option><option>Referral</option><option>Other</option></select>
           </div>
           <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
           <div><label for="dAgentBrokerage">Brokerage</label><input type="text" id="dAgentBrokerage" placeholder="Brokerage"></div>
@@ -1109,70 +1120,99 @@
       }
     }
 
-    // New Opportunities — buy-box scan results with green/yellow/red triage.
+    // Is this a listed (on-market) lot vs an off-market/county lot?
+    function isListedLot(l) {
+      return l.listingType === 'listed' ||
+        (l.listingType !== 'off-market' &&
+          (!!l.agentBrokerage || !!l.agentName || typeof l.listPrice === 'number' || /listing|active|auction/i.test(l.listStatus || '')));
+    }
+
+    // Build one opportunity row (Send Offer / Hold / Unsuitable). Unsuitable
+    // removes the lot permanently so it never returns to the feed.
+    function buildOppRow(l, ev) {
+      const row = document.createElement('div');
+      row.className = 'opp-row ' + ev.light;
+      const badge = document.createElement('span');
+      badge.className = 'light ' + ev.light;
+      badge.textContent = ev.light === 'green' ? 'Ready' : 'Review';
+      const main = document.createElement('div'); main.className = 'opp-main';
+      const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
+      const meta = document.createElement('div'); meta.className = 'opp-meta';
+      const util = inferUtilityType(l);
+      meta.textContent = [l.source || 'Market Scan',
+        typeof l.listPrice === 'number' ? 'Listed ' + money(l.listPrice) : null,
+        acresOf(l) != null ? acresOf(l) + ' ac' : null,
+        util ? STIPEND_LABELS[util] : null].filter(Boolean).join(' · ');
+      const reason = document.createElement('div'); reason.className = 'opp-reason';
+      reason.textContent = (ev.light === 'green' ? '✓ ' : '⚠ ') + ev.reasons.join(' · ');
+      main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+      const offer = document.createElement('div'); offer.className = 'opp-offer';
+      const oLbl = document.createElement('span'); oLbl.textContent = 'Suggested offer';
+      offer.appendChild(oLbl); offer.appendChild(document.createTextNode(money(ev.offer)));
+      const actions = document.createElement('div'); actions.className = 'opp-actions';
+      const add = document.createElement('button'); add.className = 'opp-btn-add'; add.textContent = 'Send Offer';
+      add.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+      const hold = document.createElement('button'); hold.className = 'opp-btn-hold'; hold.textContent = 'Hold';
+      hold.addEventListener('click', () => patchLot(l.id, { status: 'opportunity-hold' }));
+      const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Unsuitable';
+      skip.title = 'Remove permanently — will not be shown again';
+      skip.addEventListener('click', () => { if (confirm('Mark ' + (l.address || 'this lot') + ' unsuitable? It will be removed and never shown again.')) patchLot(l.id, { status: 'dismissed', dismissedAt: new Date().toISOString() }); });
+      actions.appendChild(add); actions.appendChild(hold); actions.appendChild(skip);
+      row.appendChild(badge); row.appendChild(main); row.appendChild(offer); row.appendChild(actions);
+      return row;
+    }
+
+    // How many rows are visible per box; grows by 10 via "Show 10 more".
+    const OPP_PAGE = 10;
+    let oppShow = { on: OPP_PAGE, off: OPP_PAGE };
+
+    // Buy-box opportunities, split into On-Market and Off-Market boxes. Kevin
+    // responds to every one (Send Offer or Unsuitable); 10 show at a time and the
+    // next fill in as he clears them. Each box header shows the open-item count.
     function renderOpportunities(lots) {
-      const block = document.getElementById('oppsBlock');
-      const list = document.getElementById('oppsList');
-      const sub = document.getElementById('oppsSub');
       const rejWrap = document.getElementById('oppsRejected');
       const rejList = document.getElementById('oppsRejectedList');
       const opps = lots.filter(l => l.status === 'opportunity');
-      if (!opps.length) { block.style.display = 'none'; return; }
-
       const scored = opps.map(l => ({ l, ev: evaluateBuyBox(l) }));
       const order = { green: 0, yellow: 1 };
       const actionable = scored.filter(s => s.ev.light !== 'red')
         .sort((a, b) => (order[a.ev.light] - order[b.ev.light]) || (new Date(b.l.createdAt) - new Date(a.l.createdAt)));
       const rejected = scored.filter(s => s.ev.light === 'red');
 
-      const greenN = actionable.filter(s => s.ev.light === 'green').length;
-      const yellowN = actionable.filter(s => s.ev.light === 'yellow').length;
-      block.style.display = 'block';
-      sub.textContent = greenN + ' ready to send · ' + yellowN + ' need review'
-        + (rejected.length ? ' · ' + rejected.length + ' auto-rejected' : '');
+      const renderBox = (blockId, subId, listId, items, key) => {
+        const block = document.getElementById(blockId);
+        const list = document.getElementById(listId);
+        list.innerHTML = '';
+        if (!items.length) { block.style.display = 'none'; oppShow[key] = OPP_PAGE; return; }
+        block.style.display = 'block';
+        const total = items.length;
+        const g = items.filter(s => s.ev.light === 'green').length;
+        const y = items.filter(s => s.ev.light === 'yellow').length;
+        const shown = Math.min(oppShow[key], total);
+        document.getElementById(subId).innerHTML =
+          '<b style="color:#003d66; font-size:16px;">' + total + ' open</b> to respond to · '
+          + g + ' ready to send · ' + y + ' need review';
+        items.slice(0, shown).forEach(({ l, ev }) => list.appendChild(buildOppRow(l, ev)));
+        if (total > shown) {
+          const more = document.createElement('button');
+          more.className = 'opp-more';
+          more.textContent = 'Show 10 more (' + (total - shown) + ' remaining)';
+          more.addEventListener('click', () => { oppShow[key] += OPP_PAGE; renderOpportunities(lastLots); });
+          list.appendChild(more);
+        } else if (total > OPP_PAGE) {
+          const note = document.createElement('div');
+          note.className = 'opp-showing';
+          note.textContent = 'Showing all ' + total + '.';
+          list.appendChild(note);
+        }
+      };
 
-      list.innerHTML = '';
-      actionable.forEach(({ l, ev }) => {
-        const row = document.createElement('div');
-        row.className = 'opp-row ' + ev.light;
-
-        const badge = document.createElement('span');
-        badge.className = 'light ' + ev.light;
-        badge.textContent = ev.light === 'green' ? 'Ready' : 'Review';
-
-        const main = document.createElement('div');
-        main.className = 'opp-main';
-        const addr = document.createElement('div'); addr.className = 'opp-addr';
-        addr.textContent = l.address || '—';
-        const meta = document.createElement('div'); meta.className = 'opp-meta';
-        const util = inferUtilityType(l);
-        meta.textContent = [l.source || 'Market Scan', acresOf(l) != null ? acresOf(l) + ' ac' : null,
-          util ? STIPEND_LABELS[util] : null].filter(Boolean).join(' · ');
-        const reason = document.createElement('div'); reason.className = 'opp-reason';
-        reason.textContent = (ev.light === 'green' ? '✓ ' : '⚠ ') + ev.reasons.join(' · ');
-        main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
-
-        const offer = document.createElement('div'); offer.className = 'opp-offer';
-        const oLbl = document.createElement('span'); oLbl.textContent = 'Suggested offer';
-        offer.appendChild(oLbl); offer.appendChild(document.createTextNode(money(ev.offer)));
-
-        const actions = document.createElement('div'); actions.className = 'opp-actions';
-        const add = document.createElement('button'); add.className = 'opp-btn-add'; add.textContent = 'Send Offer';
-        add.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
-        const hold = document.createElement('button'); hold.className = 'opp-btn-hold'; hold.textContent = 'Hold';
-        hold.addEventListener('click', () => patchLot(l.id, { status: 'opportunity-hold' }));
-        const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Unsuitable';
-        skip.title = 'Remove permanently — will not be shown again';
-        skip.addEventListener('click', () => { if (confirm('Mark ' + (l.address || 'this lot') + ' unsuitable? It will be removed and never shown again.')) patchLot(l.id, { status: 'dismissed', dismissedAt: new Date().toISOString() }); });
-        actions.appendChild(add); actions.appendChild(hold); actions.appendChild(skip);
-
-        row.appendChild(badge); row.appendChild(main); row.appendChild(offer); row.appendChild(actions);
-        list.appendChild(row);
-      });
+      renderBox('oppsOnMarket', 'onMktSub', 'onMktList', actionable.filter(s => isListedLot(s.l)), 'on');
+      renderBox('oppsOffMarket', 'offMktSub', 'offMktList', actionable.filter(s => !isListedLot(s.l)), 'off');
 
       if (rejected.length) {
         rejWrap.style.display = 'block';
-        rejWrap.querySelector('summary').textContent = '🔴 ' + rejected.length + ' auto-rejected (buy-box fail) — view reasons';
+        rejWrap.querySelector('summary').textContent = '🔴 ' + rejected.length + ' auto-rejected (over $10k / buy-box fail) — view reasons';
         rejList.innerHTML = '';
         rejected.forEach(({ l, ev }) => {
           const r = document.createElement('div'); r.className = 'rej-row';
