@@ -78,10 +78,9 @@
     }
 
     /* Stats trust band */
-    .hero-brand { display: inline-flex; align-items: center; gap: 18px; background: #fff; padding: 13px 24px; border-radius: 12px; margin-bottom: 26px; box-shadow: 0 10px 26px rgba(3,20,38,0.28); }
-    .hero-brand img { height: 62px; display: block; }
-    .hero-brand .hb-tag { font-size: 16px; font-weight: 700; color: var(--blue); border-left: 1px solid #d5dee8; padding-left: 18px; letter-spacing: 0.2px; white-space: nowrap; }
-    @media (max-width: 640px) { .hero-brand { padding: 10px 16px; gap: 12px; } .hero-brand img { height: 46px; } .hero-brand .hb-tag { font-size: 13px; padding-left: 12px; } }
+    .hero-brand { display: inline-block; background: #fff; padding: 16px 28px; border-radius: 12px; margin-bottom: 26px; box-shadow: 0 10px 26px rgba(3,20,38,0.28); }
+    .hero-brand img { height: 88px; width: auto; display: block; }
+    @media (max-width: 640px) { .hero-brand { padding: 14px 22px; } .hero-brand img { height: 72px; } }
 
     .direct-contact { font-size: 13px; color: #667; margin-top: 12px; line-height: 1.55; }
     .direct-contact a { color: var(--blue); font-weight: 600; text-decoration: none; }
@@ -191,8 +190,9 @@
 
     /* Footer */
     .site-footer { background: var(--blue-deep); color: white; text-align: center; padding: 40px 20px 44px; }
-    .footer-logo { display: inline-block; background: white; border-radius: 12px; padding: 18px 26px; margin-bottom: 20px; }
-    .footer-logo img { height: 76px; width: auto; display: block; }
+    .footer-logo { display: inline-block; background: white; border-radius: 12px; padding: 22px 32px; margin-bottom: 20px; }
+    .footer-logo img { height: 104px; width: auto; display: block; max-width: 100%; }
+    @media (max-width: 640px) { .footer-logo { padding: 18px 24px; } .footer-logo img { height: 84px; } }
     .site-footer p { color: #d3deec; font-size: 15px; line-height: 1.7; }
     .site-footer .tag { font-size: 16px; color: #eaf1f8; }
     .footer-links { margin: 14px 0 6px; font-size: 15px; }
@@ -214,7 +214,7 @@
   <!-- Hero (logo lives inside the blue box; no white header bar above) -->
   <section class="hero">
     <div class="container">
-      <div class="hero-brand"><img src="adams-homes-logo.png" alt="Adams Homes"><span class="hb-tag">Value, Simplified&trade;</span></div>
+      <div class="hero-brand"><img src="adams-homes-logo.png" alt="Adams Homes"></div>
       <div class="hero-grid">
         <div class="hero-copy">
           <div class="eyebrow">Palm Bay Vacant Land</div>
@@ -230,7 +230,7 @@
           <div class="hc-row">No agents, brokers, or commissions</div>
           <div class="hc-row">No financing &mdash; funds ready now</div>
           <div class="hc-row">We handle all the paperwork</div>
-          <div class="hc-figure"><div class="lbl">No obligation, no pressure</div><div class="amt">Let's get started</div></div>
+          <div class="hc-figure"><div class="lbl">No obligation offer</div><div class="amt">Let's get started</div></div>
         </div>
       </div>
     </div>
@@ -251,9 +251,8 @@
     <div class="container">
       <h2>Why Adams Homes?</h2>
       <div class="why-grid">
-        <div class="why-item"><span class="why-ic">&#127942;</span><div><b>65,000+ homes built</b><span>One of America's largest homebuilders &mdash; across 28 markets.</span></div></div>
+        <div class="why-item"><span class="why-ic">&#127942;</span><div><b>65,000+ homes built</b><span>One of America's largest homebuilders &mdash; across more than 30 markets.</span></div></div>
         <div class="why-item"><span class="why-ic">&#9889;</span><div><b>No banks, no financing, no delays</b><span>Nothing to wait on &mdash; we move fast and keep it simple.</span></div></div>
-        <div class="why-item"><span class="why-ic">&#128205;</span><div><b>75,000+ lots purchased</b><span>We've done this nationwide, many times over.</span></div></div>
         <div class="why-item"><span class="why-ic">&#129309;</span><div><b>A full-time local team</b><span>Right here in Palm Bay, with a proven reputation.</span></div></div>
       </div>
     </div>
