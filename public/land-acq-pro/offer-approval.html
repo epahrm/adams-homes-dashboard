@@ -343,7 +343,7 @@
         <h3>Offer Packet</h3>
         <div class="hint">Generates the seller packet: your Vacant Land Contract (VAC-14) <b>auto-filled</b> with the terms below + Kevin's cover letter (14-day expiration) + the county property card.</div>
         <div class="actions" style="margin-top:12px;">
-          <button type="button" class="btn btn-primary" id="downloadPdfBtn">Generate Offer PDF (Cover · Contract · Exhibit A)</button>
+          <button type="button" class="btn btn-primary" id="downloadPdfBtn">Fill &amp; Download Contract PDF (your VAC-14 + Exhibit A)</button>
           <button type="button" class="btn btn-outline" id="previewContractBtn" style="margin-top:12px;">Preview Filled Contract</button>
           <button type="button" class="btn btn-outline" id="previewPacketBtn" style="margin-top:12px;">Preview Cover Letter</button>
         </div>
@@ -1099,7 +1099,29 @@
       p.textContent = contractSummary();
       p.classList.add('show');
     });
-    document.getElementById('downloadPdfBtn').addEventListener('click', printPacket);
+    document.getElementById('downloadPdfBtn').addEventListener('click', async function() {
+      const btn = this, label = btn.textContent;
+      const offer = num(document.getElementById('offerAmount').value);
+      const cc = resolveCommission();
+      const listed = document.getElementById('listingType').value === 'listed';
+      const params = new URLSearchParams({ id: String(lot.id), offer: String(offer || ''), commission: String(cc.pct || ''), listed: listed ? '1' : '0' });
+      btn.disabled = true; btn.textContent = 'Filling your contract…';
+      try {
+        const res = await fetch('/api/land-acq/contract-pdf?' + params.toString(), { headers: adminHeaders(), signal: AbortSignal.timeout(30000) });
+        if (!res.ok) { const j = await res.json().catch(() => ({})); msg('Could not fill the contract — ' + (j.error || 'try again') + '.', false); btn.disabled = false; btn.textContent = label; return; }
+        const flags = Number(res.headers.get('X-Review-Flags') || '0');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'Adams-Homes-Offer-' + ((lot.address || 'lot').split(',')[0].replace(/[^A-Za-z0-9]+/g, '-')) + '.pdf';
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        msg('Filled VAC-14 downloaded (Seller, price & commission stamped on your contract + Exhibit A). ' +
+          (flags ? '⚠ ' + flags + ' item(s) flagged on Exhibit A for your review before sending.' : 'All Exhibit A fields verified against the county record.'), true);
+      } catch (e) {
+        msg('Could not fill the contract — please try again.', false);
+      }
+      btn.disabled = false; btn.textContent = label;
+    });
     document.getElementById('docUpload').addEventListener('change', async function() {
       const files = Array.from(this.files || []);
       if (!files.length) return;
