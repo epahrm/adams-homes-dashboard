@@ -151,6 +151,8 @@
     .chooser-item:hover { background: #eaf2fb; border-color: var(--blue); }
     .chooser-item .ci-addr { font-weight: 700; color: var(--blue); font-size: 15px; }
     .chooser-item .ci-meta { color: #667; font-size: 13px; margin-top: 2px; }
+    .chooser-more { display: block; width: 100%; margin-top: 6px; padding: 12px 14px; min-height: 44px; background: white; color: var(--blue); border: 1px dashed var(--blue); border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .chooser-more:hover { background: #f2f8ff; }
     .property-card { border: 2px solid var(--blue); border-radius: 12px; padding: 24px 22px; background: white; }
     .property-card h3 { color: var(--blue); font-size: 15px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid var(--blue); padding-bottom: 10px; margin-bottom: 18px; }
     .p-field { margin-bottom: 14px; }
@@ -340,6 +342,7 @@
           <h3>We found <span id="chooserCount">several</span> properties under that name</h3>
           <p class="chooser-hint">Select the one you own. (Names can repeat, so check the address.)</p>
           <div id="chooserList"></div>
+          <button type="button" id="chooserMore" class="chooser-more" style="display:none;">None of these are my lots — show more</button>
         </div>
       </div>
 
@@ -563,25 +566,42 @@
       return sampleSearch(kind, raw);
     }
 
-    // Multiple properties under a name — let the seller choose theirs.
+    // Multiple properties under a name — let the seller choose theirs. A builder
+    // can hold dozens of lots, so we show 10 at a time and only reveal the next
+    // batch if the seller says none of the shown lots are theirs.
+    const CHOOSER_PAGE = 10;
     function showChooser(records) {
       matchedRecord = null;
       notFoundNote.style.display = 'none';
       resultPanel.style.display = 'none';
       const panel = document.getElementById('chooserPanel');
       const list = document.getElementById('chooserList');
+      const moreBtn = document.getElementById('chooserMore');
       document.getElementById('chooserCount').textContent = records.length;
       list.innerHTML = '';
-      records.forEach(r => {
-        const item = document.createElement('button');
-        item.type = 'button'; item.className = 'chooser-item';
-        const addr = document.createElement('div'); addr.className = 'ci-addr'; addr.textContent = r.address || '—';
-        const meta = document.createElement('div'); meta.className = 'ci-meta';
-        meta.textContent = [r.owner, r.lotSize, r.useDesc].filter(Boolean).join(' · ');
-        item.appendChild(addr); item.appendChild(meta);
-        item.addEventListener('click', () => { panel.style.display = 'none'; showMatch(r); });
-        list.appendChild(item);
-      });
+      let shown = 0;
+      function renderNext() {
+        records.slice(shown, shown + CHOOSER_PAGE).forEach(r => {
+          const item = document.createElement('button');
+          item.type = 'button'; item.className = 'chooser-item';
+          const addr = document.createElement('div'); addr.className = 'ci-addr'; addr.textContent = r.address || '—';
+          const meta = document.createElement('div'); meta.className = 'ci-meta';
+          meta.textContent = [r.owner, r.lotSize, r.useDesc].filter(Boolean).join(' · ');
+          item.appendChild(addr); item.appendChild(meta);
+          item.addEventListener('click', () => { panel.style.display = 'none'; showMatch(r); });
+          list.appendChild(item);
+        });
+        shown = Math.min(shown + CHOOSER_PAGE, records.length);
+        const remaining = records.length - shown;
+        if (remaining > 0) {
+          moreBtn.style.display = 'block';
+          moreBtn.textContent = 'None of these are my lots — show ' + Math.min(CHOOSER_PAGE, remaining) + ' more';
+        } else {
+          moreBtn.style.display = 'none';
+        }
+      }
+      moreBtn.onclick = renderNext;
+      renderNext();
       panel.style.display = 'block';
       panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
