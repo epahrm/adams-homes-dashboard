@@ -434,6 +434,20 @@
     // offline/demo fallback when the county site or API is unreachable.
     const API_LOTS = '/api/land-acq/lots';
     const API_COUNTY = '/api/land-acq/county';
+
+    // Postcard QR tracking: if the visitor arrived from a postcard QR
+    // (?p=lotId&b=batch), log the scan so Kevin can see which mailings work.
+    (function () {
+      try {
+        const q = new URLSearchParams(location.search);
+        const p = q.get('p'), b = q.get('b');
+        if (p) {
+          const body = JSON.stringify({ propertyId: p, batch: b });
+          if (navigator.sendBeacon) navigator.sendBeacon('/api/land-acq/scan', new Blob([body], { type: 'application/json' }));
+          else fetch('/api/land-acq/scan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true }).catch(() => {});
+        }
+      } catch (e) { /* tracking must never block the page */ }
+    })();
     const SAMPLE_RECORDS = [
       { address: '123 Maple Avenue, Palm Bay, FL 32908', parcel: '2936-02GI-10509', owner: 'John Smith', ownerContact: '123 Maple Ave, Palm Bay, FL 32908 | (321) 555-1234 | john@email.com', ownerEmail: 'john@email.com', lotSize: '0.23 acres (10,019 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$28,500', annualTax: '$495', listPrice: 35000, listStatus: 'Active Listing', agentName: 'John Johnson', agentBrokerage: 'Keller Williams Island Life', agentPhone: '941-123-4567', agentEmail: 'john@kw-islandlife.com' },
       { address: '456 Oak Street, Palm Bay, FL 32907', parcel: '2937-11AB-20443', owner: 'Maria Garcia', ownerContact: '456 Oak Street, Palm Bay, FL 32907 | (321) 555-2288 | maria@email.com', ownerEmail: 'maria@email.com', lotSize: '0.25 acres (10,890 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$31,200', annualTax: '$540', listPrice: 40000, listStatus: 'Active Listing', agentName: 'Sarah Lee', agentBrokerage: 'RE/MAX Elite', agentPhone: '321-555-8890', agentEmail: 'sarah@remaxelite.com' },

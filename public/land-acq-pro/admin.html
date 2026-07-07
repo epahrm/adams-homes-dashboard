@@ -285,6 +285,7 @@
         <div class="pipeline-tools">
           <button class="btn-navy" id="addDealBtn">+ Add Deal / Contract</button>
           <button class="btn-green" id="importBtn">Import Contacts (CSV)</button>
+          <button class="btn-outline" id="postcardBtn">Postcards / QR</button>
           <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
         </div>
       </div>
@@ -432,6 +433,44 @@
       </div>
 
       <a class="back-link" href="index.html">&larr; Back to Landing Page</a>
+    </div>
+  </div>
+
+  <!-- Postcard / QR batch modal -->
+  <div class="modal-overlay" id="postcardOverlay">
+    <div class="modal">
+      <h3>Postcard / QR Batch</h3>
+      <div class="m-sub">Generate a tracking QR + recipient list for a mailer. Drop the QR on your postcard artwork; owners who scan it are tracked back to this batch.</div>
+      <div class="m-grid">
+        <div><label for="pcBatchName">Batch name</label><input type="text" id="pcBatchName" placeholder="e.g. July Campaign A"></div>
+        <div><label for="pcPool">Recipients</label>
+          <select id="pcPool">
+            <option value="opportunity">New Opportunities (mailer pool)</option>
+            <option value="all">All active lots with a mailing address</option>
+          </select>
+        </div>
+        <div class="m-full" id="pcCount" style="font-size:13px;color:#556;"></div>
+        <div class="m-full" style="text-align:center; border:1px solid #e6e9ee; border-radius:10px; padding:14px; background:#fafcff;">
+          <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#778; margin-bottom:8px;">Batch QR (put this on the postcard)</div>
+          <img id="pcQrImg" alt="Batch QR" style="width:200px; height:200px; display:none; margin:0 auto; border:1px solid #eee;">
+          <div id="pcQrNote" style="font-size:13px; color:#8a3a28;">Enter a batch name to generate the QR.</div>
+          <div id="pcQrUrl" style="font-size:12px; color:#667; margin-top:8px; word-break:break-all;"></div>
+          <a id="pcQrDownload" style="display:none; font-size:13px; font-weight:700; color:#1a5ba5; text-decoration:none;">Download QR PNG</a>
+        </div>
+        <div class="m-full">
+          <label>Postcard artwork (upload when ready — placeholder)</label>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <label style="font-size:13px;">Front <input type="file" id="pcFront" accept="image/*,.pdf"></label>
+            <label style="font-size:13px;">Back <input type="file" id="pcBack" accept="image/*,.pdf"></label>
+          </div>
+          <div id="pcArtNote" style="font-size:12px; color:#667; margin-top:4px;">Artwork is stored by filename for now; real file storage is on the launch checklist.</div>
+        </div>
+      </div>
+      <div class="m-actions">
+        <button type="button" class="btn-outline" id="pcCancel">Close</button>
+        <button type="button" class="btn-green" id="pcMailingList">Download Mailing List (CSV)</button>
+        <button type="button" class="btn-navy" id="pcQrSheet">Printable QR Sheet</button>
+      </div>
     </div>
   </div>
 
@@ -1229,6 +1268,74 @@
         importMsg('Deal added: ' + address, true);
         render();
       } catch (err) { document.getElementById('dErr').textContent = 'Could not add the deal — try again.'; document.getElementById('dErr').style.display = 'block'; }
+    });
+
+    // ---------- Postcard / QR batch ----------
+    const pcOverlay = document.getElementById('postcardOverlay');
+    function batchSlug() {
+      const n = document.getElementById('pcBatchName').value.trim();
+      return n ? n.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') : '';
+    }
+    function pcPoolLots() {
+      const pool = document.getElementById('pcPool').value;
+      if (pool === 'all') return lastLots.filter(l => ACTIVE.includes(l.displayStatus) && (l.ownerContact || l.owner));
+      return lastLots.filter(l => l.status === 'opportunity');
+    }
+    function refreshPostcard() {
+      const slug = batchSlug();
+      const lots = pcPoolLots();
+      document.getElementById('pcCount').textContent = lots.length + ' recipient' + (lots.length === 1 ? '' : 's') + ' in this batch.';
+      const img = document.getElementById('pcQrImg'), note = document.getElementById('pcQrNote'),
+        urlEl = document.getElementById('pcQrUrl'), dl = document.getElementById('pcQrDownload');
+      if (!slug) { img.style.display = 'none'; dl.style.display = 'none'; urlEl.textContent = ''; note.style.display = 'block'; note.textContent = 'Enter a batch name to generate the QR.'; return; }
+      const trackUrl = location.origin + '/land-acq-pro/?b=' + slug;
+      const qrSrc = '/api/land-acq/qr?size=600&data=' + encodeURIComponent(trackUrl);
+      img.src = qrSrc; img.style.display = 'inline-block';
+      note.style.display = 'none';
+      urlEl.textContent = trackUrl;
+      dl.href = qrSrc; dl.download = 'qr-' + slug + '.png'; dl.style.display = 'inline-block';
+    }
+    document.getElementById('postcardBtn').addEventListener('click', () => { pcOverlay.classList.add('show'); refreshPostcard(); });
+    document.getElementById('pcCancel').addEventListener('click', () => pcOverlay.classList.remove('show'));
+    pcOverlay.addEventListener('click', e => { if (e.target === pcOverlay) pcOverlay.classList.remove('show'); });
+    document.getElementById('pcBatchName').addEventListener('input', refreshPostcard);
+    document.getElementById('pcPool').addEventListener('change', refreshPostcard);
+    document.getElementById('pcFront').addEventListener('change', function () { if (this.files[0]) document.getElementById('pcArtNote').textContent = 'Front: ' + this.files[0].name + ' ✓ (stored by name for now)'; });
+    document.getElementById('pcBack').addEventListener('change', function () { if (this.files[0]) document.getElementById('pcArtNote').textContent = 'Back: ' + this.files[0].name + ' ✓ (stored by name for now)'; });
+
+    document.getElementById('pcMailingList').addEventListener('click', () => {
+      const lots = pcPoolLots();
+      if (!lots.length) { importMsg('No recipients in this batch yet.', false); return; }
+      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const head = ['Owner Name', 'Mailing / Contact', 'Property Address', 'Parcel', 'Lot Size'];
+      const lines = [head.join(',')].concat(lots.map(l =>
+        [l.owner || '', l.ownerContact || '', l.address || '', l.parcel || '', l.lotSize || ''].map(esc).join(',')));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = 'mailing-list-' + (batchSlug() || 'batch') + '.csv'; a.click(); URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('pcQrSheet').addEventListener('click', () => {
+      const slug = batchSlug();
+      if (!slug) { importMsg('Enter a batch name first.', false); return; }
+      const lots = pcPoolLots();
+      const w = window.open('', '_blank');
+      if (!w) return;
+      const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const cards = lots.map(l => {
+        const track = location.origin + '/land-acq-pro/?b=' + slug + '&p=' + l.id;
+        const qr = '/api/land-acq/qr?size=360&data=' + encodeURIComponent(track);
+        return '<div class="c"><img src="' + qr + '"><div class="a">' + esc(l.address) + '</div><div class="o">' + esc(l.owner || '') + '</div><div class="m">' + esc(l.ownerContact || '') + '</div></div>';
+      }).join('');
+      w.document.write('<!doctype html><meta charset="utf-8"><title>QR Sheet — ' + esc(slug) + '</title>' +
+        '<style>body{font-family:Arial,sans-serif;margin:24px;color:#1a1a1a}h1{color:#003d66;font-size:20px}' +
+        '.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.c{border:1px solid #ccc;border-radius:8px;padding:12px;text-align:center;page-break-inside:avoid}' +
+        '.c img{width:150px;height:150px}.a{font-weight:700;font-size:13px;margin-top:6px}.o{font-size:12px;color:#333}.m{font-size:11px;color:#667}' +
+        '@media print{.no-print{display:none}}</style>' +
+        '<h1>Postcard QR Sheet — ' + esc(slug) + ' (' + lots.length + ')</h1>' +
+        '<p class="no-print">Each QR is unique to its property for per-lot scan tracking. Print, or use for variable-data mailing.</p>' +
+        '<div class="grid">' + cards + '</div>');
+      w.document.close();
     });
 
     // ---------- Stipend settings (shared, audit-logged) ----------

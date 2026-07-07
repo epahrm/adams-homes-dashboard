@@ -89,8 +89,16 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 
 ---
 
+## 12. Postcard / QR campaign (mailer engine)
+- ✅ **Postcard/QR tool** in the dashboard — name a batch, pick the recipient pool
+- ✅ **Batch QR code** generated (navy, print-quality) to drop on the postcard artwork; downloadable PNG
+- ✅ **Per-property QR sheet** (printable) — each lot gets a unique QR for per-lot scan tracking / variable-data mailing
+- ✅ **Mailing-list CSV export** (owner + mailing address + property) for the print/mail vendor
+- ✅ **Scan tracking** — when an owner scans a postcard QR and lands on the site, the scan is logged to that lot/batch
+- ✅ Postcard artwork **upload placeholders** (front/back) — you design the art; real file storage is on the launch checklist
+- 🔜 Full campaign analytics (scans-over-time, conversion funnel, template A/B), opt-out management
+
 ## Planned next (in priority order)
-- 🔜 **Postcard + QR campaign system** — upload postcard artwork (front/back) + dynamic per-property QR codes, scan tracking, and conversion analytics by batch/template; mailing-list export with opt-out
 - 🔜 **Off-market county sweep** (nightly buy-box discovery from county data)
 - 🔜 **Motivation ranking** — prioritize out-of-area / long-tenure / tax-delinquent owners
 - 🔜 **"Needs attention" alerts** — offers pending, IP dates, Thursday closings due
