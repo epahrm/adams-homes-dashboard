@@ -17,8 +17,10 @@ export const maxDuration = 60
 // Gmail shows app passwords grouped as "abcd efgh ijkl mnop"; pasted with those
 // spaces, the IMAP LOGIN command is malformed ("Failed to parse your command").
 // Strip whitespace so the credential works however it was entered.
-const GMAIL_USER = (process.env.LANDACQ_GMAIL_USER || '').trim()
-const GMAIL_PASS = (process.env.LANDACQ_GMAIL_APP_PASSWORD || '').replace(/\s+/g, '')
+const GMAIL_USER = (process.env.LANDACQ_GMAIL_USER || '').trim().replace(/^["']|["']$/g, '')
+// App password is 16 lowercase letters shown as "abcd efgh ijkl mnop". Strip
+// the display spaces and any stray surrounding quotes so the IMAP LOGIN parses.
+const GMAIL_PASS = (process.env.LANDACQ_GMAIL_APP_PASSWORD || '').replace(/^["']|["']$/g, '').replace(/\s+/g, '')
 const CRON_SECRET = process.env.CRON_SECRET
 
 function authorized(req: NextRequest): boolean {
@@ -124,6 +126,10 @@ export async function GET(req: NextRequest) {
       hint: err?.authenticationFailed
         ? 'Gmail rejected the login — re-check LANDACQ_GMAIL_USER and the app password (no spaces, current one).'
         : 'Could not complete the IMAP session — check that IMAP is enabled on the Gmail account.',
+      // Safe shape check (no secrets): a Gmail app password is exactly 16
+      // characters and the user should be an email. Anything else means the
+      // stored value is wrong.
+      creds: { userIsEmail: /@gmail\.com$/i.test(GMAIL_USER), passLen: GMAIL_PASS.length, passExpected: 16 },
       detail: err?.responseText || err?.response || err?.message || String(e),
     }, { status: 502 })
   }
