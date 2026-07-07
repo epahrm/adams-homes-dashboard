@@ -106,7 +106,23 @@ export async function GET(req: NextRequest) {
   } catch (e) {
     console.error('[land-acq] email ingest failed:', e)
     try { await client.logout() } catch { /* already closed */ }
-    return NextResponse.json({ error: 'ingest_failed', detail: String(e) }, { status: 502 })
+    // Surface enough of the IMAP failure to tell auth problems (wrong app
+    // password) apart from connection/IMAP-disabled problems, without leaking
+    // the credentials themselves.
+    const err = e as { authenticationFailed?: boolean; responseText?: string; response?: string; code?: string; message?: string }
+    const reason = err?.authenticationFailed
+      ? 'gmail_login_rejected'
+      : /IMAP.*disabled|not enabled/i.test(err?.responseText || err?.response || '')
+      ? 'imap_disabled'
+      : (err?.code || 'imap_error')
+    return NextResponse.json({
+      error: 'ingest_failed',
+      reason,
+      hint: err?.authenticationFailed
+        ? 'Gmail rejected the login — re-check LANDACQ_GMAIL_USER and the app password (no spaces, current one).'
+        : 'Could not complete the IMAP session — check that IMAP is enabled on the Gmail account.',
+      detail: err?.responseText || err?.response || err?.message || String(e),
+    }, { status: 502 })
   }
 
   return NextResponse.json({ configured: true, scanned, added, duplicates, rejected, byLight })
