@@ -10,31 +10,51 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; }
 body { font-family: 'Inter', sans-serif; background: #f8fafb; color: #2c3e50; }
-:root { --navy: #1a3a70; --red: #e31a23; --light: #f8fafb; --border: #e8eaed; }
+:root { --navy: #233982; --navy-deep: #19295e; --red: #d51f35; --red-deep: #ad192b; --sky: #3f88c5; --light: #f8fafb; --border: #e8eaed; }
 .container { max-width: 1400px; margin: 0 auto; padding: 0 16px; }
 @media (min-width: 768px) { .container { padding: 0 20px; } }
-.header { background: white; padding: 16px; border-bottom: 3px solid var(--red); display: flex; justify-content: center; align-items: center; }
-.logo-section { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.logo-image { height: 96px; width: auto; max-width: 90vw; }
-@media (min-width: 768px) { .logo-image { height: 120px; } }
+.header { background: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.logo-section { display: flex; align-items: center; gap: 14px; }
+.logo-image { height: 74px; width: auto; }
+@media (min-width: 768px) { .logo-image { height: 92px; } }
 .tagline { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--red); font-weight: 700; }
-.hero { background: linear-gradient(135deg, var(--navy) 0%, #253a4f 100%); color: white; padding: 40px 0; text-align: center; }
-.hero h1 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 800; margin-bottom: 12px; }
-.hero p { font-size: 14px; opacity: 0.95; }
-.video-section { padding: 30px 0; text-align: center; }
-.video-container { width: 100%; max-width: 500px; margin: 0 auto; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.hiring-chip { background: var(--red); color: white; font-weight: 800; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; border-radius: 999px; padding: 10px 20px; box-shadow: 0 3px 10px rgba(213,31,53,0.35); }
+/* Brand band echoing the logo's red bar + double blue stripes */
+.brand-band { height: 8px; background: var(--red); }
+.brand-band::after { content: ''; display: block; height: 3px; background: var(--navy); margin-top: 3px; border-bottom: 3px solid white; box-shadow: 0 3px 0 var(--navy); }
+.hero { background: linear-gradient(140deg, var(--navy-deep) 0%, var(--navy) 55%, #2c48a0 100%); color: white; padding: 56px 0 46px; text-align: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% -20%, rgba(63,136,197,0.35), transparent 55%), radial-gradient(ellipse at 85% 120%, rgba(213,31,53,0.28), transparent 55%); }
+.hero > .container { position: relative; }
+.hero .eyebrow { display: inline-block; border: 1px solid rgba(255,255,255,0.45); background: rgba(255,255,255,0.08); font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; border-radius: 999px; padding: 9px 22px; margin-bottom: 20px; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 800; margin-bottom: 14px; text-wrap: balance; }
+@media (min-width: 768px) { .hero h1 { font-size: 52px; } }
+.hero p { font-size: 16px; opacity: 0.95; max-width: 640px; margin: 0 auto; line-height: 1.6; }
+/* Stats band — the "best of the best" numbers */
+.stats-band { background: white; border-bottom: 1px solid var(--border); box-shadow: 0 10px 24px rgba(25,41,94,0.08); }
+.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); max-width: 1100px; margin: 0 auto; }
+@media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+.stat { text-align: center; padding: 22px 10px; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: 0; }
+@media (max-width: 767px) { .stat:nth-child(2n) { border-right: 0; } .stat:nth-child(-n+2) { border-bottom: 1px solid var(--border); } }
+.stat .sv { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 800; color: var(--navy); }
+.stat .sv span { color: var(--red); }
+.stat .sl { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #7a8199; font-weight: 700; margin-top: 4px; }
+.video-section { padding: 40px 0 10px; text-align: center; }
+.video-container { width: 100%; max-width: 560px; margin: 0 auto; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; box-shadow: 0 14px 36px rgba(25,41,94,0.22); border: 4px solid white; outline: 1px solid var(--border); }
 .video-container iframe { width: 100%; height: 100%; border: none; }
-.section-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--navy); margin-bottom: 32px; text-align: center; }
-.map-section { text-align: center; margin: 40px auto; max-width: 600px; }
-.map-image { max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.section-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: var(--navy); margin-bottom: 10px; text-align: center; }
+.section-title::after { content: ''; display: block; width: 64px; height: 4px; background: var(--red); border-radius: 2px; margin: 12px auto 0; }
+.section-sub { text-align: center; color: #5c6480; font-size: 15px; max-width: 560px; margin: 0 auto 30px; }
+.map-section { text-align: center; margin: 36px auto 44px; max-width: 640px; background: white; border-radius: 16px; padding: 22px; box-shadow: 0 10px 30px rgba(25,41,94,0.10); border: 1px solid var(--border); }
+.map-image { max-width: 100%; height: auto; border-radius: 8px; background: white; }
 .locations-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 60px; }
 @media (min-width: 640px) { .locations-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1024px) { .locations-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
 @media (min-width: 1400px) { .locations-grid { margin: 0 auto 60px auto; max-width: 1100px; } }
-.location-card { background: white; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid var(--border); border-radius: 6px; transition: transform 0.15s, box-shadow 0.15s; }
-.location-card:hover { transform: translateY(-8px); box-shadow: 0 12px 32px rgba(26, 43, 61, 0.12); }
+.location-card { background: white; overflow: hidden; box-shadow: 0 4px 14px rgba(25,41,94,0.10); border: 1px solid var(--border); border-top: 4px solid var(--navy); border-radius: 10px; transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s; }
+.location-card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(25,41,94,0.20); border-top-color: var(--red); }
 .location-card-image { width: 100%; height: 180px; object-fit: cover; display: block; }
-.location-card-content { padding: 20px; }
+.location-card-content { padding: 18px; }
 .job-btn { padding: 12px 16px; border: 2px solid var(--navy); background: white; color: var(--navy); border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 12px; text-transform: uppercase; width: 100%; min-height: 44px; font-family: inherit; }
 .job-btn:hover { background: var(--navy); color: white; }
 .city-btn { font-family: 'Playfair Display', serif; font-size: 17px; text-transform: none; letter-spacing: 0.3px; }
@@ -100,12 +120,24 @@ textarea { min-height: 100px; resize: vertical; }
 <img src="/sales-interview/img/logo.png" alt="Adams Homes" class="logo-image">
 <div class="tagline">Value, Simplified™</div>
 </div>
+<div class="hiring-chip">Now Hiring &middot; East Coast Florida</div>
 </div>
+<div class="brand-band"></div>
 
 <div class="hero">
 <div class="container">
+<div class="eyebrow">Sales Careers &mdash; Best of the Best Only</div>
 <h1>Earn Your Worth in Just a Few Clicks</h1>
 <p>Adams Homes is one of the top homebuilders in the country. Unlimited earning potential. Elite team. Proven systems.</p>
+</div>
+</div>
+
+<div class="stats-band">
+<div class="stats-grid">
+<div class="stat"><div class="sv">35<span>+</span></div><div class="sl">Years Building</div></div>
+<div class="stat"><div class="sv">65,000<span>+</span></div><div class="sl">Homes Closed</div></div>
+<div class="stat"><div class="sv"><span>$</span>7,000</div><div class="sl">Avg. Commission / Sale</div></div>
+<div class="stat"><div class="sv">5</div><div class="sl">East Coast FL Offices</div></div>
 </div>
 </div>
 
@@ -116,10 +148,11 @@ textarea { min-height: 100px; resize: vertical; }
 </div>
 </div>
 
-<h2 class="section-title">Join Florida's East Coast Team</h2>
+<h2 class="section-title" style="margin-top:34px;">Join Florida's East Coast Team</h2>
+<p class="section-sub">Pick your office, meet the standard, and start earning what you're actually worth.</p>
 
 <div class="map-section">
-<img src="/sales-interview/img/map.jpg" class="map-image" alt="East Coast Map">
+<img src="/sales-interview/img/map.jpg" class="map-image" alt="East Coast Florida offices map">
 </div>
 
 <div class="locations-grid" id="locationsGrid"></div>

@@ -421,6 +421,18 @@ async function createTables() {
       UNIQUE (session_id, candidate_id)
     );
 
+    CREATE TABLE IF NOT EXISTS vi_live_evals (
+      id           BIGSERIAL PRIMARY KEY,
+      session_id   BIGINT NOT NULL REFERENCES vi_sessions(id) ON DELETE CASCADE,
+      candidate_id BIGINT NOT NULL REFERENCES vi_candidates(id) ON DELETE CASCADE,
+      manager      TEXT NOT NULL,
+      recommendation TEXT NOT NULL CHECK (recommendation IN ('hire', 'maybe', 'no')),
+      strengths    TEXT NOT NULL DEFAULT '',
+      improve      TEXT NOT NULL DEFAULT '',
+      updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (session_id, candidate_id, manager)
+    );
+
     CREATE TABLE IF NOT EXISTS vi_live_scores (
       id           BIGSERIAL PRIMARY KEY,
       session_id   BIGINT NOT NULL REFERENCES vi_sessions(id) ON DELETE CASCADE,

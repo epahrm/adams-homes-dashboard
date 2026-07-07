@@ -31,6 +31,11 @@ async function sessionDetail(id: number) {
      FROM vi_live_scores WHERE session_id = $1`,
     [id]
   )
+  const evals = await pool.query(
+    `SELECT candidate_id, manager, recommendation, strengths, improve
+     FROM vi_live_evals WHERE session_id = $1`,
+    [id]
+  )
   const row = s.rows[0]
   return {
     id: Number(row.id),
@@ -54,6 +59,13 @@ async function sessionDetail(id: number) {
       score: sc.score,
       note: sc.note,
       updatedAt: sc.updated_at,
+    })),
+    evaluations: evals.rows.map((ev) => ({
+      candidateId: Number(ev.candidate_id),
+      manager: ev.manager,
+      recommendation: ev.recommendation,
+      strengths: ev.strengths,
+      improve: ev.improve,
     })),
   }
 }
@@ -235,6 +247,30 @@ export async function POST(request: NextRequest) {
         `UPDATE vi_candidates SET status = 'under_review', updated_at = now()
          WHERE id = $1 AND status = 'scheduled'`,
         [candidateId]
+      )
+      return NextResponse.json({ ok: true })
+    }
+
+    if (op === 'evaluate') {
+      const candidateId = Number(body.candidateId)
+      const manager = String(body.manager || '').trim()
+      const recommendation = String(body.recommendation || '')
+      if (!candidateId || !manager) {
+        return NextResponse.json({ error: 'candidateId and manager required' }, { status: 400 })
+      }
+      if (!['hire', 'maybe', 'no'].includes(recommendation)) {
+        return NextResponse.json({ error: 'recommendation must be hire, maybe or no' }, { status: 400 })
+      }
+      await pool.query(
+        `INSERT INTO vi_live_evals (session_id, candidate_id, manager, recommendation, strengths, improve)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT (session_id, candidate_id, manager) DO UPDATE SET
+           recommendation = EXCLUDED.recommendation,
+           strengths = EXCLUDED.strengths,
+           improve = EXCLUDED.improve,
+           updated_at = now()`,
+        [sessionId, candidateId, manager, recommendation,
+         String(body.strengths || '').slice(0, 2000), String(body.improve || '').slice(0, 2000)]
       )
       return NextResponse.json({ ok: true })
     }

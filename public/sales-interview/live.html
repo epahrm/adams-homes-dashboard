@@ -109,6 +109,21 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
 .pips button { flex: 1; height: 34px; border-radius: 6px; border: 1px solid #c8d2de; background: white; font-weight: 800; font-size: 14px; cursor: pointer; color: #556; }
 .pips button.on { background: var(--navy); border-color: var(--navy); color: white; }
 .othermgrs { font-size: 11px; color: #667; margin-top: 6px; min-height: 14px; }
+.rec-row { display: flex; gap: 6px; margin-bottom: 8px; }
+.rec-btn { flex: 1; min-height: 40px; border-radius: 6px; border: 2px solid #c8d2de; background: white; font-weight: 800; font-size: 13px; cursor: pointer; color: #556; font-family: inherit; }
+.rec-btn.hire.on { background: var(--green); border-color: var(--green); color: white; }
+.rec-btn.maybe.on { background: var(--orange); border-color: var(--orange); color: white; }
+.rec-btn.no.on { background: #d9534f; border-color: #d9534f; color: white; }
+#evalForm textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 13px; margin-top: 6px; resize: vertical; }
+.kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+.kpi-cell { background: #f6f8fb; border: 1px solid var(--border); border-radius: 8px; text-align: center; padding: 8px 4px; }
+.kpi-cell .kv { font-size: 18px; font-weight: 800; color: var(--navy); }
+.kpi-cell .kl { font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; color: #778; }
+.rec-chips { display: flex; gap: 4px; }
+.rec-chip { font-size: 10px; font-weight: 800; border-radius: 999px; padding: 2px 7px; }
+.rec-chip.hire { background: #e3f2ea; color: var(--green); }
+.rec-chip.maybe { background: #fdf1e2; color: #a5651a; }
+.rec-chip.no { background: #fdecea; color: #b02a1a; }
 .live-board { margin-top: 6px; }
 .lb-row { border-top: 1px solid #eef1f5; padding: 8px 2px; }
 .lb-row .lb-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -235,7 +250,23 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
         </div>
         <div class="score-target" id="scoreTarget">Select a candidate in a session to score.</div>
         <div id="compBlocks"></div>
-        <div class="panel-h" style="margin:14px -14px 10px; border-top:1px solid var(--border);">Live Board &amp; Decisions</div>
+        <div id="evalForm" style="display:none;">
+          <div class="comp-block">
+            <div class="c-name">Overall Recommendation</div>
+            <div class="rec-row">
+              <button class="rec-btn hire" data-rec="hire">Hire</button>
+              <button class="rec-btn maybe" data-rec="maybe">Maybe</button>
+              <button class="rec-btn no" data-rec="no">No</button>
+            </div>
+            <textarea id="evStrengths" rows="2" placeholder="Strengths — e.g., great communication and strong customer focus"></textarea>
+            <textarea id="evImprove" rows="2" placeholder="Areas to improve — e.g., needs more objection-handling experience"></textarea>
+            <button class="btn btn-navy" id="saveEval" style="width:100%;margin-top:6px;">Save Evaluation</button>
+          </div>
+        </div>
+        <div class="panel-h" style="margin:14px -14px 10px; border-top:1px solid var(--border);">Rankings &amp; Decisions
+          <button class="btn btn-outline" id="exportReport" style="font-size:11px;padding:6px 10px;">Export Report</button>
+        </div>
+        <div class="kpi-row" id="liveKpis"></div>
         <div class="notify-line"><input type="checkbox" id="notifyChk" checked><label for="notifyChk">Email candidate on Advance / Eliminate</label></div>
         <div class="live-board" id="liveBoard"></div>
       </div>
@@ -427,9 +458,38 @@ window.unassign = async function (candidateId) {
 window.pickCandidate = function (candidateId) {
   selectedCandidate = CANDS.find(c => c.id === candidateId) ||
     (SESSION.assignments.find(a => a.candidateId === candidateId) ? { id: candidateId, name: (SESSION.assignments.find(a => a.candidateId === candidateId) || {}).name } : null);
+  pickedRec = null;
+  el('evStrengths').value = '';
+  el('evImprove').value = '';
   renderSlots();
   renderCompBlocks();
   renderParticipants();
+};
+
+document.querySelectorAll('.rec-btn').forEach(btn => {
+  btn.onclick = () => { pickedRec = btn.dataset.rec; renderCompBlocks(); };
+});
+
+el('saveEval').onclick = async () => {
+  const mgr = el('mgrPick').value;
+  if (!mgr) { toast('Pick your name first'); return; }
+  if (!selectedCandidate || !SESSION) return;
+  const mine = myEval(selectedCandidate.id, mgr);
+  const rec = pickedRec || (mine && mine.recommendation);
+  if (!rec) { toast('Choose Hire / Maybe / No'); return; }
+  const res = await fetch(API + '/sessions', {
+    method: 'POST', headers: hdrs(),
+    body: JSON.stringify({
+      op: 'evaluate', sessionId: SESSION.id, candidateId: selectedCandidate.id,
+      manager: mgr, recommendation: rec,
+      strengths: el('evStrengths').value.trim(), improve: el('evImprove').value.trim(),
+    }),
+  });
+  if (!res.ok) { toast('Save failed'); return; }
+  SESSION.evaluations = (SESSION.evaluations || []).filter(ev => !(ev.candidateId === selectedCandidate.id && ev.manager === mgr));
+  SESSION.evaluations.push({ candidateId: selectedCandidate.id, manager: mgr, recommendation: rec, strengths: el('evStrengths').value.trim(), improve: el('evImprove').value.trim() });
+  toast('Evaluation saved');
+  renderBoard();
 };
 
 function slotDefs() {
@@ -490,13 +550,27 @@ function myScores(candidateId, manager) {
   return out;
 }
 
+function myEval(candidateId, manager) {
+  return ((SESSION && SESSION.evaluations) || []).find(ev => ev.candidateId === candidateId && ev.manager === manager);
+}
+
+let pickedRec = null;
 function renderCompBlocks() {
   const mgr = el('mgrPick').value;
   if (!selectedCandidate) {
     el('scoreTarget').innerHTML = 'Select a candidate in a session to score.';
     el('compBlocks').innerHTML = '';
+    el('evalForm').style.display = 'none';
     return;
   }
+  el('evalForm').style.display = 'block';
+  const mineEval = mgr ? myEval(selectedCandidate.id, mgr) : null;
+  if (pickedRec === null && mineEval && !el('evStrengths').value && !el('evImprove').value) {
+    el('evStrengths').value = mineEval.strengths || '';
+    el('evImprove').value = mineEval.improve || '';
+  }
+  const active = pickedRec || (mineEval && mineEval.recommendation);
+  document.querySelectorAll('.rec-btn').forEach(b => b.classList.toggle('on', b.dataset.rec === active));
   el('scoreTarget').innerHTML = 'Scoring: <b>' + esc(selectedCandidate.name) + '</b>' + (mgr ? ' as <b>' + esc(mgr) + '</b>' : ' — <span style="color:#b02a1a;">pick your name above first</span>');
   const mine = mgr ? myScores(selectedCandidate.id, mgr) : {};
   el('compBlocks').innerHTML = (META.competencies || []).map(c => {
@@ -561,14 +635,40 @@ function candidateVerdict(candidateId) {
   return { avg, verdict, comps };
 }
 
+function recCounts(candidateId) {
+  const evs = (SESSION && SESSION.evaluations || []).filter(ev => ev.candidateId === candidateId);
+  return {
+    hire: evs.filter(e => e.recommendation === 'hire').length,
+    maybe: evs.filter(e => e.recommendation === 'maybe').length,
+    no: evs.filter(e => e.recommendation === 'no').length,
+  };
+}
+
 function renderBoard() {
-  if (!SESSION) { el('liveBoard').innerHTML = '<div class="hint">No interview day selected.</div>'; return; }
-  el('liveBoard').innerHTML = SESSION.assignments.map(a => {
-    const v = candidateVerdict(a.candidateId);
+  if (!SESSION) { el('liveBoard').innerHTML = '<div class="hint">No interview day selected.</div>'; el('liveKpis').innerHTML = ''; return; }
+  // Rankings summary (mockup: totals, evaluations completed, average, rec breakdown)
+  const scored = SESSION.assignments.map(a => candidateVerdict(a.candidateId).avg).filter(v => v != null);
+  const allEvs = SESSION.evaluations || [];
+  const kpis = [
+    { l: 'Candidates', v: SESSION.assignments.length },
+    { l: 'Evaluations', v: allEvs.length },
+    { l: 'Avg Score', v: scored.length ? (scored.reduce((x, y) => x + y, 0) / scored.length).toFixed(2) : '—' },
+    { l: 'Hire', v: allEvs.filter(e => e.recommendation === 'hire').length },
+    { l: 'Maybe', v: allEvs.filter(e => e.recommendation === 'maybe').length },
+    { l: 'No', v: allEvs.filter(e => e.recommendation === 'no').length },
+  ];
+  el('liveKpis').innerHTML = kpis.map(k => `<div class="kpi-cell"><div class="kv">${k.v}</div><div class="kl">${k.l}</div></div>`).join('');
+
+  // Ranked by average score, mirroring the rankings dashboard
+  const rows = SESSION.assignments
+    .map(a => ({ a, v: candidateVerdict(a.candidateId), r: recCounts(a.candidateId) }))
+    .sort((x, y) => (y.v.avg ?? -1) - (x.v.avg ?? -1));
+  el('liveBoard').innerHTML = rows.map(({ a, v, r }, i) => {
     return `<div class="lb-row">
       <div class="lb-head">
-        <span class="nm" style="cursor:pointer;" onclick="pickCandidate(${a.candidateId})">${esc(a.name)}</span>
+        <span class="nm" style="cursor:pointer;" onclick="pickCandidate(${a.candidateId})">${v.avg != null ? (i + 1) + '. ' : ''}${esc(a.name)}</span>
         <span style="display:flex;gap:8px;align-items:center;">
+          <span class="rec-chips">${r.hire ? `<span class="rec-chip hire">H${r.hire}</span>` : ''}${r.maybe ? `<span class="rec-chip maybe">M${r.maybe}</span>` : ''}${r.no ? `<span class="rec-chip no">N${r.no}</span>` : ''}</span>
           <span class="lb-avg">${v.avg != null ? v.avg.toFixed(2) : '—'}</span>
           <span class="badge ${v.verdict}">${v.verdict}</span>
         </span>
@@ -583,6 +683,32 @@ function renderBoard() {
     </div>`;
   }).join('') || '<div class="hint">Assign candidates to sessions to see the live board.</div>';
 }
+
+el('exportReport').onclick = () => {
+  if (!SESSION) { toast('No interview day selected'); return; }
+  const csvEsc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+  const comps = META.competencies || [];
+  const header = ['Rank', 'Candidate', 'Breakout', ...comps.map(c => c.label), 'Average', 'Verdict', 'Hire', 'Maybe', 'No', 'Strengths', 'Areas to Improve'];
+  const rows = SESSION.assignments
+    .map(a => ({ a, v: candidateVerdict(a.candidateId), r: recCounts(a.candidateId) }))
+    .sort((x, y) => (y.v.avg ?? -1) - (x.v.avg ?? -1))
+    .map(({ a, v, r }, i) => {
+      const evs = (SESSION.evaluations || []).filter(ev => ev.candidateId === a.candidateId);
+      return [
+        v.avg != null ? i + 1 : '', a.name, 'Breakout ' + a.slot,
+        ...comps.map(c => v.comps[c.key] != null ? v.comps[c.key].toFixed(1) : ''),
+        v.avg != null ? v.avg.toFixed(2) : '', v.verdict, r.hire, r.maybe, r.no,
+        evs.map(e => e.manager.split(' ')[0] + ': ' + e.strengths).filter(s => s.includes(': ') && s.split(': ')[1]).join(' | '),
+        evs.map(e => e.manager.split(' ')[0] + ': ' + e.improve).filter(s => s.includes(': ') && s.split(': ')[1]).join(' | '),
+      ].map(csvEsc).join(',');
+    });
+  const blob = new Blob([header.map(csvEsc).join(',') + '\n' + rows.join('\n')], { type: 'text/csv' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'interview-day-' + (SESSION.sessionDate || 'report') + '.csv';
+  link.click();
+  toast('Report exported');
+};
 
 window.decide = async function (candidateId, status) {
   const body = { id: candidateId, status, notify: el('notifyChk').checked };
