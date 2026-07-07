@@ -8,6 +8,15 @@ export const dynamic = 'force-dynamic'
 // one scoring surface; the dashboard polls GET ?id= every few seconds so
 // scores sync in near-real-time without websockets (Vercel serverless).
 
+// DATE columns come back as server-local-midnight Date objects; format in
+// local time so the calendar date never shifts across timezones.
+function dateOnly(d: unknown): string {
+  if (d instanceof Date) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }
+  return String(d).slice(0, 10)
+}
+
 async function sessionDetail(id: number) {
   const s = await pool.query('SELECT * FROM vi_sessions WHERE id = $1', [id])
   if (s.rows.length === 0) return null
@@ -25,7 +34,7 @@ async function sessionDetail(id: number) {
   const row = s.rows[0]
   return {
     id: Number(row.id),
-    sessionDate: row.session_date,
+    sessionDate: dateOnly(row.session_date),
     teamsUrl: row.teams_url,
     status: row.status,
     startedAt: row.started_at,
@@ -69,7 +78,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       sessions: result.rows.map((row) => ({
         id: Number(row.id),
-        sessionDate: row.session_date,
+        sessionDate: dateOnly(row.session_date),
         teamsUrl: row.teams_url,
         status: row.status,
         candidateCount: row.candidate_count,
@@ -87,9 +96,14 @@ export async function POST(request: NextRequest) {
   if (!isAdmin(request.headers.get('x-admin-key'))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  let body: Record<string, unknown> & { op?: unknown }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
   try {
     await ensureTables()
-    const body = await request.json()
     const op = String(body.op || '')
 
     if (op === 'create') {
@@ -98,9 +112,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'sessionDate (YYYY-MM-DD) required' }, { status: 400 })
       }
       const r = await pool.query(
-        `INSERT INTO vi_sessions (session_date, teams_url) VALUES ($1, $2) RETURNING id`,
+        `INSERT INTO vi_sessions (session_date, teams_url) VALUES ($1, $2)
+         ON CONFLICT (session_date) DO NOTHING RETURNING id`,
         [date, String(body.teamsUrl || '').trim()]
       )
+      if (r.rows.length === 0) {
+        return NextResponse.json({ error: 'An interview day already exists for that date' }, { status: 409 })
+      }
       return NextResponse.json({ session: await sessionDetail(Number(r.rows[0].id)) }, { status: 201 })
     }
 
@@ -114,18 +132,21 @@ export async function POST(request: NextRequest) {
       if (body.teamsUrl !== undefined) { sets.push(`teams_url = $${i++}`); vals.push(String(body.teamsUrl).trim()) }
       if (body.notes !== undefined) { sets.push(`notes = $${i++}`); vals.push(String(body.notes)) }
       if (body.status !== undefined) {
-        if (!['scheduled', 'live', 'completed'].includes(body.status)) {
+        const status = String(body.status)
+        if (!['scheduled', 'live', 'completed'].includes(status)) {
           return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
         }
         sets.push(`status = $${i++}`)
-        vals.push(body.status)
-        if (body.status === 'live') sets.push(`started_at = now()`)
+        vals.push(status)
+        if (status === 'live') sets.push(`started_at = now()`)
       }
       if (!sets.length) return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
       sets.push('updated_at = now()')
       vals.push(sessionId)
       await pool.query(`UPDATE vi_sessions SET ${sets.join(', ')} WHERE id = $${i}`, vals)
-      return NextResponse.json({ session: await sessionDetail(sessionId) })
+      const detail = await sessionDetail(sessionId)
+      if (!detail) return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+      return NextResponse.json({ session: detail })
     }
 
     if (op === 'assign') {
@@ -134,20 +155,27 @@ export async function POST(request: NextRequest) {
       if (!candidateId || ![1, 2, 3].includes(slot)) {
         return NextResponse.json({ error: 'candidateId and slot (1-3) required' }, { status: 400 })
       }
-      const count = await pool.query(
-        `SELECT COUNT(*)::int AS n FROM vi_session_assignments
-         WHERE session_id = $1 AND slot = $2 AND candidate_id != $3`,
+      const exists = await pool.query(
+        `SELECT (SELECT COUNT(*)::int FROM vi_sessions WHERE id = $1) AS s,
+                (SELECT COUNT(*)::int FROM vi_candidates WHERE id = $2) AS c`,
+        [sessionId, candidateId]
+      )
+      if (!exists.rows[0].s) return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+      if (!exists.rows[0].c) return NextResponse.json({ error: 'Candidate not found' }, { status: 404 })
+      // Conditional insert enforces the 2-per-slot cap in one statement, so
+      // concurrent managers cannot overfill a session.
+      const ins = await pool.query(
+        `INSERT INTO vi_session_assignments (session_id, slot, candidate_id)
+         SELECT $1, $2, $3
+         WHERE (SELECT COUNT(*) FROM vi_session_assignments
+                WHERE session_id = $1 AND slot = $2 AND candidate_id != $3) < 2
+         ON CONFLICT (session_id, candidate_id) DO UPDATE SET slot = EXCLUDED.slot
+         RETURNING id`,
         [sessionId, slot, candidateId]
       )
-      if (count.rows[0].n >= 2) {
+      if (ins.rows.length === 0) {
         return NextResponse.json({ error: 'That session already has 2 candidates' }, { status: 409 })
       }
-      await pool.query(
-        `INSERT INTO vi_session_assignments (session_id, slot, candidate_id)
-         VALUES ($1, $2, $3)
-         ON CONFLICT (session_id, candidate_id) DO UPDATE SET slot = EXCLUDED.slot`,
-        [sessionId, slot, candidateId]
-      )
       await pool.query(
         `UPDATE vi_candidates SET status = 'scheduled', updated_at = now()
          WHERE id = $1 AND status IN ('applied', 'video_complete', 'under_review')`,
@@ -161,6 +189,23 @@ export async function POST(request: NextRequest) {
       await pool.query(
         `DELETE FROM vi_session_assignments WHERE session_id = $1 AND candidate_id = $2`,
         [sessionId, candidateId]
+      )
+      // Revert a forward-only 'scheduled' status when the candidate no
+      // longer sits in any session (assign moved them forward; removal
+      // should not leave a scheduled candidate with no session).
+      await pool.query(
+        `UPDATE vi_candidates c
+         SET status = CASE
+           WHEN EXISTS (
+             SELECT 1 FROM vi_responses r
+             JOIN vi_questions q ON q.id = r.question_id AND q.active = TRUE
+             WHERE r.candidate_id = c.id AND r.upload_state = 'complete'
+             HAVING COUNT(*) >= (SELECT COUNT(*) FROM vi_questions WHERE active = TRUE)
+           ) THEN 'video_complete' ELSE 'applied' END,
+           updated_at = now()
+         WHERE c.id = $1 AND c.status = 'scheduled'
+           AND NOT EXISTS (SELECT 1 FROM vi_session_assignments a WHERE a.candidate_id = c.id)`,
+        [candidateId]
       )
       return NextResponse.json({ session: await sessionDetail(sessionId) })
     }
@@ -196,6 +241,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: 'Unknown op' }, { status: 400 })
   } catch (e) {
+    if (typeof e === 'object' && e && (e as { code?: string }).code === '23503') {
+      // Foreign-key violation: the referenced session/candidate is gone.
+      return NextResponse.json({ error: 'Session or candidate not found' }, { status: 404 })
+    }
     console.error('[interview] POST sessions failed:', e)
     return NextResponse.json({ error: 'Database unavailable' }, { status: 503 })
   }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { pool, ensureTables, isAdmin } from '@/lib/interview-db'
+import { pool, ensureTables, isAdmin, mintMediaToken, verifyMediaToken } from '@/lib/interview-db'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -7,7 +7,13 @@ export const maxDuration = 60
 // Video answers are uploaded in sequential binary chunks (Vercel serverless
 // caps request bodies at ~4.5MB, so the recorder splits blobs into ~3MB
 // parts) and stored as bytea in Postgres. Small scale by design: one hiring
-// class is ~20 candidates x 6 answers at ~5-8MB each.
+// class is ~20 candidates x 5 answers at ~5-8MB each.
+//
+// Upload integrity: parts_received tracks how many chunks are appended.
+// A part index below parts_received is a client retry of a chunk that
+// already committed — acknowledged idempotently, never appended twice.
+// Append + completion happen in a single statement, so a failure response
+// always means nothing was committed and the client can retry safely.
 
 const MAX_CHUNK = 4 * 1024 * 1024 // per-request cap
 const MAX_VIDEO = 40 * 1024 * 1024 // per-answer cap
@@ -43,44 +49,76 @@ export async function POST(request: NextRequest) {
     if (buf.length > MAX_CHUNK) return NextResponse.json({ error: 'Chunk too large' }, { status: 413 })
 
     if (part === 0) {
-      // First chunk replaces any prior attempt (re-record).
+      // A completed answer is final — the interview page never re-records an
+      // answered question, so part 0 against a complete row is either a
+      // client retry whose success response was lost (ack idempotently,
+      // never append) or a stale tab (no data harm either way).
+      const existing = await pool.query(
+        `SELECT upload_state FROM vi_responses WHERE candidate_id = $1 AND question_id = $2`,
+        [cand.id, questionId]
+      )
+      if (existing.rows[0]?.upload_state === 'complete') {
+        return NextResponse.json({ ok: true, complete: true, duplicate: true })
+      }
       await pool.query(
-        `INSERT INTO vi_responses (candidate_id, question_id, mime_type, duration_sec, size_bytes, upload_state, video)
-         VALUES ($1, $2, $3, $4, $5, 'uploading', $6)
+        `INSERT INTO vi_responses (candidate_id, question_id, mime_type, duration_sec, size_bytes, upload_state, parts_received, video)
+         VALUES ($1, $2, $3, $4, $5, $6, 1, $7)
          ON CONFLICT (candidate_id, question_id) DO UPDATE SET
            mime_type = EXCLUDED.mime_type,
            duration_sec = EXCLUDED.duration_sec,
            size_bytes = EXCLUDED.size_bytes,
-           upload_state = 'uploading',
+           upload_state = EXCLUDED.upload_state,
+           parts_received = 1,
            video = EXCLUDED.video,
            updated_at = now()`,
-        [cand.id, questionId, mime, duration, buf.length, buf]
+        [cand.id, questionId, mime, duration, buf.length, last ? 'complete' : 'uploading', buf]
       )
     } else {
       const cur = await pool.query(
-        `SELECT size_bytes FROM vi_responses WHERE candidate_id = $1 AND question_id = $2 AND upload_state = 'uploading'`,
+        `SELECT size_bytes, parts_received, upload_state FROM vi_responses
+         WHERE candidate_id = $1 AND question_id = $2`,
         [cand.id, questionId]
       )
       if (cur.rows.length === 0) {
         return NextResponse.json({ error: 'Upload not started' }, { status: 409 })
       }
+      const received = Number(cur.rows[0].parts_received)
+      const state = cur.rows[0].upload_state
+      if (part < received) {
+        // Retry of a chunk that already committed — acknowledge, don't append.
+        return NextResponse.json({ ok: true, complete: state === 'complete', duplicate: true })
+      }
+      if (state !== 'uploading') {
+        return NextResponse.json({ error: 'This question is already answered' }, { status: 409 })
+      }
+      if (part > received) {
+        return NextResponse.json({ error: 'Chunk out of order' }, { status: 409 })
+      }
       if (Number(cur.rows[0].size_bytes) + buf.length > MAX_VIDEO) {
         return NextResponse.json({ error: 'Video too large' }, { status: 413 })
       }
-      await pool.query(
+      // Single statement: append + advance part counter + (on last chunk)
+      // completion, so an error response always means nothing committed and
+      // the client retry cannot double-append.
+      const updated = await pool.query(
         `UPDATE vi_responses
-         SET video = video || $3, size_bytes = size_bytes + $4, updated_at = now()
-         WHERE candidate_id = $1 AND question_id = $2`,
-        [cand.id, questionId, buf, buf.length]
+         SET video = video || $3,
+             size_bytes = size_bytes + $4,
+             parts_received = parts_received + 1,
+             upload_state = CASE WHEN $5 THEN 'complete' ELSE upload_state END,
+             duration_sec = CASE WHEN $5 THEN GREATEST(duration_sec, $6) ELSE duration_sec END,
+             updated_at = now()
+         WHERE candidate_id = $1 AND question_id = $2
+           AND parts_received = $7 AND upload_state = 'uploading'
+         RETURNING id`,
+        [cand.id, questionId, buf, buf.length, last, duration, part]
       )
+      if (updated.rows.length === 0) {
+        return NextResponse.json({ error: 'Chunk out of order' }, { status: 409 })
+      }
     }
 
     if (last) {
-      await pool.query(
-        `UPDATE vi_responses SET upload_state = 'complete', duration_sec = GREATEST(duration_sec, $3), updated_at = now()
-         WHERE candidate_id = $1 AND question_id = $2`,
-        [cand.id, questionId, duration]
-      )
       // When every active question has a complete answer, advance the
       // candidate so the admin pipeline updates in real time.
       const done = await pool.query(
@@ -107,27 +145,38 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Video playback. <video> tags cannot send headers, so auth rides in query
-// params: ?key=<admin key> (admin review) or ?token=<candidate token>
-// (candidate reviewing their own answer).
+// Video playback. <video> tags cannot send headers, so playback URLs carry a
+// short-lived signed media token (?mt=, minted for admins via op=token) or
+// the candidate's own token. Supports single-range requests so seeking and
+// Safari playback work.
 export async function GET(request: NextRequest) {
   try {
     await ensureTables()
     const p = request.nextUrl.searchParams
-    const admin = isAdmin(p.get('key') || request.headers.get('x-admin-key'))
+    const admin = isAdmin(request.headers.get('x-admin-key'))
+    const media = verifyMediaToken(p.get('mt')) || isAdmin(p.get('key'))
     const candidateId = Number(p.get('candidateId'))
     const questionId = Number(p.get('questionId'))
 
-    if (!admin) {
+    // Admin mints a short-lived token for <video> src URLs.
+    if (p.get('op') === 'token') {
+      if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ mediaToken: mintMediaToken() })
+    }
+
+    if (!admin && !media) {
       const cand = await candidateByToken(p.get('token'))
       if (!cand || Number(cand.id) !== candidateId) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
     }
+    if (!candidateId || Number.isNaN(candidateId)) {
+      return NextResponse.json({ error: 'candidateId required' }, { status: 400 })
+    }
 
     // Metadata listing for the admin review modal.
     if (!questionId) {
-      if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      if (!admin && !media) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       const r = await pool.query(
         `SELECT id, question_id, mime_type, duration_sec, size_bytes, upload_state, updated_at
          FROM vi_responses WHERE candidate_id = $1 ORDER BY question_id`,
@@ -155,13 +204,42 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
     const video: Buffer = r.rows[0].video
+    const mimeType = r.rows[0].mime_type || 'video/webm'
+    const range = request.headers.get('range')
+    const common = {
+      'Content-Type': mimeType,
+      'Accept-Ranges': 'bytes',
+      'Cache-Control': 'private, max-age=300',
+    }
+    const rangeMatch = range && /^bytes=(\d*)-(\d*)$/.exec(range.trim())
+    if (rangeMatch && (rangeMatch[1] || rangeMatch[2])) {
+      let start = rangeMatch[1] ? parseInt(rangeMatch[1], 10) : NaN
+      let end = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : video.length - 1
+      if (Number.isNaN(start)) {
+        // suffix range: last N bytes
+        start = Math.max(0, video.length - parseInt(rangeMatch[2], 10))
+        end = video.length - 1
+      }
+      end = Math.min(end, video.length - 1)
+      if (start > end || start >= video.length) {
+        return new NextResponse(null, {
+          status: 416,
+          headers: { 'Content-Range': `bytes */${video.length}` },
+        })
+      }
+      const slice = video.subarray(start, end + 1)
+      return new NextResponse(new Uint8Array(slice), {
+        status: 206,
+        headers: {
+          ...common,
+          'Content-Range': `bytes ${start}-${end}/${video.length}`,
+          'Content-Length': String(slice.length),
+        },
+      })
+    }
     return new NextResponse(new Uint8Array(video), {
       status: 200,
-      headers: {
-        'Content-Type': r.rows[0].mime_type || 'video/webm',
-        'Content-Length': String(video.length),
-        'Cache-Control': 'private, max-age=300',
-      },
+      headers: { ...common, 'Content-Length': String(video.length) },
     })
   } catch (e) {
     console.error('[interview] GET response failed:', e)

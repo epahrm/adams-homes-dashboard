@@ -269,6 +269,23 @@ export function newToken(): string {
   return crypto.randomBytes(16).toString('hex')
 }
 
+// Short-lived signed tokens for <video> playback URLs, so the admin key
+// never appears in query strings (which land in access logs / history).
+export function mintMediaToken(ttlSeconds = 3600): string {
+  const exp = Math.floor(Date.now() / 1000) + ttlSeconds
+  const sig = crypto.createHmac('sha256', ADMIN_KEY).update(String(exp)).digest('hex').slice(0, 32)
+  return `${exp}.${sig}`
+}
+
+export function verifyMediaToken(token: string | null | undefined): boolean {
+  if (!token) return false
+  const [expStr, sig] = String(token).split('.')
+  const exp = Number(expStr)
+  if (!exp || !sig || exp < Math.floor(Date.now() / 1000)) return false
+  const expect = crypto.createHmac('sha256', ADMIN_KEY).update(String(exp)).digest('hex').slice(0, 32)
+  return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expect))
+}
+
 // ---------------------------------------------------------------------------
 // Schema provisioning
 // ---------------------------------------------------------------------------
@@ -312,6 +329,7 @@ async function createTables() {
       duration_sec INT NOT NULL DEFAULT 0,
       size_bytes   BIGINT NOT NULL DEFAULT 0,
       upload_state TEXT NOT NULL DEFAULT 'uploading',
+      parts_received INT NOT NULL DEFAULT 0,
       video        BYTEA,
       created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
       updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -383,32 +401,52 @@ async function createTables() {
 
   // Older deployments may miss newer columns.
   await pool.query(`ALTER TABLE vi_questions ADD COLUMN IF NOT EXISTS listen_for TEXT NOT NULL DEFAULT ''`)
-
-  // Seed / migrate the standardized question set. If an earlier deploy seeded
-  // the pre-handoff 6-question set and no answers were recorded yet, replace
-  // it with the finalized Round 1 questions.
-  const currentKeys = COMPETENCIES.map((c) => c.key)
-  const { rows } = await pool.query(
-    `SELECT
-       (SELECT COUNT(*)::int FROM vi_questions) AS questions,
-       (SELECT COUNT(*)::int FROM vi_questions WHERE competency = ANY($1)) AS current_framework,
-       (SELECT COUNT(*)::int FROM vi_responses) AS responses`,
-    [currentKeys]
+  await pool.query(`ALTER TABLE vi_responses ADD COLUMN IF NOT EXISTS parts_received INT NOT NULL DEFAULT 0`)
+  // One live interview day per date (dedupe any pre-index duplicates first,
+  // keeping the oldest, so index creation cannot fail).
+  await pool.query(
+    `DELETE FROM vi_sessions a USING vi_sessions b
+     WHERE a.session_date = b.session_date AND a.id > b.id`
   )
-  const { questions, current_framework, responses } = rows[0]
-  if (questions > 0 && current_framework === 0 && responses === 0) {
-    await pool.query('DELETE FROM vi_questions')
-  }
-  const after = await pool.query('SELECT COUNT(*)::int AS n FROM vi_questions')
-  if (after.rows[0].n === 0) {
-    for (let i = 0; i < DEFAULT_QUESTIONS.length; i++) {
-      const q = DEFAULT_QUESTIONS[i]
-      await pool.query(
-        `INSERT INTO vi_questions (ord, competency, text, listen_for, prep_seconds, answer_seconds)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [i + 1, q.competency, q.text, q.listenFor, q.prepSeconds, q.answerSeconds]
-      )
+  await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS vi_sessions_date_idx ON vi_sessions (session_date)`)
+
+  // Seed / migrate the standardized question set inside an advisory lock so
+  // concurrent serverless cold starts cannot double-seed. If an earlier
+  // deploy seeded the pre-handoff 6-question set and no answers were
+  // recorded yet, replace it with the finalized Round 1 questions.
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    await client.query('SELECT pg_advisory_xact_lock(914301)')
+    const currentKeys = COMPETENCIES.map((c) => c.key)
+    const { rows } = await client.query(
+      `SELECT
+         (SELECT COUNT(*)::int FROM vi_questions) AS questions,
+         (SELECT COUNT(*)::int FROM vi_questions WHERE competency = ANY($1)) AS current_framework,
+         (SELECT COUNT(*)::int FROM vi_responses) AS responses`,
+      [currentKeys]
+    )
+    const { questions, current_framework, responses } = rows[0]
+    if (questions > 0 && current_framework === 0 && responses === 0) {
+      await client.query('DELETE FROM vi_questions')
     }
+    const after = await client.query('SELECT COUNT(*)::int AS n FROM vi_questions')
+    if (after.rows[0].n === 0) {
+      for (let i = 0; i < DEFAULT_QUESTIONS.length; i++) {
+        const q = DEFAULT_QUESTIONS[i]
+        await client.query(
+          `INSERT INTO vi_questions (ord, competency, text, listen_for, prep_seconds, answer_seconds)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [i + 1, q.competency, q.text, q.listenFor, q.prepSeconds, q.answerSeconds]
+        )
+      }
+    }
+    await client.query('COMMIT')
+  } catch (e) {
+    await client.query('ROLLBACK').catch(() => {})
+    throw e
+  } finally {
+    client.release()
   }
 }
 

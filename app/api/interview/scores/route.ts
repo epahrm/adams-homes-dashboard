@@ -23,7 +23,10 @@ export async function POST(request: NextRequest) {
       )
     }
     await ensureTables()
+    // Validate every entry before writing anything, then write all entries
+    // in one transaction — a 400 must never leave partial scores behind.
     const validKeys = COMPETENCIES.map((c) => c.key)
+    const validated: { competency: string; score: number; evidence: string }[] = []
     for (const entry of entries) {
       const competency = String(entry.competency || '')
       const score = Number(entry.score)
@@ -40,20 +43,33 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
-      await pool.query(
-        `INSERT INTO vi_scores (candidate_id, manager, competency, score, evidence)
-         VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT (candidate_id, manager, competency) DO UPDATE SET
-           score = EXCLUDED.score, evidence = EXCLUDED.evidence, updated_at = now()`,
-        [candidateId, manager, competency, score, evidence]
-      )
+      validated.push({ competency, score, evidence })
     }
-    // First score moves the candidate into review.
-    await pool.query(
-      `UPDATE vi_candidates SET status = 'under_review', updated_at = now()
-       WHERE id = $1 AND status IN ('applied', 'video_complete')`,
-      [candidateId]
-    )
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      for (const v of validated) {
+        await client.query(
+          `INSERT INTO vi_scores (candidate_id, manager, competency, score, evidence)
+           VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT (candidate_id, manager, competency) DO UPDATE SET
+             score = EXCLUDED.score, evidence = EXCLUDED.evidence, updated_at = now()`,
+          [candidateId, manager, v.competency, v.score, v.evidence]
+        )
+      }
+      // First score moves the candidate into review.
+      await client.query(
+        `UPDATE vi_candidates SET status = 'under_review', updated_at = now()
+         WHERE id = $1 AND status IN ('applied', 'video_complete')`,
+        [candidateId]
+      )
+      await client.query('COMMIT')
+    } catch (e) {
+      await client.query('ROLLBACK').catch(() => {})
+      throw e
+    } finally {
+      client.release()
+    }
     return NextResponse.json({ ok: true })
   } catch (e) {
     console.error('[interview] POST scores failed:', e)

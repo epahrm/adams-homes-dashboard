@@ -30,6 +30,14 @@ export type NotifyKind =
   | 'pooled'
   | 'scheduled'
 
+// Candidate-controlled strings (their name) are interpolated into email
+// HTML — escape them so a crafted name cannot inject markup.
+function escHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string
+  )
+}
+
 export function defaultNotification(
   kind: NotifyKind,
   candidateName: string,
@@ -40,12 +48,13 @@ export function defaultNotification(
     offer?: { commission?: string; startDate?: string }
   }
 ): { subject: string; html: string; text: string } {
-  const first = candidateName.split(' ')[0]
+  const firstRaw = candidateName.split(' ')[0]
+  const first = escHtml(firstRaw)
   switch (kind) {
     case 'invited':
       return {
         subject: 'Your Adams Homes video interview link',
-        text: `Hi ${first}, your application to the Adams Homes ${division} sales team was received. Complete your video interview here: ${extra?.interviewUrl}`,
+        text: `Hi ${firstRaw}, your application to the Adams Homes ${division} sales team was received. Complete your video interview here: ${extra?.interviewUrl}`,
         html: WRAP(`
           <p>Hi ${first},</p>
           <p>Thanks for applying to the <b>${division}</b> sales team. Your next step is a short video interview &mdash; five questions, about 15 minutes, recorded whenever suits you.</p>
@@ -55,7 +64,7 @@ export function defaultNotification(
     case 'scheduled':
       return {
         subject: 'Your Adams Homes group interview is scheduled',
-        text: `Hi ${first}, you're scheduled for the Adams Homes ${division} group interview${extra?.sessionDate ? ' on ' + extra.sessionDate : ''}. A Microsoft Teams link will follow. Please join 10 minutes early.`,
+        text: `Hi ${firstRaw}, you're scheduled for the Adams Homes ${division} group interview${extra?.sessionDate ? ' on ' + extra.sessionDate : ''}. A Microsoft Teams link will follow. Please join 10 minutes early.`,
         html: WRAP(`
           <p>Hi ${first},</p>
           <p>Great news &mdash; you're scheduled for our <b>group interview</b> for the ${division} team${extra?.sessionDate ? ' on <b>' + extra.sessionDate + '</b>' : ''}.</p>
@@ -64,7 +73,7 @@ export function defaultNotification(
     case 'advanced':
       return {
         subject: "Great news — you're moving to the next round at Adams Homes",
-        text: `Hi ${first}, great news: you've advanced to the next round of our sales team hiring process for ${division}. We'll follow up shortly with details.`,
+        text: `Hi ${firstRaw}, great news: you've advanced to the next round of our sales team hiring process for ${division}. We'll follow up shortly with details.`,
         html: WRAP(`
           <p>Hi ${first},</p>
           <p><b>Great news</b> &mdash; our sales managers reviewed your interview and you've <b>advanced to the next round</b> for the ${division} team.</p>
@@ -73,7 +82,7 @@ export function defaultNotification(
     case 'pooled':
       return {
         subject: "You're in our future candidate pool at Adams Homes",
-        text: `Hi ${first}, congratulations — you've been added to our future candidate pool for the ${division} area. We'll contact you as soon as a matching opening arises.`,
+        text: `Hi ${firstRaw}, congratulations — you've been added to our future candidate pool for the ${division} area. We'll contact you as soon as a matching opening arises.`,
         html: WRAP(`
           <p>Hi ${first},</p>
           <p><b>Congratulations!</b> You've been added to our <b>future candidate pool</b> for the ${division} area.</p>
@@ -82,7 +91,7 @@ export function defaultNotification(
     case 'offer_sent':
       return {
         subject: 'Your offer from Adams Homes',
-        text: `Hi ${first}, congratulations! We'd like to offer you a position as Sales Associate on the Adams Homes ${division} team.${extra?.offer?.commission ? ' Commission: ' + extra.offer.commission + '.' : ''}${extra?.offer?.startDate ? ' Start date: ' + extra.offer.startDate + '.' : ''} Full details to follow.`,
+        text: `Hi ${firstRaw}, congratulations! We'd like to offer you a position as Sales Associate on the Adams Homes ${division} team.${extra?.offer?.commission ? ' Commission: ' + extra.offer.commission + '.' : ''}${extra?.offer?.startDate ? ' Start date: ' + extra.offer.startDate + '.' : ''} Full details to follow.`,
         html: WRAP(`
           <p>Hi ${first},</p>
           <p><b>Congratulations!</b> We'd like to offer you a position as <b>Sales Associate</b> on the ${division} team.</p>
@@ -96,7 +105,7 @@ export function defaultNotification(
     case 'declined':
       return {
         subject: 'Update on your Adams Homes application',
-        text: `Hi ${first}, thank you for interviewing with Adams Homes. After careful review we won't be moving forward at this time. We'd love to stay in touch for future openings.`,
+        text: `Hi ${firstRaw}, thank you for interviewing with Adams Homes. After careful review we won't be moving forward at this time. We'd love to stay in touch for future openings.`,
         html: WRAP(`
           <p>Hi ${first},</p>
           <p>Thank you for the time and care you put into your application and interview for the ${division} team.</p>

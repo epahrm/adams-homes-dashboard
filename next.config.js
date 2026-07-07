@@ -8,6 +8,11 @@ const nextConfig = {
         destination: '/land-acq-pro/index.html',
         permanent: false,
       },
+      {
+        source: '/sales-interview',
+        destination: '/sales-interview/index.html',
+        permanent: false,
+      },
     ]
   },
 }

@@ -144,11 +144,27 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Only plain web links may be stored where the admin UI renders anchors —
+// a javascript: resume "link" clicked by a manager would run in the admin
+// origin.
+function safeUrl(v: unknown): string {
+  const s = String(v || '').trim()
+  if (!s || /^n\/?a$/i.test(s)) return ''
+  if (/^https?:\/\//i.test(s)) return s
+  if (/^[\w.-]+\.[a-z]{2,}([/?#]|$)/i.test(s)) return 'https://' + s
+  return ''
+}
+
 // Public: candidate application from the careers page (final prototype:
 // personal info + FL license + 20 questions, then socials + resume link).
 export async function POST(request: NextRequest) {
+  let body: Record<string, unknown>
   try {
-    const body = await request.json()
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+  try {
     const name = `${String(body.firstName || '').trim()} ${String(body.lastName || '').trim()}`.trim() ||
       String(body.name || '').trim()
     const email = String(body.email || '').trim().toLowerCase()
@@ -159,8 +175,9 @@ export async function POST(request: NextRequest) {
     if (!DIVISIONS.some((d) => d.code === division)) {
       return NextResponse.json({ error: 'Please choose an office' }, { status: 400 })
     }
-    const referral = REFERRAL_SOURCES.includes(body.referralSource)
-      ? body.referralSource
+    const referralInput = String(body.referralSource || '')
+    const referral = (REFERRAL_SOURCES as readonly string[]).includes(referralInput)
+      ? referralInput
       : 'other'
 
     await ensureTables()
@@ -169,7 +186,7 @@ export async function POST(request: NextRequest) {
       linkedin: String(body.linkedin || '').trim(),
       instagram: String(body.instagram || '').trim(),
       facebook: String(body.facebook || '').trim(),
-      resumeUrl: String(body.resumeUrl || '').trim(),
+      resumeUrl: safeUrl(body.resumeUrl),
       appAnswers: Array.isArray(body.appAnswers)
         ? body.appAnswers.slice(0, APP_QUESTIONS.length).map((a: unknown) => String(a || ''))
         : [],
@@ -191,6 +208,15 @@ export async function POST(request: NextRequest) {
         JSON.stringify(flags),
       ]
     )
+    // Email the interview link so candidates who close the tab can still
+    // start their video interview (no-op without SendGrid; the success
+    // screen shows the same link either way).
+    const origin = request.nextUrl.origin
+    const divName = DIVISIONS.find((d) => d.code === division)?.name || division
+    const invite = defaultNotification('invited', name, divName, {
+      interviewUrl: `${origin}/sales-interview/interview.html?token=${token}`,
+    })
+    sendCandidateNotification(email, invite.subject, invite.html, invite.text).catch(() => {})
     return NextResponse.json(
       { candidate: toCandidate(result.rows[0], false), interviewToken: token },
       { status: 201 }
@@ -212,8 +238,13 @@ export async function PATCH(request: NextRequest) {
   if (!isAdmin(request.headers.get('x-admin-key'))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  let body: Record<string, unknown> & { [k: string]: any }
   try {
-    const body = await request.json()
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+  try {
     const id = Number(body.id)
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
     await ensureTables()

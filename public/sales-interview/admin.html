@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/sales-interview/img/logo.png">
   <title>Hiring Command Center - Adams Homes</title>
   <style>
     :root {
@@ -16,7 +17,7 @@
     .topbar { background: #003d66; color: white; padding: 20px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
     .topbar h1 { font-size: 21px; }
     .topbar .sub { font-size: 13px; color: #b9cde4; margin-top: 2px; }
-    .topbar .actions { display: flex; gap: 10px; }
+    .topbar .actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .tb-btn { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 9px 16px; font-size: 14px; cursor: pointer; font-family: inherit; }
     .tb-btn:hover { background: rgba(255,255,255,0.2); }
     .content { padding: 22px; }
@@ -531,9 +532,12 @@
         (c.phone ? ' &middot; ' + esc(c.phone) : '') + ' &middot; applied ' + new Date(c.createdAt).toLocaleDateString();
       const data = c.data || {};
       const profileLink = (v) => {
+        // Only ever emit http(s) links — a candidate-supplied javascript:
+        // URL must never become a clickable anchor in the admin origin.
         const val = String(v || '').trim();
         if (!val || /^n\/?a$/i.test(val)) return '—';
-        const href = /^https?:\/\//.test(val) ? val : 'https://' + val.replace(/^@/, '');
+        if (/^javascript:|^data:|^vbscript:/i.test(val)) return esc(val) + ' (not a link)';
+        const href = /^https?:\/\//i.test(val) ? val : 'https://' + val.replace(/^@/, '');
         return '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(val) + '</a>';
       };
       const offer = data.offer || {};
@@ -544,7 +548,7 @@
         ['LinkedIn', profileLink(data.linkedin)],
         ['Instagram', profileLink(data.instagram)],
         ['Facebook', profileLink(data.facebook)],
-        ['Resume', data.resumeUrl ? '<a href="' + esc(data.resumeUrl) + '" target="_blank" rel="noopener">open resume</a>' : '—'],
+        ['Resume', profileLink(data.resumeUrl)],
         ['Rejection reason', c.declineReason ? (DECLINE_LABELS[c.declineReason] || c.declineReason) : '—'],
         ['Offer', offer.commission ? esc(offer.commission + (offer.startDate ? ' · starts ' + offer.startDate : '')) : '—'],
         ['Pool note', esc(data.poolNote || '—')],
@@ -555,19 +559,24 @@
       el('cmPreQA').innerHTML = PRE_QS.map((q, i) =>
         '<div class="preqa"><div class="q">' + (i + 1) + '. ' + esc(q) + '</div><div>' + esc((data.appAnswers || [])[i] || '(no answer)') + '</div></div>').join('');
 
-      // Videos
-      const respRes = await fetch(API + '/responses?candidateId=' + c.id, { headers: hdrs() }).then(r => r.json()).catch(() => ({ responses: [] }));
+      // Videos — playback URLs use a short-lived signed media token so the
+      // admin key never appears in query strings / access logs.
+      const [respRes, tokRes] = await Promise.all([
+        fetch(API + '/responses?candidateId=' + c.id, { headers: hdrs() }).then(r => r.json()).catch(() => ({ responses: [] })),
+        fetch(API + '/responses?op=token&candidateId=0', { headers: hdrs() }).then(r => r.json()).catch(() => ({})),
+      ]);
+      const mediaToken = tokRes.mediaToken || '';
       const byQ = {};
       (respRes.responses || []).forEach(r => { byQ[r.questionId] = r; });
       el('cmVideos').innerHTML = (window.QUESTIONS || []).map((q, i) => {
         const r = byQ[q.id];
         const comp = COMPS.find(x => x.key === q.competency);
         const cap = '<div class="vc-cap"><b>Q' + (i + 1) + ' — ' + esc(comp ? comp.label : q.competency) + '</b>' + esc(q.text) + '</div>';
-        if (r && r.uploadState === 'complete') {
-          const src = API + '/responses?candidateId=' + c.id + '&questionId=' + q.id + '&key=' + encodeURIComponent(KEY);
+        if (r && r.uploadState === 'complete' && mediaToken) {
+          const src = API + '/responses?candidateId=' + c.id + '&questionId=' + q.id + '&mt=' + encodeURIComponent(mediaToken);
           return '<div class="vid-card"><video controls preload="none" src="' + src + '"></video>' + cap + '</div>';
         }
-        return '<div class="vid-card"><div class="vid-missing">No answer recorded yet</div>' + cap + '</div>';
+        return '<div class="vid-card"><div class="vid-missing">' + (r && r.uploadState === 'complete' ? 'Playback token unavailable — refresh' : 'No answer recorded yet') + '</div>' + cap + '</div>';
       }).join('');
 
       renderScoreForm();
@@ -588,16 +597,34 @@
       const mgr = el('cmManager').value.trim();
       const mine = {};
       (c.scores || []).forEach(sc => { if (sc.manager === mgr && sc.kind !== 'live') mine[sc.competency] = sc; });
+      // Preserve in-progress (unsaved) selections and evidence across
+      // re-renders — otherwise the rebuild triggered by the manager-name
+      // change swallows the pip click that caused the blur.
+      const draft = {};
+      el('cmScoreForm').querySelectorAll('.sf-row').forEach(row => {
+        const on = row.querySelector('.sf-stars button.on');
+        const ev = row.querySelector('input') ? row.querySelector('input').value : '';
+        if (on || ev) draft[row.dataset.comp] = { score: on ? Number(on.dataset.v) : null, evidence: ev };
+      });
       el('cmScoreForm').innerHTML = COMPS.map(comp => {
+        const d = draft[comp.key] || {};
         const existing = mine[comp.key];
+        const score = d.score != null ? d.score : (existing ? existing.score : null);
+        const evidence = d.evidence != null && d.evidence !== '' ? d.evidence : (existing ? existing.evidence : '');
         return '<div class="sf-row" data-comp="' + comp.key + '">' +
           '<div class="sf-comp"><b>' + esc(comp.label) + '</b><small>' + esc(comp.definition || '') + ' &middot; 3 = meets expectation, 5 = exceptional</small></div>' +
           '<div class="sf-stars">' + [1, 2, 3, 4, 5].map(n =>
-            '<button type="button" data-v="' + n + '" class="' + (existing && existing.score === n ? 'on' : '') + '">' + n + '</button>').join('') + '</div>' +
-          '<input type="text" placeholder="Evidence — one sentence of proof (required)" value="' + esc(existing ? existing.evidence : '') + '">' +
+            '<button type="button" data-v="' + n + '" class="' + (score === n ? 'on' : '') + '">' + n + '</button>').join('') + '</div>' +
+          '<input type="text" placeholder="Evidence — one sentence of proof (required)" value="' + esc(evidence) + '">' +
           '</div>';
       }).join('');
       el('cmScoreForm').querySelectorAll('.sf-stars button').forEach(btn => {
+        // pointerdown fires before the input blur/change that rebuilds the
+        // form, so the very first click after typing a name still lands.
+        btn.onpointerdown = () => {
+          btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('on'));
+          btn.classList.add('on');
+        };
         btn.onclick = () => {
           btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('on'));
           btn.classList.add('on');

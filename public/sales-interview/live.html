@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/sales-interview/img/logo.png">
 <title>Live Interview Day - Adams Homes</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap');
@@ -40,8 +41,8 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
 .cand-chip:hover { border-color: var(--navy); }
 .cand-chip .nm { font-weight: 600; font-size: 13px; }
 .cand-chip .dv { font-size: 11px; color: #778; }
-.cand-chip .assign-btns { display: flex; gap: 4px; }
-.cand-chip .assign-btns button { width: 24px; height: 24px; border-radius: 5px; border: 1px solid #c8d2de; background: white; cursor: pointer; font-size: 11px; font-weight: 800; color: var(--navy); }
+.cand-chip .assign-btns { display: flex; gap: 6px; }
+.cand-chip .assign-btns button { width: 38px; height: 38px; border-radius: 6px; border: 1px solid #c8d2de; background: white; cursor: pointer; font-size: 14px; font-weight: 800; color: var(--navy); }
 .cand-chip .assign-btns button:hover { background: var(--navy); color: white; }
 .hint { font-size: 11px; color: #889; margin: 8px 0; }
 
@@ -56,7 +57,7 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
 .slot-body { padding: 10px 14px; }
 .slot-cands { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; min-height: 38px; }
 .slot-cand { display: flex; align-items: center; gap: 8px; background: #eef4fb; border: 1px solid #c9dcf0; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--navy); }
-.slot-cand button { border: none; background: none; color: #b02a1a; font-weight: 800; cursor: pointer; font-size: 14px; }
+.slot-cand button { border: none; background: none; color: #b02a1a; font-weight: 800; cursor: pointer; font-size: 16px; padding: 8px 10px; margin: -8px -6px -8px 0; }
 .slot-cand.selected { outline: 3px solid var(--red); }
 .slot-empty { font-size: 12px; color: #99a; padding: 8px 0; }
 .slot-actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -96,9 +97,10 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
 .badge.pending { background: #eef1f5; color: #667; }
 .lb-comps { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
 .lb-comp { font-size: 11px; border-radius: 5px; padding: 3px 7px; color: white; font-weight: 700; }
-.lb-actions { display: flex; gap: 6px; margin-top: 8px; }
-.lb-actions .btn { padding: 7px 12px; font-size: 12px; }
-.notify-line { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #445; margin-top: 8px; }
+.lb-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.lb-actions .btn { padding: 10px 14px; font-size: 13px; min-height: 40px; }
+.notify-line { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #445; margin-top: 8px; }
+.notify-line input[type=checkbox] { width: 20px; height: 20px; }
 .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--navy); color: white; border-radius: 999px; padding: 10px 22px; font-size: 14px; display: none; z-index: 200; }
 
 /* Login */
@@ -438,13 +440,15 @@ function candidateVerdict(candidateId) {
   const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
   const anyOne = scores.some(s => s.score === 1);
   const threePlus = vals.filter(v => v >= 3).length;
-  const adv = META.advancement || { minAverage: 3, grayZoneLow: 2.8 };
+  const adv = META.advancement || { minAverage: 3 };
+  // Round 1 criteria: eliminate on any 1 or average below 2.5; advance at
+  // 3.0+ with 3-of-4 competencies at 3+; everything between is a team
+  // discussion in calibration.
   let verdict = 'discuss';
   if (avg != null) {
     if (anyOne || avg < 2.5) verdict = 'eliminate';
     else if (avg >= adv.minAverage && threePlus >= 3) verdict = 'advance';
-    else if (avg >= adv.grayZoneLow) verdict = 'discuss';
-    else verdict = 'eliminate';
+    else verdict = 'discuss';
   }
   return { avg, verdict, comps };
 }
