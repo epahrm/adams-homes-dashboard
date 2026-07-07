@@ -50,6 +50,21 @@ export async function POST(request: NextRequest) {
       }
       const { address: _a, status: _s, id: _id, createdAt: _c, updatedAt: _u, ...data } = raw
       try {
+        // Never show Kevin a lot we've already seen: block by parcel or legal
+        // description too (not just address), so the same lot from a different
+        // source/format can't slip back in.
+        const parcel = String((data as Record<string, unknown>).parcel || '').trim()
+        const legal = String((data as Record<string, unknown>).legal || '').trim()
+        if (parcel || legal) {
+          const dup = await pool.query(
+            `SELECT 1 FROM land_acq_lots
+             WHERE ($1 <> '' AND data->>'parcel' = $1)
+                OR ($2 <> '' AND data->>'legal' = $2)
+             LIMIT 1`,
+            [parcel, legal]
+          )
+          if (dup.rows.length) { duplicates++; continue }
+        }
         const res = await pool.query(
           `INSERT INTO land_acq_lots (address, address_key, status, data)
            VALUES ($1, $2, $3, $4)
