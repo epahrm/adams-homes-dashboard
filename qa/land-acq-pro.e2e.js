@@ -201,6 +201,20 @@ async function noHorizontalOverflow(page) {
     check('secondary action button has a distinct filled background',
       (await page.locator('#offerFollowList .opp-btn-hold').first().evaluate(el => getComputedStyle(el).backgroundColor)) === 'rgb(232, 150, 60)');
 
+    // ---------- Contract stats (month / quarter / YTD) + cancellations review ----------
+    const statsHeads = await page.locator('#contractStats thead th').allTextContents();
+    check('contract stats show month / quarter / YTD columns',
+      statsHeads.some(h => /month/i.test(h)) && statsHeads.some(h => /quarter/i.test(h)) && statsHeads.some(h => /year to date/i.test(h)));
+    check('contract stats list contracts, closed, cancellations',
+      /Contracts Accepted/i.test(await page.textContent('#contractStats')) && /Cancellations/i.test(await page.textContent('#contractStats')));
+    check('cancellations are not a running list on the dashboard',
+      !(await page.locator('#cancelReviewOverlay.show').isVisible()));
+    await page.click('#reviewCancelBtn');
+    await page.waitForSelector('#cancelReviewOverlay.show', { timeout: 5000 });
+    check('review cancellations opens an on-demand modal',
+      await page.locator('#cancelReviewOverlay #cancelTable').isVisible());
+    await page.click('#crClose');
+
     // ---------- Receipt upload on mailing costs ----------
     check('receipt upload control present on mailing modal',
       (await page.locator('#mReceiptBtn').count()) === 1 && (await page.locator('#mReceiptFile').count()) === 1);
