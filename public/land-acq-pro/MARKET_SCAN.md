@@ -3,16 +3,32 @@
 Finds vacant lots that fit the buy box, scores each one, and drops the good
 ones on Kevin's dashboard with a green/yellow/red light and a pre-filled offer.
 
-## Green / Yellow / Red triage
-- 🟢 **GREEN — ready to send:** meets every buy-box rule, offer at/under
-  stipend, no flags.
-- 🟡 **YELLOW — review:** buyable but needs a look — offer/asking over stipend,
-  a yellow flag (flood zone A/AE, HOA, minor easement), or missing data.
-- 🔴 **RED — auto-rejected:** fails a hard rule (wrong zoning, has a structure,
-  disallowed utilities, size outside 0.25–2 ac, wetlands, landlocked,
+## Price show-window
+Show every lot up to **$10,000 over the stipend** (Kevin offers his stipend and
+negotiates). Lots more than $10k over are excluded.
+- 🟢 **GREEN — ready to send:** at/under stipend, meets every rule, no flags.
+- 🟡 **YELLOW — review/negotiate:** $1–$10k over stipend, OR a flag (auction/
+  foreclosure, flood zone A/AE, HOA, easement), OR (off-market only) missing
+  owner/parcel. On-market listings reach the seller via the listing agent and
+  the parcel is pulled at offer time, so those don't need owner/parcel to go
+  green.
+- 🔴 **RED — excluded:** more than $10k over stipend, or fails a hard rule
+  (structure, wrong zoning, size outside 0.25–2 ac, wetlands, landlocked,
   deed-restricted). Logged with the reason, not shown as an opportunity.
 
-Kevin acts on each: **Add to Pipeline** (becomes a lead), **Hold**, or **Skip**.
+Suggested offer is always capped at the stipend.
+
+## Daily worklist (so nothing rides on memory)
+Every showable lot stays in the **New Opportunities** queue until Kevin acts:
+- **Send Offer** → opens the offer screen for that lot.
+- **Hold** → parks it (`opportunity-hold`).
+- **Unsuitable** → `dismissed`: removed and **never shown again**. The row is
+  kept so the unique address key blocks the scan from ever re-adding it.
+
+**Seller declines an offer →** the lot becomes `offer-denied` with a
+`nextReviewAt` 30 days out. When that date arrives it surfaces in the
+**Re-offer Due** section prompting Kevin to send another offer if it's still
+listed (**Reviewed — 30d** re-arms the timer; **Unsuitable** drops it).
 
 ## Data sources — the honest version
 Live-scraping the big portals is **not** a durable foundation:

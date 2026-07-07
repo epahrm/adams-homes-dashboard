@@ -35,6 +35,8 @@ globalForPool.landAcqPool = pool
 export const LOT_STATUSES = [
   'opportunity',      // buy-box market-scan match, pre-triage
   'opportunity-hold', // held for a later campaign
+  'dismissed',        // marked unsuitable — never shown/re-added again
+  'offer-denied',     // seller declined the offer — re-review in 30 days
   'pending',          // new lead, pre-offer
   'offer-sent',       // offer sent to seller
   'seller-signed',    // seller signed / offer accepted

@@ -309,6 +309,13 @@
         </details>
       </div>
 
+      <!-- Seller declined an offer: prompt Kevin to re-offer every 30 days -->
+      <div class="opps" id="reofferBlock" style="display:none; border-color:#8a5200; background:#fff8ef;">
+        <h3 style="color:#8a5200;">Re-offer Due <span>&mdash; seller declined, 30-day follow-up</span></h3>
+        <div class="opps-sub" id="reofferSub"></div>
+        <div id="reofferList"></div>
+      </div>
+
       <!-- New leads awaiting a first offer (QR + research requests) -->
       <div class="newleads" id="newLeadsBlock" style="display:none;">
         <h3>New Leads <span>&mdash; awaiting first offer</span></h3>
@@ -374,7 +381,7 @@
 
   <script>
     const STORE_KEY = 'landAcqSubmissions';
-    const SEED_FLAG = 'landAcqSeeded_v5';
+    const SEED_FLAG = 'landAcqSeeded_v6';
     const PAGE_SIZE = 6;
     const OUTREACH_BASELINE = 150; // direct-mail pieces sent before digital tracking began
     const API_LOTS = '/api/land-acq/lots';
@@ -426,6 +433,7 @@
       zips: ['32905', '32906', '32907', '32908', '32909'],
       minAcres: 0.25, maxAcres: 2,
       defaultOffer: 30000,      // starting cash offer (Kevin can override)
+      showWindow: 10000,        // show lots up to $10k over stipend (offer & negotiate)
       floodReview: ['A', 'AE'], // insurable but needs sign-off
     };
 
@@ -444,9 +452,14 @@
       const red = [], yellow = [];
       const acres = acresOf(l);
       const stipend = lotStipend(l);
-      const offer = typeof l.offerSuggested === 'number' ? l.offerSuggested : BUY_BOX.defaultOffer;
+      const price = typeof l.listPrice === 'number' ? l.listPrice
+        : (typeof l.offerSuggested === 'number' ? l.offerSuggested : BUY_BOX.defaultOffer);
+      // Offer never exceeds the stipend — Kevin offers his max and negotiates.
+      const offer = stipend != null ? Math.min(price, stipend) : price;
 
       // Hard fails → RED
+      if (stipend != null && price > stipend + BUY_BOX.showWindow)
+        red.push('Asking ' + money(price) + ' is over ' + money(BUY_BOX.showWindow) + ' above ' + money(stipend) + ' stipend');
       if (l.hasStructure) red.push('Has a structure (not a vacant lot)');
       if (l.zoningClass && !/resid/i.test(l.zoningClass)) red.push('Zoning not residential');
       if (acres != null && (acres < BUY_BOX.minAcres || acres > BUY_BOX.maxAcres))
@@ -457,16 +470,18 @@
       if (/shared|mobile/i.test(l.utilities || '')) red.push('Utilities not acceptable (shared/mobile)');
 
       // Needs review → YELLOW
-      if (stipend != null && offer > stipend)
-        yellow.push('Offer ' + money(offer) + ' over ' + money(stipend) + ' stipend');
-      if (typeof l.listPrice === 'number' && stipend != null && l.listPrice > stipend)
-        yellow.push('Asking ' + money(l.listPrice) + ' over ' + money(stipend) + ' stipend');
+      if (stipend != null && price > stipend && price <= stipend + BUY_BOX.showWindow)
+        yellow.push(money(price) + ' is ' + money(price - stipend) + ' over ' + money(stipend) + ' stipend — offer & negotiate');
       if (l.floodZone && BUY_BOX.floodReview.includes(String(l.floodZone).toUpperCase()))
         yellow.push('Flood zone ' + l.floodZone + ' — insurable, needs sign-off');
       if (l.hoa) yellow.push('HOA restriction');
       if (l.minorEasement) yellow.push('Minor easement');
-      if (!l.parcel || !(l.ownerContact || l.owner))
-        yellow.push('Missing data — verify before offer');
+      if (/auction|foreclos/i.test(l.listStatus || '')) yellow.push('Auction/foreclosure — review process');
+      // On-market lots reach the seller via the listing agent; parcel is pulled
+      // at offer time. Only off-market leads need owner/parcel to go green.
+      const onMarket = typeof l.listPrice === 'number' || !!l.agentBrokerage || /listing|active|auction/i.test(l.listStatus || '');
+      if (!onMarket && (!l.parcel || !(l.ownerContact || l.owner)))
+        yellow.push('Missing owner/parcel — verify before offer');
 
       const light = red.length ? 'red' : (yellow.length ? 'yellow' : 'green');
       const reasons = red.length ? red : (yellow.length ? yellow : ['Meets every buy-box rule — ready to send']);
@@ -531,11 +546,16 @@
         { id: now - 7, address: '200 Harbor Dr, Palm Bay, FL 32905', status: 'closed', source: 'Direct Mail', listPrice: 29000, listStatus: 'Active Listing', parcel: '2945-02QR-10677', owner: 'Susan Park', ownerContact: '200 Harbor Dr, Palm Bay, FL 32905 | (321) 555-6600 | spark@email.com', lotSize: '0.21 acres (9,148 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$24,000', annualTax: '$418', offer: '$29,000', createdAt: iso(now - 62 * day), acceptedAt: iso(now - 50 * day), closedAt: dt(0, Math.max(1, new Date().getDate() - 2)) },
         { id: now - 8, address: '987 Maple Drive, Palm Bay, FL 32907', status: 'declined', source: 'FSBO', listPrice: null, listStatus: 'FSBO', parcel: '2941-05IJ-60874', owner: 'Patricia Moore', ownerContact: '987 Maple Drive, Palm Bay, FL 32907 | (321) 555-9080 | pmoore@email.com', lotSize: '0.26 acres (11,326 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$27,300', annualTax: '$471', createdAt: iso(now - 90 * day) },
 
-        // Buy-box market-scan results (FL DOR assessment API) awaiting Kevin's triage.
-        { id: now - 20, status: 'opportunity', source: 'Market Scan · FL DOR', address: '3145 Weber Rd, Palm Bay, FL 32909', parcel: '2945-11GH-30288', owner: 'Estate of R. Alvarez', ownerContact: 'PO Box 441, Palm Bay, FL 32909', acres: 0.50, lotSize: '0.50 acres (21,780 sqft)', zoningClass: 'Residential', utilities: 'Water: City / Sewer: City', floodZone: 'X', taxValue: '$38,500', createdAt: iso(now - 1 * day) },
-        { id: now - 21, status: 'opportunity', source: 'Market Scan · FL DOR', address: '760 Emerson Dr NW, Palm Bay, FL 32907', parcel: '2938-02AB-11907', owner: 'James & Carol Petit', ownerContact: '760 Emerson Dr NW, Palm Bay, FL 32907', acres: 0.34, lotSize: '0.34 acres (14,810 sqft)', zoningClass: 'Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', floodZone: 'AE', taxValue: '$29,900', createdAt: iso(now - 1 * day) },
-        { id: now - 22, status: 'opportunity', source: 'Market Scan · MLS', address: '1421 Bianca Dr NE, Palm Bay, FL 32905', parcel: '2933-08KL-42210', owner: 'Listed — Palm Realty', listStatus: 'Active Listing', listPrice: 42000, acres: 0.29, lotSize: '0.29 acres (12,632 sqft)', zoningClass: 'Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', floodZone: 'X', taxValue: '$26,100', createdAt: iso(now - 2 * day) },
-        { id: now - 23, status: 'opportunity', source: 'Market Scan · FL DOR', address: '55 Degroodt Rd SW, Palm Bay, FL 32908', parcel: '2949-03MN-90551', owner: 'H. Okafor', ownerContact: '55 Degroodt Rd SW, Palm Bay, FL 32908', acres: 3.20, lotSize: '3.20 acres (139,392 sqft)', zoningClass: 'Residential', utilities: 'Water: City / Sewer: None (Septic required)', floodZone: 'X', wetlands: true, taxValue: '$61,000', createdAt: iso(now - 2 * day) }
+        // Real on-market Palm Bay lots (Zillow saved-search) awaiting Kevin's triage.
+        { id: now - 20, status: 'opportunity', source: 'Zillow', address: '951 Weslaco St SE, Palm Bay, FL 32909', listStatus: 'Active Listing', listPrice: 27500, zoningClass: 'Residential', mls: '1059125', agentBrokerage: 'Space Coast AOR', createdAt: iso(now - 1 * day) },
+        { id: now - 21, status: 'opportunity', source: 'Zillow', address: '842 Darlington Ave SW, Palm Bay, FL 32908', listStatus: 'Active Listing', listPrice: 39000, zoningClass: 'Residential', mls: '1081538', agentBrokerage: 'Space Coast AOR', createdAt: iso(now - 1 * day) },
+        { id: now - 22, status: 'opportunity', source: 'Zillow', address: '2617 Ja Bombardier Blvd SW, Palm Bay, FL 32908', listStatus: 'Active Listing', listPrice: 22900, zoningClass: 'Residential', mls: '2026019833', agentBrokerage: 'Keller Williams Island Life RE', createdAt: iso(now - 1 * day) },
+        { id: now - 23, status: 'opportunity', source: 'Zillow', address: 'Corner of Rebus Ave & Harper Blvd SW, Palm Bay, FL 32908', listStatus: 'Active Listing', listPrice: 45500, zoningClass: 'Residential', mls: '1081639', agentBrokerage: 'Space Coast AOR', createdAt: iso(now - 2 * day) },
+        { id: now - 24, status: 'opportunity', source: 'Zillow', address: '506 White Cap Ct NW, Palm Bay, FL 32907', listStatus: 'Auction', listPrice: 30000, zoningClass: 'Residential', mls: '11833418', agentBrokerage: 'Ashland Auction Group', lotNote: 'Auction listing', createdAt: iso(now - 2 * day) },
+        { id: now - 25, status: 'opportunity', source: 'Zillow', address: 'Merganser & Slimtwig Ave, Palm Bay, FL 32908', listStatus: 'Active Listing', listPrice: 32000, zoningClass: 'Residential', mls: 'A12047551', agentBrokerage: 'Douglas Elliman', createdAt: iso(now - 2 * day) },
+        { id: now - 26, status: 'opportunity', source: 'Zillow', address: '124 Deeyan Ave NW, Palm Bay, FL 32907', listStatus: 'Active Listing', listPrice: 45000, zoningClass: 'Residential', mls: '1081559', agentBrokerage: 'Space Coast AOR', createdAt: iso(now - 3 * day) },
+        // Seller declined an earlier offer — 30-day follow-up now due.
+        { id: now - 27, status: 'offer-denied', source: 'Zillow', address: '318 Abetti Rd SE, Palm Bay, FL 32909', listStatus: 'Active Listing', listPrice: 31000, zoningClass: 'Residential', mls: '1077410', agentBrokerage: 'Space Coast AOR', offer: '$30,000', deniedAt: iso(now - 32 * day), nextReviewAt: iso(now - 2 * day), createdAt: iso(now - 45 * day) }
       ];
       const have = new Set(existing.map(s => (s.address || '').toLowerCase()));
       const merged = existing.concat(seeds.filter(s => !have.has(s.address.toLowerCase())));
@@ -728,12 +748,13 @@
         offer.appendChild(oLbl); offer.appendChild(document.createTextNode(money(ev.offer)));
 
         const actions = document.createElement('div'); actions.className = 'opp-actions';
-        const add = document.createElement('button'); add.className = 'opp-btn-add'; add.textContent = 'Add to Pipeline';
-        add.addEventListener('click', () => patchLot(l.id, { status: 'pending', offerSuggested: ev.offer }));
+        const add = document.createElement('button'); add.className = 'opp-btn-add'; add.textContent = 'Send Offer';
+        add.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
         const hold = document.createElement('button'); hold.className = 'opp-btn-hold'; hold.textContent = 'Hold';
         hold.addEventListener('click', () => patchLot(l.id, { status: 'opportunity-hold' }));
-        const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Skip';
-        skip.addEventListener('click', () => patchLot(l.id, { status: 'declined' }));
+        const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Unsuitable';
+        skip.title = 'Remove permanently — will not be shown again';
+        skip.addEventListener('click', () => { if (confirm('Mark ' + (l.address || 'this lot') + ' unsuitable? It will be removed and never shown again.')) patchLot(l.id, { status: 'dismissed', dismissedAt: new Date().toISOString() }); });
         actions.appendChild(add); actions.appendChild(hold); actions.appendChild(skip);
 
         row.appendChild(badge); row.appendChild(main); row.appendChild(offer); row.appendChild(actions);
@@ -755,9 +776,47 @@
       }
     }
 
+    // Re-offer Due — seller-declined lots whose 30-day review has come up.
+    function renderReoffer(lots) {
+      const block = document.getElementById('reofferBlock');
+      const list = document.getElementById('reofferList');
+      const now = Date.now();
+      const due = lots.filter(l => l.status === 'offer-denied'
+        && (!l.nextReviewAt || new Date(l.nextReviewAt).getTime() <= now))
+        .sort((a, b) => new Date(a.nextReviewAt || 0) - new Date(b.nextReviewAt || 0));
+      if (!due.length) { block.style.display = 'none'; return; }
+      block.style.display = 'block';
+      document.getElementById('reofferSub').textContent =
+        due.length + ' declined ' + (due.length === 1 ? 'lot is' : 'lots are') + ' due for a follow-up offer (still listed?).';
+      list.innerHTML = '';
+      due.forEach(l => {
+        const row = document.createElement('div');
+        row.className = 'opp-row yellow';
+        const main = document.createElement('div'); main.className = 'opp-main';
+        const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
+        const meta = document.createElement('div'); meta.className = 'opp-meta';
+        meta.textContent = 'Declined ' + (l.deniedAt ? new Date(l.deniedAt).toLocaleDateString() : '—')
+          + (typeof l.listPrice === 'number' ? ' · was asking ' + money(l.listPrice) : '');
+        const reason = document.createElement('div'); reason.className = 'opp-reason';
+        reason.textContent = '⚠ 30-day follow-up due — send another offer if still listed';
+        main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+        const actions = document.createElement('div'); actions.className = 'opp-actions';
+        const send = document.createElement('button'); send.className = 'opp-btn-add'; send.textContent = 'Send Update';
+        send.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+        const snooze = document.createElement('button'); snooze.className = 'opp-btn-hold'; snooze.textContent = 'Reviewed — 30d';
+        snooze.addEventListener('click', () => patchLot(l.id, { nextReviewAt: new Date(now + 30 * 86400000).toISOString() }));
+        const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Unsuitable';
+        skip.addEventListener('click', () => { if (confirm('Mark ' + (l.address || 'this lot') + ' unsuitable? It will be removed and never shown again.')) patchLot(l.id, { status: 'dismissed', dismissedAt: new Date().toISOString() }); });
+        actions.appendChild(send); actions.appendChild(snooze); actions.appendChild(skip);
+        row.appendChild(main); row.appendChild(actions);
+        list.appendChild(row);
+      });
+    }
+
     async function render() {
       const lots = await loadLots();
       renderOpportunities(lots);
+      renderReoffer(lots);
 
       // KPIs (live pipeline stages; Closed shows this-month only)
       const count = st => lots.filter(l => l.displayStatus === st).length;
