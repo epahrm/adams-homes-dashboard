@@ -274,6 +274,16 @@ async function noHorizontalOverflow(page) {
     check('over-stipend warning shows', await page.locator('#overWarn.show').isVisible());
     await page.click('#previewPacketBtn');
     check('cover letter preview shows expiration', (await page.textContent('#packetPreview')).includes('expires on'));
+    // Auto-filled Vacant Land Contract (VAC-14 + Adams Homes fixed terms)
+    await page.click('#previewContractBtn');
+    const contractText = await page.textContent('#packetPreview');
+    check('filled contract populates Adams Homes buyer + escrow + broker terms',
+      /Adams Homes of Northwest Florida/.test(contractText)
+      && /Emmanuel, Sheppard & Condon/.test(contractText)
+      && /N\. Duncan Hudnall/.test(contractText)
+      && /Purchase Price:/.test(contractText)
+      && /Due Diligence Period: 45 days/.test(contractText));
+    await page.click('#previewPacketBtn');
     check('document upload control present', await page.locator('#docUpload').count() === 1);
     check('commission defaults to 0% off-market', (await page.inputValue('#commission')) === '0%');
     await page.selectOption('#listingType', 'listed');

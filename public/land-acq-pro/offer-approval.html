@@ -341,12 +341,13 @@
       <!-- Offer packet -->
       <div class="card span2">
         <h3>Offer Packet</h3>
-        <div class="hint">Generates the seller packet: blank contract template + Kevin's cover letter (with the 14-day expiration) + the county property card.</div>
+        <div class="hint">Generates the seller packet: your Vacant Land Contract (VAC-14) <b>auto-filled</b> with the terms below + Kevin's cover letter (14-day expiration) + the county property card.</div>
         <div class="actions" style="margin-top:12px;">
-          <button type="button" class="btn btn-outline" id="previewPacketBtn">Preview Cover Letter</button>
+          <button type="button" class="btn btn-outline" id="previewContractBtn">Preview Filled Contract</button>
+          <button type="button" class="btn btn-outline" id="previewPacketBtn" style="margin-top:12px;">Preview Cover Letter</button>
         </div>
         <div class="packet" id="packetPreview"></div>
-        <div class="hint" style="margin-top:8px;">Contract template: <a class="county-link" href="contract-template.pdf" target="_blank" rel="noopener">Vacant Land Contract (VAC-14)</a> — attached to the packet.</div>
+        <div class="hint" style="margin-top:8px;">Base form: <a class="county-link" href="contract-template.pdf" target="_blank" rel="noopener">Vacant Land Contract (VAC-14)</a> + Adams Homes Addendum — the terms above populate it.</div>
       </div>
 
       <!-- Notifications -->
@@ -572,6 +573,61 @@
         'Your enclosed offer is firm and ready to sign electronically. It expires on ' + exp + ', which keeps your closing on our fast track. The moment you sign, our team gets to work and we move straight to a fast, all-cash closing.\n\n' +
         "I'll personally handle your sale from start to finish — call or email me anytime.\n\n" +
         'Sincerely,\nKevin Nelson\nRegional Land Acquisitions\nAdams Homes — Orlando\n4401 Vineland Rd. A-11, Orlando, FL 32811\n(407) 523-0908 · ecland@adamshomes.com · www.AdamsHomes.com';
+    }
+
+    // Auto-fill the offer from Adams Homes' Vacant Land Contract (Florida
+    // Realtors VAC-14) + Addendum: every fixed Buyer/Escrow/term field is baked
+    // in, and the per-deal fields (seller, property, legal, price, commission)
+    // come from the lot + this screen. This is what Kevin sends on a ready lot.
+    function contractSummary() {
+      const price = document.getElementById('offerAmount').value.trim() || '$_____';
+      const emd = document.getElementById('emd').value.trim() || '$100';
+      const seller = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '__________';
+      const address = lot.address || 'See Exhibit "A"';
+      const legalM = (lot.ownerContact || '').match(/legal:\s*([^|]+)/i);
+      const legal = lot.legal || (legalM ? legalM[1].trim() : '') || 'See Exhibit "A"';
+      const parcel = lot.parcel || 'See Exhibit "A"';
+      const c = resolveCommission();
+      const commLine = c.listed
+        ? c.pct + '% Buyer’s Agent Commission (' + money(c.amt) + ') — negotiated with Seller’s Broker, assigned to Buyer and credited to Buyer on the closing statement'
+        : 'None — off-market deal ($0)';
+      return [
+        'ADAMS HOMES — VACANT LAND CONTRACT (Florida Realtors VAC-14) — auto-filled offer terms',
+        '',
+        'SELLER:  ' + seller,
+        'BUYER:   Adams Homes of Northwest Florida, Inc. (a Florida corporation)',
+        '',
+        'PROPERTY',
+        '  Address: ' + address,
+        '  Legal Description: ' + legal,
+        '  County / Real Property ID: Brevard — ' + parcel,
+        '',
+        'PRICE & DEPOSIT',
+        '  Purchase Price: ' + price + ' — all cash, no financing contingency (¶6a)',
+        '  Initial Deposit: ' + emd + ', to Escrow Agent within 10 days of Effective Date (¶2a)',
+        '  Balance to close: by wire / collected funds at closing (¶2e)',
+        '',
+        'ESCROW AGENT (¶2)',
+        '  Emmanuel, Sheppard & Condon, P.A. — John Monroe',
+        '  30 S. Spring Street, Pensacola, FL 32502 · (850) 433-6581 · jwm@esclaw.com',
+        '',
+        'KEY TERMS',
+        '  Due Diligence Period: 45 days after Effective Date (¶9a1)',
+        '  Closing: on/before 10 business days after the Due Diligence Period (¶4)',
+        '  Title: statutory warranty deed; title evidence at Buyer’s expense, ≥ 2 days before closing (¶8)',
+        '  Assignability: Buyer may not assign (¶7)',
+        '  Closing costs: Seller pays $350 toward the Escrow settlement charge; Buyer pays the balance',
+        '  Addendum for Vacant Land Contract: attached (¶22C)',
+        '',
+        'BROKERAGE (¶21 + Addendum)',
+        '  Buyer’s Broker: Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388)',
+        '  100 W. Garden St., 2nd Floor, Pensacola, FL 32502',
+        '  Commission: ' + commLine,
+        '',
+        'SIGNATURES (Seller signs first; Buyer signs last = Effective Date)',
+        '  Buyer: Elizabeth Porter, Regional Manager — Adams Homes of Northwest Florida, Inc.',
+        '  ECLand@AdamsHomes.Com · 407-523-0908'
+      ].join('\n');
     }
 
     // Post-closing thank-you + referral-request letter.
@@ -941,7 +997,12 @@
     document.getElementById('previewPacketBtn').addEventListener('click', function() {
       const p = document.getElementById('packetPreview');
       p.textContent = coverLetter();
-      p.classList.toggle('show');
+      p.classList.add('show');
+    });
+    document.getElementById('previewContractBtn').addEventListener('click', function() {
+      const p = document.getElementById('packetPreview');
+      p.textContent = contractSummary();
+      p.classList.add('show');
     });
     document.getElementById('docUpload').addEventListener('change', async function() {
       const files = Array.from(this.files || []);
