@@ -12,13 +12,6 @@ import { Pool } from 'pg'
 // option below (rejectUnauthorized:false), which the Supabase pooler needs.
 const databaseUrl = (process.env.DATABASE_URL || '').split('?')[0]
 
-// Drop any query params (e.g. schema=, sslmode=, pgbouncer=). In particular,
-// sslmode=require makes node-postgres verify the server certificate and reject
-// Supabase's shared-pooler chain with SELF_SIGNED_CERT_IN_CHAIN. TLS is instead
-// governed entirely by the ssl option on the Pool below (rejectUnauthorized:
-// false), which is what Supabase's pooler needs.
-databaseUrl = databaseUrl.split('?')[0]
-
 // Shared password for the admin pages (Kevin + Elizabeth). Override in the
 // Vercel project env settings.
 export const ADMIN_KEY = process.env.LAND_ACQ_ADMIN_KEY || 'AdamsHomes2026!'

@@ -78,6 +78,16 @@
     }
 
     /* Stats trust band */
+    .hero-brand { display: inline-flex; align-items: center; gap: 18px; background: #fff; padding: 13px 24px; border-radius: 12px; margin-bottom: 26px; box-shadow: 0 10px 26px rgba(3,20,38,0.28); }
+    .hero-brand img { height: 62px; display: block; }
+    .hero-brand .hb-tag { font-size: 16px; font-weight: 700; color: var(--blue); border-left: 1px solid #d5dee8; padding-left: 18px; letter-spacing: 0.2px; white-space: nowrap; }
+    @media (max-width: 640px) { .hero-brand { padding: 10px 16px; gap: 12px; } .hero-brand img { height: 46px; } .hero-brand .hb-tag { font-size: 13px; padding-left: 12px; } }
+
+    .direct-contact { font-size: 13px; color: #667; margin-top: 12px; line-height: 1.55; }
+    .direct-contact a { color: var(--blue); font-weight: 600; text-decoration: none; }
+    .direct-contact.light { color: #cfe0f2; margin-top: 14px; }
+    .direct-contact.light a { color: #fff; text-decoration: underline; }
+
     .stats-band { background: linear-gradient(180deg, var(--red) 0%, var(--red-dark) 100%); color: #fff; }
     .stats-band .container { max-width: 1140px; display: grid; grid-template-columns: repeat(2, 1fr); padding: 8px 20px; }
     .stat { text-align: center; padding: 18px 10px; }
@@ -201,27 +211,17 @@
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="site-header">
-    <div class="container">
-      <div class="brand-block">
-        <img src="adams-homes-logo.png" alt="Adams Homes">
-        <div class="tagline">Value, Simplified&trade;</div>
-      </div>
-    </div>
-  </header>
-  <div class="brand-band"></div>
-
-  <!-- Hero -->
+  <!-- Hero (logo lives inside the blue box; no white header bar above) -->
   <section class="hero">
     <div class="container">
+      <div class="hero-brand"><img src="adams-homes-logo.png" alt="Adams Homes"><span class="hb-tag">Value, Simplified&trade;</span></div>
       <div class="hero-grid">
         <div class="hero-copy">
           <div class="eyebrow">Palm Bay Vacant Land</div>
           <h1>Turn Your Empty Lot Into Cash</h1>
           <p class="subtitle">One of America's largest homebuilders, Adams Homes buys vacant residential lots directly. No agents, no fees, no banks, no waiting. Get a cash offer that closes in days, not months.</p>
           <div class="hero-ctas">
-            <a class="hero-cta primary" href="#start">See My Cash Offer</a>
+            <a class="hero-cta primary" href="#start">Let's Get Started</a>
             <a class="hero-cta ghost" href="#why">Why Adams Homes</a>
           </div>
         </div>
@@ -230,7 +230,7 @@
           <div class="hc-row">No agents, brokers, or commissions</div>
           <div class="hc-row">No financing &mdash; funds ready now</div>
           <div class="hc-row">We handle all the paperwork</div>
-          <div class="hc-figure"><div class="lbl">Offers sent Mon&ndash;Fri</div><div class="amt">Let's Get Started</div></div>
+          <div class="hc-figure"><div class="lbl">No obligation, no pressure</div><div class="amt">Let's get started</div></div>
         </div>
       </div>
     </div>
@@ -293,23 +293,16 @@
     </div>
   </section>
 
-  <!-- Let's Get Started -->
-  <section class="section" id="start">
+  <!-- Let's Get Started! Find Your Property (combined CTA + search) -->
+  <section class="section tint" id="start">
     <div class="container">
-      <h2>Let's Get Started!</h2>
-      <p class="lede">Search for your property below, or connect with our Land team.</p>
-    </div>
-  </section>
-
-  <!-- Find Your Property -->
-  <section class="section tint" style="padding-top:8px;">
-    <div class="container">
-      <h2>Find Your Property</h2>
+      <h2>Let's Get Started! Find Your Property</h2>
+      <p class="lede">Search your property below to get your cash offer, or have our Land team reach out to you.</p>
       <div class="search-grid">
         <div class="search-card">
           <label for="ownerName">Search by Owner Name</label>
-          <p class="hint">Enter the name on the property's Brevard County record.</p>
-          <input type="text" id="ownerName" placeholder="Enter owner name" autocomplete="name">
+          <p class="hint">Enter the owner's <b>last name</b> (e.g. "Smith"), or full name in any order &mdash; we'll find the match.</p>
+          <input type="text" id="ownerName" placeholder="Last name, or full name" autocomplete="name">
           <div class="field-error" id="ownerNameError">Please enter an owner name (at least 2 characters).</div>
           <button type="button" class="btn btn-blue" id="searchNameBtn">Search by Name</button>
         </div>
@@ -343,10 +336,10 @@
 
       <div class="notfound-note" id="notFoundNote">We couldn't find that property automatically &mdash; no problem. Our Land team will research it for you.</div>
 
-      <!-- Can't find -->
+      <!-- Can't find / general inquiry -->
       <div class="cantfind">
         <h3>Can't Find Your Property? No Problem.</h3>
-        <p>Send us your details and our Land team will research your property for you and get back within one business day.</p>
+        <p>Send us your details and our Land team will look into your property and get back to you within one business day.</p>
         <form id="researchForm" novalidate>
           <div class="rf-group">
             <input type="text" id="rfName" placeholder="Your name *" autocomplete="name">
@@ -367,12 +360,13 @@
           <div class="rf-group">
             <textarea id="rfNotes" rows="3" placeholder="Anything else we should know? (optional)" maxlength="500"></textarea>
           </div>
-          <button type="submit" class="btn btn-red">Request a Research Call</button>
+          <button type="submit" class="btn btn-red">Have Our Land Team Reach Out</button>
         </form>
         <div class="message" id="researchMessage"></div>
         <div class="cantfind-or">Or reach Kevin directly</div>
-        <a class="btn btn-outline" href="tel:4075230908">Call Kevin Now: (407) 523-0908</a>
-        <a class="btn btn-outline" href="mailto:ecland@adamshomes.com?subject=Vacant%20Land%20Inquiry&body=Hi%20Kevin%2C%20I'd%20like%20to%20get%20an%20offer%20on%20my%20vacant%20land.%20Here%20are%20the%20details%3A%0A%0AProperty%20address%3A%0AOwner%20name%3A%0ABest%20phone%3A%0A" style="margin-top:12px;">Email Kevin Instead</a>
+        <a class="btn btn-outline" href="tel:4075230908">&#128222;&nbsp; Call Kevin: (407) 523-0908</a>
+        <a class="btn btn-outline" href="mailto:ecland@adamshomes.com?subject=Vacant%20Land%20Inquiry" style="margin-top:12px;">&#9993;&nbsp; Email Kevin: ecland@adamshomes.com</a>
+        <div class="direct-contact">Prefer to reach out yourself? Call <a href="tel:4075230908">(407) 523-0908</a> or email <a href="mailto:ecland@adamshomes.com">ecland@adamshomes.com</a>.</div>
       </div>
     </div>
   </section>
@@ -416,9 +410,9 @@
         <img class="photo" src="kevin-nelson.jpg" alt="Kevin Nelson, Regional Land Acquisitions">
         <div class="name">Kevin Nelson</div>
         <div class="role">Regional Land Acquisitions</div>
-        <p class="bio">Kevin owns your deal from start to finish and can answer any question you have about selling your land to Adams Homes.</p>
-        <a class="btn btn-white" href="tel:4075230908">Call Kevin: (407) 523-0908</a>
-        <a class="btn btn-translucent" href="mailto:ecland@adamshomes.com?subject=Vacant%20Land%20Inquiry">Email Kevin</a>
+        <a class="btn btn-white" href="tel:4075230908">&#128222;&nbsp; Call Kevin: (407) 523-0908</a>
+        <a class="btn btn-translucent" href="mailto:ecland@adamshomes.com?subject=Vacant%20Land%20Inquiry">&#9993;&nbsp; Email Kevin: ecland@adamshomes.com</a>
+        <div class="direct-contact light">Or reach him directly: <a href="tel:4075230908">(407) 523-0908</a> &middot; <a href="mailto:ecland@adamshomes.com">ecland@adamshomes.com</a></div>
         <div class="sbd">Same business day response</div>
       </div>
     </div>
@@ -427,7 +421,7 @@
   <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-logo"><img src="adams-homes-logo.png" alt="Adams Homes"></div>
-    <p class="tag">One of America's largest homebuilders.<br>We've done this more than 75,000 times &mdash; in cash.</p>
+    <p class="tag">One of America's largest homebuilders.</p>
     <div class="footer-links"><a href="#">Privacy Policy</a> &nbsp;|&nbsp; <a href="#">Terms</a></div>
     <p class="footer-copy">&copy; 2026 Adams Homes. All Rights Reserved.</p>
   </footer>

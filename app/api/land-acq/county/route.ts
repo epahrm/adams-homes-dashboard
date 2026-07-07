@@ -1,22 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
-// Server-side proxy to the Brevard County Property Appraiser public search.
-// Runs on the server so the browser never hits BCPAO cross-origin. If the
-// county site is unreachable (or bot-challenged), we return 502 and the
-// landing page falls back to Kevin's research form.
+// Public seller-facing property search. Uses the City of Palm Bay parcel
+// service (public ArcGIS, no bot-wall) — the same source the offer screen and
+// off-market sweep use. Searches by street address or by owner name.
+//
+// Owner names in the county records are stored "LAST, FIRST MIDDLE"
+// (e.g. "FACEY, CARLTON F"). We match each word the seller types anywhere in
+// the name, in any order, so "Facey", "Carlton Facey", or "Facey, Carlton" all
+// hit the same record.
 
-const BCPAO = 'https://www.bcpao.us/api/v1'
+const PB_PARCELS =
+  'https://gis.palmbayflorida.org/arcgis/rest/services/CommonServices/Parcels/FeatureServer/0/query'
 
-type CountyRecord = {
-  address: string
-  owner: string
-  parcel: string
-  account: string
-  lotSize: string | null
-  zoning: string | null
-  taxValue: string | null
+type Attr = {
+  ParcelID?: string
+  Address?: string
+  SiteZip5?: string
+  OwnerName?: string
+  MailAddressLine1?: string
+  MailCity?: string
+  MailState?: string
+  MailZip5?: string
+  Acreage?: number
+  UseCode?: string
+  UseCodeDesc?: string
+  LandValue?: number
+  MarketValue?: number
 }
 
 function money(n: unknown): string | null {
@@ -24,17 +36,30 @@ function money(n: unknown): string | null {
   return Number.isFinite(v) && v > 0 ? '$' + Math.round(v).toLocaleString('en-US') : null
 }
 
-function normalize(item: Record<string, unknown>): CountyRecord {
-  const acres = Number(item.totalAcreage ?? item.acreage)
-  return {
-    address: String(item.siteAddress ?? item.address ?? '').trim(),
-    owner: String(item.owners ?? item.ownerName ?? '').trim(),
-    parcel: String(item.parcelID ?? item.parcelId ?? item.account ?? '').trim(),
-    account: String(item.account ?? '').trim(),
-    lotSize: Number.isFinite(acres) && acres > 0 ? acres.toFixed(2) + ' acres' : null,
-    zoning: item.zoning ? String(item.zoning) : null,
-    taxValue: money(item.marketValue ?? item.assessedValue ?? item.justValue),
+// Escape single quotes for the ArcGIS WHERE clause.
+const esc = (s: string) => s.replace(/'/g, "''")
+
+function buildWhere(name: string | undefined, address: string | undefined): string | null {
+  if (address) {
+    // Street portion only; house number + first street word (the reliable match).
+    const street = address.split(',')[0].trim()
+    const m = street.match(/^(\d+)\s+([A-Za-z]+)/)
+    if (m) {
+      const houseNo = m[1].replace(/[^0-9]/g, '')
+      const word = m[2].toUpperCase().replace(/[^A-Z]/g, '')
+      return `Address LIKE '${houseNo} ${word}%'`
+    }
+    // No street number (intersection, etc.) — match the street word(s).
+    const words = street.toUpperCase().match(/[A-Z0-9]{2,}/g) || []
+    if (!words.length) return null
+    return words.map((w) => `UPPER(Address) LIKE '%${esc(w)}%'`).join(' AND ')
   }
+  if (name) {
+    const words = name.toUpperCase().match(/[A-Z0-9&]{2,}/g) || []
+    if (!words.length) return null
+    return words.map((w) => `UPPER(OwnerName) LIKE '%${esc(w)}%'`).join(' AND ')
+  }
+  return null
 }
 
 export async function GET(request: NextRequest) {
@@ -45,36 +70,55 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'name or address is required' }, { status: 400 })
   }
 
-  // BCPAO's address search wants the street portion only — strip city/state/zip.
-  const street = address
-    ?.split(',')[0]
-    .replace(/\b(palm bay|melbourne|cocoa|rockledge|titusville|fl|florida)\b/gi, '')
-    .replace(/\b\d{5}(-\d{4})?\s*$/, '')
-    .replace(/\s+/g, ' ')
-    .trim()
+  const where = buildWhere(name, address)
+  if (!where) return NextResponse.json({ records: [] })
 
-  const query = street
-    ? `address=${encodeURIComponent(street)}`
-    : `owner=${encodeURIComponent(name as string)}`
-  const url = `${BCPAO}/search?${query}&activeonly=true&size=5&page=1`
+  const url =
+    PB_PARCELS +
+    '?where=' + encodeURIComponent(where) +
+    '&outFields=' +
+    encodeURIComponent(
+      'ParcelID,Address,SiteZip5,OwnerName,MailAddressLine1,MailCity,MailState,MailZip5,Acreage,UseCode,UseCodeDesc,LandValue,MarketValue'
+    ) +
+    '&orderByFields=' + encodeURIComponent('Address') +
+    '&resultRecordCount=8&f=json'
 
   try {
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(8000),
-      headers: {
-        Accept: 'application/json',
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36',
-      },
-    })
-    const contentType = res.headers.get('content-type') || ''
-    if (!res.ok || !contentType.includes('json')) {
-      console.error('[land-acq] county search unavailable:', res.status, contentType)
+    const res = await fetch(url, { signal: AbortSignal.timeout(9000), headers: { Accept: 'application/json' } })
+    if (!res.ok) {
+      console.error('[land-acq] county (ArcGIS) unavailable:', res.status)
       return NextResponse.json({ error: 'county_unavailable' }, { status: 502 })
     }
     const body = await res.json()
-    const items: Record<string, unknown>[] = Array.isArray(body) ? body : body?.results || []
-    const records = items.map(normalize).filter((r) => r.address)
+    if (body.error) {
+      console.error('[land-acq] county (ArcGIS) query error:', JSON.stringify(body.error))
+      return NextResponse.json({ error: 'county_unavailable' }, { status: 502 })
+    }
+    const feats: { attributes: Attr }[] = body.features || []
+    const records = feats
+      .map(({ attributes: a }) => {
+        const desc = (a.UseCodeDesc || '').trim()
+        const vacant = /vacant/i.test(desc) || /^00/.test(a.UseCode || '')
+        const acres = Number.isFinite(a.Acreage) ? Number(a.Acreage) : null
+        const mailing = [a.MailAddressLine1, [a.MailCity, a.MailState].filter(Boolean).join(', '), a.MailZip5]
+          .filter(Boolean).join(' ').trim()
+        const addr = (a.Address || '').trim()
+        return {
+          address: addr ? addr + ', Palm Bay, FL ' + (a.SiteZip5 || '') : '',
+          owner: (a.OwnerName || '').trim(),
+          parcel: (a.ParcelID || '').trim(),
+          account: (a.ParcelID || '').trim(),
+          ownerContact: mailing || null,
+          lotSize: acres != null ? acres.toFixed(2) + ' acres' : null,
+          acres,
+          zoning: 'Residential',
+          useDesc: desc || null,
+          hasStructure: !vacant,
+          taxValue: money(a.MarketValue),
+          landValue: money(a.LandValue),
+        }
+      })
+      .filter((r) => r.address)
     return NextResponse.json({ records })
   } catch (e) {
     console.error('[land-acq] county search failed:', e)
