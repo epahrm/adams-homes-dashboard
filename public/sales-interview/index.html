@@ -209,8 +209,11 @@ function renderCards() {
   ).join('');
 }
 
+let lastLoadError = '';
 async function loadQuestions() {
-  const data = await fetch(API + '/questions').then(r => r.json());
+  const res = await fetch(API + '/questions');
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) { lastLoadError = data.error ? data.error + ' (HTTP ' + res.status + ')' : 'HTTP ' + res.status; return false; }
   if (data.divisions) { LOCS = data.divisions; renderCards(); }
   QS = (data.appQuestions || []).map((q, i) => ({ ...q, label: (i + 1) + '. ' + q.text }));
   return QS.length > 0;
@@ -238,7 +241,7 @@ async function startApplication() {
       try { await loadQuestions(); } catch (e) { await new Promise(r => setTimeout(r, 1200)); }
     }
     if (btn) { btn.disabled = false; btn.textContent = 'Start Application'; }
-    if (!QS.length) { alert('We could not reach the application server. Check your connection and try again.'); return; }
+    if (!QS.length) { alert('We could not reach the application server' + (lastLoadError ? ' — ' + lastLoadError : '') + '. Please try again shortly.'); return; }
   }
   appData = { division: currentLoc.code };
   step = 1;

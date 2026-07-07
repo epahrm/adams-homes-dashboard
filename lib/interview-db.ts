@@ -10,9 +10,19 @@ import crypto from 'crypto'
 // final public landing page prototype) — 4 competencies scored 1-5, the
 // 20-question application, and Monday live group interview sessions.
 
-let databaseUrl =
-  process.env.DATABASE_URL ||
+const POOLER_URL =
   'postgresql://postgres.tbzuajwitwonwojqshew:AdamsHomes1991!@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public'
+
+let databaseUrl = process.env.DATABASE_URL || POOLER_URL
+
+// The committed .env.production points at Supabase's direct host
+// (db.<ref>.supabase.co), which is IPv6-only and unreachable from Vercel
+// serverless functions — connections hang and every API call 503s. Route
+// this project's known ref through the IPv4 transaction pooler instead
+// (same instance the Land Acq pages use successfully).
+if (/db\.tbzuajwitwonwojqshew\.supabase\.co/.test(databaseUrl)) {
+  databaseUrl = POOLER_URL
+}
 
 if (databaseUrl.includes('AdamsHomes1991!')) {
   databaseUrl = databaseUrl.replace('AdamsHomes1991!', 'AdamsHomes1991%21')
