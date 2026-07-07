@@ -256,6 +256,35 @@
     .realtor-table .r-count { font-weight: 800; color: #1a5ba5; font-size: 16px; }
     .realtor-table .r-pipe { color: #556; font-size: 13px; }
 
+    /* Costs, ROI & Renewals */
+    .ops-panel { border: 1px solid #dbe3ec; border-radius: 12px; background: #fff; padding: 4px 16px 16px; }
+    .ops-panel summary { cursor: pointer; font-weight: 700; color: #123a63; font-size: 15px; padding: 12px 0; letter-spacing: 0.3px; }
+    .ops-roi { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 6px 0 18px; }
+    .ops-roi .roi-tile { background: #f4f8fc; border: 1px solid #e0e8f1; border-radius: 10px; padding: 12px 14px; }
+    .ops-roi .roi-val { font-size: 22px; font-weight: 800; color: #003d66; }
+    .ops-roi .roi-lbl { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: #778; margin-top: 2px; }
+    .ops-roi .roi-sub { font-size: 12px; color: #667; margin-top: 3px; }
+    .ops-block { margin-bottom: 20px; }
+    .ops-block-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+    .ops-block-head h4 { color: #123a63; font-size: 15px; margin: 0; }
+    .ops-hint { font-weight: 500; font-size: 13px; color: #667; letter-spacing: 0; }
+    .ops-add { font-size: 12px; padding: 7px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .ops-note { font-size: 12px; color: #778; margin: 4px 0 8px; }
+    .ops-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .ops-table th { text-align: left; color: #778; font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; padding: 7px 9px; border-bottom: 2px solid #e6e9ee; white-space: nowrap; }
+    .ops-table td { padding: 8px 9px; border-bottom: 1px solid #eef1f5; color: #234; vertical-align: top; }
+    .ops-table .o-svc { font-weight: 700; color: #003d66; }
+    .ops-table .o-del { background: none; border: none; color: #b02a1a; cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 6px; font-family: inherit; }
+    .ops-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+    .ops-badge.due { background: #fdecea; color: #b02a1a; }
+    .ops-badge.soon { background: #fff4e0; color: #96590a; }
+    .ops-badge.ok { background: #e3f2ea; color: #14401d; }
+    .ops-badge.gray { background: #eef1f5; color: #556; }
+    .ops-reasons { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+    .ops-reasons .rz { background: #f4f8fc; border: 1px solid #e0e8f1; border-radius: 20px; padding: 4px 11px; font-size: 12px; color: #345; }
+    .ops-reasons .rz b { color: #003d66; }
+    .ops-empty { color: #99a; font-size: 13px; padding: 10px 4px; }
+
     @media print {
       .topbar .logout, .filters, .actions, .pager, .back-link { display: none !important; }
     }
@@ -433,6 +462,60 @@
         </div>
       </details>
 
+      <!-- Costs, ROI & Renewals: subscriptions/accounts, mailing spend, ROI, cancellations -->
+      <details class="ops-panel" id="opsPanel" style="margin-bottom:20px;">
+        <summary id="opsSummary">Costs, ROI &amp; Renewals</summary>
+
+        <!-- ROI summary tiles -->
+        <div class="ops-roi" id="opsRoi"></div>
+
+        <!-- Accounts & Subscriptions -->
+        <div class="ops-block">
+          <div class="ops-block-head">
+            <h4>Accounts &amp; Subscriptions <span class="ops-hint" id="subsRenewHint"></span></h4>
+            <button type="button" class="btn-navy ops-add" id="addSubBtn">+ Add Account</button>
+          </div>
+          <div class="ops-note">Data sites, software, mailing vendors. Track the login, cost, and renewal so nothing lapses. <b>Passwords aren't stored here</b> — use the "credential location" field to point at your shared password manager.</div>
+          <div class="table-wrap">
+            <table class="ops-table" id="subsTable">
+              <thead><tr><th>Service</th><th>Login</th><th>Credential Location</th><th>Cost</th><th>Billing</th><th>Renews</th><th>Status</th><th></th></tr></thead>
+              <tbody id="subsRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Mailing costs -->
+        <div class="ops-block">
+          <div class="ops-block-head">
+            <h4>Postcard / Mailing Costs <span class="ops-hint" id="mailTotalHint"></span></h4>
+            <button type="button" class="btn-navy ops-add" id="addMailBtn">+ Add Mailing</button>
+          </div>
+          <div class="ops-note">Print cost and <b>postage are logged separately</b> per batch so you can see each line.</div>
+          <div class="table-wrap">
+            <table class="ops-table" id="mailTable">
+              <thead><tr><th>Date</th><th>Campaign / Batch</th><th>Pieces</th><th>Print Cost</th><th>Postage</th><th>Total</th><th></th></tr></thead>
+              <tbody id="mailRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cancellations -->
+        <div class="ops-block">
+          <div class="ops-block-head">
+            <h4>Cancelled Contracts <span class="ops-hint" id="cancelHint"></span></h4>
+            <button type="button" class="btn-navy ops-add" id="addCancelBtn">+ Log Cancellation</button>
+          </div>
+          <div class="ops-note">Contracts we wrote but terminated — logged with the reason so we can spot patterns.</div>
+          <div class="ops-reasons" id="cancelBreakdown"></div>
+          <div class="table-wrap">
+            <table class="ops-table" id="cancelTable">
+              <thead><tr><th>Date</th><th>Property</th><th>Reason</th><th>Notes</th><th></th></tr></thead>
+              <tbody id="cancelRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+
       <div class="footnote" id="footnote">* Re-outreach scheduled in 87 days</div>
 
       <div class="actions">
@@ -577,6 +660,93 @@
         <button type="button" class="btn-outline" id="ipCancel">Cancel</button>
         <button type="button" class="btn-navy" id="ipConfirm">Confirm &amp; Add</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Add Account / Subscription modal -->
+  <div class="modal-overlay" id="subOverlay">
+    <div class="modal">
+      <h3 id="subTitle">Add Account / Subscription</h3>
+      <div class="m-sub">Track a paid site, tool, or vendor so its renewal never sneaks up.</div>
+      <form id="subForm">
+        <div class="m-grid">
+          <div class="m-full"><label for="sName">Service / Account *</label><input type="text" id="sName" placeholder="e.g. LoopNet, RealtyTrac, Supabase" required></div>
+          <div><label for="sLogin">Login (username / email)</label><input type="text" id="sLogin" placeholder="landacq@adamshomes.com"></div>
+          <div><label for="sVault">Credential Location</label><input type="text" id="sVault" placeholder="e.g. 1Password › Land Acq vault"></div>
+          <div><label for="sCategory">Category</label>
+            <select id="sCategory"><option>Data / Lead Source</option><option>Software / Platform</option><option>Mailing / Print</option><option>MLS / IDX</option><option>Other</option></select>
+          </div>
+          <div><label for="sUrl">Login URL</label><input type="text" id="sUrl" placeholder="https://…"></div>
+          <div><label for="sCost">Cost ($)</label><input type="text" id="sCost" placeholder="e.g. 49"></div>
+          <div><label for="sCycle">Billing Cycle</label>
+            <select id="sCycle"><option value="monthly">Monthly</option><option value="annual">Annual</option><option value="one-time">One-time</option><option value="unknown">Confirm (RI)</option></select>
+          </div>
+          <div><label for="sRenew">Next Renewal Date</label><input type="date" id="sRenew"></div>
+          <div><label for="sStatus">Status</label>
+            <select id="sStatus"><option value="active">Active</option><option value="trial">Trial</option><option value="needed">Access Needed</option><option value="cancelled">Cancelled</option></select>
+          </div>
+          <div class="m-full"><label for="sNotes">Notes</label><input type="text" id="sNotes" placeholder="Saved searches configured, seats, etc."></div>
+        </div>
+        <div class="m-err" id="sErr">Please enter a service name.</div>
+        <div class="m-actions">
+          <button type="button" class="btn-outline" id="sCancel">Cancel</button>
+          <button type="submit" class="btn-navy">Save Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Mailing Cost modal -->
+  <div class="modal-overlay" id="mailOverlay">
+    <div class="modal">
+      <h3>Add Mailing Cost</h3>
+      <div class="m-sub">Log a postcard batch. Print and postage are kept as separate lines.</div>
+      <form id="mailForm">
+        <div class="m-grid">
+          <div><label for="mDate">Date</label><input type="date" id="mDate"></div>
+          <div><label for="mBatch">Campaign / Batch *</label><input type="text" id="mBatch" placeholder="e.g. Absentee Sweep — July" required></div>
+          <div><label for="mPieces">Pieces Mailed</label><input type="text" id="mPieces" placeholder="e.g. 500"></div>
+          <div><label for="mPrint">Print / Design Cost ($)</label><input type="text" id="mPrint" placeholder="e.g. 250"></div>
+          <div><label for="mPostage">Postage Cost ($)</label><input type="text" id="mPostage" placeholder="e.g. 275"></div>
+          <div><label for="mVendor">Vendor</label><input type="text" id="mVendor" placeholder="Print / mail house"></div>
+        </div>
+        <div class="m-err" id="mErr">Please enter a campaign name.</div>
+        <div class="m-actions">
+          <button type="button" class="btn-outline" id="mCancel">Cancel</button>
+          <button type="submit" class="btn-navy">Save Mailing</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Log Cancellation modal -->
+  <div class="modal-overlay" id="cancelOverlay">
+    <div class="modal">
+      <h3>Log Cancelled Contract</h3>
+      <div class="m-sub">Record a contract we terminated, with the reason, so we can track why deals fall through.</div>
+      <form id="cancelForm">
+        <div class="m-grid">
+          <div><label for="cDate">Cancellation Date</label><input type="date" id="cDate"></div>
+          <div class="m-full"><label for="cAddress">Property Address *</label><input type="text" id="cAddress" placeholder="123 Main St SE, Palm Bay, FL 32909" required></div>
+          <div><label for="cReason">Reason *</label>
+            <select id="cReason">
+              <option value="Location">Location</option>
+              <option value="Neighbor">Neighbor</option>
+              <option value="Soils">Soils</option>
+              <option value="Endangered species">Endangered species</option>
+              <option value="Title/fraud">Title / fraud</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div><label for="cOffer">Contract Amount</label><input type="text" id="cOffer" placeholder="$30,000"></div>
+          <div class="m-full"><label for="cNotes">Notes</label><input type="text" id="cNotes" placeholder="Detail (esp. if Other)"></div>
+        </div>
+        <div class="m-err" id="cErr">Please enter a property address.</div>
+        <div class="m-actions">
+          <button type="button" class="btn-outline" id="cCancel">Cancel</button>
+          <button type="submit" class="btn-navy">Log Cancellation</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1060,11 +1230,237 @@
       });
     }
 
+    // ---------- Costs, ROI & Renewals ----------
+    const OPS_LOCAL = { accounts: 'landAcqOpsAccounts', mailCosts: 'landAcqOpsMail', cancellations: 'landAcqOpsCancel' };
+    let opsData = { accounts: [], mailCosts: [], cancellations: [] };
+
+    function parseMoney(v) {
+      const n = Number(String(v == null ? '' : v).replace(/[^0-9.]/g, ''));
+      return Number.isFinite(n) ? n : 0;
+    }
+    function fmtShort(s) {
+      if (!s) return '';
+      const d = new Date(String(s).length <= 10 ? s + 'T12:00:00' : s);
+      return isNaN(d) ? '' : (d.getMonth() + 1) + '/' + d.getDate() + '/' + String(d.getFullYear()).slice(2);
+    }
+    const CYCLE_LABEL = { monthly: 'Monthly', annual: 'Annual', 'one-time': 'One-time', unknown: 'Confirm (RI)' };
+
+    async function loadOps(key) {
+      if (mode === 'server') {
+        try {
+          const res = await fetch('/api/land-acq/ops?key=' + key, { headers: adminHeaders(), signal: AbortSignal.timeout(10000) });
+          if (res.ok) { const j = await res.json(); if (Array.isArray(j.items)) return j.items; }
+        } catch (e) { /* fall through to local cache */ }
+      }
+      try { return JSON.parse(localStorage.getItem(OPS_LOCAL[key]) || '[]'); } catch (e) { return []; }
+    }
+    async function saveOps(key) {
+      const items = opsData[key];
+      try { localStorage.setItem(OPS_LOCAL[key], JSON.stringify(items)); } catch (e) {}
+      if (mode === 'server') {
+        try {
+          await fetch('/api/land-acq/ops?key=' + key, {
+            method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, adminHeaders()),
+            body: JSON.stringify({ items }), signal: AbortSignal.timeout(10000)
+          });
+        } catch (e) { /* local cache already written */ }
+      }
+    }
+
+    // Annualized recurring cost of an active account (one-time excluded).
+    function annualCost(a) {
+      if (a.status === 'cancelled') return 0;
+      const c = parseMoney(a.cost);
+      if (a.cycle === 'monthly') return c * 12;
+      if (a.cycle === 'annual') return c;
+      return 0;
+    }
+    function renewBadge(dateStr) {
+      if (!dateStr) return { cls: 'gray', txt: 'No date set' };
+      const d = new Date(dateStr + 'T12:00:00');
+      if (isNaN(d)) return { cls: 'gray', txt: '—' };
+      const days = Math.round((d - new Date(new Date().toDateString())) / 86400000);
+      if (days < 0) return { cls: 'due', txt: 'Overdue · ' + fmtShort(dateStr) };
+      if (days <= 30) return { cls: 'soon', txt: days + 'd · ' + fmtShort(dateStr) };
+      return { cls: 'ok', txt: fmtShort(dateStr) };
+    }
+    function cell(text, cls) { const td = document.createElement('td'); if (cls) td.className = cls; td.textContent = text == null ? '' : text; return td; }
+    function badgeCell(txt, cls) { const td = document.createElement('td'); const s = document.createElement('span'); s.className = 'ops-badge ' + cls; s.textContent = txt; td.appendChild(s); return td; }
+    function delCell(key, i) {
+      const td = document.createElement('td');
+      const b = document.createElement('button'); b.className = 'o-del'; b.title = 'Remove'; b.textContent = '✕';
+      b.addEventListener('click', async () => { opsData[key].splice(i, 1); await saveOps(key); renderOps(); });
+      td.appendChild(b); return td;
+    }
+    function emptyRow(tbody, cols, msg) {
+      const tr = document.createElement('tr'); const td = document.createElement('td');
+      td.colSpan = cols; td.className = 'ops-empty'; td.textContent = msg; tr.appendChild(td); tbody.appendChild(tr);
+    }
+
+    function renderOps() {
+      // --- Accounts & Subscriptions ---
+      const subRows = document.getElementById('subsRows'); subRows.textContent = '';
+      const accts = opsData.accounts;
+      if (!accts.length) emptyRow(subRows, 8, 'No accounts yet — add each paid site/tool so renewals never sneak up.');
+      accts.forEach((a, i) => {
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(a.name, 'o-svc'));
+        tr.appendChild(cell(a.login || '—'));
+        tr.appendChild(cell(a.vault || '—'));
+        const cost = parseMoney(a.cost);
+        tr.appendChild(cell(cost ? money(cost) : '—'));
+        tr.appendChild(cell(CYCLE_LABEL[a.cycle] || a.cycle || '—'));
+        const rb = renewBadge(a.renew); tr.appendChild(badgeCell(rb.txt, rb.cls));
+        const statusMap = { active: ['ok', 'Active'], trial: ['soon', 'Trial'], needed: ['due', 'Access Needed'], cancelled: ['gray', 'Cancelled'] };
+        const sm = statusMap[a.status] || ['gray', a.status || '—'];
+        tr.appendChild(badgeCell(sm[1], sm[0]));
+        tr.appendChild(delCell('accounts', i));
+        subRows.appendChild(tr);
+      });
+      const dueSoon = accts.filter(a => a.status !== 'cancelled' && a.renew && renewBadge(a.renew).cls !== 'ok' && renewBadge(a.renew).cls !== 'gray').length;
+      const annualSubs = accts.reduce((s, a) => s + annualCost(a), 0);
+      const confirmRI = accts.filter(a => a.cycle === 'unknown').length;
+      document.getElementById('subsRenewHint').textContent =
+        (accts.length ? money(annualSubs) + '/yr recurring' : '') +
+        (dueSoon ? ' · ' + dueSoon + ' renewing soon' : '') +
+        (confirmRI ? ' · ' + confirmRI + ' billing-cycle to confirm (RI)' : '');
+
+      // --- Mailing costs ---
+      const mailRows = document.getElementById('mailRows'); mailRows.textContent = '';
+      const mails = opsData.mailCosts;
+      if (!mails.length) emptyRow(mailRows, 7, 'No mailings logged — add a batch to track print + postage.');
+      let mailTotal = 0, postageTotal = 0, piecesTotal = 0;
+      mails.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).forEach((m) => {
+        const realIndex = mails.indexOf(m);
+        const print = parseMoney(m.print), postage = parseMoney(m.postage), pieces = parseMoney(m.pieces);
+        mailTotal += print + postage; postageTotal += postage; piecesTotal += pieces;
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(fmtShort(m.date) || '—'));
+        tr.appendChild(cell(m.batch, 'o-svc'));
+        tr.appendChild(cell(pieces ? pieces.toLocaleString('en-US') : '—'));
+        tr.appendChild(cell(print ? money(print) : '—'));
+        tr.appendChild(cell(postage ? money(postage) : '—'));
+        tr.appendChild(cell(money(print + postage)));
+        tr.appendChild(delCell('mailCosts', realIndex));
+        mailRows.appendChild(tr);
+      });
+      document.getElementById('mailTotalHint').textContent =
+        mails.length ? (money(mailTotal) + ' total · ' + money(postageTotal) + ' postage · ' + piecesTotal.toLocaleString('en-US') + ' pieces') : '';
+
+      // --- Cancellations ---
+      const cxRows = document.getElementById('cancelRows'); cxRows.textContent = '';
+      const cancels = opsData.cancellations;
+      if (!cancels.length) emptyRow(cxRows, 5, 'No cancelled contracts logged.');
+      cancels.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).forEach((c) => {
+        const realIndex = cancels.indexOf(c);
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(fmtShort(c.date) || '—'));
+        tr.appendChild(cell(c.address, 'o-svc'));
+        tr.appendChild(cell(c.reason || '—'));
+        tr.appendChild(cell(c.notes || '—'));
+        tr.appendChild(delCell('cancellations', realIndex));
+        cxRows.appendChild(tr);
+      });
+      const REASONS = ['Location', 'Neighbor', 'Soils', 'Endangered species', 'Title/fraud', 'Other'];
+      const bd = document.getElementById('cancelBreakdown'); bd.textContent = '';
+      if (cancels.length) {
+        REASONS.forEach(r => {
+          const n = cancels.filter(c => c.reason === r).length;
+          if (!n) return;
+          const chip = document.createElement('span'); chip.className = 'rz';
+          const b = document.createElement('b'); b.textContent = n;
+          chip.appendChild(b); chip.appendChild(document.createTextNode(' ' + r));
+          bd.appendChild(chip);
+        });
+      }
+      document.getElementById('cancelHint').textContent = cancels.length ? (cancels.length + ' logged') : '';
+
+      // --- ROI tiles (mailing spend is the direct acquisition cost) ---
+      const contracts = lastLots.filter(l => ACCEPTED.includes(l.displayStatus || l.status)).length;
+      const closed = lastLots.filter(l => (l.displayStatus || l.status) === 'closed').length;
+      const cancelCount = cancels.length;
+      const roi = document.getElementById('opsRoi'); roi.textContent = '';
+      const tiles = [
+        { val: contracts, lbl: 'Deals Contracted', sub: closed + ' closed' },
+        { val: money(mailTotal), lbl: 'Mailing Spend', sub: piecesTotal.toLocaleString('en-US') + ' pieces' },
+        { val: contracts ? money(Math.round(mailTotal / contracts)) : '—', lbl: 'Cost / Contract', sub: 'mail spend ÷ contracts' },
+        { val: money(annualSubs), lbl: 'Subscriptions / yr', sub: accts.filter(a => a.status !== 'cancelled').length + ' active tools' },
+        { val: cancelCount, lbl: 'Cancellations', sub: contracts ? Math.round((cancelCount / (contracts + cancelCount)) * 100) + '% of contracts' : 'no reasons yet' }
+      ];
+      tiles.forEach(t => {
+        const d = document.createElement('div'); d.className = 'roi-tile';
+        const v = document.createElement('div'); v.className = 'roi-val'; v.textContent = t.val;
+        const l = document.createElement('div'); l.className = 'roi-lbl'; l.textContent = t.lbl;
+        const s = document.createElement('div'); s.className = 'roi-sub'; s.textContent = t.sub;
+        d.appendChild(v); d.appendChild(l); d.appendChild(s); roi.appendChild(d);
+      });
+      document.getElementById('opsSummary').textContent =
+        'Costs, ROI & Renewals' + (dueSoon ? ' — ' + dueSoon + ' renewal' + (dueSoon === 1 ? '' : 's') + ' due soon' : '');
+    }
+
+    async function loadAllOps() {
+      const [accounts, mailCosts, cancellations] = await Promise.all([
+        loadOps('accounts'), loadOps('mailCosts'), loadOps('cancellations')
+      ]);
+      opsData = { accounts, mailCosts, cancellations };
+      renderOps();
+    }
+
+    // Ops modal wiring
+    function opsModal(id) { return document.getElementById(id); }
+    function bindOpsModal(overlayId, cancelBtnId) {
+      const ov = opsModal(overlayId);
+      ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('show'); });
+      document.getElementById(cancelBtnId).addEventListener('click', () => ov.classList.remove('show'));
+    }
+    bindOpsModal('subOverlay', 'sCancel');
+    bindOpsModal('mailOverlay', 'mCancel');
+    bindOpsModal('cancelOverlay', 'cCancel');
+    document.getElementById('addSubBtn').addEventListener('click', () => opsModal('subOverlay').classList.add('show'));
+    document.getElementById('addMailBtn').addEventListener('click', () => opsModal('mailOverlay').classList.add('show'));
+    document.getElementById('addCancelBtn').addEventListener('click', () => opsModal('cancelOverlay').classList.add('show'));
+
+    document.getElementById('subForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const v = id => document.getElementById(id).value.trim();
+      if (!v('sName')) { document.getElementById('sErr').style.display = 'block'; return; }
+      opsData.accounts.push({
+        name: v('sName'), login: v('sLogin'), vault: v('sVault'), category: v('sCategory'),
+        url: v('sUrl'), cost: v('sCost'), cycle: v('sCycle'), renew: v('sRenew'),
+        status: v('sStatus'), notes: v('sNotes'), addedAt: new Date().toISOString()
+      });
+      await saveOps('accounts'); this.reset(); document.getElementById('sErr').style.display = 'none';
+      opsModal('subOverlay').classList.remove('show'); renderOps();
+    });
+    document.getElementById('mailForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const v = id => document.getElementById(id).value.trim();
+      if (!v('mBatch')) { document.getElementById('mErr').style.display = 'block'; return; }
+      opsData.mailCosts.push({
+        date: v('mDate') || new Date().toISOString().slice(0, 10), batch: v('mBatch'), pieces: v('mPieces'),
+        print: v('mPrint'), postage: v('mPostage'), vendor: v('mVendor')
+      });
+      await saveOps('mailCosts'); this.reset(); document.getElementById('mErr').style.display = 'none';
+      opsModal('mailOverlay').classList.remove('show'); renderOps();
+    });
+    document.getElementById('cancelForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const v = id => document.getElementById(id).value.trim();
+      if (!v('cAddress')) { document.getElementById('cErr').style.display = 'block'; return; }
+      opsData.cancellations.push({
+        date: v('cDate') || new Date().toISOString().slice(0, 10), address: v('cAddress'),
+        reason: document.getElementById('cReason').value, offer: v('cOffer'), notes: v('cNotes')
+      });
+      await saveOps('cancellations'); this.reset(); document.getElementById('cErr').style.display = 'none';
+      opsModal('cancelOverlay').classList.remove('show'); renderOps();
+    });
+
     async function render() {
       const lots = await loadLots();
       renderOpportunities(lots);
       renderReoffer(lots);
       renderRealtors(lots);
+      loadAllOps();
 
       // KPIs (live pipeline stages; Closed shows this-month only)
       const count = st => lots.filter(l => l.displayStatus === st).length;

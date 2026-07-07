@@ -23,6 +23,8 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 - ✅ **Off-market county sweep** — dashboard tool that pulls vacant residential Palm Bay lots in the buy box straight from county records (owner + mailing address), with tunable filters (lot size, max land value, absentee-owners-only). Preview the count, **download the mailing list**, or add them to the worklist. ~14,000 absentee-owned buy-box lots available.
 - 🟡 **On-market MLS/IDX feed** — pending confirmation of MLS access
 - ✅ **CSV contact upload** — Kevin bulk-imports owner/mailer contact lists (dedupes automatically)
+  - ✅ **Review-and-confirm step** — the upload shows exactly what will be added (address, owner, stage, offer) and flags rows already in the system; nothing enters the pipeline until Kevin clicks **Confirm & Add**
+  - ✅ Optional **`Stage` column** so in-progress deals land at their real pipeline stage (mailer contacts default to the worklist)
 - ✅ **Add existing deal/contract** — drop an in-progress deal into the pipeline at any stage
 
 ## 3. Buy box & green/yellow/red triage
@@ -79,7 +81,15 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 - ✅ **Export to CSV / PDF** of the pipeline
 - ✅ **Import contacts (CSV)** and **Add Deal/Contract** (covered above)
 
-## 11. Platform
+## 11. Costs, ROI & renewals (business operations)
+- ✅ **Costs, ROI & Renewals panel** in the dashboard — a live money view shared by Kevin and Elizabeth
+- ✅ **Accounts & Subscriptions tracker** — every paid data site / tool / vendor with its **login, cost, billing cycle (monthly/annual/one-time/"confirm RI"), and next renewal date**; renewals due within 30 days are flagged so nothing lapses
+  - 🔒 **Passwords are not stored** — a "credential location" field points at your shared password manager instead (security by design)
+- ✅ **Postcard / mailing costs** — per-batch log with **print cost and postage kept as separate lines**, rolled up to a running total + total postage
+- ✅ **ROI tiles** — Deals Contracted · Mailing Spend · **Cost per Contract** (mail spend ÷ contracts) · Subscriptions/yr · Cancellations
+- ✅ **Cancelled-contract tracker** — log terminated contracts with a **reason** (Location, Neighbor, Soils, Endangered species, Title/fraud, Other) and see the reason breakdown at a glance
+
+## 12. Platform
 - ✅ Hosted on Vercel + shared Supabase Postgres (Kevin & Elizabeth see one live pipeline)
 - ✅ Password-gated admin with Kevin/Elizabeth role toggle; offline demo mode for previews
 - ✅ Security: seller page has no admin surface, all data rendered XSS-safe, public submissions can't set pipeline stage
@@ -87,7 +97,7 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 
 ---
 
-## 12. Postcard / QR campaign (mailer engine)
+## 13. Postcard / QR campaign (mailer engine)
 - ✅ **Postcard/QR tool** in the dashboard — name a batch, pick the recipient pool
 - ✅ **Batch QR code** generated (navy, print-quality) to drop on the postcard artwork; downloadable PNG
 - ✅ **Per-property QR sheet** (printable) — each lot gets a unique QR for per-lot scan tracking / variable-data mailing
