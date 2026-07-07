@@ -88,6 +88,7 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 - ✅ **Postcard / mailing costs** — per-batch log with **print cost and postage kept as separate lines**, rolled up to a running total + total postage
 - ✅ **ROI tiles** — Deals Contracted · Mailing Spend · **Cost per Contract** (mail spend ÷ contracts) · Subscriptions/yr · Cancellations
 - ✅ **Cancelled-contract tracker** — log terminated contracts with a **reason** (Location, Neighbor, Soils, Endangered species, Title/fraud, Other) and see the reason breakdown at a glance
+- ✅ **Commission tracker (Adams Homes)** — buyer-side commission on **on-market (listed) deals only** (off-market = $0). Default **3%**, Kevin confirms per deal (it can vary), shown live in dollars as a **cash-to-close deduction**. The dashboard rolls up **total commission held, average %, and how many deals kept the full 3% vs. were reduced/waived** — so leadership can see whether Kevin is holding the rate or giving it away
 
 ## 12. Platform
 - ✅ Hosted on Vercel + shared Supabase Postgres (Kevin & Elizabeth see one live pipeline)

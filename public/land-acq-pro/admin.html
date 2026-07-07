@@ -469,6 +469,20 @@
         <!-- ROI summary tiles -->
         <div class="ops-roi" id="opsRoi"></div>
 
+        <!-- Commissions to Adams Homes (on-market deals) -->
+        <div class="ops-block">
+          <div class="ops-block-head">
+            <h4>Commissions to Adams Homes <span class="ops-hint" id="commHint"></span></h4>
+          </div>
+          <div class="ops-note">Buyer-side commission on <b>on-market (listed) deals only</b> — credited to Adams and deducted from cash to close. Off-market deals are $0. Shows whether Kevin is holding the full 3% or giving it away.</div>
+          <div class="table-wrap">
+            <table class="ops-table" id="commTable">
+              <thead><tr><th>Property</th><th>Contract</th><th>Rate</th><th>Commission</th><th>Confirmed</th><th>Hold</th></tr></thead>
+              <tbody id="commRows"></tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Accounts & Subscriptions -->
         <div class="ops-block">
           <div class="ops-block-head">
@@ -1375,6 +1389,35 @@
       }
       document.getElementById('cancelHint').textContent = cancels.length ? (cancels.length + ' logged') : '';
 
+      // --- Commissions to Adams Homes (on-market deals in the pipeline) ---
+      const COMM_STAGES = ['offer-sent', 'seller-signed', 'pending-ep-sig', 'ip', 'manager-driven', 'survey-rcvd', 'cd-approved', 'ctc', 'closed'];
+      const isListedDeal = l => l.listingType === 'listed' ||
+        (l.listingType !== 'off-market' && (!!l.agentBrokerage || !!l.agentName || typeof l.listPrice === 'number' || /listing|active|auction/i.test(l.listStatus || '')));
+      const commDeals = lastLots.filter(l => COMM_STAGES.includes(l.displayStatus || l.status) && isListedDeal(l));
+      const commRows = document.getElementById('commRows'); commRows.textContent = '';
+      let commTotal = 0, pctSum = 0, fullCount = 0, reducedCount = 0;
+      if (!commDeals.length) emptyRow(commRows, 6, 'No on-market deals in progress yet — commissions show here once listed deals enter the pipeline.');
+      commDeals.forEach(l => {
+        const contract = parseMoney(l.offer) || Number(l.listPrice) || Number(l.offerSuggested) || 0;
+        const pct = typeof l.commissionPct === 'number' ? l.commissionPct : 3;
+        const amt = (typeof l.commissionAmt === 'number' && l.commissionAmt) ? l.commissionAmt : Math.round(contract * pct / 100);
+        commTotal += amt; pctSum += pct;
+        const hold = pct >= 3 ? ['ok', 'Full 3%'] : pct > 0 ? ['soon', 'Reduced'] : ['due', 'Waived'];
+        if (pct >= 3) fullCount++; else reducedCount++;
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(l.address || '—', 'o-svc'));
+        tr.appendChild(cell(contract ? money(contract) : '—'));
+        tr.appendChild(cell(pct + '%'));
+        tr.appendChild(cell(amt ? money(amt) : '—'));
+        tr.appendChild(badgeCell(l.commissionConfirmed ? 'Confirmed' : 'Pending', l.commissionConfirmed ? 'ok' : 'gray'));
+        tr.appendChild(badgeCell(hold[1], hold[0]));
+        commRows.appendChild(tr);
+      });
+      const avgPct = commDeals.length ? (pctSum / commDeals.length).toFixed(1) : '0';
+      document.getElementById('commHint').textContent = commDeals.length
+        ? (money(commTotal) + ' retained · avg ' + avgPct + '% · ' + fullCount + ' full 3% · ' + reducedCount + ' reduced/waived')
+        : '';
+
       // --- ROI tiles (mailing spend is the direct acquisition cost) ---
       const contracts = lastLots.filter(l => ACCEPTED.includes(l.displayStatus || l.status)).length;
       const closed = lastLots.filter(l => (l.displayStatus || l.status) === 'closed').length;
@@ -1384,6 +1427,7 @@
         { val: contracts, lbl: 'Deals Contracted', sub: closed + ' closed' },
         { val: money(mailTotal), lbl: 'Mailing Spend', sub: piecesTotal.toLocaleString('en-US') + ' pieces' },
         { val: contracts ? money(Math.round(mailTotal / contracts)) : '—', lbl: 'Cost / Contract', sub: 'mail spend ÷ contracts' },
+        { val: money(commTotal), lbl: 'Commissions Held', sub: commDeals.length ? ('avg ' + avgPct + '% · ' + reducedCount + ' given away') : 'on-market deals' },
         { val: money(annualSubs), lbl: 'Subscriptions / yr', sub: accts.filter(a => a.status !== 'cancelled').length + ' active tools' },
         { val: cancelCount, lbl: 'Cancellations', sub: contracts ? Math.round((cancelCount / (contracts + cancelCount)) * 100) + '% of contracts' : 'no reasons yet' }
       ];

@@ -207,7 +207,13 @@ async function noHorizontalOverflow(page) {
     await page.click('#previewPacketBtn');
     check('cover letter preview shows expiration', (await page.textContent('#packetPreview')).includes('expires on'));
     check('document upload control present', await page.locator('#docUpload').count() === 1);
-    check('commission defaults to 3%', (await page.inputValue('#commission')) === '3%');
+    check('commission defaults to 0% off-market', (await page.inputValue('#commission')) === '0%');
+    await page.selectOption('#listingType', 'listed');
+    await page.waitForTimeout(100);
+    check('commission defaults to 3% when listed', (await page.inputValue('#commission')) === '3%');
+    check('commission hint notes cash-to-close deduction', /cash to close/i.test(await page.textContent('#commissionHint')));
+    await page.selectOption('#listingType', 'off-market');
+    await page.waitForTimeout(100);
     check('lot notes section present', await page.locator('#addNoteBtn').count() === 1);
     check('cover letter no longer says Kevin owns the deal', !(await page.textContent('#packetPreview')).includes('own your deal'));
     check('approval uses compact card grid', await page.locator('.grid').count() === 1);
