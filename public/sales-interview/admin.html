@@ -55,9 +55,11 @@
     .status-chip { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
     .st-applied { background: #eef1f5; color: #556; }
     .st-video_complete { background: #e7f0fb; color: #14508f; }
+    .st-scheduled { background: #e7f0fb; color: #1a3a70; }
     .st-under_review { background: #fdf3e4; color: #a5651a; }
     .st-advanced { background: #e3f2ea; color: #1a7a44; }
     .st-hold { background: #f3ecfb; color: #6a3fb5; }
+    .st-pooled { background: #e8f4f8; color: #17677a; }
     .st-declined { background: #fdecea; color: #b02a1a; }
     .st-offer_sent { background: #dff3e7; color: #12693a; }
     .st-hired { background: #1a7a44; color: white; }
@@ -168,6 +170,7 @@
         <div class="sub">Virtual video interviews &mdash; East Central Florida</div>
       </div>
       <div class="actions">
+        <a class="tb-btn" href="/sales-interview/live.html" style="text-decoration:none;">Live Interview Day</a>
         <button class="tb-btn" id="copyApplyBtn">Copy Careers Link</button>
         <button class="tb-btn" id="settingsBtn">Settings</button>
         <button class="tb-btn" id="refreshBtn">Refresh</button>
@@ -177,9 +180,9 @@
     <div class="content">
       <div class="kpi-grid" id="kpis"></div>
 
-      <h2 class="sect">Leaderboard <small>&mdash; weighted score across the 6 competencies; click a candidate to review &amp; score</small></h2>
+      <h2 class="sect">Leaderboard <small>&mdash; average across the 4 competencies (video + live scores); 3.0+ advances. Click a candidate to review &amp; score</small></h2>
       <div class="tbl-wrap"><table id="leaderTable"><thead><tr>
-        <th>#</th><th>Candidate</th><th>Office</th><th>Status</th><th>Videos</th><th>Weighted</th><th>Scorers</th><th>Source</th>
+        <th>#</th><th>Candidate</th><th>Office</th><th>Status</th><th>Videos</th><th>Avg Score</th><th>Scorers</th><th>Source</th>
       </tr></thead><tbody></tbody></table></div>
 
       <h2 class="sect">Competency Heat Map <small>&mdash; average score per competency (1 red &rarr; 5 green)</small></h2>
@@ -223,7 +226,8 @@
           <div class="score-summary" id="cmScoreSummary"></div>
           <div class="inline-field">
             <label for="cmManager">Scoring as manager:</label>
-            <input type="text" id="cmManager" placeholder="Your name" style="min-width:220px;">
+            <input type="text" id="cmManager" placeholder="Your name" style="min-width:220px;" list="mgrList">
+            <datalist id="mgrList"></datalist>
           </div>
           <div class="score-form" id="cmScoreForm"></div>
           <button class="btn btn-blue" id="cmSaveScores">Save My Scores</button>
@@ -237,23 +241,30 @@
           </div>
           <div class="decision-row">
             <button class="btn btn-green" data-status="advanced">Advance to Next Round</button>
-            <button class="btn btn-purple" data-status="hold">Hold</button>
-            <button class="btn btn-redd" data-status="declined">Decline...</button>
-            <button class="btn btn-blue" data-status="offer_sent">Send Offer</button>
+            <button class="btn btn-outline" data-status="pooled">Pool for Future</button>
+            <button class="btn btn-purple" data-status="hold">Hold (internal)</button>
+            <button class="btn btn-redd" data-status="declined">Reject...</button>
+            <button class="btn btn-blue" data-status="offer_sent">Offer to Join Team...</button>
             <button class="btn btn-outline" data-status="hired">Mark Hired</button>
           </div>
           <div class="inline-field" id="declineReasonRow" style="display:none; margin-top:10px;">
-            <label for="cmDeclineReason">Decline reason:</label>
+            <label for="cmDeclineReason">Rejection reason:</label>
             <select id="cmDeclineReason">
+              <option value="better_fit_found">Better fit found</option>
+              <option value="not_ready">Not ready</option>
+              <option value="relocation_unwilling">Relocation unwilling</option>
               <option value="salary">Salary expectations</option>
-              <option value="role_fit">Role fit</option>
-              <option value="other_opportunity">Took another opportunity</option>
-              <option value="experience">Experience level</option>
-              <option value="assessment">Assessment results</option>
-              <option value="no_show">Didn't complete interview</option>
+              <option value="no_show">No-show / incomplete</option>
               <option value="other">Other</option>
             </select>
-            <button class="btn btn-redd" id="confirmDecline">Confirm Decline</button>
+            <button class="btn btn-redd" id="confirmDecline">Confirm Reject</button>
+          </div>
+          <div class="inline-field" id="offerRow" style="display:none; margin-top:10px;">
+            <label for="cmCommission">Commission:</label>
+            <select id="cmCommission"><option value="1%">1%</option><option value="2%">2%</option></select>
+            <label for="cmStartDate">Start date:</label>
+            <input type="date" id="cmStartDate">
+            <button class="btn btn-blue" id="confirmOffer">Send Offer</button>
           </div>
         </div>
         <div class="msection">
@@ -304,13 +315,14 @@
     let chatTimer = null;
 
     const STATUS_LABELS = {
-      applied: 'Applied', video_complete: 'Video Done', under_review: 'In Review',
-      advanced: 'Advanced', hold: 'Hold', declined: 'Declined',
-      offer_sent: 'Offer Sent', hired: 'Hired',
+      applied: 'Need Review', video_complete: 'Video Done', scheduled: 'Scheduled',
+      under_review: 'In Review', advanced: 'Advanced', hold: 'Hold', pooled: 'Pooled',
+      declined: 'Rejected', offer_sent: 'Offer Sent', hired: 'Hired',
     };
     const DECLINE_LABELS = {
-      salary: 'Salary', role_fit: 'Role fit', other_opportunity: 'Other opportunity',
-      experience: 'Experience', assessment: 'Assessment', no_show: 'No-show', other: 'Other',
+      better_fit_found: 'Better fit found', not_ready: 'Not ready',
+      relocation_unwilling: 'Relocation unwilling', salary: 'Salary',
+      no_show: 'No-show', other: 'Other',
     };
     const SOURCE_LABELS = {
       linkedin: 'LinkedIn', instagram: 'Instagram', facebook: 'Facebook', indeed: 'Indeed',
@@ -375,21 +387,25 @@
       CANDS = cData.candidates || [];
       COMPS = qRes.competencies || [];
       DIVS = qRes.divisions || [];
-      PRE_QS = qRes.preInterviewQuestions || [];
+      PRE_QS = (qRes.appQuestions || []).map(q => q.text);
+      window.MANAGERS = qRes.managers || [];
       window.QUESTIONS = qRes.questions || [];
       UNREAD = mRes.unread || {};
+      const dl = document.getElementById('mgrList');
+      if (dl) dl.innerHTML = window.MANAGERS.map(m => '<option value="' + esc(m) + '">').join('');
       render();
     }
 
     function render() {
-      const active = CANDS.filter(c => c.status !== 'declined');
       const kpis = [
+        { lbl: 'Need Review', num: CANDS.filter(c => c.status === 'applied').length, cls: 'orange' },
         { lbl: 'Applicants', num: CANDS.length, cls: '' },
-        { lbl: 'Videos Complete', num: CANDS.filter(c => ['video_complete','under_review','advanced','hold','offer_sent','hired'].includes(c.status) || c.videosComplete >= (window.QUESTIONS||[]).length && c.videosComplete > 0).length, cls: 'blue' },
-        { lbl: 'In Review', num: CANDS.filter(c => c.status === 'under_review').length, cls: 'orange' },
+        { lbl: 'Videos In', num: CANDS.filter(c => c.videosComplete > 0).length, cls: 'blue' },
+        { lbl: 'Scheduled', num: CANDS.filter(c => c.status === 'scheduled').length, cls: 'blue' },
         { lbl: 'Advanced', num: CANDS.filter(c => ['advanced','offer_sent','hired'].includes(c.status)).length, cls: 'green' },
+        { lbl: 'Pooled', num: CANDS.filter(c => c.status === 'pooled').length, cls: '' },
         { lbl: 'Offers Sent', num: CANDS.filter(c => ['offer_sent','hired'].includes(c.status)).length, cls: 'green' },
-        { lbl: 'Declined', num: CANDS.filter(c => c.status === 'declined').length, cls: 'red' },
+        { lbl: 'Rejected', num: CANDS.filter(c => c.status === 'declined').length, cls: 'red' },
       ];
       el('kpis').innerHTML = kpis.map(k =>
         '<div class="kpi ' + k.cls + '"><div class="lbl">' + k.lbl + '</div><div class="num">' + k.num + '</div></div>'
@@ -514,21 +530,30 @@
       el('cmMeta').innerHTML = esc(c.division + ' — ' + d.name) + ' &middot; ' + esc(c.email || '') +
         (c.phone ? ' &middot; ' + esc(c.phone) : '') + ' &middot; applied ' + new Date(c.createdAt).toLocaleDateString();
       const data = c.data || {};
+      const profileLink = (v) => {
+        const val = String(v || '').trim();
+        if (!val || /^n\/?a$/i.test(val)) return '—';
+        const href = /^https?:\/\//.test(val) ? val : 'https://' + val.replace(/^@/, '');
+        return '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(val) + '</a>';
+      };
+      const offer = data.offer || {};
       const facts = [
         ['Status', STATUS_LABELS[c.status] || c.status],
+        ['FL license', data.hasLicense ? 'Yes' : 'Not yet'],
         ['Referral source', SOURCE_LABELS[c.referralSource] || c.referralSource],
-        ['Sales experience', (data.yearsSalesExperience || 0) + ' years'],
-        ['LinkedIn', data.linkedinUrl ? '<a href="' + esc(data.linkedinUrl) + '" target="_blank" rel="noopener">open profile</a>' : '—'],
+        ['LinkedIn', profileLink(data.linkedin)],
+        ['Instagram', profileLink(data.instagram)],
+        ['Facebook', profileLink(data.facebook)],
         ['Resume', data.resumeUrl ? '<a href="' + esc(data.resumeUrl) + '" target="_blank" rel="noopener">open resume</a>' : '—'],
-        ['Social', esc(data.socialHandles || '—')],
-        ['License', data.hasLicense ? ('Yes' + (data.licenseNumber ? ' — #' + esc(data.licenseNumber) : '')) : 'No'],
-        ['Decline reason', c.declineReason ? (DECLINE_LABELS[c.declineReason] || c.declineReason) : '—'],
+        ['Rejection reason', c.declineReason ? (DECLINE_LABELS[c.declineReason] || c.declineReason) : '—'],
+        ['Offer', offer.commission ? esc(offer.commission + (offer.startDate ? ' · starts ' + offer.startDate : '')) : '—'],
+        ['Pool note', esc(data.poolNote || '—')],
       ];
       el('cmFacts').innerHTML = facts.map(f =>
         '<div class="fact"><div class="fl">' + f[0] + '</div><div class="fv">' + f[1] + '</div></div>').join('');
       el('cmFlags').innerHTML = (c.flags || []).map(f => '<li>&#9873; ' + esc(f) + '</li>').join('');
       el('cmPreQA').innerHTML = PRE_QS.map((q, i) =>
-        '<div class="preqa"><div class="q">' + esc(q) + '</div><div>' + esc((data.preInterviewAnswers || [])[i] || '(no answer)') + '</div></div>').join('');
+        '<div class="preqa"><div class="q">' + (i + 1) + '. ' + esc(q) + '</div><div>' + esc((data.appAnswers || [])[i] || '(no answer)') + '</div></div>').join('');
 
       // Videos
       const respRes = await fetch(API + '/responses?candidateId=' + c.id, { headers: hdrs() }).then(r => r.json()).catch(() => ({ responses: [] }));
@@ -558,15 +583,15 @@
       const c = currentCand;
       const s = candScores(c);
       el('cmScoreSummary').innerHTML = s.weighted != null
-        ? '<b>Weighted score: ' + s.weighted.toFixed(2) + ' / 5</b> &middot; scored by ' + s.managers.map(esc).join(', ')
+        ? '<b>Average score: ' + s.weighted.toFixed(2) + ' / 5</b> &middot; scored by ' + s.managers.map(esc).join(', ')
         : 'Not scored yet — be the first.';
       const mgr = el('cmManager').value.trim();
       const mine = {};
-      (c.scores || []).forEach(sc => { if (sc.manager === mgr) mine[sc.competency] = sc; });
+      (c.scores || []).forEach(sc => { if (sc.manager === mgr && sc.kind !== 'live') mine[sc.competency] = sc; });
       el('cmScoreForm').innerHTML = COMPS.map(comp => {
         const existing = mine[comp.key];
         return '<div class="sf-row" data-comp="' + comp.key + '">' +
-          '<div class="sf-comp"><b>' + esc(comp.label) + '</b><small>weight ' + comp.weight + '% &middot; 1 = weak evidence, 5 = exceptional</small></div>' +
+          '<div class="sf-comp"><b>' + esc(comp.label) + '</b><small>' + esc(comp.definition || '') + ' &middot; 3 = meets expectation, 5 = exceptional</small></div>' +
           '<div class="sf-stars">' + [1, 2, 3, 4, 5].map(n =>
             '<button type="button" data-v="' + n + '" class="' + (existing && existing.score === n ? 'on' : '') + '">' + n + '</button>').join('') + '</div>' +
           '<input type="text" placeholder="Evidence — one sentence of proof (required)" value="' + esc(existing ? existing.evidence : '') + '">' +
@@ -578,9 +603,9 @@
           btn.classList.add('on');
         };
       });
-      // evidence log
+      // evidence log (live-session scores carry no written evidence)
       const evid = (c.scores || []).map(sc =>
-        '<li><b>' + esc(sc.manager) + '</b> — ' + esc((COMPS.find(x => x.key === sc.competency) || {}).label || sc.competency) + ': ' + sc.score + '/5 — ' + esc(sc.evidence) + '</li>').join('');
+        '<li><b>' + esc(sc.manager) + '</b>' + (sc.kind === 'live' ? ' (live)' : '') + ' — ' + esc((COMPS.find(x => x.key === sc.competency) || {}).label || sc.competency) + ': ' + sc.score + '/5' + (sc.evidence ? ' — ' + esc(sc.evidence) : '') + '</li>').join('');
       if (evid) el('cmScoreSummary').innerHTML += '<ul class="evidence-log">' + evid + '</ul>';
     }
     el('cmManager').addEventListener('change', renderScoreForm);
@@ -615,25 +640,44 @@
       renderScoreForm();
     };
 
-    // Decisions
+    // Decisions (Round 1 actions: Advance / Pool / Hold / Reject / Offer)
     document.querySelectorAll('.decision-row .btn').forEach(btn => {
       btn.onclick = async () => {
         const status = btn.dataset.status;
+        el('declineReasonRow').style.display = 'none';
+        el('offerRow').style.display = 'none';
         if (status === 'declined') {
           el('declineReasonRow').style.display = 'flex';
           return;
         }
-        await applyDecision(status, null);
+        if (status === 'offer_sent') {
+          el('offerRow').style.display = 'flex';
+          return;
+        }
+        const extra = {};
+        if (status === 'pooled') {
+          const note = prompt('Pool note (e.g., "Strong closer, interested in Manager role later"):', '');
+          if (note === null) return;
+          extra.dataPatch = { poolNote: note };
+        }
+        await applyDecision(status, null, extra);
       };
     });
     el('confirmDecline').onclick = () => applyDecision('declined', el('cmDeclineReason').value);
-    async function applyDecision(status, declineReason) {
+    el('confirmOffer').onclick = () => {
+      const commission = el('cmCommission').value;
+      const startDate = el('cmStartDate').value;
+      if (!startDate) { toast('Pick a start date'); return; }
+      applyDecision('offer_sent', null, { dataPatch: { offer: { commission, startDate } } });
+    };
+    async function applyDecision(status, declineReason, extra) {
       const res = await fetch(API + '/candidates', {
         method: 'PATCH', headers: hdrs(),
         body: JSON.stringify({
           id: currentCand.id, status,
           declineReason,
           notify: el('cmNotify').checked,
+          ...(extra || {}),
         }),
       });
       const data = await res.json();

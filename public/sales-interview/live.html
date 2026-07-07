@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Interview Day - Adams Homes</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --navy: #1a3a70; --red: #e31a23; --green: #1a7a44; --orange: #e8963c; --border: #e8eaed; }
+body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; font-size: 14px; }
+.topbar { background: var(--navy); color: white; padding: 14px 18px; border-bottom: 3px solid var(--red); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.topbar h1 { font-family: 'Playfair Display', serif; font-size: 20px; }
+.topbar .sub { font-size: 12px; color: #b9cde4; }
+.topbar .right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.topbar select, .topbar input { padding: 8px 10px; border-radius: 6px; border: none; font-family: inherit; font-size: 13px; }
+.tb-btn { background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.tb-btn:hover { background: rgba(255,255,255,0.22); }
+.rec { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #ffd3d3; }
+.rec .dot { width: 10px; height: 10px; border-radius: 50%; background: #ff4d4d; animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: 0.2; } }
+
+.layout { display: grid; grid-template-columns: 1fr; gap: 14px; padding: 14px; max-width: 1500px; margin: 0 auto; }
+@media (min-width: 1100px) { .layout { grid-template-columns: 300px 1fr 400px; align-items: start; } }
+.panel { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.panel-h { background: #f6f8fb; border-bottom: 1px solid var(--border); padding: 11px 14px; font-weight: 700; color: var(--navy); font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+.panel-b { padding: 12px 14px; }
+
+/* Left: setup + roster */
+.field { margin-bottom: 10px; }
+.field label { display: block; font-size: 12px; font-weight: 700; color: #445; margin-bottom: 4px; }
+.field input, .field select { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 14px; }
+.btn { border: none; border-radius: 6px; padding: 10px 14px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.btn-red { background: var(--red); color: white; width: 100%; }
+.btn-navy { background: var(--navy); color: white; }
+.btn-green { background: var(--green); color: white; }
+.btn-outline { background: white; border: 1px solid var(--navy); color: var(--navy); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cand-chip { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; background: #fff; cursor: grab; }
+.cand-chip:hover { border-color: var(--navy); }
+.cand-chip .nm { font-weight: 600; font-size: 13px; }
+.cand-chip .dv { font-size: 11px; color: #778; }
+.cand-chip .assign-btns { display: flex; gap: 4px; }
+.cand-chip .assign-btns button { width: 24px; height: 24px; border-radius: 5px; border: 1px solid #c8d2de; background: white; cursor: pointer; font-size: 11px; font-weight: 800; color: var(--navy); }
+.cand-chip .assign-btns button:hover { background: var(--navy); color: white; }
+.hint { font-size: 11px; color: #889; margin: 8px 0; }
+
+/* Center: sessions */
+.slot-card { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+.slot-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 14px; background: linear-gradient(135deg, var(--navy), #253a4f); color: white; flex-wrap: wrap; }
+.slot-head .t { font-weight: 800; font-size: 14px; }
+.slot-head .time { font-size: 12px; color: #b9cde4; }
+.timer { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 22px; padding: 2px 12px; border-radius: 8px; background: rgba(255,255,255,0.12); }
+.timer.warn { color: #ffd28a; }
+.timer.low { color: #ff8a8a; }
+.slot-body { padding: 10px 14px; }
+.slot-cands { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; min-height: 38px; }
+.slot-cand { display: flex; align-items: center; gap: 8px; background: #eef4fb; border: 1px solid #c9dcf0; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--navy); }
+.slot-cand button { border: none; background: none; color: #b02a1a; font-weight: 800; cursor: pointer; font-size: 14px; }
+.slot-cand.selected { outline: 3px solid var(--red); }
+.slot-empty { font-size: 12px; color: #99a; padding: 8px 0; }
+.slot-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.guide { margin-top: 4px; }
+.guide details { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: #fbfcfe; }
+.guide summary { cursor: pointer; padding: 10px 12px; font-weight: 700; color: var(--navy); font-size: 13px; }
+.guide .g-body { padding: 0 14px 12px; font-size: 13px; line-height: 1.55; color: #334; }
+.guide .q { margin-bottom: 10px; }
+.guide .q b { display: block; }
+.guide .q small { color: #667; }
+.anchors { width: 100%; border-collapse: collapse; font-size: 12px; }
+.anchors td { border-top: 1px solid #e8ecf2; padding: 5px 6px; vertical-align: top; }
+.anchors .s { font-weight: 800; color: var(--navy); white-space: nowrap; }
+
+/* Right: scoring */
+.mgr-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.mgr-row select { flex: 1; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; }
+.score-target { font-size: 13px; margin-bottom: 10px; color: #445; }
+.score-target b { color: var(--navy); }
+.comp-block { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+.comp-block .c-name { font-weight: 700; font-size: 13px; color: var(--navy); }
+.comp-block .c-def { font-size: 11px; color: #778; margin: 2px 0 8px; }
+.pips { display: flex; gap: 6px; }
+.pips button { flex: 1; height: 34px; border-radius: 6px; border: 1px solid #c8d2de; background: white; font-weight: 800; font-size: 14px; cursor: pointer; color: #556; }
+.pips button.on { background: var(--navy); border-color: var(--navy); color: white; }
+.othermgrs { font-size: 11px; color: #667; margin-top: 6px; min-height: 14px; }
+.live-board { margin-top: 6px; }
+.lb-row { border-top: 1px solid #eef1f5; padding: 8px 2px; }
+.lb-row .lb-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.lb-row .nm { font-weight: 700; font-size: 13px; }
+.lb-avg { font-weight: 800; font-variant-numeric: tabular-nums; }
+.badge { font-size: 10px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; border-radius: 999px; padding: 3px 9px; }
+.badge.advance { background: #e3f2ea; color: var(--green); }
+.badge.eliminate { background: #fdecea; color: #b02a1a; }
+.badge.discuss { background: #fdf3e4; color: #a5651a; }
+.badge.pending { background: #eef1f5; color: #667; }
+.lb-comps { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+.lb-comp { font-size: 11px; border-radius: 5px; padding: 3px 7px; color: white; font-weight: 700; }
+.lb-actions { display: flex; gap: 6px; margin-top: 8px; }
+.lb-actions .btn { padding: 7px 12px; font-size: 12px; }
+.notify-line { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #445; margin-top: 8px; }
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--navy); color: white; border-radius: 999px; padding: 10px 22px; font-size: 14px; display: none; z-index: 200; }
+
+/* Login */
+.login-wrap { max-width: 380px; margin: 90px auto; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 30px; text-align: center; }
+.login-wrap img { height: 64px; margin-bottom: 12px; }
+.login-wrap h2 { font-family: 'Playfair Display', serif; color: var(--navy); margin-bottom: 16px; font-size: 20px; }
+.login-wrap input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; font-family: inherit; font-size: 15px; }
+.login-err { color: #b02a1a; font-size: 13px; margin-top: 8px; display: none; }
+</style>
+</head>
+<body>
+
+<div id="loginView">
+  <div class="login-wrap">
+    <img src="/sales-interview/img/logo.png" alt="Adams Homes">
+    <h2>Live Interview Day</h2>
+    <input type="password" id="keyInput" placeholder="Admin access key">
+    <button class="btn btn-red" id="loginBtn" style="width:100%;">Sign In</button>
+    <div class="login-err" id="loginErr">That key didn't work. Try again.</div>
+  </div>
+</div>
+
+<div id="appView" style="display:none;">
+  <div class="topbar">
+    <div>
+      <h1>Live Interview Day</h1>
+      <div class="sub">Round 1 &mdash; 3 sessions &times; 15 min &middot; 2 candidates each &middot; scores sync across all managers</div>
+    </div>
+    <div class="right">
+      <span class="rec" id="recBadge" style="display:none;"><span class="dot"></span>SESSION LIVE</span>
+      <select id="sessionPick"></select>
+      <button class="tb-btn" id="newSessionBtn">+ New Day</button>
+      <a class="tb-btn" href="/sales-interview/admin.html" style="text-decoration:none;">Command Center</a>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- LEFT: setup + unassigned roster -->
+    <div>
+      <div class="panel" style="margin-bottom:14px;">
+        <div class="panel-h">Session Setup</div>
+        <div class="panel-b">
+          <div class="field"><label>Interview date</label><input type="date" id="sessDate"></div>
+          <div class="field"><label>Teams meeting link</label><input type="url" id="teamsUrl" placeholder="https://teams.microsoft.com/l/meetup-join/..."></div>
+          <button class="btn btn-navy" id="saveSessionBtn" style="width:100%;">Save Session Details</button>
+          <button class="btn btn-red" id="startDayBtn" style="width:100%; margin-top:8px;">START SESSION 1 (9:00 AM)</button>
+          <div class="hint">Timers are a visual guide — finish the interview; notes matter more than time.</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h">Candidates to Assign</div>
+        <div class="panel-b">
+          <div class="hint">Click 1 / 2 / 3 to place a candidate into that session (max 2 per session).</div>
+          <div id="unassigned"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER: sessions + guide -->
+    <div>
+      <div id="slots"></div>
+      <div class="panel">
+        <div class="panel-h">Manager Guide</div>
+        <div class="panel-b guide">
+          <details open>
+            <summary>The 5 Interview Questions (read exactly as written)</summary>
+            <div class="g-body" id="guideQs"></div>
+          </details>
+          <details>
+            <summary>Scoring Guide (1&ndash;5)</summary>
+            <div class="g-body"><table class="anchors" id="anchorTable"></table></div>
+          </details>
+          <details>
+            <summary>Advancement Criteria</summary>
+            <div class="g-body">
+              <b>Advance:</b> average 3.0+, score 3+ on at least 3 of 4 competencies, no disqualifying 1s.<br>
+              <b>Eliminate:</b> average below 2.5, or a 1 on any competency, or major red flags on coachability/attitude.<br>
+              <b>Gray zone (2.8&ndash;3.0):</b> discuss as a team in calibration.
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: scoring -->
+    <div class="panel">
+      <div class="panel-h">Real-Time Scoring <span id="syncDot" style="font-size:10px;color:#889;">sync: —</span></div>
+      <div class="panel-b">
+        <div class="mgr-row">
+          <select id="mgrPick"></select>
+        </div>
+        <div class="score-target" id="scoreTarget">Select a candidate in a session to score.</div>
+        <div id="compBlocks"></div>
+        <div class="panel-h" style="margin:14px -14px 10px; border-top:1px solid var(--border);">Live Board &amp; Decisions</div>
+        <div class="notify-line"><input type="checkbox" id="notifyChk" checked><label for="notifyChk">Email candidate on Advance / Eliminate</label></div>
+        <div class="live-board" id="liveBoard"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api/interview';
+let KEY = localStorage.getItem('vi_admin_key') || '';
+let META = null;          // competencies, anchors, managers, slots, questions
+let SESSIONS = [];
+let SESSION = null;       // current session detail
+let CANDS = [];           // full candidate list (for unassigned roster)
+let selectedCandidate = null;
+let pollTimer = null;
+let slotTimers = {};      // slot -> {endsAt}
+
+function el(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function hdrs() { return { 'x-admin-key': KEY, 'Content-Type': 'application/json' }; }
+function toast(msg) { const t = el('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2600); }
+
+async function loadMeta() {
+  META = await fetch(API + '/questions').then(r => r.json());
+  el('mgrPick').innerHTML = '<option value="">Who is scoring? *</option>' +
+    (META.managers || []).map(m => `<option>${esc(m)}</option>`).join('');
+  const saved = localStorage.getItem('vi_manager_name');
+  if (saved) el('mgrPick').value = saved;
+  el('guideQs').innerHTML = (META.questions || []).map((q, i) => {
+    const comp = (META.competencies || []).find(c => c.key === q.competency);
+    return `<div class="q"><b>Q${i + 1}: ${esc(q.text)}</b><small>Listen for: ${esc(q.listenFor || '')} &middot; Scores: ${esc(comp ? comp.label : '')}</small></div>`;
+  }).join('');
+  el('anchorTable').innerHTML = (META.scoreAnchors || []).map(a =>
+    `<tr><td class="s">${a.score} — ${esc(a.label)}</td><td>${esc(a.hint)}</td></tr>`).join('');
+}
+
+async function loadSessions(keepId) {
+  const data = await fetch(API + '/sessions', { headers: hdrs() }).then(r => {
+    if (r.status === 401) throw new Error('unauthorized');
+    return r.json();
+  });
+  SESSIONS = data.sessions || [];
+  const pick = el('sessionPick');
+  pick.innerHTML = SESSIONS.length
+    ? SESSIONS.map(s => `<option value="${s.id}">${s.sessionDate ? String(s.sessionDate).slice(0, 10) : ''} (${s.candidateCount} candidates)${s.status === 'live' ? ' — LIVE' : ''}</option>`).join('')
+    : '<option value="">No interview days yet</option>';
+  if (keepId && SESSIONS.some(s => s.id === keepId)) pick.value = String(keepId);
+  if (pick.value) await openSession(Number(pick.value));
+  else renderAll();
+}
+
+async function openSession(id) {
+  const data = await fetch(API + '/sessions?id=' + id, { headers: hdrs() }).then(r => r.json());
+  SESSION = data.session || null;
+  if (SESSION) {
+    el('sessDate').value = String(SESSION.sessionDate).slice(0, 10);
+    el('teamsUrl').value = SESSION.teamsUrl || '';
+  }
+  renderAll();
+  clearInterval(pollTimer);
+  pollTimer = setInterval(pollScores, 4000);
+}
+
+async function pollScores() {
+  if (!SESSION) return;
+  try {
+    const data = await fetch(API + '/sessions?id=' + SESSION.id, { headers: hdrs() }).then(r => r.json());
+    if (data.session) {
+      const mine = SESSION;
+      SESSION = data.session;
+      // keep local selection
+      renderBoard();
+      renderCompBlocks();
+      el('syncDot').textContent = 'sync: live';
+    }
+  } catch (e) { el('syncDot').textContent = 'sync: retrying'; }
+}
+
+async function loadCandidates() {
+  const res = await fetch(API + '/candidates', { headers: hdrs() });
+  if (res.status === 401) throw new Error('unauthorized');
+  CANDS = (await res.json()).candidates || [];
+}
+
+function assignedIds() {
+  return new Set((SESSION ? SESSION.assignments : []).map(a => a.candidateId));
+}
+
+function renderAll() { renderUnassigned(); renderSlots(); renderBoard(); renderCompBlocks(); }
+
+function renderUnassigned() {
+  const used = assignedIds();
+  const eligible = CANDS.filter(c => !used.has(c.id) && !['declined', 'hired', 'offer_sent', 'pooled'].includes(c.status));
+  el('unassigned').innerHTML = eligible.map(c =>
+    `<div class="cand-chip"><div><div class="nm">${esc(c.name)}</div><div class="dv">${esc(c.division)} · ${esc(c.status)}${c.videosComplete ? ' · 🎥' + c.videosComplete : ''}</div></div>
+     <div class="assign-btns">${[1, 2, 3].map(s => `<button onclick="assign(${c.id},${s})">${s}</button>`).join('')}</div></div>`
+  ).join('') || '<div class="hint">Everyone is assigned (or no eligible candidates yet).</div>';
+}
+
+window.assign = async function (candidateId, slot) {
+  if (!SESSION) { toast('Create or pick an interview day first'); return; }
+  const res = await fetch(API + '/sessions', {
+    method: 'POST', headers: hdrs(),
+    body: JSON.stringify({ op: 'assign', sessionId: SESSION.id, candidateId, slot }),
+  });
+  const data = await res.json();
+  if (!res.ok) { toast(data.error || 'Assign failed'); return; }
+  SESSION = data.session;
+  await loadCandidates();
+  renderAll();
+};
+
+window.unassign = async function (candidateId) {
+  const res = await fetch(API + '/sessions', {
+    method: 'POST', headers: hdrs(),
+    body: JSON.stringify({ op: 'unassign', sessionId: SESSION.id, candidateId }),
+  });
+  const data = await res.json();
+  if (res.ok) { SESSION = data.session; renderAll(); }
+};
+
+window.pickCandidate = function (candidateId) {
+  selectedCandidate = CANDS.find(c => c.id === candidateId) ||
+    (SESSION.assignments.find(a => a.candidateId === candidateId) ? { id: candidateId, name: (SESSION.assignments.find(a => a.candidateId === candidateId) || {}).name } : null);
+  renderSlots();
+  renderCompBlocks();
+};
+
+function renderSlots() {
+  const slots = (META && META.sessionSlots) || [
+    { slot: 1, label: 'Session 1', time: '9:00 – 9:15 AM' },
+    { slot: 2, label: 'Session 2', time: '9:15 – 9:30 AM' },
+    { slot: 3, label: 'Session 3', time: '9:30 – 9:45 AM' },
+  ];
+  el('slots').innerHTML = slots.map(s => {
+    const cands = SESSION ? SESSION.assignments.filter(a => a.slot === s.slot) : [];
+    const t = slotTimers[s.slot];
+    return `<div class="slot-card">
+      <div class="slot-head">
+        <div><div class="t">${esc(s.label)} — Breakout Room ${s.slot}</div><div class="time">${esc(s.time)} · 15 minutes · 2 candidates</div></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="timer" id="timer${s.slot}">${t ? '' : '15:00'}</div>
+          <button class="btn btn-outline" onclick="startTimer(${s.slot})">Start</button>
+        </div>
+      </div>
+      <div class="slot-body">
+        <div class="slot-cands">${cands.map(a =>
+          `<span class="slot-cand ${selectedCandidate && selectedCandidate.id === a.candidateId ? 'selected' : ''}" onclick="pickCandidate(${a.candidateId})">${esc(a.name)} <button onclick="event.stopPropagation();unassign(${a.candidateId})" title="Remove">×</button></span>`
+        ).join('') || '<div class="slot-empty">No candidates assigned — use the 1/2/3 buttons on the left.</div>'}</div>
+        <div class="slot-actions">
+          ${SESSION && SESSION.teamsUrl ? `<a class="btn btn-navy" style="text-decoration:none;" href="${esc(SESSION.teamsUrl)}" target="_blank" rel="noopener">Join Teams Room</a>` : '<span class="hint">Add the Teams link in Session Setup.</span>'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.startTimer = function (slot) {
+  slotTimers[slot] = { endsAt: Date.now() + 15 * 60 * 1000 };
+  el('recBadge').style.display = 'inline-flex';
+  if (SESSION && SESSION.status !== 'live') {
+    fetch(API + '/sessions', { method: 'POST', headers: hdrs(), body: JSON.stringify({ op: 'update', sessionId: SESSION.id, status: 'live' }) });
+    SESSION.status = 'live';
+  }
+};
+
+setInterval(() => {
+  for (const [slot, t] of Object.entries(slotTimers)) {
+    const elT = el('timer' + slot);
+    if (!elT) continue;
+    const left = Math.max(0, Math.round((t.endsAt - Date.now()) / 1000));
+    elT.textContent = Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0');
+    elT.className = 'timer' + (left <= 60 ? ' low' : left <= 180 ? ' warn' : '');
+  }
+}, 1000);
+
+function myScores(candidateId, manager) {
+  const out = {};
+  if (!SESSION) return out;
+  SESSION.scores.filter(s => s.candidateId === candidateId && s.manager === manager)
+    .forEach(s => { out[s.competency] = s.score; });
+  return out;
+}
+
+function renderCompBlocks() {
+  const mgr = el('mgrPick').value;
+  if (!selectedCandidate) {
+    el('scoreTarget').innerHTML = 'Select a candidate in a session to score.';
+    el('compBlocks').innerHTML = '';
+    return;
+  }
+  el('scoreTarget').innerHTML = 'Scoring: <b>' + esc(selectedCandidate.name) + '</b>' + (mgr ? ' as <b>' + esc(mgr) + '</b>' : ' — <span style="color:#b02a1a;">pick your name above first</span>');
+  const mine = mgr ? myScores(selectedCandidate.id, mgr) : {};
+  el('compBlocks').innerHTML = (META.competencies || []).map(c => {
+    const others = (SESSION ? SESSION.scores : []).filter(s => s.candidateId === selectedCandidate.id && s.competency === c.key && s.manager !== mgr);
+    return `<div class="comp-block">
+      <div class="c-name">${esc(c.label)}</div>
+      <div class="c-def">${esc(c.definition || '')}</div>
+      <div class="pips">${[1, 2, 3, 4, 5].map(n =>
+        `<button class="${mine[c.key] === n ? 'on' : ''}" onclick="submitScore('${c.key}',${n})">${n}</button>`).join('')}</div>
+      <div class="othermgrs">${others.map(o => esc(o.manager.split(' ')[0]) + ': ' + o.score).join(' · ')}</div>
+    </div>`;
+  }).join('');
+}
+
+window.submitScore = async function (competency, score) {
+  const mgr = el('mgrPick').value;
+  if (!mgr) { toast('Pick your name first'); return; }
+  if (!selectedCandidate || !SESSION) return;
+  localStorage.setItem('vi_manager_name', mgr);
+  const res = await fetch(API + '/sessions', {
+    method: 'POST', headers: hdrs(),
+    body: JSON.stringify({ op: 'score', sessionId: SESSION.id, candidateId: selectedCandidate.id, manager: mgr, competency, score }),
+  });
+  if (!res.ok) { toast('Score failed'); return; }
+  // optimistic local update
+  SESSION.scores = SESSION.scores.filter(s => !(s.candidateId === selectedCandidate.id && s.manager === mgr && s.competency === competency));
+  SESSION.scores.push({ candidateId: selectedCandidate.id, manager: mgr, competency, score });
+  renderCompBlocks();
+  renderBoard();
+};
+
+function heatColor(v) {
+  if (v == null) return '#c3ccd6';
+  if (v < 2) return '#d9534f';
+  if (v < 3) return '#e8963c';
+  if (v < 4) return '#5a9e6f';
+  return '#1a7a44';
+}
+
+function candidateVerdict(candidateId) {
+  const scores = (SESSION ? SESSION.scores : []).filter(s => s.candidateId === candidateId);
+  if (!scores.length) return { avg: null, verdict: 'pending', comps: {} };
+  const comps = {};
+  (META.competencies || []).forEach(c => {
+    const arr = scores.filter(s => s.competency === c.key).map(s => s.score);
+    if (arr.length) comps[c.key] = arr.reduce((a, b) => a + b, 0) / arr.length;
+  });
+  const vals = Object.values(comps);
+  const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+  const anyOne = scores.some(s => s.score === 1);
+  const threePlus = vals.filter(v => v >= 3).length;
+  const adv = META.advancement || { minAverage: 3, grayZoneLow: 2.8 };
+  let verdict = 'discuss';
+  if (avg != null) {
+    if (anyOne || avg < 2.5) verdict = 'eliminate';
+    else if (avg >= adv.minAverage && threePlus >= 3) verdict = 'advance';
+    else if (avg >= adv.grayZoneLow) verdict = 'discuss';
+    else verdict = 'eliminate';
+  }
+  return { avg, verdict, comps };
+}
+
+function renderBoard() {
+  if (!SESSION) { el('liveBoard').innerHTML = '<div class="hint">No interview day selected.</div>'; return; }
+  el('liveBoard').innerHTML = SESSION.assignments.map(a => {
+    const v = candidateVerdict(a.candidateId);
+    return `<div class="lb-row">
+      <div class="lb-head">
+        <span class="nm" style="cursor:pointer;" onclick="pickCandidate(${a.candidateId})">${esc(a.name)}</span>
+        <span style="display:flex;gap:8px;align-items:center;">
+          <span class="lb-avg">${v.avg != null ? v.avg.toFixed(2) : '—'}</span>
+          <span class="badge ${v.verdict}">${v.verdict}</span>
+        </span>
+      </div>
+      <div class="lb-comps">${(META.competencies || []).map(c =>
+        `<span class="lb-comp" style="background:${heatColor(v.comps[c.key])}" title="${esc(c.label)}">${c.label.split(' ')[0].slice(0, 5)} ${v.comps[c.key] != null ? v.comps[c.key].toFixed(1) : '—'}</span>`).join('')}</div>
+      <div class="lb-actions">
+        <button class="btn btn-green" onclick="decide(${a.candidateId},'advanced')">Advance</button>
+        <button class="btn btn-outline" onclick="decide(${a.candidateId},'pooled')">Pool</button>
+        <button class="btn" style="background:#fdecea;color:#b02a1a;" onclick="decide(${a.candidateId},'declined')">Eliminate</button>
+      </div>
+    </div>`;
+  }).join('') || '<div class="hint">Assign candidates to sessions to see the live board.</div>';
+}
+
+window.decide = async function (candidateId, status) {
+  const body = { id: candidateId, status, notify: el('notifyChk').checked };
+  if (status === 'declined') body.declineReason = 'not_ready';
+  const res = await fetch(API + '/candidates', { method: 'PATCH', headers: hdrs(), body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) { toast(data.error || 'Failed'); return; }
+  toast(status === 'advanced' ? 'Advanced — candidate notified' : status === 'pooled' ? 'Added to pool' : 'Eliminated' + (data.notified ? ' — emailed' : ''));
+  await loadCandidates();
+  renderAll();
+};
+
+el('newSessionBtn').onclick = async () => {
+  const date = prompt('Interview date (YYYY-MM-DD) — Mondays at 3 PM per the standard cadence:');
+  if (!date) return;
+  const res = await fetch(API + '/sessions', { method: 'POST', headers: hdrs(), body: JSON.stringify({ op: 'create', sessionDate: date }) });
+  const data = await res.json();
+  if (!res.ok) { toast(data.error || 'Create failed'); return; }
+  await loadSessions(data.session.id);
+};
+
+el('saveSessionBtn').onclick = async () => {
+  if (!SESSION) { toast('Create an interview day first'); return; }
+  await fetch(API + '/sessions', {
+    method: 'POST', headers: hdrs(),
+    body: JSON.stringify({ op: 'update', sessionId: SESSION.id, teamsUrl: el('teamsUrl').value.trim() }),
+  });
+  toast('Saved');
+};
+
+el('startDayBtn').onclick = () => startTimer(1);
+el('sessionPick').onchange = () => { if (el('sessionPick').value) openSession(Number(el('sessionPick').value)); };
+el('mgrPick').onchange = () => { localStorage.setItem('vi_manager_name', el('mgrPick').value); renderCompBlocks(); };
+
+async function boot() {
+  await loadMeta();
+  await loadCandidates();
+  await loadSessions();
+  el('loginView').style.display = 'none';
+  el('appView').style.display = 'block';
+}
+
+el('loginBtn').onclick = tryLogin;
+el('keyInput').addEventListener('keydown', ev => { if (ev.key === 'Enter') tryLogin(); });
+async function tryLogin() {
+  KEY = el('keyInput').value.trim();
+  try {
+    await boot();
+    localStorage.setItem('vi_admin_key', KEY);
+  } catch (e) { el('loginErr').style.display = 'block'; }
+}
+(async () => {
+  if (KEY) {
+    try { await boot(); return; } catch (e) { /* show login */ }
+  }
+  el('loginView').style.display = 'block';
+})();
+</script>
+</body>
+</html>

@@ -5,6 +5,10 @@ import crypto from 'crypto'
 // (public/sales-interview). Follows the Land Acq Pro pattern: same Supabase
 // Postgres instance, dedicated plain-SQL tables so the onboarding-dashboard
 // Prisma schema stays untouched. Tables self-provision on first use.
+//
+// Framework source: the July 2026 handoff package (Round 1 Interview Guide +
+// final public landing page prototype) — 4 competencies scored 1-5, the
+// 20-question application, and Monday live group interview sessions.
 
 let databaseUrl =
   process.env.DATABASE_URL ||
@@ -37,48 +41,120 @@ export const pool =
 globalForPool.interviewPool = pool
 
 // ---------------------------------------------------------------------------
-// Domain constants (from the Adams Homes ECF enterprise hiring platform spec)
+// Domain constants
 // ---------------------------------------------------------------------------
 
-// ECF divisions, color-coded per the spec: JAX red, DAY blue, ORL green,
-// MEL purple, PSL orange.
+// ECF offices from the final landing page prototype (07/07/2026).
 export const DIVISIONS = [
-  { code: 'JAX', name: 'Jacksonville', color: '#d9534f' },
-  { code: 'DAY', name: 'Daytona', color: '#1a5ba5' },
-  { code: 'ORL', name: 'Orlando', color: '#1a7a44' },
-  { code: 'MEL', name: 'Melbourne', color: '#7a4fb5' },
-  { code: 'PSL', name: 'Port St. Lucie', color: '#e8963c' },
+  {
+    code: 'JAX',
+    name: 'Jacksonville',
+    color: '#d9534f',
+    counties: 'Baker, St. Johns, Clay, Putnam, Flagler',
+    address: '11570 San Jose Blvd. Suite 15, Jacksonville FL 32223',
+    img: 'jax.jpg',
+  },
+  {
+    code: 'ORL',
+    name: 'Orlando',
+    color: '#1a7a44',
+    counties: 'Seminole, Orange',
+    address: '4401 Vineland Rd. Suite A-11, Orlando FL 32811',
+    img: 'orl.jpg',
+  },
+  {
+    code: 'DAY',
+    name: 'Daytona Beach',
+    color: '#1a5ba5',
+    counties: 'Brevard, Indian River',
+    address: '1440 N. Nova Rd., Suite 303, Daytona Beach FL 32117',
+    img: 'day.jpg',
+  },
+  {
+    code: 'MEL',
+    name: 'Melbourne',
+    color: '#7a4fb5',
+    counties: 'Brevard',
+    address: '3840 West Eau Gallie Blvd. Suite 106, Melbourne FL 32934',
+    img: 'mel.jpg',
+  },
+  {
+    code: 'PSL',
+    name: 'Port St. Lucie',
+    color: '#e8963c',
+    counties: 'St. Lucie, Okeechobee',
+    address: '751 SE Port St Lucie Blvd., Port St. Lucie FL 34984',
+    divisional: true,
+    img: 'psl.jpg',
+  },
 ] as const
 
-// The 6 scored competencies with decision weights.
+// Round 1 competency framework (from HANDOFF Round 1 Interview Guide):
+// 4 competencies, 1-5 scale, straight average. 3.0+ advances.
 export const COMPETENCIES = [
-  { key: 'coachability', label: 'Coachability', weight: 25 },
-  { key: 'drive', label: 'Competitive Drive', weight: 20 },
-  { key: 'sales_presence', label: 'Sales Presence', weight: 20 },
-  { key: 'communication', label: 'Communication', weight: 15 },
-  { key: 'eq', label: 'Emotional Intelligence', weight: 10 },
-  { key: 'professionalism', label: 'Professionalism', weight: 10 },
+  {
+    key: 'communication',
+    label: 'Communication Clarity',
+    weight: 25,
+    definition: 'Articulates thoughts clearly; appropriate pace and tone; listener understands easily',
+  },
+  {
+    key: 'customer_centric',
+    label: 'Customer-Centric Attitude',
+    weight: 25,
+    definition: 'Shows genuine care about customer success; puts customer needs first',
+  },
+  {
+    key: 'coachability',
+    label: 'Coachability & Growth Mindset',
+    weight: 25,
+    definition: 'Open to feedback; willing to learn; not defensive; sees challenges as growth opportunities',
+  },
+  {
+    key: 'resilience',
+    label: 'Resilience & Attitude',
+    weight: 25,
+    definition: 'Bounces back from rejection; maintains positive energy; does not give up',
+  },
 ] as const
 
 export type CompetencyKey = (typeof COMPETENCIES)[number]['key']
 
+// 1-5 score anchors (Round 1 guide).
+export const SCORE_ANCHORS = [
+  { score: 1, label: 'Disqualifying', hint: 'Major gaps, negative attitude — eliminate' },
+  { score: 2, label: 'Developing', hint: 'Below expectations, significant ramp time' },
+  { score: 3, label: 'Meets Expectation', hint: 'Baseline good hire — advance' },
+  { score: 4, label: 'Exceeds Expectation', hint: 'Clear strength, above average' },
+  { score: 5, label: 'Exceptional', hint: 'Rare — flag for fast-track' },
+] as const
+
+// Round 1 advancement criteria.
+export const ADVANCEMENT = {
+  minAverage: 3.0,
+  minOnThree: 3, // 3+ on at least 3 of 4 competencies
+  disqualifyingScore: 1,
+  grayZoneLow: 2.8,
+}
+
 export const CANDIDATE_STATUSES = [
-  'applied', // application + pre-interview questionnaire submitted
-  'video_complete', // all interview question videos recorded
-  'under_review', // at least one manager score entered
-  'advanced', // top candidates identified for offers
-  'hold', // on hold pending other decisions
-  'declined', // declined with reason captured
-  'offer_sent', // offer email sent
-  'hired', // accepted — begins onboarding journey
+  'applied', // application + 20-question form submitted
+  'video_complete', // async video pre-screen recorded
+  'scheduled', // assigned to a Monday live interview session
+  'under_review', // scored (video or live), decision pending
+  'advanced', // moving to next round
+  'hold', // internal hold — candidate not notified
+  'pooled', // future candidate pool — candidate notified
+  'declined', // eliminated with reason captured
+  'offer_sent', // offer extended
+  'hired', // accepted — begins onboarding
 ] as const
 
 export const DECLINE_REASONS = [
+  'better_fit_found',
+  'not_ready',
+  'relocation_unwilling',
   'salary',
-  'role_fit',
-  'other_opportunity',
-  'experience',
-  'assessment',
   'no_show',
   'other',
 ] as const
@@ -94,59 +170,97 @@ export const REFERRAL_SOURCES = [
   'other',
 ] as const
 
-// Default interview questions — one per competency, revealed to the candidate
-// during the video interview. prep_seconds is think time before recording
-// starts; answer_seconds is the max recording length.
+// Managers (from the platform spec; Elizabeth is regional/superadmin).
+export const MANAGERS = [
+  'Elizabeth Porter',
+  'Kristi Worley (ORL)',
+  'Eric Landrum (JAX)',
+  'Liza Carrasquillo (DAY)',
+  'Scott Harris (MEL)',
+  'Bob Frein (PSL)',
+] as const
+
+// The finalized 20 application questions (from the 07/07/2026 landing page
+// prototype). Q5 is a select; everything else free text.
+export const APP_QUESTIONS: { text: string; type: 'text' | 'select'; options?: string[] }[] = [
+  { text: 'Describe your new-home sales experience', type: 'text' },
+  { text: 'Describe the sales process as you know it', type: 'text' },
+  { text: 'Are you interviewing with other builders?', type: 'text' },
+  { text: 'Will you have reliable transportation?', type: 'text' },
+  {
+    text: 'When are you available to start?',
+    type: 'select',
+    options: ['Immediate', 'Within 1 month', 'Need to relocate', 'Other'],
+  },
+  { text: 'What resources do you actively use to continuously develop your sales and professional skills?', type: 'text' },
+  { text: 'What does winning mean to you in sales?', type: 'text' },
+  { text: 'What is your annual income goal?', type: 'text' },
+  { text: 'How do you ensure you achieve your goals?', type: 'text' },
+  { text: 'What were your sales targets last year?', type: 'text' },
+  { text: 'Describe your ideal work environment', type: 'text' },
+  { text: 'How do you respond to coaching and feedback aimed at helping you improve and maximize your potential?', type: 'text' },
+  { text: 'What qualities in top salespeople do you admire?', type: 'text' },
+  { text: 'What attracts you to Adams Homes?', type: 'text' },
+  { text: 'How would your past customers describe their experience working with you?', type: 'text' },
+  { text: 'How do you see your role contributing to the success of our communities?', type: 'text' },
+  { text: 'How do you respond to difficult clients or objections?', type: 'text' },
+  { text: 'Describe a recent win and what made it successful', type: 'text' },
+  { text: 'What questions do YOU have for us?', type: 'text' },
+  { text: 'Additional thoughts or anything else we should know?', type: 'text' },
+]
+
+// The 5 standardized Round 1 interview questions (used both in the async
+// video pre-screen and read aloud in live sessions), each tagged with the
+// primary competency it evidences.
 export const DEFAULT_QUESTIONS: {
   competency: CompetencyKey
   text: string
+  listenFor: string
   prepSeconds: number
   answerSeconds: number
 }[] = [
   {
-    competency: 'coachability',
-    text: 'Tell us about a time you received tough feedback from a manager or coach. What was the feedback, and what did you change because of it?',
-    prepSeconds: 30,
-    answerSeconds: 90,
-  },
-  {
-    competency: 'drive',
-    text: 'Describe the most competitive goal you have ever chased — in sales or anywhere else. How did you measure progress, and what was the result?',
-    prepSeconds: 30,
-    answerSeconds: 90,
-  },
-  {
-    competency: 'sales_presence',
-    text: 'Sales simulation: You are standing in a brand-new Adams Homes model home. Give us your 60-second pitch to a young couple walking in for the first time.',
-    prepSeconds: 45,
-    answerSeconds: 90,
-  },
-  {
     competency: 'communication',
-    text: 'Walk us through how you would explain the new-home buying process — from first visit to closing — to a nervous first-time buyer.',
+    text: 'Tell us about your biggest sales win. What made it successful?',
+    listenFor: 'Process, customer focus, results, confidence',
     prepSeconds: 30,
     answerSeconds: 90,
   },
   {
-    competency: 'eq',
-    text: 'A buyer calls you upset because their closing date slipped three weeks due to a construction delay. What exactly do you say and do?',
+    competency: 'resilience',
+    text: "How do you handle rejection in sales? Give us an example of a time you heard 'no' and what you did next.",
+    listenFor: 'Bounce-back ability, attitude, learning mindset',
     prepSeconds: 30,
     answerSeconds: 90,
   },
   {
-    competency: 'professionalism',
-    text: 'Describe the system you use to stay organized and follow up when you are juggling a dozen active prospects at once.',
+    competency: 'customer_centric',
+    text: 'What do you know about Adams Homes and our model home communities? Why are we different?',
+    listenFor: 'Research effort, genuine interest, customer-centric thinking',
+    prepSeconds: 30,
+    answerSeconds: 90,
+  },
+  {
+    competency: 'coachability',
+    text: "How do you approach learning new product information quickly? Tell us how you'd learn about our floor plans and pricing.",
+    listenFor: 'Structured approach, willingness to learn, resourcefulness',
+    prepSeconds: 30,
+    answerSeconds: 90,
+  },
+  {
+    competency: 'resilience',
+    text: 'Tell us about a time you stayed motivated after a difficult week or lost deal. How did you bounce back?',
+    listenFor: 'Resilience, positive attitude, accountability',
     prepSeconds: 30,
     answerSeconds: 90,
   },
 ]
 
-// The 3 pre-interview culture/sales questionnaire prompts (typed answers,
-// completed at home during application).
-export const PRE_INTERVIEW_QUESTIONS = [
-  'Why do you want to sell new construction homes for Adams Homes?',
-  'What does a winning week look like for you in a sales role?',
-  'Tell us about a time you turned a "no" into a "yes".',
+// Live session slots (Round 1 guide): 3 sessions x 15 min, 2 candidates each.
+export const SESSION_SLOTS = [
+  { slot: 1, label: 'Session 1', time: '9:00 – 9:15 AM' },
+  { slot: 2, label: 'Session 2', time: '9:15 – 9:30 AM' },
+  { slot: 3, label: 'Session 3', time: '9:30 – 9:45 AM' },
 ] as const
 
 export function newToken(): string {
@@ -181,6 +295,7 @@ async function createTables() {
       ord         INT NOT NULL,
       competency  TEXT NOT NULL,
       text        TEXT NOT NULL,
+      listen_for  TEXT NOT NULL DEFAULT '',
       prep_seconds   INT NOT NULL DEFAULT 30,
       answer_seconds INT NOT NULL DEFAULT 90,
       active      BOOLEAN NOT NULL DEFAULT TRUE,
@@ -229,17 +344,67 @@ async function createTables() {
       created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
     );
     CREATE INDEX IF NOT EXISTS vi_messages_candidate_idx ON vi_messages (candidate_id, created_at);
+
+    -- Live group interview day (Monday sessions, Round 1 guide)
+    CREATE TABLE IF NOT EXISTS vi_sessions (
+      id           BIGSERIAL PRIMARY KEY,
+      session_date DATE NOT NULL,
+      teams_url    TEXT NOT NULL DEFAULT '',
+      status       TEXT NOT NULL DEFAULT 'scheduled',
+      started_at   TIMESTAMPTZ,
+      notes        TEXT NOT NULL DEFAULT '',
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE IF NOT EXISTS vi_session_assignments (
+      id           BIGSERIAL PRIMARY KEY,
+      session_id   BIGINT NOT NULL REFERENCES vi_sessions(id) ON DELETE CASCADE,
+      slot         INT NOT NULL CHECK (slot IN (1, 2, 3)),
+      candidate_id BIGINT NOT NULL REFERENCES vi_candidates(id) ON DELETE CASCADE,
+      created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (session_id, candidate_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS vi_live_scores (
+      id           BIGSERIAL PRIMARY KEY,
+      session_id   BIGINT NOT NULL REFERENCES vi_sessions(id) ON DELETE CASCADE,
+      candidate_id BIGINT NOT NULL REFERENCES vi_candidates(id) ON DELETE CASCADE,
+      manager      TEXT NOT NULL,
+      competency   TEXT NOT NULL,
+      score        INT NOT NULL CHECK (score BETWEEN 1 AND 5),
+      note         TEXT NOT NULL DEFAULT '',
+      updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (session_id, candidate_id, manager, competency)
+    );
   `)
 
-  // Seed the default question set once.
-  const { rows } = await pool.query('SELECT COUNT(*)::int AS n FROM vi_questions')
-  if (rows[0].n === 0) {
+  // Older deployments may miss newer columns.
+  await pool.query(`ALTER TABLE vi_questions ADD COLUMN IF NOT EXISTS listen_for TEXT NOT NULL DEFAULT ''`)
+
+  // Seed / migrate the standardized question set. If an earlier deploy seeded
+  // the pre-handoff 6-question set and no answers were recorded yet, replace
+  // it with the finalized Round 1 questions.
+  const currentKeys = COMPETENCIES.map((c) => c.key)
+  const { rows } = await pool.query(
+    `SELECT
+       (SELECT COUNT(*)::int FROM vi_questions) AS questions,
+       (SELECT COUNT(*)::int FROM vi_questions WHERE competency = ANY($1)) AS current_framework,
+       (SELECT COUNT(*)::int FROM vi_responses) AS responses`,
+    [currentKeys]
+  )
+  const { questions, current_framework, responses } = rows[0]
+  if (questions > 0 && current_framework === 0 && responses === 0) {
+    await pool.query('DELETE FROM vi_questions')
+  }
+  const after = await pool.query('SELECT COUNT(*)::int AS n FROM vi_questions')
+  if (after.rows[0].n === 0) {
     for (let i = 0; i < DEFAULT_QUESTIONS.length; i++) {
       const q = DEFAULT_QUESTIONS[i]
       await pool.query(
-        `INSERT INTO vi_questions (ord, competency, text, prep_seconds, answer_seconds)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [i + 1, q.competency, q.text, q.prepSeconds, q.answerSeconds]
+        `INSERT INTO vi_questions (ord, competency, text, listen_for, prep_seconds, answer_seconds)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [i + 1, q.competency, q.text, q.listenFor, q.prepSeconds, q.answerSeconds]
       )
     }
   }

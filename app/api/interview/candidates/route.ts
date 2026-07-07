@@ -8,7 +8,7 @@ import {
   CANDIDATE_STATUSES,
   DECLINE_REASONS,
   REFERRAL_SOURCES,
-  PRE_INTERVIEW_QUESTIONS,
+  APP_QUESTIONS,
 } from '@/lib/interview-db'
 import { defaultNotification, sendCandidateNotification, NotifyKind } from '@/lib/interview-email'
 
@@ -50,14 +50,17 @@ function toCandidate(row: CandidateRow, admin: boolean) {
 // Auto-vetting: flag anything HR should double-check before interview day.
 function computeFlags(body: Record<string, unknown>): string[] {
   const flags: string[] = []
-  if (!String(body.linkedinUrl || '').trim()) flags.push('No LinkedIn profile provided')
-  if (!String(body.resumeUrl || '').trim()) flags.push('No resume link provided')
-  const answers = Array.isArray(body.preInterviewAnswers) ? body.preInterviewAnswers : []
-  if (answers.length < PRE_INTERVIEW_QUESTIONS.length || answers.some((a) => String(a || '').trim().length < 25)) {
-    flags.push('Pre-interview questionnaire answers are thin')
+  if (body.hasLicense !== true) {
+    flags.push('No Florida real estate license yet')
   }
-  if (String(body.licenseNumber || '').trim() === '' && body.hasLicense === true) {
-    flags.push('Claims license but no license number given')
+  const noProfile = ['linkedin', 'instagram', 'facebook'].every(
+    (k) => !String(body[k] || '').trim() || /^n\/?a$/i.test(String(body[k]).trim())
+  )
+  if (noProfile) flags.push('No professional/social profiles provided')
+  const answers = Array.isArray(body.appAnswers) ? body.appAnswers : []
+  const thin = answers.filter((a) => String(a || '').trim().length < 15).length
+  if (answers.length < APP_QUESTIONS.length || thin > 5) {
+    flags.push('Application answers are thin — review before scheduling')
   }
   return flags
 }
@@ -100,6 +103,9 @@ export async function GET(request: NextRequest) {
     const scores = await pool.query(
       `SELECT candidate_id, manager, competency, score, evidence FROM vi_scores`
     )
+    const liveScores = await pool.query(
+      `SELECT candidate_id, manager, competency, score FROM vi_live_scores`
+    )
     const respByCand: Record<string, number> = {}
     for (const r of responses.rows) respByCand[r.candidate_id] = r.n
     const scoresByCand: Record<string, unknown[]> = {}
@@ -111,6 +117,18 @@ export async function GET(request: NextRequest) {
         competency: s.competency,
         score: s.score,
         evidence: s.evidence,
+        kind: 'video',
+      })
+    }
+    for (const s of liveScores.rows) {
+      const k = String(s.candidate_id)
+      if (!scoresByCand[k]) scoresByCand[k] = []
+      scoresByCand[k].push({
+        manager: s.manager,
+        competency: s.competency,
+        score: s.score,
+        evidence: '',
+        kind: 'live',
       })
     }
     return NextResponse.json({
@@ -126,18 +144,20 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Public: candidate application from the careers page.
+// Public: candidate application from the careers page (final prototype:
+// personal info + FL license + 20 questions, then socials + resume link).
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const name = String(body.name || '').trim()
+    const name = `${String(body.firstName || '').trim()} ${String(body.lastName || '').trim()}`.trim() ||
+      String(body.name || '').trim()
     const email = String(body.email || '').trim().toLowerCase()
     const division = String(body.division || '').trim().toUpperCase()
-    if (!name || !email || !/.+@.+\..+/.test(email)) {
+    if (!name || !/.+@.+\..+/.test(email)) {
       return NextResponse.json({ error: 'Name and a valid email are required' }, { status: 400 })
     }
     if (!DIVISIONS.some((d) => d.code === division)) {
-      return NextResponse.json({ error: 'Please choose an office/division' }, { status: 400 })
+      return NextResponse.json({ error: 'Please choose an office' }, { status: 400 })
     }
     const referral = REFERRAL_SOURCES.includes(body.referralSource)
       ? body.referralSource
@@ -145,14 +165,13 @@ export async function POST(request: NextRequest) {
 
     await ensureTables()
     const data = {
-      linkedinUrl: String(body.linkedinUrl || '').trim(),
-      resumeUrl: String(body.resumeUrl || '').trim(),
-      socialHandles: String(body.socialHandles || '').trim(),
       hasLicense: body.hasLicense === true,
-      licenseNumber: String(body.licenseNumber || '').trim(),
-      yearsSalesExperience: Number(body.yearsSalesExperience) || 0,
-      preInterviewAnswers: Array.isArray(body.preInterviewAnswers)
-        ? body.preInterviewAnswers.slice(0, PRE_INTERVIEW_QUESTIONS.length).map((a: unknown) => String(a || ''))
+      linkedin: String(body.linkedin || '').trim(),
+      instagram: String(body.instagram || '').trim(),
+      facebook: String(body.facebook || '').trim(),
+      resumeUrl: String(body.resumeUrl || '').trim(),
+      appAnswers: Array.isArray(body.appAnswers)
+        ? body.appAnswers.slice(0, APP_QUESTIONS.length).map((a: unknown) => String(a || ''))
         : [],
     }
     const flags = computeFlags(body)
@@ -188,7 +207,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Admin: status transitions, decline reasons, flag edits.
+// Admin: status transitions, decline reasons, offer details, flag edits.
 export async function PATCH(request: NextRequest) {
   if (!isAdmin(request.headers.get('x-admin-key'))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -220,6 +239,12 @@ export async function PATCH(request: NextRequest) {
       sets.push(`flags = $${i++}`)
       vals.push(JSON.stringify(body.flags.map((f: unknown) => String(f))))
     }
+    // Merge decision details (offer commission/start date, pool note,
+    // internal notes) into data.
+    if (body.dataPatch && typeof body.dataPatch === 'object') {
+      sets.push(`data = data || $${i++}::jsonb`)
+      vals.push(JSON.stringify(body.dataPatch))
+    }
     if (sets.length === 0) {
       return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
     }
@@ -241,11 +266,16 @@ export async function PATCH(request: NextRequest) {
       advanced: 'advanced',
       declined: 'declined',
       offer_sent: 'offer_sent',
+      pooled: 'pooled',
+      scheduled: 'scheduled',
     }
     if (body.notify === true && body.status && notifiable[body.status]) {
       const divName =
         DIVISIONS.find((d) => d.code === updated.division)?.name || updated.division
-      const n = defaultNotification(notifiable[body.status], updated.name, divName)
+      const n = defaultNotification(notifiable[body.status], updated.name, divName, {
+        offer: (updated.data as { offer?: { commission?: string; startDate?: string } }).offer,
+        sessionDate: body.sessionDate,
+      })
       notified = await sendCandidateNotification(updated.email, n.subject, n.html, n.text)
       // Record the decision in the candidate's chat thread either way, so
       // they see it on their interview page even if email is unconfigured.

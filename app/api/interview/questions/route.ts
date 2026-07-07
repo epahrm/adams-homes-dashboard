@@ -4,15 +4,18 @@ import {
   ensureTables,
   isAdmin,
   COMPETENCIES,
-  PRE_INTERVIEW_QUESTIONS,
+  APP_QUESTIONS,
   DIVISIONS,
+  MANAGERS,
+  SCORE_ANCHORS,
+  ADVANCEMENT,
+  SESSION_SLOTS,
 } from '@/lib/interview-db'
 
 export const dynamic = 'force-dynamic'
 
-// Public: active interview questions (used by interview.html) plus the
-// shared constants the front-end pages need (competencies, divisions,
-// pre-interview questionnaire prompts).
+// Public: active interview questions (used by interview.html and live.html)
+// plus the shared constants the front-end pages need.
 export async function GET() {
   try {
     await ensureTables()
@@ -25,12 +28,17 @@ export async function GET() {
         ord: q.ord,
         competency: q.competency,
         text: q.text,
+        listenFor: q.listen_for,
         prepSeconds: q.prep_seconds,
         answerSeconds: q.answer_seconds,
       })),
       competencies: COMPETENCIES,
       divisions: DIVISIONS,
-      preInterviewQuestions: PRE_INTERVIEW_QUESTIONS,
+      appQuestions: APP_QUESTIONS,
+      managers: MANAGERS,
+      scoreAnchors: SCORE_ANCHORS,
+      advancement: ADVANCEMENT,
+      sessionSlots: SESSION_SLOTS,
     })
   } catch (e) {
     console.error('[interview] GET questions failed:', e)
