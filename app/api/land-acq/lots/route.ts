@@ -37,13 +37,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ lots: result.rows.map(toLot) })
   } catch (e) {
     console.error('[land-acq] GET lots failed:', e)
-    // Temporary diagnostic (admin-only endpoint): surface the real DB error so
-    // we can tell auth-failure vs host/timeout vs pooler. Revert after the fix.
-    const err = e as { message?: string; code?: string }
-    return NextResponse.json(
-      { error: 'Database unavailable', detail: err?.message || String(e), code: err?.code || null },
-      { status: 503 }
-    )
+    return NextResponse.json({ error: 'Database unavailable' }, { status: 503 })
   }
 }
 
