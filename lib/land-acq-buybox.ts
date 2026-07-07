@@ -7,7 +7,7 @@ import { DEFAULT_STIPENDS } from './land-acq-db'
 
 export const BUY_BOX = {
   zips: ['32905', '32906', '32907', '32908', '32909'],
-  minAcres: 0.25,
+  minAcres: 0.2, // standard Palm Bay platted lots are ~0.23 ac (quarter-acre)
   maxAcres: 2,
   defaultOffer: 30000, // starting cash offer; Kevin can override
   showWindow: 10000, // show lots up to $10k over stipend (offer & negotiate)

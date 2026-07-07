@@ -440,12 +440,12 @@
   <!-- Off-Market Sweep modal -->
   <div class="modal-overlay" id="sweepOverlay">
     <div class="modal">
-      <h3>Off-Market Sweep</h3>
-      <div class="m-sub">Pulls vacant residential Palm Bay lots from county records (owner + mailing address) for direct mail. Tune the buy box, preview the count, then export the mailing list or add them to the worklist.</div>
+      <h3>Off-Market Sweep <span style="font-weight:400; font-size:13px; color:#667;">— blind mailers</span></h3>
+      <div class="m-sub">These lots aren't listed for sale, so there's <b>no asking price</b> — it's a blind mailer. Every lot gets your <b>$30k stipend offer</b> (Well/Septic default, since county records carry no utilities), sendable up to <b>$40k</b>. The value filter below is the county's <i>assessed</i> land value, used only to target lots in your offer range. (Priced, on-market lots come from the portal alerts instead.)</div>
       <div class="m-grid">
         <div><label for="swMinAcres">Min lot size (acres)</label><input type="number" id="swMinAcres" step="0.01" value="0.20"></div>
         <div><label for="swMaxAcres">Max lot size (acres)</label><input type="number" id="swMaxAcres" step="0.1" value="2"></div>
-        <div><label for="swMaxValue">Max land value ($)</label><input type="number" id="swMaxValue" step="1000" value="40000"></div>
+        <div><label for="swMaxValue">Max assessed land value ($)</label><input type="number" id="swMaxValue" step="1000" value="40000"></div>
         <div><label for="swLimit">How many to pull</label>
           <select id="swLimit"><option>20</option><option selected>50</option><option>100</option><option>250</option><option>500</option></select>
         </div>
@@ -604,7 +604,7 @@
     // reaches Kevin. Edit these once, and the whole scan re-triages.
     const BUY_BOX = {
       zips: ['32905', '32906', '32907', '32908', '32909'],
-      minAcres: 0.25, maxAcres: 2,
+      minAcres: 0.2, maxAcres: 2,
       defaultOffer: 30000,      // starting cash offer (Kevin can override)
       showWindow: 10000,        // show lots up to $10k over stipend (offer & negotiate)
       floodReview: ['A', 'AE'], // insurable but needs sign-off
@@ -1395,8 +1395,8 @@
     document.getElementById('swCsv').addEventListener('click', async () => {
       swMsg('Pulling list…'); const d = await swFetch(false); if (!d || !d.lots) return;
       const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-      const head = ['Owner', 'Owner Mailing Address', 'Property Address', 'Parcel', 'Acres', 'Land Value'];
-      const lines = [head.join(',')].concat(d.lots.map(l => [l.owner, l.ownerContact, l.address, l.parcel, l.acres, l.taxValue].map(esc).join(',')));
+      const head = ['Owner', 'Owner Mailing Address', 'Property Address', 'Parcel', 'Acres', 'Assessed Land Value', 'Blind Offer'];
+      const lines = [head.join(',')].concat(d.lots.map(l => [l.owner, l.ownerContact, l.address, l.parcel, l.acres, l.taxValue, '$30,000'].map(esc).join(',')));
       const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'off-market-mailer.csv'; a.click(); URL.revokeObjectURL(a.href);
       swMsg('Downloaded ' + d.lots.length + ' recipients.');
