@@ -393,7 +393,7 @@
       window.QUESTIONS = qRes.questions || [];
       UNREAD = mRes.unread || {};
       const dl = document.getElementById('mgrList');
-      if (dl) dl.innerHTML = window.MANAGERS.map(m => '<option value="' + esc(m) + '">').join('');
+      if (dl) dl.innerHTML = window.MANAGERS.map(m => '<option value="' + esc(m.name || m) + '">').join('');
       render();
     }
 

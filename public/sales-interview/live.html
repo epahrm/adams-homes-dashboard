@@ -73,7 +73,31 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
 .anchors td { border-top: 1px solid #e8ecf2; padding: 5px 6px; vertical-align: top; }
 .anchors .s { font-weight: 800; color: var(--navy); white-space: nowrap; }
 
-/* Right: scoring */
+/* Center: video + participants */
+.video-shell { position: relative; background: #0c1c2e; aspect-ratio: 16/9; }
+.video-shell iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-fallback { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #b9cde4; text-align: center; padding: 20px; gap: 10px; }
+.video-fallback p { font-size: 13px; line-height: 1.6; }
+.video-fallback small { color: #8fa8c4; }
+.participants { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 14px; border-top: 1px solid var(--border); background: #fbfcfe; }
+.part-chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #c9dcf0; background: white; border-radius: 999px; padding: 6px 12px 6px 6px; font-size: 13px; font-weight: 600; color: var(--navy); cursor: pointer; }
+.part-chip:hover { border-color: var(--navy); }
+.part-chip.selected { outline: 3px solid var(--red); }
+.part-chip .pc-av { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+.part-chip .pc-slot { font-size: 10px; font-weight: 800; color: #778; background: #eef1f5; border-radius: 999px; padding: 2px 7px; }
+.part-chip .pc-status { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; }
+.part-chip .pc-status.waiting { color: #889; }
+.part-chip .pc-status.scored { color: var(--green); }
+
+/* Right: managers + scoring */
+.mgr-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.mgr-card { border: 2px solid var(--border); border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; background: white; }
+.mgr-card:hover { border-color: var(--navy); }
+.mgr-card.on { border-color: var(--red); background: #fdf2f2; }
+.mgr-card .m-av { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 6px; background: var(--navy); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 17px; overflow: hidden; }
+.mgr-card .m-av img { width: 100%; height: 100%; object-fit: cover; }
+.mgr-card .m-nm { font-size: 11px; font-weight: 700; color: #223; line-height: 1.25; }
+.mgr-card .m-ti { font-size: 10px; color: #889; }
 .mgr-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
 .mgr-row select { flex: 1; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; }
 .score-target { font-size: 13px; margin-bottom: 10px; color: #445; }
@@ -127,7 +151,7 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
   <div class="topbar">
     <div>
       <h1>Live Interview Day</h1>
-      <div class="sub">Round 1 &mdash; 3 sessions &times; 15 min &middot; 2 candidates each &middot; scores sync across all managers</div>
+      <div class="sub">Round 1 &mdash; 3 breakouts &times; 5 min &middot; 2 candidates each &middot; scores sync across all managers</div>
     </div>
     <div class="right">
       <span class="rec" id="recBadge" style="display:none;"><span class="dot"></span>SESSION LIVE</span>
@@ -146,7 +170,7 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
           <div class="field"><label>Interview date</label><input type="date" id="sessDate"></div>
           <div class="field"><label>Teams meeting link</label><input type="url" id="teamsUrl" placeholder="https://teams.microsoft.com/l/meetup-join/..."></div>
           <button class="btn btn-navy" id="saveSessionBtn" style="width:100%;">Save Session Details</button>
-          <button class="btn btn-red" id="startDayBtn" style="width:100%; margin-top:8px;">START SESSION 1 (9:00 AM)</button>
+          <button class="btn btn-red" id="startDayBtn" style="width:100%; margin-top:8px;">START BREAKOUT 1 (9:00 AM)</button>
           <div class="hint">Timers are a visual guide — finish the interview; notes matter more than time.</div>
         </div>
       </div>
@@ -159,16 +183,32 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
       </div>
     </div>
 
-    <!-- CENTER: sessions + guide -->
+    <!-- CENTER: live video + participants + breakouts + questions -->
     <div>
+      <div class="panel" style="margin-bottom:14px;">
+        <div class="panel-h">Team Video &mdash; Live Session
+          <span id="videoActions"></span>
+        </div>
+        <div class="video-shell" id="videoShell">
+          <div class="video-fallback" id="videoFallback">
+            <div style="font-size:40px;">&#128249;</div>
+            <p>Add the Teams meeting link in Session Setup, then click <b>Join Teams Room</b>.<br>
+            <small>If the embedded feed stays blank (Teams often blocks embedding), use the Join button &mdash; it opens the meeting in Teams while you score here.</small></p>
+          </div>
+        </div>
+        <div class="participants" id="participants"></div>
+      </div>
+
       <div id="slots"></div>
+
+      <div class="panel" style="margin-bottom:14px;">
+        <div class="panel-h">The 5 Interview Questions <span style="font-weight:400;text-transform:none;font-size:11px;">read exactly as written, same for every candidate</span></div>
+        <div class="panel-b guide"><div class="g-body" id="guideQs" style="padding:0;"></div></div>
+      </div>
+
       <div class="panel">
         <div class="panel-h">Manager Guide</div>
         <div class="panel-b guide">
-          <details open>
-            <summary>The 5 Interview Questions (read exactly as written)</summary>
-            <div class="g-body" id="guideQs"></div>
-          </details>
           <details>
             <summary>Scoring Guide (1&ndash;5)</summary>
             <div class="g-body"><table class="anchors" id="anchorTable"></table></div>
@@ -189,6 +229,7 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #2c3e50; fo
     <div class="panel">
       <div class="panel-h">Real-Time Scoring <span id="syncDot" style="font-size:10px;color:#889;">sync: —</span></div>
       <div class="panel-b">
+        <div class="mgr-strip" id="mgrStrip"></div>
         <div class="mgr-row">
           <select id="mgrPick"></select>
         </div>
@@ -220,12 +261,36 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ 
 function hdrs() { return { 'x-admin-key': KEY, 'Content-Type': 'application/json' }; }
 function toast(msg) { const t = el('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2600); }
 
+function initials(name) {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function renderManagers() {
+  const current = el('mgrPick').value;
+  el('mgrStrip').innerHTML = (META.managers || []).map(m => {
+    const name = m.name || m;
+    const title = m.title || '';
+    const img = m.img ? '/sales-interview/img/managers/' + m.img : '';
+    return `<div class="mgr-card ${current === name ? 'on' : ''}" onclick="pickManager('${esc(name)}')">
+      <div class="m-av">${img ? `<img src="${esc(img)}" alt="${esc(name)}" onerror="this.replaceWith(document.createTextNode('${initials(name)}'))">` : initials(name)}</div>
+      <div class="m-nm">${esc(name)}</div><div class="m-ti">${esc(title)}</div></div>`;
+  }).join('');
+}
+
+window.pickManager = function (name) {
+  el('mgrPick').value = name;
+  localStorage.setItem('vi_manager_name', name);
+  renderManagers();
+  renderCompBlocks();
+};
+
 async function loadMeta() {
   META = await fetch(API + '/questions').then(r => r.json());
   el('mgrPick').innerHTML = '<option value="">Who is scoring? *</option>' +
-    (META.managers || []).map(m => `<option>${esc(m)}</option>`).join('');
+    (META.managers || []).map(m => `<option>${esc(m.name || m)}</option>`).join('');
   const saved = localStorage.getItem('vi_manager_name');
   if (saved) el('mgrPick').value = saved;
+  renderManagers();
   el('guideQs').innerHTML = (META.questions || []).map((q, i) => {
     const comp = (META.competencies || []).find(c => c.key === q.competency);
     return `<div class="q"><b>Q${i + 1}: ${esc(q.text)}</b><small>Listen for: ${esc(q.listenFor || '')} &middot; Scores: ${esc(comp ? comp.label : '')}</small></div>`;
@@ -266,11 +331,12 @@ async function pollScores() {
   try {
     const data = await fetch(API + '/sessions?id=' + SESSION.id, { headers: hdrs() }).then(r => r.json());
     if (data.session) {
-      const mine = SESSION;
       SESSION = data.session;
       // keep local selection
       renderBoard();
       renderCompBlocks();
+      renderParticipants();
+      renderVideo();
       el('syncDot').textContent = 'sync: live';
     }
   } catch (e) { el('syncDot').textContent = 'sync: retrying'; }
@@ -286,7 +352,46 @@ function assignedIds() {
   return new Set((SESSION ? SESSION.assignments : []).map(a => a.candidateId));
 }
 
-function renderAll() { renderUnassigned(); renderSlots(); renderBoard(); renderCompBlocks(); }
+function renderAll() { renderUnassigned(); renderSlots(); renderBoard(); renderCompBlocks(); renderVideo(); renderParticipants(); }
+
+// Center: embedded Teams feed (falls back to a Join button — Teams often
+// refuses to render inside iframes, but managers keep scoring here either way).
+let embeddedUrl = null;
+function renderVideo() {
+  const shell = el('videoShell');
+  const url = SESSION && SESSION.teamsUrl;
+  el('videoActions').innerHTML = url
+    ? `<a class="btn btn-navy" style="text-decoration:none;font-size:12px;padding:7px 12px;" href="${esc(url)}" target="_blank" rel="noopener">Join Teams Room</a>`
+    : '';
+  if (!url) {
+    if (embeddedUrl) { shell.querySelectorAll('iframe').forEach(f => f.remove()); embeddedUrl = null; }
+    el('videoFallback').style.display = 'flex';
+    return;
+  }
+  if (embeddedUrl === url) return; // already embedded
+  shell.querySelectorAll('iframe').forEach(f => f.remove());
+  const iframe = document.createElement('iframe');
+  iframe.src = url;
+  iframe.allow = 'camera; microphone; fullscreen; display-capture; autoplay';
+  shell.appendChild(iframe);
+  embeddedUrl = url;
+}
+
+// Everyone taking part in this interview day, visible beside the video.
+function renderParticipants() {
+  const box = el('participants');
+  if (!SESSION || !SESSION.assignments.length) {
+    box.innerHTML = '<span class="hint">Assigned candidates will appear here.</span>';
+    return;
+  }
+  box.innerHTML = SESSION.assignments.map(a => {
+    const scored = SESSION.scores.some(s => s.candidateId === a.candidateId);
+    return `<span class="part-chip ${selectedCandidate && selectedCandidate.id === a.candidateId ? 'selected' : ''}" onclick="pickCandidate(${a.candidateId})">
+      <span class="pc-av">${initials(a.name)}</span>${esc(a.name)}
+      <span class="pc-slot">B${a.slot}</span>
+      <span class="pc-status ${scored ? 'scored' : 'waiting'}">${scored ? 'scored' : 'waiting'}</span></span>`;
+  }).join('');
+}
 
 function renderUnassigned() {
   const used = assignedIds();
@@ -324,22 +429,27 @@ window.pickCandidate = function (candidateId) {
     (SESSION.assignments.find(a => a.candidateId === candidateId) ? { id: candidateId, name: (SESSION.assignments.find(a => a.candidateId === candidateId) || {}).name } : null);
   renderSlots();
   renderCompBlocks();
+  renderParticipants();
 };
 
-function renderSlots() {
-  const slots = (META && META.sessionSlots) || [
-    { slot: 1, label: 'Session 1', time: '9:00 – 9:15 AM' },
-    { slot: 2, label: 'Session 2', time: '9:15 – 9:30 AM' },
-    { slot: 3, label: 'Session 3', time: '9:30 – 9:45 AM' },
+function slotDefs() {
+  return (META && META.sessionSlots) || [
+    { slot: 1, label: 'Breakout 1', time: '9:00 – 9:05 AM', minutes: 5 },
+    { slot: 2, label: 'Breakout 2', time: '9:05 – 9:10 AM', minutes: 5 },
+    { slot: 3, label: 'Breakout 3', time: '9:10 – 9:15 AM', minutes: 5 },
   ];
-  el('slots').innerHTML = slots.map(s => {
+}
+
+function renderSlots() {
+  el('slots').innerHTML = slotDefs().map(s => {
     const cands = SESSION ? SESSION.assignments.filter(a => a.slot === s.slot) : [];
     const t = slotTimers[s.slot];
+    const mins = s.minutes || 5;
     return `<div class="slot-card">
       <div class="slot-head">
-        <div><div class="t">${esc(s.label)} — Breakout Room ${s.slot}</div><div class="time">${esc(s.time)} · 15 minutes · 2 candidates</div></div>
+        <div><div class="t">${esc(s.label)}</div><div class="time">${esc(s.time)} · ${mins} minutes · 2 candidates</div></div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <div class="timer" id="timer${s.slot}">${t ? '' : '15:00'}</div>
+          <div class="timer" id="timer${s.slot}">${t ? '' : mins + ':00'}</div>
           <button class="btn btn-outline" onclick="startTimer(${s.slot})">Start</button>
         </div>
       </div>
@@ -347,16 +457,14 @@ function renderSlots() {
         <div class="slot-cands">${cands.map(a =>
           `<span class="slot-cand ${selectedCandidate && selectedCandidate.id === a.candidateId ? 'selected' : ''}" onclick="pickCandidate(${a.candidateId})">${esc(a.name)} <button onclick="event.stopPropagation();unassign(${a.candidateId})" title="Remove">×</button></span>`
         ).join('') || '<div class="slot-empty">No candidates assigned — use the 1/2/3 buttons on the left.</div>'}</div>
-        <div class="slot-actions">
-          ${SESSION && SESSION.teamsUrl ? `<a class="btn btn-navy" style="text-decoration:none;" href="${esc(SESSION.teamsUrl)}" target="_blank" rel="noopener">Join Teams Room</a>` : '<span class="hint">Add the Teams link in Session Setup.</span>'}
-        </div>
       </div>
     </div>`;
   }).join('');
 }
 
 window.startTimer = function (slot) {
-  slotTimers[slot] = { endsAt: Date.now() + 15 * 60 * 1000 };
+  const def = slotDefs().find(s => s.slot === slot) || { minutes: 5 };
+  slotTimers[slot] = { endsAt: Date.now() + (def.minutes || 5) * 60 * 1000 };
   el('recBadge').style.display = 'inline-flex';
   if (SESSION && SESSION.status !== 'live') {
     fetch(API + '/sessions', { method: 'POST', headers: hdrs(), body: JSON.stringify({ op: 'update', sessionId: SESSION.id, status: 'live' }) });
@@ -507,7 +615,7 @@ el('saveSessionBtn').onclick = async () => {
 
 el('startDayBtn').onclick = () => startTimer(1);
 el('sessionPick').onchange = () => { if (el('sessionPick').value) openSession(Number(el('sessionPick').value)); };
-el('mgrPick').onchange = () => { localStorage.setItem('vi_manager_name', el('mgrPick').value); renderCompBlocks(); };
+el('mgrPick').onchange = () => { localStorage.setItem('vi_manager_name', el('mgrPick').value); renderManagers(); renderCompBlocks(); };
 
 async function boot() {
   await loadMeta();

@@ -173,13 +173,15 @@ export const REFERRAL_SOURCES = [
 ] as const
 
 // Managers (from the platform spec; Elizabeth is regional/superadmin).
+// Photos live at public/sales-interview/img/managers/<img>; the UI shows
+// initials until a photo file exists.
 export const MANAGERS = [
-  'Elizabeth Porter',
-  'Kristi Worley (ORL)',
-  'Eric Landrum (JAX)',
-  'Liza Carrasquillo (DAY)',
-  'Scott Harris (MEL)',
-  'Bob Frein (PSL)',
+  { name: 'Elizabeth Porter', title: 'Regional Manager', img: 'elizabeth-porter.jpg' },
+  { name: 'Kristi Worley', title: 'Orlando', img: 'kristi-worley.jpg' },
+  { name: 'Eric Landrum', title: 'Jacksonville', img: 'eric-landrum.jpg' },
+  { name: 'Liza Carrasquillo', title: 'Daytona Beach', img: 'liza-carrasquillo.jpg' },
+  { name: 'Scott Harris', title: 'Melbourne', img: 'scott-harris.jpg' },
+  { name: 'Bob Frein', title: 'Port St. Lucie', img: 'bob-frein.jpg' },
 ] as const
 
 // The finalized 20 application questions (from the 07/07/2026 landing page
@@ -258,11 +260,12 @@ export const DEFAULT_QUESTIONS: {
   },
 ]
 
-// Live session slots (Round 1 guide): 3 sessions x 15 min, 2 candidates each.
+// Live session breakouts: 3 rooms x 5 minutes each (15 minutes total),
+// 2 candidates per room.
 export const SESSION_SLOTS = [
-  { slot: 1, label: 'Session 1', time: '9:00 – 9:15 AM' },
-  { slot: 2, label: 'Session 2', time: '9:15 – 9:30 AM' },
-  { slot: 3, label: 'Session 3', time: '9:30 – 9:45 AM' },
+  { slot: 1, label: 'Breakout 1', time: '9:00 – 9:05 AM', minutes: 5 },
+  { slot: 2, label: 'Breakout 2', time: '9:05 – 9:10 AM', minutes: 5 },
+  { slot: 3, label: 'Breakout 3', time: '9:10 – 9:15 AM', minutes: 5 },
 ] as const
 
 export function newToken(): string {
