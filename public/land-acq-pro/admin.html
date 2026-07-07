@@ -635,7 +635,7 @@
       </div>
       <div class="m-actions">
         <button type="button" class="btn-outline" id="pcCancel">Close</button>
-        <button type="button" class="btn-green" id="pcMailingList">Download Mailing List (CSV)</button>
+        <button type="button" class="btn-green" id="pcMailingList">Download Mailing List (Excel)</button>
         <button type="button" class="btn-navy" id="pcQrSheet">Printable QR Sheet</button>
       </div>
     </div>
@@ -2101,16 +2101,31 @@
     document.getElementById('pcFront').addEventListener('change', function () { if (this.files[0]) document.getElementById('pcArtNote').textContent = 'Front: ' + this.files[0].name + ' ✓ (stored by name for now)'; });
     document.getElementById('pcBack').addEventListener('change', function () { if (this.files[0]) document.getElementById('pcArtNote').textContent = 'Back: ' + this.files[0].name + ' ✓ (stored by name for now)'; });
 
+    // Download a real Excel table (.xls) so columns auto-fit the text — no
+    // manual column-widening. `white-space:nowrap` makes Excel size each column
+    // to its widest cell; cells are forced to text so ZIPs keep leading zeros.
+    function xlsCell(v) {
+      return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function downloadXls(fileBase, headers, rows) {
+      let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">'
+        + '<head><meta charset="utf-8"></head><body><table border="1" style="border-collapse:collapse;font-family:Calibri,Arial,sans-serif;font-size:11pt;">'
+        + '<tr>' + headers.map(h => '<th style="background:#003d66;color:#ffffff;font-weight:bold;white-space:nowrap;padding:4px 10px;text-align:left;">' + xlsCell(h) + '</th>').join('') + '</tr>';
+      rows.forEach(r => {
+        html += '<tr>' + r.map(c => '<td style="white-space:nowrap;mso-number-format:\'\\@\';padding:3px 10px;">' + xlsCell(c) + '</td>').join('') + '</tr>';
+      });
+      html += '</table></body></html>';
+      const blob = new Blob(['﻿' + html], { type: 'application/vnd.ms-excel' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = fileBase + '.xls'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+    }
+
     document.getElementById('pcMailingList').addEventListener('click', () => {
       const lots = pcPoolLots();
       if (!lots.length) { importMsg('No recipients in this batch yet.', false); return; }
-      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
       const head = ['Owner Name', 'Mailing / Contact', 'Property Address', 'Parcel', 'Lot Size'];
-      const lines = [head.join(',')].concat(lots.map(l =>
-        [l.owner || '', l.ownerContact || '', l.address || '', l.parcel || '', l.lotSize || ''].map(esc).join(',')));
-      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = 'mailing-list-' + (batchSlug() || 'batch') + '.csv'; a.click(); URL.revokeObjectURL(a.href);
+      const rows = lots.map(l => [l.owner || '', l.ownerContact || '', l.address || '', l.parcel || '', l.lotSize || '']);
+      downloadXls('mailing-list-' + (batchSlug() || 'batch'), head, rows);
     });
 
     document.getElementById('pcQrSheet').addEventListener('click', () => {
@@ -2167,11 +2182,9 @@
     });
     document.getElementById('swCsv').addEventListener('click', async () => {
       swMsg('Pulling list…'); const d = await swFetch(false); if (!d || !d.lots) return;
-      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
       const head = ['Owner', 'Owner Mailing Address', 'Property Address', 'Parcel', 'Acres', 'Assessed Land Value', 'Blind Offer'];
-      const lines = [head.join(',')].concat(d.lots.map(l => [l.owner, l.ownerContact, l.address, l.parcel, l.acres, l.taxValue, '$30,000'].map(esc).join(',')));
-      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'off-market-mailer.csv'; a.click(); URL.revokeObjectURL(a.href);
+      const rows = d.lots.map(l => [l.owner, l.ownerContact, l.address, l.parcel, l.acres, l.taxValue, '$30,000']);
+      downloadXls('off-market-mailer', head, rows);
       swMsg('Downloaded ' + d.lots.length + ' recipients.');
     });
     document.getElementById('swAdd').addEventListener('click', async () => {
