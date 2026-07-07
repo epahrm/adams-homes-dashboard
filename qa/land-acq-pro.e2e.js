@@ -55,8 +55,8 @@ async function noHorizontalOverflow(page) {
     check('index: Adams Homes logo present', await page.locator('.brand-block img').isVisible());
     const bodyText = await page.evaluate(() => document.body.innerText);
     check('index: no pricing on public page', !/\$\s?\d/.test(bodyText), bodyText.match(/\$\s?\d[^\s]*/)?.[0]);
-    check('index: hero headline', bodyText.includes('Sell Fast Without the Hassle'));
-    check('index: hero subtitle', bodyText.includes('We handle everything. You get cash.'));
+    check('index: hero headline', bodyText.includes('Turn Your Empty Lot Into Cash'));
+    check('index: hero subtitle', bodyText.includes('Adams Homes buys vacant residential lots directly'));
     check('index: exactly 2 process steps', await page.locator('.step').count() === 2);
     check('index: Kevin card copy', bodyText.includes('Kevin owns your deal from start to finish'));
     check('index: fastest-closing value prop retained', bodyText.includes('No one closes faster than Adams Homes'));

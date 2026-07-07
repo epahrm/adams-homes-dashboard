@@ -32,11 +32,58 @@
     .brand-band { height: 6px; background: var(--red); }
     .brand-band::after { content: ''; display: block; height: 2px; background: var(--blue); margin-top: 2px; }
 
-    /* Hero */
-    .hero { background: var(--blue); color: white; text-align: center; padding: 54px 20px 56px; }
-    .hero .eyebrow { display: inline-block; background: rgba(255,255,255,0.14); color: #fff; font-size: 15px; font-weight: 700; padding: 9px 20px; border-radius: 999px; margin-bottom: 22px; }
-    .hero h1 { font-size: 42px; line-height: 1.15; margin-bottom: 20px; text-wrap: balance; }
-    .hero .subtitle { font-size: 21px; line-height: 1.5; color: #eaf1f8; }
+    /* Hero — layered navy gradient + architectural grid texture */
+    .hero { position: relative; overflow: hidden; color: #fff;
+      background:
+        radial-gradient(1100px 480px at 74% -12%, rgba(255,255,255,0.14), transparent 60%),
+        linear-gradient(158deg, #1c62b0 0%, #14508f 42%, #10345a 100%);
+      padding: 60px 20px 66px; }
+    .hero::before { content: ''; position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.055) 0 1px, transparent 1px 48px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.055) 0 1px, transparent 1px 48px);
+      -webkit-mask-image: linear-gradient(175deg, rgba(0,0,0,0.7), transparent 72%);
+      mask-image: linear-gradient(175deg, rgba(0,0,0,0.7), transparent 72%); }
+    .hero .container { position: relative; max-width: 1140px; }
+    .hero-grid { display: grid; grid-template-columns: 1fr; gap: 34px; align-items: center; }
+    .hero-copy { text-align: center; }
+    .hero .eyebrow { display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28);
+      color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; padding: 8px 18px; border-radius: 999px; margin-bottom: 20px; }
+    .hero h1 { font-size: 42px; line-height: 1.06; margin-bottom: 18px; text-wrap: balance; letter-spacing: -0.5px; }
+    .hero .subtitle { font-size: 19px; line-height: 1.55; color: #dce8f5; max-width: 540px; margin: 0 auto 26px; }
+    .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .hero-cta { display: inline-flex; align-items: center; justify-content: center; padding: 15px 28px; border-radius: 10px; font-size: 17px; font-weight: 800; text-decoration: none; transition: background 0.15s, box-shadow 0.15s, transform 0.1s; }
+    .hero-cta.primary { background: var(--red); color: #fff; box-shadow: 0 10px 26px rgba(192,67,47,0.42); }
+    .hero-cta.primary:hover { background: var(--red-dark); transform: translateY(-1px); }
+    .hero-cta.ghost { background: rgba(255,255,255,0.08); color: #fff; border: 2px solid rgba(255,255,255,0.55); }
+    .hero-cta.ghost:hover { background: rgba(255,255,255,0.16); }
+    /* Floating "cash offer" card */
+    .hero-card { background: #fff; color: var(--ink); border-radius: 16px; padding: 24px 24px 22px; box-shadow: 0 26px 64px rgba(6,26,48,0.34); max-width: 400px; margin: 0 auto; text-align: left; }
+    .hero-card .hc-top { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eef1f5; padding-bottom: 14px; margin-bottom: 14px; }
+    .hero-card .hc-badge { background: #e3f2ea; color: #1a7a44; font-weight: 800; font-size: 12px; letter-spacing: 0.5px; padding: 6px 12px; border-radius: 999px; }
+    .hero-card h4 { color: var(--blue); font-size: 19px; }
+    .hero-card .hc-row { display: flex; align-items: flex-start; gap: 10px; margin: 11px 0; font-size: 15px; color: #333; line-height: 1.35; }
+    .hero-card .hc-row::before { content: '✓'; color: #1a7a44; font-weight: 900; flex-shrink: 0; }
+    .hero-card .hc-figure { margin-top: 16px; background: var(--ground); border-radius: 10px; padding: 14px 16px; text-align: center; }
+    .hero-card .hc-figure .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #778; }
+    .hero-card .hc-figure .amt { font-size: 25px; font-weight: 800; color: var(--blue); margin-top: 2px; }
+    @media (min-width: 920px) {
+      .hero { padding: 88px 20px 96px; }
+      .hero-grid { grid-template-columns: 1.12fr 0.88fr; gap: 52px; }
+      .hero-copy { text-align: left; }
+      .hero .subtitle { margin-left: 0; margin-right: 0; }
+      .hero-ctas { justify-content: flex-start; }
+      .hero h1 { font-size: 56px; }
+      .hero-card { margin-right: 0; }
+    }
+
+    /* Stats trust band */
+    .stats-band { background: linear-gradient(180deg, var(--red) 0%, var(--red-dark) 100%); color: #fff; }
+    .stats-band .container { max-width: 1140px; display: grid; grid-template-columns: repeat(2, 1fr); padding: 8px 20px; }
+    .stat { text-align: center; padding: 18px 10px; }
+    .stat .num { font-size: 30px; font-weight: 800; line-height: 1; }
+    .stat .lbl { font-size: 12.5px; margin-top: 7px; color: #ffe2db; letter-spacing: 0.3px; }
+    @media (min-width: 760px) { .stats-band .container { grid-template-columns: repeat(4, 1fr); } .stat { padding: 24px 10px; } .stat .num { font-size: 34px; } }
 
     /* Section shells */
     .section { padding: 52px 0; }
@@ -51,6 +98,7 @@
 
     /* Value props */
     .values { display: grid; gap: 22px; grid-template-columns: 1fr; margin-top: 12px; }
+    @media (min-width: 820px) { .values { grid-template-columns: repeat(3, 1fr); align-items: stretch; } .value-card { display: flex; flex-direction: column; } }
     .value-card { background: #fff; border: 1px solid #e6e9ee; border-radius: 14px; padding: 30px 26px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
     .value-card .icon { font-size: 44px; margin-bottom: 12px; }
     .value-card h3 { color: var(--blue); font-size: 22px; margin-bottom: 16px; }
@@ -164,14 +212,39 @@
   <!-- Hero -->
   <section class="hero">
     <div class="container">
-      <div class="eyebrow">Sell Your Vacant Land</div>
-      <h1>Sell Fast Without the Hassle</h1>
-      <p class="subtitle">We handle everything. You get cash.</p>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">Palm Bay Vacant Land</div>
+          <h1>Turn Your Empty Lot Into Cash</h1>
+          <p class="subtitle">Adams Homes buys vacant residential lots directly &mdash; no agents, no fees, no waiting. Get a fair cash offer and close in days, not months.</p>
+          <div class="hero-ctas">
+            <a class="hero-cta primary" href="#start">See My Cash Offer</a>
+            <a class="hero-cta ghost" href="#why">Why Adams Homes</a>
+          </div>
+        </div>
+        <div class="hero-card" aria-hidden="true">
+          <div class="hc-top"><span class="hc-badge">100% CASH</span><h4>Your Cash Offer</h4></div>
+          <div class="hc-row">No agents, brokers, or commissions</div>
+          <div class="hc-row">No financing &mdash; funds ready now</div>
+          <div class="hc-row">We handle all the paperwork</div>
+          <div class="hc-figure"><div class="lbl">Typical response</div><div class="amt">Within 24 hours</div></div>
+        </div>
+      </div>
     </div>
   </section>
 
+  <!-- Trust / stats band -->
+  <div class="stats-band">
+    <div class="container">
+      <div class="stat"><div class="num">35+</div><div class="lbl">Years Building</div></div>
+      <div class="stat"><div class="num">75,000+</div><div class="lbl">Lots Purchased</div></div>
+      <div class="stat"><div class="num">100%</div><div class="lbl">Cash Buyer</div></div>
+      <div class="stat"><div class="num">Days</div><div class="lbl">Not Months to Close</div></div>
+    </div>
+  </div>
+
   <!-- Why Adams Homes -->
-  <section class="section">
+  <section class="section" id="why">
     <div class="container">
       <h2>Why Adams Homes?</h2>
       <ul class="why-list">
@@ -217,7 +290,7 @@
   </section>
 
   <!-- Let's Get Started -->
-  <section class="section">
+  <section class="section" id="start">
     <div class="container">
       <h2>Let's Get Started!</h2>
       <p class="lede">Search for your property below, or connect with our Land team.</p>
