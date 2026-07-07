@@ -583,8 +583,8 @@
       <div class="m-sub">These lots aren't listed for sale, so there's <b>no asking price</b> — it's a blind mailer. Every lot gets your <b>$30k stipend offer</b> (Well/Septic default, since county records carry no utilities), sendable up to <b>$40k</b>. The value filter below is the county's <i>assessed</i> land value, used only to target lots in your offer range. (Priced, on-market lots come from the portal alerts instead.)</div>
       <div class="m-grid">
         <div><label for="swMinAcres">Min lot size (acres)</label><input type="number" id="swMinAcres" step="0.01" value="0.22"></div>
-        <div><label for="swMaxAcres">Max lot size (acres)</label><input type="number" id="swMaxAcres" step="0.1" value="2"></div>
-        <div><label for="swMaxValue">Max assessed land value ($)</label><input type="number" id="swMaxValue" step="1000" value="40000"></div>
+        <div><label for="swMaxAcres">Max lot size (acres)</label><input type="number" id="swMaxAcres" step="0.01" value="0.45"></div>
+        <div><label for="swMaxValue">Max assessed land value ($)</label><input type="number" id="swMaxValue" step="1000" value="50000"></div>
         <div><label for="swLimit">How many to pull</label>
           <select id="swLimit"><option>20</option><option selected>50</option><option>100</option><option>250</option><option>500</option></select>
         </div>
@@ -675,7 +675,7 @@
             <select id="dListing"><option value="off-market">Off-Market</option><option value="listed">Listed (MLS)</option></select>
           </div>
           <div><label for="dSource">Lead Source</label>
-            <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Referral</option><option>Other</option></select>
+            <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Wholesaler</option><option>Referral</option><option>Other</option></select>
           </div>
           <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
           <div><label for="dAgentBrokerage">Brokerage</label><input type="text" id="dAgentBrokerage" placeholder="Brokerage"></div>
