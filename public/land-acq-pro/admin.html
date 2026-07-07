@@ -530,6 +530,13 @@
         <div id="followupList"></div>
       </div>
 
+      <!-- Thank-you (stork) letter: prompt Kevin one week after each closing -->
+      <div class="opps" id="thankYouBlock" style="display:none; border-color:#1a7a44; background:#eef7f0;">
+        <h3 style="color:#1a7a44;">Thank-You Letter Due <span>&mdash; send the stork card one week after closing</span></h3>
+        <div class="opps-sub" id="thankYouSub"></div>
+        <div id="thankYouList"></div>
+      </div>
+
       <div class="filters">
         <div class="filter-row"><label for="fStatus">Status:</label>
           <select id="fStatus">
@@ -1585,6 +1592,44 @@
       patchLot(l.id, { cadenceStep: nextStep, cadenceNextAt: nextAt, cadenceLog: log });
     }
 
+    // Thank-You (stork) letter — due one week after a closing, until Kevin
+    // marks it sent. Keeps the post-closing referral touch from being forgotten.
+    const THANKYOU_DAYS = 7;
+    function renderThankYou(lots) {
+      const block = document.getElementById('thankYouBlock');
+      const list = document.getElementById('thankYouList');
+      const now = Date.now();
+      const due = lots.filter(l => l.displayStatus === 'closed' && !l.thankYouSentAt)
+        .map(l => ({ l, closed: closedDate(l) }))
+        .filter(x => x.closed && (now - new Date(x.closed).getTime()) >= THANKYOU_DAYS * 86400000)
+        .sort((a, b) => new Date(a.closed) - new Date(b.closed));
+      if (!due.length) { block.style.display = 'none'; return; }
+      block.style.display = 'block';
+      document.getElementById('thankYouSub').textContent =
+        due.length + ' closed ' + (due.length === 1 ? 'deal is' : 'deals are') + ' 1+ week out — send the stork thank-you & referral card.';
+      list.innerHTML = '';
+      due.forEach(({ l, closed }) => {
+        const days = Math.floor((now - new Date(closed).getTime()) / 86400000);
+        const row = document.createElement('div'); row.className = 'opp-row green';
+        const main = document.createElement('div'); main.className = 'opp-main';
+        const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
+        const meta = document.createElement('div'); meta.className = 'opp-meta';
+        meta.textContent = 'Closed ' + new Date(closed).toLocaleDateString() + ' · ' + days + ' days ago'
+          + (l.owner ? ' · ' + l.owner : '');
+        const reason = document.createElement('div'); reason.className = 'opp-reason';
+        reason.textContent = '➡ Send the stork thank-you card + referral ask';
+        main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+        const actions = document.createElement('div'); actions.className = 'opp-actions';
+        const send = document.createElement('button'); send.className = 'opp-btn-add'; send.textContent = 'Open Card';
+        send.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+        const done = document.createElement('button'); done.className = 'opp-btn-hold'; done.textContent = 'Mark Sent';
+        done.addEventListener('click', () => patchLot(l.id, { thankYouSentAt: new Date().toISOString() }));
+        actions.appendChild(send); actions.appendChild(done);
+        row.appendChild(main); row.appendChild(actions);
+        list.appendChild(row);
+      });
+    }
+
     function renderFollowups(lots) {
       const block = document.getElementById('followupBlock');
       const list = document.getElementById('followupList');
@@ -2062,6 +2107,7 @@
       renderOfferFollowups(lots);
       renderReoffer(lots);
       renderFollowups(lots);
+      renderThankYou(lots);
       renderRealtors(lots);
       loadAllOps();
 
