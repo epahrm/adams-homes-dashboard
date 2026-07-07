@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Our Sales Team - Adams Homes</title>
+  <style>
+    :root {
+      --blue: #1a5ba5; --blue-dark: #14508f; --blue-deep: #123a63;
+      --red: #c0432f; --red-dark: #a5361f;
+      --ink: #1a1a1a; --muted: #555; --ground: #eef2f7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff; color: var(--ink); font-size: 16px; }
+    .container { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+    .site-header .container { display: flex; justify-content: center; padding: 20px; }
+    .site-header img { height: 90px; }
+    .brand-band { height: 6px; background: var(--red); }
+    .brand-band::after { content: ''; display: block; height: 2px; background: var(--blue); margin-top: 2px; }
+
+    .hero { background: var(--blue); color: white; text-align: center; padding: 48px 20px; }
+    .hero .eyebrow { display: inline-block; background: rgba(255,255,255,0.14); font-size: 14px; font-weight: 700; padding: 8px 18px; border-radius: 999px; margin-bottom: 18px; }
+    .hero h1 { font-size: 38px; line-height: 1.15; margin-bottom: 14px; }
+    .hero .subtitle { font-size: 19px; color: #eaf1f8; max-width: 560px; margin: 0 auto; }
+
+    .section { padding: 44px 0; }
+    .section.tint { background: var(--ground); }
+    .section h2 { color: var(--blue); font-size: 27px; text-align: center; margin-bottom: 10px; }
+    .section .lede { text-align: center; color: var(--muted); font-size: 16px; max-width: 560px; margin: 0 auto 20px; }
+
+    /* Videos */
+    .videos { display: grid; gap: 18px; grid-template-columns: 1fr; }
+    @media (min-width: 720px) { .videos { grid-template-columns: repeat(3, 1fr); } }
+    .video-card { background: white; border: 1px solid #e6e9ee; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .video-card .vc-body { padding: 14px 16px; }
+    .video-card h3 { color: var(--blue); font-size: 16px; margin-bottom: 4px; }
+    .video-card p { color: var(--muted); font-size: 13px; }
+    .video-card iframe, .video-card video { width: 100%; aspect-ratio: 16/9; border: 0; display: block; background: #0c1c2e; }
+
+    /* Steps */
+    .steps { display: grid; gap: 14px; max-width: 640px; margin: 0 auto; }
+    .step { display: flex; gap: 16px; align-items: flex-start; background: white; border: 1px solid #e6e9ee; border-radius: 12px; padding: 18px; }
+    .step .num { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; background: var(--blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; }
+    .step h3 { font-size: 16px; color: var(--blue); margin-bottom: 4px; }
+    .step p { color: #444; font-size: 14px; line-height: 1.5; }
+
+    /* Form */
+    .apply-card { max-width: 640px; margin: 0 auto; background: white; border: 1px solid #dde3ea; border-radius: 14px; padding: 26px 24px; }
+    .fgroup { margin-bottom: 18px; }
+    .fgroup label { display: block; font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+    .fgroup .hint { color: #667; font-size: 13px; margin-bottom: 8px; }
+    input, select, textarea { width: 100%; padding: 13px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; font-size: 16px; background: white; }
+    textarea { resize: vertical; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,91,165,0.14); }
+    .row2 { display: grid; gap: 14px; grid-template-columns: 1fr; }
+    @media (min-width: 560px) { .row2 { grid-template-columns: 1fr 1fr; } }
+
+    /* Division picker */
+    .div-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+    .div-card { border: 2px solid #d5dce5; border-radius: 10px; padding: 13px 10px; text-align: center; cursor: pointer; transition: all 0.12s; background: white; }
+    .div-card .dot { width: 14px; height: 14px; border-radius: 50%; margin: 0 auto 8px; }
+    .div-card .code { font-weight: 800; font-size: 15px; letter-spacing: 1px; }
+    .div-card .name { font-size: 12px; color: #667; margin-top: 2px; }
+    .div-card.selected { border-color: var(--sel, var(--blue)); background: var(--selbg, #eef4fb); box-shadow: 0 0 0 3px rgba(26,91,165,0.12); }
+
+    .checkline { display: flex; gap: 10px; align-items: center; font-size: 15px; }
+    .checkline input { width: auto; }
+
+    .qa-block { background: var(--ground); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+    .qa-block .q { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+
+    .btn { display: block; width: 100%; padding: 16px; border-radius: 8px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; border: none; text-align: center; text-decoration: none; min-height: 52px; }
+    .btn-red { background: var(--red); color: white; }
+    .btn-red:hover { background: var(--red-dark); }
+    .btn-red:disabled { background: #b99; cursor: not-allowed; }
+    .btn-blue { background: var(--blue); color: white; }
+    .btn-blue:hover { background: var(--blue-dark); }
+
+    .message { padding: 14px; border-radius: 8px; margin-top: 16px; display: none; font-size: 15px; }
+    .message.error { background: #fdecea; color: #b02a1a; border: 1px solid #f3c3bb; }
+
+    /* Success screen */
+    #successPanel { display: none; max-width: 640px; margin: 0 auto; text-align: center; }
+    .success-card { background: white; border: 2px solid #1a7a44; border-radius: 14px; padding: 34px 26px; }
+    .success-card .check { width: 72px; height: 72px; border-radius: 50%; background: #e3f2ea; color: #1a7a44; font-size: 38px; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
+    .success-card h2 { color: #1a7a44; margin-bottom: 10px; }
+    .success-card p { color: #444; line-height: 1.6; margin-bottom: 12px; }
+    .link-box { background: var(--ground); border: 1px dashed #b8c4d2; border-radius: 8px; padding: 12px; font-size: 13px; word-break: break-all; color: var(--blue-deep); margin: 14px 0; }
+
+    .site-footer { background: var(--blue-deep); color: #d3deec; text-align: center; padding: 34px 20px; font-size: 14px; line-height: 1.7; }
+    .site-footer b { color: white; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container"><img src="/adams-homes-logo.png" alt="Adams Homes"></div>
+  </header>
+  <div class="brand-band"></div>
+
+  <section class="hero">
+    <div class="container">
+      <div class="eyebrow">Now Hiring &mdash; East Central Florida</div>
+      <h1 id="jobTitle">New Home Sales Agent</h1>
+      <p class="subtitle" id="jobBlurb">Join a team that's been building the American dream for over 35 years. Apply below and complete your video interview on your schedule &mdash; decisions come fast.</p>
+    </div>
+  </section>
+
+  <!-- Pre-application videos (from admin settings; cards hide when no URL is set) -->
+  <section class="section tint" id="videoSection" style="display:none;">
+    <div class="container">
+      <h2>Get to Know Us First</h2>
+      <p class="lede">Three short videos so you know exactly what you're applying for.</p>
+      <div class="videos">
+        <div class="video-card" id="vcBrand" style="display:none;">
+          <div class="vslot"></div>
+          <div class="vc-body"><h3>What It's Like to Work Here</h3><p>60 seconds &mdash; our culture in a nutshell.</p></div>
+        </div>
+        <div class="video-card" id="vcTour" style="display:none;">
+          <div class="vslot"></div>
+          <div class="vc-body"><h3>Model Tour</h3><p>90 seconds &mdash; meet the team &amp; walk a model.</p></div>
+        </div>
+        <div class="video-card" id="vcOnboard" style="display:none;">
+          <div class="vslot"></div>
+          <div class="vc-body"><h3>Your First 90 Days</h3><p>2 minutes &mdash; what success looks like here.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>How Hiring Works</h2>
+      <div class="steps">
+        <div class="step"><div class="num">1</div><div><h3>Apply (5 minutes)</h3><p>Tell us about yourself, pick your office, and answer three short written questions.</p></div></div>
+        <div class="step"><div class="num">2</div><div><h3>Record Your Video Interview</h3><p>Six questions, recorded from home on your phone or computer. You'll see each question, get time to think, then record your answer.</p></div></div>
+        <div class="step"><div class="num">3</div><div><h3>Fast Decision</h3><p>Our sales managers score every interview on the same six competencies. You'll hear back quickly &mdash; usually within days, not weeks.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tint" id="applySection">
+    <div class="container">
+      <h2>Apply Now</h2>
+      <p class="lede">All fields marked * are required.</p>
+      <form class="apply-card" id="applyForm" novalidate>
+        <div class="row2">
+          <div class="fgroup">
+            <label for="fName">Full name *</label>
+            <input type="text" id="fName" autocomplete="name" required>
+          </div>
+          <div class="fgroup">
+            <label for="fEmail">Email *</label>
+            <input type="email" id="fEmail" autocomplete="email" required>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="fgroup">
+            <label for="fPhone">Phone</label>
+            <input type="tel" id="fPhone" autocomplete="tel">
+          </div>
+          <div class="fgroup">
+            <label for="fReferral">How did you hear about us? *</label>
+            <select id="fReferral">
+              <option value="linkedin">LinkedIn</option>
+              <option value="instagram">Instagram</option>
+              <option value="facebook">Facebook</option>
+              <option value="indeed">Indeed</option>
+              <option value="website">Adams Homes website</option>
+              <option value="internal_referral">Referred by an employee</option>
+              <option value="job_fair">Job fair / event</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label>Which office are you applying to? *</label>
+          <div class="div-grid" id="divGrid"></div>
+        </div>
+
+        <div class="row2">
+          <div class="fgroup">
+            <label for="fYears">Years of sales experience</label>
+            <input type="number" id="fYears" min="0" max="60" value="0">
+          </div>
+          <div class="fgroup">
+            <label for="fLinkedin">LinkedIn profile URL</label>
+            <input type="url" id="fLinkedin" placeholder="https://linkedin.com/in/you">
+          </div>
+        </div>
+        <div class="fgroup">
+          <label for="fResume">Resume link</label>
+          <p class="hint">A shareable link (Google Drive, Dropbox, etc.). We check it against your LinkedIn.</p>
+          <input type="url" id="fResume" placeholder="https://...">
+        </div>
+        <div class="fgroup">
+          <label for="fSocial">Social media handles</label>
+          <input type="text" id="fSocial" placeholder="@instagram, @tiktok ...">
+        </div>
+        <div class="fgroup checkline">
+          <input type="checkbox" id="fHasLicense">
+          <label for="fHasLicense" style="margin:0;">I hold a professional real estate license</label>
+        </div>
+        <div class="fgroup" id="licenseGroup" style="display:none;">
+          <label for="fLicense">License number</label>
+          <input type="text" id="fLicense">
+        </div>
+
+        <h3 style="color:var(--blue); margin:22px 0 12px; font-size:18px;">Three quick questions</h3>
+        <div id="preQs"></div>
+
+        <button type="submit" class="btn btn-red" id="submitBtn">Submit Application &amp; Get My Interview Link</button>
+        <div class="message error" id="formError"></div>
+      </form>
+
+      <div id="successPanel">
+        <div class="success-card">
+          <div class="check">&#10003;</div>
+          <h2>Application received!</h2>
+          <p><b>Next step: your video interview.</b> Six questions, about 15 minutes total. Find a quiet spot, dress like you're meeting a buyer, and use the link below whenever you're ready.</p>
+          <div class="link-box" id="interviewLink"></div>
+          <a class="btn btn-blue" id="startNowBtn" href="#">Start My Video Interview Now</a>
+          <p style="margin-top:14px; font-size:13px; color:#667;">Save this page or copy the link &mdash; it's unique to you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p><b>Adams Homes</b> &mdash; Value, Simplified&trade;</p>
+      <p>Adams Homes is an equal opportunity employer.</p>
+    </div>
+  </footer>
+
+  <script>
+    const API = '/api/interview';
+    let DIVISIONS = [];
+    let PRE_QS = [];
+    let selectedDivision = null;
+
+    function el(id) { return document.getElementById(id); }
+
+    function renderVideo(cardId, url) {
+      if (!url) return;
+      const card = el(cardId);
+      const slot = card.querySelector('.vslot');
+      const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{6,})/);
+      const vimeo = url.match(/vimeo\.com\/(\d+)/);
+      if (yt) {
+        slot.innerHTML = '<iframe src="https://www.youtube.com/embed/' + yt[1] + '" allowfullscreen></iframe>';
+      } else if (vimeo) {
+        slot.innerHTML = '<iframe src="https://player.vimeo.com/video/' + vimeo[1] + '" allowfullscreen></iframe>';
+      } else {
+        slot.innerHTML = '<video controls preload="metadata" src="' + url.replace(/"/g, '&quot;') + '"></video>';
+      }
+      card.style.display = '';
+      el('videoSection').style.display = '';
+    }
+
+    async function init() {
+      try {
+        const [qRes, sRes] = await Promise.all([
+          fetch(API + '/questions').then(r => r.json()),
+          fetch(API + '/settings').then(r => r.json()),
+        ]);
+        DIVISIONS = qRes.divisions || [];
+        PRE_QS = qRes.preInterviewQuestions || [];
+        const s = (sRes && sRes.settings) || {};
+        if (s.job_title) el('jobTitle').textContent = s.job_title;
+        if (s.job_blurb) el('jobBlurb').textContent = s.job_blurb;
+        renderVideo('vcBrand', s.brand_video_url);
+        renderVideo('vcTour', s.model_tour_url);
+        renderVideo('vcOnboard', s.onboarding_preview_url);
+      } catch (e) {
+        DIVISIONS = [
+          { code: 'JAX', name: 'Jacksonville', color: '#d9534f' },
+          { code: 'DAY', name: 'Daytona', color: '#1a5ba5' },
+          { code: 'ORL', name: 'Orlando', color: '#1a7a44' },
+          { code: 'MEL', name: 'Melbourne', color: '#7a4fb5' },
+          { code: 'PSL', name: 'Port St. Lucie', color: '#e8963c' },
+        ];
+        PRE_QS = [
+          'Why do you want to sell new construction homes for Adams Homes?',
+          'What does a winning week look like for you in a sales role?',
+          'Tell us about a time you turned a "no" into a "yes".',
+        ];
+      }
+      const grid = el('divGrid');
+      grid.innerHTML = '';
+      DIVISIONS.forEach(d => {
+        const card = document.createElement('div');
+        card.className = 'div-card';
+        card.style.setProperty('--sel', d.color);
+        card.style.setProperty('--selbg', d.color + '14');
+        card.innerHTML = '<div class="dot" style="background:' + d.color + '"></div>' +
+          '<div class="code">' + d.code + '</div><div class="name">' + d.name + '</div>';
+        card.onclick = () => {
+          selectedDivision = d.code;
+          grid.querySelectorAll('.div-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+        };
+        grid.appendChild(card);
+      });
+      const qs = el('preQs');
+      qs.innerHTML = '';
+      PRE_QS.forEach((q, i) => {
+        const block = document.createElement('div');
+        block.className = 'qa-block';
+        block.innerHTML = '<div class="q">' + (i + 1) + '. ' + q + '</div>' +
+          '<textarea rows="3" id="preQ' + i + '" placeholder="A few sentences..."></textarea>';
+        qs.appendChild(block);
+      });
+    }
+
+    el('fHasLicense').addEventListener('change', function () {
+      el('licenseGroup').style.display = this.checked ? '' : 'none';
+    });
+
+    el('applyForm').addEventListener('submit', async function (ev) {
+      ev.preventDefault();
+      const err = el('formError');
+      err.style.display = 'none';
+      const name = el('fName').value.trim();
+      const email = el('fEmail').value.trim();
+      if (!name || !/.+@.+\..+/.test(email)) {
+        err.textContent = 'Please enter your name and a valid email.';
+        err.style.display = 'block';
+        return;
+      }
+      if (!selectedDivision) {
+        err.textContent = 'Please choose the office you are applying to.';
+        err.style.display = 'block';
+        return;
+      }
+      const answers = PRE_QS.map((_, i) => el('preQ' + i).value.trim());
+      if (answers.some(a => !a)) {
+        err.textContent = 'Please answer all three written questions — they matter.';
+        err.style.display = 'block';
+        return;
+      }
+      const btn = el('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      try {
+        const res = await fetch(API + '/candidates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            phone: el('fPhone').value,
+            division: selectedDivision,
+            referralSource: el('fReferral').value,
+            yearsSalesExperience: Number(el('fYears').value) || 0,
+            linkedinUrl: el('fLinkedin').value,
+            resumeUrl: el('fResume').value,
+            socialHandles: el('fSocial').value,
+            hasLicense: el('fHasLicense').checked,
+            licenseNumber: el('fLicense').value,
+            preInterviewAnswers: answers,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+        const link = location.origin + '/sales-interview/interview.html?token=' + data.interviewToken;
+        el('interviewLink').textContent = link;
+        el('startNowBtn').href = link;
+        el('applyForm').style.display = 'none';
+        el('successPanel').style.display = 'block';
+        el('successPanel').scrollIntoView({ behavior: 'smooth' });
+      } catch (e) {
+        err.textContent = e.message;
+        err.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Application & Get My Interview Link';
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>
