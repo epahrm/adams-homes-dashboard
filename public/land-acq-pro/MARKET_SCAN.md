@@ -13,7 +13,7 @@ negotiates). Lots more than $10k over are excluded.
   the parcel is pulled at offer time, so those don't need owner/parcel to go
   green.
 - 🔴 **RED — excluded:** more than $10k over stipend, or fails a hard rule
-  (structure, wrong zoning, size outside 0.25–2 ac, wetlands, landlocked,
+  (structure, wrong zoning, size outside 0.22–2 ac, wetlands, landlocked,
   deed-restricted). Logged with the reason, not shown as an opportunity.
 
 Suggested offer is always capped at the stipend.
@@ -74,7 +74,7 @@ FL DOR layer: `services9.arcgis.com/Gh9awoU677aKree0/ArcGIS/rest/services/Florid
 ## Buy box (Palm Bay pilot — edit `BUY_BOX` in admin.html)
 - **ZIPs:** 32905, 32906, 32907, 32908, 32909
 - **Type:** vacant residential lots only (no structures)
-- **Lot size:** 0.25–2 acres (ideal 0.5)
+- **Lot size:** 0.22–2 acres (Palm Bay floor 0.22 — standard lots ~0.23; adjustable)
 - **Utilities:** Well/Septic, City Water/Septic, or City Water/City Sewer
   (not septic-only, well-only, shared, or mobile-home)
 - **Default offer:** $30,000 cash (Kevin can override); over-stipend → yellow

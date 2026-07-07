@@ -72,6 +72,8 @@
     .opp-row { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #d3e0ee; border-left-width: 5px; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
     .opp-row.green { border-left-color: #1a7a44; }
     .opp-row.yellow { border-left-color: #e8963c; }
+    .opp-row.blue { border-left-color: #0a4f8e; }
+    .opp-row.blue .opp-reason { color: #0a4f8e; font-weight: 600; }
     .opp-main { flex: 1; min-width: 0; }
     .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; }
     .opp-meta { font-size: 13px; color: #667; margin-top: 2px; }
@@ -214,6 +216,14 @@
     .modal .m-err { color: #b02a1a; font-size: 13px; margin-top: 8px; display: none; }
     @media (max-width: 560px) { .modal .m-grid { grid-template-columns: 1fr; } }
 
+    /* Upload review table */
+    .preview-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .preview-table th { position: sticky; top: 0; background: #f3f6fa; text-align: left; color: #556; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; padding: 8px 10px; border-bottom: 1px solid #e6e9ee; }
+    .preview-table td { padding: 8px 10px; border-bottom: 1px solid #eef1f5; color: #234; }
+    .preview-table .p-stage { font-weight: 700; color: #1a5ba5; }
+    .preview-table tr.p-dup td { color: #999; }
+    .preview-table .p-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 6px; background: #fdecea; color: #b02a1a; margin-left: 6px; }
+
     .back-link { display: inline-block; margin-top: 22px; color: #003d66; font-size: 14px; text-decoration: none; font-weight: 600; }
     .back-link:hover { text-decoration: underline; }
 
@@ -247,6 +257,35 @@
     .realtor-table .r-contact { color: #445; font-size: 13px; line-height: 1.5; }
     .realtor-table .r-count { font-weight: 800; color: #1a5ba5; font-size: 16px; }
     .realtor-table .r-pipe { color: #556; font-size: 13px; }
+
+    /* Costs, ROI & Renewals */
+    .ops-panel { border: 1px solid #dbe3ec; border-radius: 12px; background: #fff; padding: 4px 16px 16px; }
+    .ops-panel summary { cursor: pointer; font-weight: 700; color: #123a63; font-size: 15px; padding: 12px 0; letter-spacing: 0.3px; }
+    .ops-roi { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 6px 0 18px; }
+    .ops-roi .roi-tile { background: #f4f8fc; border: 1px solid #e0e8f1; border-radius: 10px; padding: 12px 14px; }
+    .ops-roi .roi-val { font-size: 22px; font-weight: 800; color: #003d66; }
+    .ops-roi .roi-lbl { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: #778; margin-top: 2px; }
+    .ops-roi .roi-sub { font-size: 12px; color: #667; margin-top: 3px; }
+    .ops-block { margin-bottom: 20px; }
+    .ops-block-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+    .ops-block-head h4 { color: #123a63; font-size: 15px; margin: 0; }
+    .ops-hint { font-weight: 500; font-size: 13px; color: #667; letter-spacing: 0; }
+    .ops-add { font-size: 12px; padding: 7px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .ops-note { font-size: 12px; color: #778; margin: 4px 0 8px; }
+    .ops-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .ops-table th { text-align: left; color: #778; font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; padding: 7px 9px; border-bottom: 2px solid #e6e9ee; white-space: nowrap; }
+    .ops-table td { padding: 8px 9px; border-bottom: 1px solid #eef1f5; color: #234; vertical-align: top; }
+    .ops-table .o-svc { font-weight: 700; color: #003d66; }
+    .ops-table .o-del { background: none; border: none; color: #b02a1a; cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 6px; font-family: inherit; }
+    .ops-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+    .ops-badge.due { background: #fdecea; color: #b02a1a; }
+    .ops-badge.soon { background: #fff4e0; color: #96590a; }
+    .ops-badge.ok { background: #e3f2ea; color: #14401d; }
+    .ops-badge.gray { background: #eef1f5; color: #556; }
+    .ops-reasons { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+    .ops-reasons .rz { background: #f4f8fc; border: 1px solid #e0e8f1; border-radius: 20px; padding: 4px 11px; font-size: 12px; color: #345; }
+    .ops-reasons .rz b { color: #003d66; }
+    .ops-empty { color: #99a; font-size: 13px; padding: 10px 4px; }
 
     @media print {
       .topbar .logout, .filters, .actions, .pager, .back-link { display: none !important; }
@@ -285,6 +324,7 @@
         <div class="pipeline-tools">
           <button class="btn-navy" id="addDealBtn">+ Add Deal / Contract</button>
           <button class="btn-green" id="importBtn">Import Contacts (CSV)</button>
+          <button class="btn-navy" id="sweepBtn">Off-Market Sweep</button>
           <button class="btn-outline" id="postcardBtn">Postcards / QR</button>
           <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
         </div>
@@ -362,6 +402,13 @@
         <div id="reofferList"></div>
       </div>
 
+      <!-- Follow-Up Cadence: keeps every seller lead on a multi-touch sequence -->
+      <div class="opps" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
+        <h3 style="color:#0a4f8e;">Follow-Ups Due <span>&mdash; keep every lead on the cadence</span></h3>
+        <div class="opps-sub" id="followupSub"></div>
+        <div id="followupList"></div>
+      </div>
+
       <!-- New leads awaiting a first offer (QR + research requests) -->
       <div class="newleads" id="newLeadsBlock" style="display:none;">
         <h3>New Leads <span>&mdash; awaiting first offer</span></h3>
@@ -424,6 +471,88 @@
         </div>
       </details>
 
+      <!-- Costs, ROI & Renewals: subscriptions/accounts, mailing spend, ROI, cancellations -->
+      <details class="ops-panel" id="opsPanel" style="margin-bottom:20px;">
+        <summary id="opsSummary">Costs, ROI &amp; Renewals</summary>
+
+        <!-- ROI summary tiles -->
+        <div class="ops-roi" id="opsRoi"></div>
+
+        <!-- Commissions to Adams Homes (on-market deals) -->
+        <div class="ops-block">
+          <div class="ops-block-head">
+            <h4>Commissions to Adams Homes <span class="ops-hint" id="commHint"></span></h4>
+          </div>
+          <div class="ops-note">Buyer-side commission on <b>on-market (listed) deals only</b> — credited to Adams and deducted from cash to close. Off-market deals are $0. Shows whether Kevin is holding the full 3% or giving it away.</div>
+          <div class="table-wrap">
+            <table class="ops-table" id="commTable">
+              <thead><tr><th>Property</th><th>Contract</th><th>Rate</th><th>Commission</th><th>Confirmed</th><th>Hold</th></tr></thead>
+              <tbody id="commRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Lead source performance: conversion, not just cost -->
+        <div class="ops-block">
+          <div class="ops-block-head">
+            <h4>Lead Source Performance <span class="ops-hint" id="srcHint"></span></h4>
+          </div>
+          <div class="ops-note">Which sources actually convert — so you know where the next mailer dollar should go.</div>
+          <div class="table-wrap">
+            <table class="ops-table" id="srcTable">
+              <thead><tr><th>Source</th><th>Leads</th><th>Contracted</th><th>Closed</th><th>Conversion</th></tr></thead>
+              <tbody id="srcRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Accounts & Subscriptions -->
+        <div class="ops-block">
+          <div class="ops-block-head">
+            <h4>Accounts &amp; Subscriptions <span class="ops-hint" id="subsRenewHint"></span></h4>
+            <button type="button" class="btn-navy ops-add" id="addSubBtn">+ Add Account</button>
+          </div>
+          <div class="ops-note">Data sites, software, mailing vendors. Track the login, cost, and renewal so nothing lapses. <b>Passwords aren't stored here</b> — use the "credential location" field to point at your shared password manager.</div>
+          <div class="table-wrap">
+            <table class="ops-table" id="subsTable">
+              <thead><tr><th>Service</th><th>Login</th><th>Credential Location</th><th>Cost</th><th>Billing</th><th>Renews</th><th>Status</th><th></th></tr></thead>
+              <tbody id="subsRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Mailing costs -->
+        <div class="ops-block">
+          <div class="ops-block-head">
+            <h4>Postcard / Mailing Costs <span class="ops-hint" id="mailTotalHint"></span></h4>
+            <button type="button" class="btn-navy ops-add" id="addMailBtn">+ Add Mailing</button>
+          </div>
+          <div class="ops-note">Print cost and <b>postage are logged separately</b> per batch so you can see each line.</div>
+          <div class="table-wrap">
+            <table class="ops-table" id="mailTable">
+              <thead><tr><th>Date</th><th>Campaign / Batch</th><th>Pieces</th><th>Print Cost</th><th>Postage</th><th>Total</th><th></th></tr></thead>
+              <tbody id="mailRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cancellations -->
+        <div class="ops-block">
+          <div class="ops-block-head">
+            <h4>Cancelled Contracts <span class="ops-hint" id="cancelHint"></span></h4>
+            <button type="button" class="btn-navy ops-add" id="addCancelBtn">+ Log Cancellation</button>
+          </div>
+          <div class="ops-note">Contracts we wrote but terminated — logged with the reason so we can spot patterns.</div>
+          <div class="ops-reasons" id="cancelBreakdown"></div>
+          <div class="table-wrap">
+            <table class="ops-table" id="cancelTable">
+              <thead><tr><th>Date</th><th>Property</th><th>Reason</th><th>Notes</th><th></th></tr></thead>
+              <tbody id="cancelRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+
       <div class="footnote" id="footnote">* Re-outreach scheduled in 87 days</div>
 
       <div class="actions">
@@ -433,6 +562,30 @@
       </div>
 
       <a class="back-link" href="index.html">&larr; Back to Landing Page</a>
+    </div>
+  </div>
+
+  <!-- Off-Market Sweep modal -->
+  <div class="modal-overlay" id="sweepOverlay">
+    <div class="modal">
+      <h3>Off-Market Sweep <span style="font-weight:400; font-size:13px; color:#667;">— blind mailers</span></h3>
+      <div class="m-sub">These lots aren't listed for sale, so there's <b>no asking price</b> — it's a blind mailer. Every lot gets your <b>$30k stipend offer</b> (Well/Septic default, since county records carry no utilities), sendable up to <b>$40k</b>. The value filter below is the county's <i>assessed</i> land value, used only to target lots in your offer range. (Priced, on-market lots come from the portal alerts instead.)</div>
+      <div class="m-grid">
+        <div><label for="swMinAcres">Min lot size (acres)</label><input type="number" id="swMinAcres" step="0.01" value="0.22"></div>
+        <div><label for="swMaxAcres">Max lot size (acres)</label><input type="number" id="swMaxAcres" step="0.1" value="2"></div>
+        <div><label for="swMaxValue">Max assessed land value ($)</label><input type="number" id="swMaxValue" step="1000" value="40000"></div>
+        <div><label for="swLimit">How many to pull</label>
+          <select id="swLimit"><option>20</option><option selected>50</option><option>100</option><option>250</option><option>500</option></select>
+        </div>
+        <div class="m-full"><label style="display:flex; align-items:center; gap:8px; font-weight:600;"><input type="checkbox" id="swAbsentee" checked style="width:auto;"> Absentee owners only (mailing address outside Palm Bay — most motivated)</label></div>
+        <div class="m-full" id="swResult" style="font-size:14px; color:#556;">Set your filters and click Preview Count.</div>
+      </div>
+      <div class="m-actions">
+        <button type="button" class="btn-outline" id="swCancel">Close</button>
+        <button type="button" class="btn-outline" id="swPreview">Preview Count</button>
+        <button type="button" class="btn-green" id="swCsv">Download Mailing List</button>
+        <button type="button" class="btn-navy" id="swAdd">Add to Worklist</button>
+      </div>
     </div>
   </div>
 
@@ -527,6 +680,113 @@
     </div>
   </div>
 
+  <!-- Upload review / confirm modal (bulk deals + mailer contacts) -->
+  <div class="modal-overlay" id="importPreviewOverlay">
+    <div class="modal" style="max-width:820px;">
+      <h3 id="ipTitle">Review Upload</h3>
+      <div class="m-sub" id="ipSub">Check what will be added. Nothing enters the pipeline until you confirm.</div>
+      <div id="ipSummary" style="font-size:14px; color:#334; margin-bottom:10px;"></div>
+      <div style="max-height:340px; overflow:auto; border:1px solid #e6e9ee; border-radius:10px;">
+        <table class="preview-table" id="ipTable">
+          <thead><tr><th>#</th><th>Property Address</th><th>Owner</th><th>Stage</th><th>Offer</th></tr></thead>
+          <tbody id="ipRows"></tbody>
+        </table>
+      </div>
+      <div class="m-err" id="ipErr"></div>
+      <div class="m-actions">
+        <button type="button" class="btn-outline" id="ipCancel">Cancel</button>
+        <button type="button" class="btn-navy" id="ipConfirm">Confirm &amp; Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Account / Subscription modal -->
+  <div class="modal-overlay" id="subOverlay">
+    <div class="modal">
+      <h3 id="subTitle">Add Account / Subscription</h3>
+      <div class="m-sub">Track a paid site, tool, or vendor so its renewal never sneaks up.</div>
+      <form id="subForm">
+        <div class="m-grid">
+          <div class="m-full"><label for="sName">Service / Account *</label><input type="text" id="sName" placeholder="e.g. LoopNet, RealtyTrac, Supabase" required></div>
+          <div><label for="sLogin">Login (username / email)</label><input type="text" id="sLogin" placeholder="landacq@adamshomes.com"></div>
+          <div><label for="sVault">Credential Location</label><input type="text" id="sVault" placeholder="e.g. 1Password › Land Acq vault"></div>
+          <div><label for="sCategory">Category</label>
+            <select id="sCategory"><option>Data / Lead Source</option><option>Software / Platform</option><option>Mailing / Print</option><option>MLS / IDX</option><option>Other</option></select>
+          </div>
+          <div><label for="sUrl">Login URL</label><input type="text" id="sUrl" placeholder="https://…"></div>
+          <div><label for="sCost">Cost ($)</label><input type="text" id="sCost" placeholder="e.g. 49"></div>
+          <div><label for="sCycle">Billing Cycle</label>
+            <select id="sCycle"><option value="monthly">Monthly</option><option value="annual">Annual</option><option value="one-time">One-time</option><option value="unknown">Confirm (RI)</option></select>
+          </div>
+          <div><label for="sRenew">Next Renewal Date</label><input type="date" id="sRenew"></div>
+          <div><label for="sStatus">Status</label>
+            <select id="sStatus"><option value="active">Active</option><option value="trial">Trial</option><option value="needed">Access Needed</option><option value="cancelled">Cancelled</option></select>
+          </div>
+          <div class="m-full"><label for="sNotes">Notes</label><input type="text" id="sNotes" placeholder="Saved searches configured, seats, etc."></div>
+        </div>
+        <div class="m-err" id="sErr">Please enter a service name.</div>
+        <div class="m-actions">
+          <button type="button" class="btn-outline" id="sCancel">Cancel</button>
+          <button type="submit" class="btn-navy">Save Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Mailing Cost modal -->
+  <div class="modal-overlay" id="mailOverlay">
+    <div class="modal">
+      <h3>Add Mailing Cost</h3>
+      <div class="m-sub">Log a postcard batch. Print and postage are kept as separate lines.</div>
+      <form id="mailForm">
+        <div class="m-grid">
+          <div><label for="mDate">Date</label><input type="date" id="mDate"></div>
+          <div><label for="mBatch">Campaign / Batch *</label><input type="text" id="mBatch" placeholder="e.g. Absentee Sweep — July" required></div>
+          <div><label for="mPieces">Pieces Mailed</label><input type="text" id="mPieces" placeholder="e.g. 500"></div>
+          <div><label for="mPrint">Print / Design Cost ($)</label><input type="text" id="mPrint" placeholder="e.g. 250"></div>
+          <div><label for="mPostage">Postage Cost ($)</label><input type="text" id="mPostage" placeholder="e.g. 275"></div>
+          <div><label for="mVendor">Vendor</label><input type="text" id="mVendor" placeholder="Print / mail house"></div>
+        </div>
+        <div class="m-err" id="mErr">Please enter a campaign name.</div>
+        <div class="m-actions">
+          <button type="button" class="btn-outline" id="mCancel">Cancel</button>
+          <button type="submit" class="btn-navy">Save Mailing</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Log Cancellation modal -->
+  <div class="modal-overlay" id="cancelOverlay">
+    <div class="modal">
+      <h3>Log Cancelled Contract</h3>
+      <div class="m-sub">Record a contract we terminated, with the reason, so we can track why deals fall through.</div>
+      <form id="cancelForm">
+        <div class="m-grid">
+          <div><label for="cDate">Cancellation Date</label><input type="date" id="cDate"></div>
+          <div class="m-full"><label for="cAddress">Property Address *</label><input type="text" id="cAddress" placeholder="123 Main St SE, Palm Bay, FL 32909" required></div>
+          <div><label for="cReason">Reason *</label>
+            <select id="cReason">
+              <option value="Location">Location</option>
+              <option value="Neighbor">Neighbor</option>
+              <option value="Soils">Soils</option>
+              <option value="Endangered species">Endangered species</option>
+              <option value="Title/fraud">Title / fraud</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div><label for="cOffer">Contract Amount</label><input type="text" id="cOffer" placeholder="$30,000"></div>
+          <div class="m-full"><label for="cNotes">Notes</label><input type="text" id="cNotes" placeholder="Detail (esp. if Other)"></div>
+        </div>
+        <div class="m-err" id="cErr">Please enter a property address.</div>
+        <div class="m-actions">
+          <button type="button" class="btn-outline" id="cCancel">Cancel</button>
+          <button type="submit" class="btn-navy">Log Cancellation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     const STORE_KEY = 'landAcqSubmissions';
     const SEED_FLAG = 'landAcqSeeded_v6';
@@ -579,7 +839,8 @@
     // reaches Kevin. Edit these once, and the whole scan re-triages.
     const BUY_BOX = {
       zips: ['32905', '32906', '32907', '32908', '32909'],
-      minAcres: 0.25, maxAcres: 2,
+      minAcres: 0.22, maxAcres: 2,   // Palm Bay: 0.22 ac floor (standard lots ~0.23) — adjust as needed
+
       defaultOffer: 30000,      // starting cash offer (Kevin can override)
       showWindow: 10000,        // show lots up to $10k over stipend (offer & negotiate)
       floodReview: ['A', 'AE'], // insurable but needs sign-off
@@ -961,6 +1222,84 @@
       });
     }
 
+    // ---------- Follow-Up Cadence (FUB-style multi-touch sequence) ----------
+    // Every seller lead rides a fixed touch sequence so nothing goes cold.
+    // Kevin logs each touch, which advances the sequence and records a timeline
+    // entry on the lot. Notifications (instant Kevin alert) hook in via notifyNewLead().
+    const CADENCE = [
+      { label: 'First contact — call the seller', channel: 'Call', day: 0 },
+      { label: 'Follow-up call', channel: 'Call', day: 3 },
+      { label: 'Text check-in', channel: 'Text', day: 7 },
+      { label: 'Second-touch mailer', channel: 'Mail', day: 14 },
+      { label: 'Final follow-up + re-offer', channel: 'Call', day: 30 }
+    ];
+    // Leads still being worked toward a first deal ride the cadence.
+    const CADENCE_STAGES = ['pending', 'opportunity', 'offer-sent'];
+
+    function cadenceState(l) {
+      const step = typeof l.cadenceStep === 'number' ? l.cadenceStep : 0;
+      if (step >= CADENCE.length) return { done: true, step };
+      const base = l.cadenceStart || l.createdAt || new Date().toISOString();
+      const dueAt = typeof l.cadenceNextAt === 'string'
+        ? l.cadenceNextAt
+        : new Date(new Date(base).getTime() + CADENCE[step].day * 86400000).toISOString();
+      return { done: false, step, action: CADENCE[step], dueAt };
+    }
+    function logTouch(l) {
+      const cs = cadenceState(l);
+      if (cs.done) return;
+      const log = Array.isArray(l.cadenceLog) ? l.cadenceLog.slice() : [];
+      log.unshift({ step: cs.step, label: cs.action.label, channel: cs.action.channel, at: new Date().toISOString(), by: currentUser() });
+      const nextStep = cs.step + 1;
+      let nextAt = null;
+      if (nextStep < CADENCE.length) {
+        const gap = Math.max(1, CADENCE[nextStep].day - CADENCE[cs.step].day);
+        nextAt = new Date(Date.now() + gap * 86400000).toISOString();
+      }
+      patchLot(l.id, { cadenceStep: nextStep, cadenceNextAt: nextAt, cadenceLog: log });
+    }
+
+    function renderFollowups(lots) {
+      const block = document.getElementById('followupBlock');
+      const list = document.getElementById('followupList');
+      const now = Date.now();
+      const due = lots
+        .filter(l => CADENCE_STAGES.includes(l.displayStatus || l.status))
+        .map(l => ({ l, cs: cadenceState(l) }))
+        .filter(x => !x.cs.done && new Date(x.cs.dueAt).getTime() <= now)
+        .sort((a, b) => new Date(a.cs.dueAt) - new Date(b.cs.dueAt));
+      if (!due.length) { block.style.display = 'none'; return; }
+      block.style.display = 'block';
+      const overdue = due.filter(x => (now - new Date(x.cs.dueAt).getTime()) > 86400000).length;
+      document.getElementById('followupSub').textContent =
+        due.length + ' follow-up' + (due.length === 1 ? '' : 's') + ' due' + (overdue ? ' · ' + overdue + ' overdue' : '') + ' — log each touch to advance the cadence.';
+      list.innerHTML = '';
+      due.forEach(({ l, cs }) => {
+        const row = document.createElement('div'); row.className = 'opp-row blue';
+        const main = document.createElement('div'); main.className = 'opp-main';
+        const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
+        const daysOver = Math.floor((now - new Date(cs.dueAt).getTime()) / 86400000);
+        const touches = Array.isArray(l.cadenceLog) ? l.cadenceLog.length : 0;
+        const meta = document.createElement('div'); meta.className = 'opp-meta';
+        meta.textContent = 'Step ' + (cs.step + 1) + ' of ' + CADENCE.length + ' · ' + cs.action.channel +
+          (daysOver > 0 ? ' · ' + daysOver + 'd overdue' : ' · due today') +
+          (touches ? ' · ' + touches + ' touch' + (touches === 1 ? '' : 'es') + ' logged' : '');
+        const reason = document.createElement('div'); reason.className = 'opp-reason';
+        reason.textContent = '➡ ' + cs.action.label;
+        main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+        const actions = document.createElement('div'); actions.className = 'opp-actions';
+        const done = document.createElement('button'); done.className = 'opp-btn-add'; done.textContent = 'Log Touch ✓';
+        done.addEventListener('click', () => logTouch(l));
+        const snooze = document.createElement('button'); snooze.className = 'opp-btn-hold'; snooze.textContent = 'Snooze 3d';
+        snooze.addEventListener('click', () => patchLot(l.id, { cadenceNextAt: new Date(now + 3 * 86400000).toISOString() }));
+        const open = document.createElement('button'); open.className = 'opp-btn-skip'; open.textContent = 'Open';
+        open.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+        actions.appendChild(done); actions.appendChild(snooze); actions.appendChild(open);
+        row.appendChild(main); row.appendChild(actions);
+        list.appendChild(row);
+      });
+    }
+
     // Realtor CRM — one row per listing agent/brokerage, with their lots.
     const ACTIVE_OFFER = ['offer-sent', 'seller-signed', 'pending-ep-sig', 'ip', 'manager-driven', 'survey-rcvd', 'cd-approved', 'ctc'];
     function renderRealtors(lots) {
@@ -1006,11 +1345,295 @@
       });
     }
 
+    // ---------- Costs, ROI & Renewals ----------
+    const OPS_LOCAL = { accounts: 'landAcqOpsAccounts', mailCosts: 'landAcqOpsMail', cancellations: 'landAcqOpsCancel' };
+    let opsData = { accounts: [], mailCosts: [], cancellations: [] };
+
+    function parseMoney(v) {
+      const n = Number(String(v == null ? '' : v).replace(/[^0-9.]/g, ''));
+      return Number.isFinite(n) ? n : 0;
+    }
+    function fmtShort(s) {
+      if (!s) return '';
+      const d = new Date(String(s).length <= 10 ? s + 'T12:00:00' : s);
+      return isNaN(d) ? '' : (d.getMonth() + 1) + '/' + d.getDate() + '/' + String(d.getFullYear()).slice(2);
+    }
+    const CYCLE_LABEL = { monthly: 'Monthly', annual: 'Annual', 'one-time': 'One-time', unknown: 'Confirm (RI)' };
+
+    async function loadOps(key) {
+      if (mode === 'server') {
+        try {
+          const res = await fetch('/api/land-acq/ops?key=' + key, { headers: adminHeaders(), signal: AbortSignal.timeout(10000) });
+          if (res.ok) { const j = await res.json(); if (Array.isArray(j.items)) return j.items; }
+        } catch (e) { /* fall through to local cache */ }
+      }
+      try { return JSON.parse(localStorage.getItem(OPS_LOCAL[key]) || '[]'); } catch (e) { return []; }
+    }
+    async function saveOps(key) {
+      const items = opsData[key];
+      try { localStorage.setItem(OPS_LOCAL[key], JSON.stringify(items)); } catch (e) {}
+      if (mode === 'server') {
+        try {
+          await fetch('/api/land-acq/ops?key=' + key, {
+            method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, adminHeaders()),
+            body: JSON.stringify({ items }), signal: AbortSignal.timeout(10000)
+          });
+        } catch (e) { /* local cache already written */ }
+      }
+    }
+
+    // Annualized recurring cost of an active account (one-time excluded).
+    function annualCost(a) {
+      if (a.status === 'cancelled') return 0;
+      const c = parseMoney(a.cost);
+      if (a.cycle === 'monthly') return c * 12;
+      if (a.cycle === 'annual') return c;
+      return 0;
+    }
+    function renewBadge(dateStr) {
+      if (!dateStr) return { cls: 'gray', txt: 'No date set' };
+      const d = new Date(dateStr + 'T12:00:00');
+      if (isNaN(d)) return { cls: 'gray', txt: '—' };
+      const days = Math.round((d - new Date(new Date().toDateString())) / 86400000);
+      if (days < 0) return { cls: 'due', txt: 'Overdue · ' + fmtShort(dateStr) };
+      if (days <= 30) return { cls: 'soon', txt: days + 'd · ' + fmtShort(dateStr) };
+      return { cls: 'ok', txt: fmtShort(dateStr) };
+    }
+    function cell(text, cls) { const td = document.createElement('td'); if (cls) td.className = cls; td.textContent = text == null ? '' : text; return td; }
+    function badgeCell(txt, cls) { const td = document.createElement('td'); const s = document.createElement('span'); s.className = 'ops-badge ' + cls; s.textContent = txt; td.appendChild(s); return td; }
+    function delCell(key, i) {
+      const td = document.createElement('td');
+      const b = document.createElement('button'); b.className = 'o-del'; b.title = 'Remove'; b.textContent = '✕';
+      b.addEventListener('click', async () => { opsData[key].splice(i, 1); await saveOps(key); renderOps(); });
+      td.appendChild(b); return td;
+    }
+    function emptyRow(tbody, cols, msg) {
+      const tr = document.createElement('tr'); const td = document.createElement('td');
+      td.colSpan = cols; td.className = 'ops-empty'; td.textContent = msg; tr.appendChild(td); tbody.appendChild(tr);
+    }
+
+    function renderOps() {
+      // --- Accounts & Subscriptions ---
+      const subRows = document.getElementById('subsRows'); subRows.textContent = '';
+      const accts = opsData.accounts;
+      if (!accts.length) emptyRow(subRows, 8, 'No accounts yet — add each paid site/tool so renewals never sneak up.');
+      accts.forEach((a, i) => {
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(a.name, 'o-svc'));
+        tr.appendChild(cell(a.login || '—'));
+        tr.appendChild(cell(a.vault || '—'));
+        const cost = parseMoney(a.cost);
+        tr.appendChild(cell(cost ? money(cost) : '—'));
+        tr.appendChild(cell(CYCLE_LABEL[a.cycle] || a.cycle || '—'));
+        const rb = renewBadge(a.renew); tr.appendChild(badgeCell(rb.txt, rb.cls));
+        const statusMap = { active: ['ok', 'Active'], trial: ['soon', 'Trial'], needed: ['due', 'Access Needed'], cancelled: ['gray', 'Cancelled'] };
+        const sm = statusMap[a.status] || ['gray', a.status || '—'];
+        tr.appendChild(badgeCell(sm[1], sm[0]));
+        tr.appendChild(delCell('accounts', i));
+        subRows.appendChild(tr);
+      });
+      const dueSoon = accts.filter(a => a.status !== 'cancelled' && a.renew && renewBadge(a.renew).cls !== 'ok' && renewBadge(a.renew).cls !== 'gray').length;
+      const annualSubs = accts.reduce((s, a) => s + annualCost(a), 0);
+      const confirmRI = accts.filter(a => a.cycle === 'unknown').length;
+      document.getElementById('subsRenewHint').textContent =
+        (accts.length ? money(annualSubs) + '/yr recurring' : '') +
+        (dueSoon ? ' · ' + dueSoon + ' renewing soon' : '') +
+        (confirmRI ? ' · ' + confirmRI + ' billing-cycle to confirm (RI)' : '');
+
+      // --- Mailing costs ---
+      const mailRows = document.getElementById('mailRows'); mailRows.textContent = '';
+      const mails = opsData.mailCosts;
+      if (!mails.length) emptyRow(mailRows, 7, 'No mailings logged — add a batch to track print + postage.');
+      let mailTotal = 0, postageTotal = 0, piecesTotal = 0;
+      mails.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).forEach((m) => {
+        const realIndex = mails.indexOf(m);
+        const print = parseMoney(m.print), postage = parseMoney(m.postage), pieces = parseMoney(m.pieces);
+        mailTotal += print + postage; postageTotal += postage; piecesTotal += pieces;
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(fmtShort(m.date) || '—'));
+        tr.appendChild(cell(m.batch, 'o-svc'));
+        tr.appendChild(cell(pieces ? pieces.toLocaleString('en-US') : '—'));
+        tr.appendChild(cell(print ? money(print) : '—'));
+        tr.appendChild(cell(postage ? money(postage) : '—'));
+        tr.appendChild(cell(money(print + postage)));
+        tr.appendChild(delCell('mailCosts', realIndex));
+        mailRows.appendChild(tr);
+      });
+      document.getElementById('mailTotalHint').textContent =
+        mails.length ? (money(mailTotal) + ' total · ' + money(postageTotal) + ' postage · ' + piecesTotal.toLocaleString('en-US') + ' pieces') : '';
+
+      // --- Cancellations ---
+      const cxRows = document.getElementById('cancelRows'); cxRows.textContent = '';
+      const cancels = opsData.cancellations;
+      if (!cancels.length) emptyRow(cxRows, 5, 'No cancelled contracts logged.');
+      cancels.slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).forEach((c) => {
+        const realIndex = cancels.indexOf(c);
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(fmtShort(c.date) || '—'));
+        tr.appendChild(cell(c.address, 'o-svc'));
+        tr.appendChild(cell(c.reason || '—'));
+        tr.appendChild(cell(c.notes || '—'));
+        tr.appendChild(delCell('cancellations', realIndex));
+        cxRows.appendChild(tr);
+      });
+      const REASONS = ['Location', 'Neighbor', 'Soils', 'Endangered species', 'Title/fraud', 'Other'];
+      const bd = document.getElementById('cancelBreakdown'); bd.textContent = '';
+      if (cancels.length) {
+        REASONS.forEach(r => {
+          const n = cancels.filter(c => c.reason === r).length;
+          if (!n) return;
+          const chip = document.createElement('span'); chip.className = 'rz';
+          const b = document.createElement('b'); b.textContent = n;
+          chip.appendChild(b); chip.appendChild(document.createTextNode(' ' + r));
+          bd.appendChild(chip);
+        });
+      }
+      document.getElementById('cancelHint').textContent = cancels.length ? (cancels.length + ' logged') : '';
+
+      // --- Commissions to Adams Homes (on-market deals in the pipeline) ---
+      const COMM_STAGES = ['offer-sent', 'seller-signed', 'pending-ep-sig', 'ip', 'manager-driven', 'survey-rcvd', 'cd-approved', 'ctc', 'closed'];
+      const isListedDeal = l => l.listingType === 'listed' ||
+        (l.listingType !== 'off-market' && (!!l.agentBrokerage || !!l.agentName || typeof l.listPrice === 'number' || /listing|active|auction/i.test(l.listStatus || '')));
+      const commDeals = lastLots.filter(l => COMM_STAGES.includes(l.displayStatus || l.status) && isListedDeal(l));
+      const commRows = document.getElementById('commRows'); commRows.textContent = '';
+      let commTotal = 0, pctSum = 0, fullCount = 0, reducedCount = 0;
+      if (!commDeals.length) emptyRow(commRows, 6, 'No on-market deals in progress yet — commissions show here once listed deals enter the pipeline.');
+      commDeals.forEach(l => {
+        const contract = parseMoney(l.offer) || Number(l.listPrice) || Number(l.offerSuggested) || 0;
+        const pct = typeof l.commissionPct === 'number' ? l.commissionPct : 3;
+        const amt = (typeof l.commissionAmt === 'number' && l.commissionAmt) ? l.commissionAmt : Math.round(contract * pct / 100);
+        commTotal += amt; pctSum += pct;
+        const hold = pct >= 3 ? ['ok', 'Full 3%'] : pct > 0 ? ['soon', 'Reduced'] : ['due', 'Waived'];
+        if (pct >= 3) fullCount++; else reducedCount++;
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(l.address || '—', 'o-svc'));
+        tr.appendChild(cell(contract ? money(contract) : '—'));
+        tr.appendChild(cell(pct + '%'));
+        tr.appendChild(cell(amt ? money(amt) : '—'));
+        tr.appendChild(badgeCell(l.commissionConfirmed ? 'Confirmed' : 'Pending', l.commissionConfirmed ? 'ok' : 'gray'));
+        tr.appendChild(badgeCell(hold[1], hold[0]));
+        commRows.appendChild(tr);
+      });
+      const avgPct = commDeals.length ? (pctSum / commDeals.length).toFixed(1) : '0';
+      document.getElementById('commHint').textContent = commDeals.length
+        ? (money(commTotal) + ' retained · avg ' + avgPct + '% · ' + fullCount + ' full 3% · ' + reducedCount + ' reduced/waived')
+        : '';
+
+      // --- Lead source performance (conversion by source) ---
+      const srcRows = document.getElementById('srcRows'); srcRows.textContent = '';
+      const srcMap = new Map();
+      lastLots.forEach(l => {
+        const s = (l.source || 'Unknown').trim() || 'Unknown';
+        if (!srcMap.has(s)) srcMap.set(s, { leads: 0, contracted: 0, closed: 0 });
+        const e = srcMap.get(s); e.leads++;
+        const st = l.displayStatus || l.status;
+        if (ACCEPTED.includes(st)) e.contracted++;
+        if (st === 'closed') e.closed++;
+      });
+      const srcRanked = Array.from(srcMap.entries())
+        .map(([source, v]) => Object.assign({ source, conv: v.leads ? v.contracted / v.leads : 0 }, v))
+        .sort((a, b) => b.contracted - a.contracted || b.leads - a.leads);
+      if (!srcRanked.length) emptyRow(srcRows, 5, 'No leads yet.');
+      srcRanked.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.appendChild(cell(r.source, 'o-svc'));
+        tr.appendChild(cell(String(r.leads)));
+        tr.appendChild(cell(String(r.contracted)));
+        tr.appendChild(cell(String(r.closed)));
+        tr.appendChild(badgeCell(Math.round(r.conv * 100) + '%', r.conv >= 0.1 ? 'ok' : r.conv > 0 ? 'soon' : 'gray'));
+        srcRows.appendChild(tr);
+      });
+      const bestSrc = srcRanked.find(r => r.contracted > 0);
+      document.getElementById('srcHint').textContent = bestSrc ? ('top converter: ' + bestSrc.source) : '';
+
+      // --- ROI tiles (mailing spend is the direct acquisition cost) ---
+      const contracts = lastLots.filter(l => ACCEPTED.includes(l.displayStatus || l.status)).length;
+      const closed = lastLots.filter(l => (l.displayStatus || l.status) === 'closed').length;
+      const cancelCount = cancels.length;
+      const roi = document.getElementById('opsRoi'); roi.textContent = '';
+      const tiles = [
+        { val: contracts, lbl: 'Deals Contracted', sub: closed + ' closed' },
+        { val: money(mailTotal), lbl: 'Mailing Spend', sub: piecesTotal.toLocaleString('en-US') + ' pieces' },
+        { val: contracts ? money(Math.round(mailTotal / contracts)) : '—', lbl: 'Cost / Contract', sub: 'mail spend ÷ contracts' },
+        { val: money(commTotal), lbl: 'Commissions Held', sub: commDeals.length ? ('avg ' + avgPct + '% · ' + reducedCount + ' given away') : 'on-market deals' },
+        { val: money(annualSubs), lbl: 'Subscriptions / yr', sub: accts.filter(a => a.status !== 'cancelled').length + ' active tools' },
+        { val: cancelCount, lbl: 'Cancellations', sub: contracts ? Math.round((cancelCount / (contracts + cancelCount)) * 100) + '% of contracts' : 'no reasons yet' }
+      ];
+      tiles.forEach(t => {
+        const d = document.createElement('div'); d.className = 'roi-tile';
+        const v = document.createElement('div'); v.className = 'roi-val'; v.textContent = t.val;
+        const l = document.createElement('div'); l.className = 'roi-lbl'; l.textContent = t.lbl;
+        const s = document.createElement('div'); s.className = 'roi-sub'; s.textContent = t.sub;
+        d.appendChild(v); d.appendChild(l); d.appendChild(s); roi.appendChild(d);
+      });
+      document.getElementById('opsSummary').textContent =
+        'Costs, ROI & Renewals' + (dueSoon ? ' — ' + dueSoon + ' renewal' + (dueSoon === 1 ? '' : 's') + ' due soon' : '');
+    }
+
+    async function loadAllOps() {
+      const [accounts, mailCosts, cancellations] = await Promise.all([
+        loadOps('accounts'), loadOps('mailCosts'), loadOps('cancellations')
+      ]);
+      opsData = { accounts, mailCosts, cancellations };
+      renderOps();
+    }
+
+    // Ops modal wiring
+    function opsModal(id) { return document.getElementById(id); }
+    function bindOpsModal(overlayId, cancelBtnId) {
+      const ov = opsModal(overlayId);
+      ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('show'); });
+      document.getElementById(cancelBtnId).addEventListener('click', () => ov.classList.remove('show'));
+    }
+    bindOpsModal('subOverlay', 'sCancel');
+    bindOpsModal('mailOverlay', 'mCancel');
+    bindOpsModal('cancelOverlay', 'cCancel');
+    document.getElementById('addSubBtn').addEventListener('click', () => opsModal('subOverlay').classList.add('show'));
+    document.getElementById('addMailBtn').addEventListener('click', () => opsModal('mailOverlay').classList.add('show'));
+    document.getElementById('addCancelBtn').addEventListener('click', () => opsModal('cancelOverlay').classList.add('show'));
+
+    document.getElementById('subForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const v = id => document.getElementById(id).value.trim();
+      if (!v('sName')) { document.getElementById('sErr').style.display = 'block'; return; }
+      opsData.accounts.push({
+        name: v('sName'), login: v('sLogin'), vault: v('sVault'), category: v('sCategory'),
+        url: v('sUrl'), cost: v('sCost'), cycle: v('sCycle'), renew: v('sRenew'),
+        status: v('sStatus'), notes: v('sNotes'), addedAt: new Date().toISOString()
+      });
+      await saveOps('accounts'); this.reset(); document.getElementById('sErr').style.display = 'none';
+      opsModal('subOverlay').classList.remove('show'); renderOps();
+    });
+    document.getElementById('mailForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const v = id => document.getElementById(id).value.trim();
+      if (!v('mBatch')) { document.getElementById('mErr').style.display = 'block'; return; }
+      opsData.mailCosts.push({
+        date: v('mDate') || new Date().toISOString().slice(0, 10), batch: v('mBatch'), pieces: v('mPieces'),
+        print: v('mPrint'), postage: v('mPostage'), vendor: v('mVendor')
+      });
+      await saveOps('mailCosts'); this.reset(); document.getElementById('mErr').style.display = 'none';
+      opsModal('mailOverlay').classList.remove('show'); renderOps();
+    });
+    document.getElementById('cancelForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const v = id => document.getElementById(id).value.trim();
+      if (!v('cAddress')) { document.getElementById('cErr').style.display = 'block'; return; }
+      opsData.cancellations.push({
+        date: v('cDate') || new Date().toISOString().slice(0, 10), address: v('cAddress'),
+        reason: document.getElementById('cReason').value, offer: v('cOffer'), notes: v('cNotes')
+      });
+      await saveOps('cancellations'); this.reset(); document.getElementById('cErr').style.display = 'none';
+      opsModal('cancelOverlay').classList.remove('show'); renderOps();
+    });
+
     async function render() {
       const lots = await loadLots();
       renderOpportunities(lots);
       renderReoffer(lots);
+      renderFollowups(lots);
       renderRealtors(lots);
+      loadAllOps();
 
       // KPIs (live pipeline stages; Closed shows this-month only)
       const count = st => lots.filter(l => l.displayStatus === st).length;
@@ -1206,6 +1829,7 @@
         const idx = {}; headers.forEach((h, i) => idx[h] = i);
         const get = (r, names) => { for (const n of names) if (idx[n] != null) return (r[idx[n]] || '').trim(); return ''; };
         const lots = [];
+        let staged = 0;
         for (let i = 1; i < rows.length; i++) {
           const r = rows[i]; if (!r.length || r.every(c => !String(c).trim())) continue;
           const address = get(r, ['address', 'property address', 'site address']);
@@ -1214,23 +1838,124 @@
           const email = get(r, ['owner email', 'email']);
           const mailing = get(r, ['mailing address', 'owner mailing address']);
           const contact = [mailing, phone, email].filter(Boolean).join(' | ');
+          // Optional Stage/Status column lets Kevin drop in-progress deals at the
+          // right pipeline stage. No stage column → mailer contact → worklist.
+          const rawStage = get(r, ['stage', 'status', 'pipeline stage']);
+          const status = normalizeStage(rawStage);
+          if (rawStage && status !== 'opportunity') staged++;
           lots.push({
             address,
             owner: get(r, ['owner name', 'owner']),
             ownerContact: contact || undefined,
+            offer: get(r, ['offer', 'offer amount', 'price']) || undefined,
             lotSize: get(r, ['lot size', 'acres']) || undefined,
-            source: get(r, ['source']) || 'Imported Contact',
+            source: get(r, ['source']) || (status === 'opportunity' ? 'Imported Contact' : 'Existing Deal'),
             lotNote: get(r, ['notes', 'note']) || undefined,
-            status: 'opportunity'
+            status
           });
         }
         if (!lots.length) { importMsg('No rows with a valid Address were found. Required column: Address.', false); return; }
-        importMsg('Importing ' + lots.length + ' contact' + (lots.length === 1 ? '' : 's') + '…', true);
-        const res = await importLots(lots);
-        importMsg('Imported ' + res.added + ' new · ' + res.duplicates + ' already in system' + (res.failed ? ' · ' + res.failed + ' failed' : '') + '.', true);
-        render();
+        openImportPreview(lots, staged);
       } catch (e) {
         importMsg('Could not read that file. Use a .csv with an Address column.', false);
+      }
+    });
+
+    // Map a free-text Stage/Status cell to a valid pipeline status. Accepts the
+    // raw status keys and common friendly labels; anything unrecognized (or
+    // blank) falls back to the worklist ('opportunity').
+    const VALID_STATUSES = ['opportunity','opportunity-hold','dismissed','offer-denied','pending','offer-sent','seller-signed','pending-ep-sig','ip','manager-driven','survey-rcvd','cd-approved','ctc','closed'];
+    const STAGE_ALIASES = {
+      'new lead': 'pending', 'lead': 'pending', 'pre-offer': 'pending', 'new': 'pending',
+      'offer sent': 'offer-sent', 'sent': 'offer-sent',
+      'offer accepted': 'seller-signed', 'accepted': 'seller-signed', 'seller signed': 'seller-signed', 'under contract': 'seller-signed',
+      'pending ep signature': 'pending-ep-sig', 'pending ep sig': 'pending-ep-sig', 'awaiting signature': 'pending-ep-sig',
+      'inspection period': 'ip', 'inspection': 'ip', 'due diligence': 'ip',
+      'manager driven': 'manager-driven',
+      "survey rcv'd": 'survey-rcvd', 'survey received': 'survey-rcvd', 'survey': 'survey-rcvd',
+      'cd approved': 'cd-approved',
+      'clear to close': 'ctc', 'cleared to close': 'ctc',
+      'closed': 'closed', 'complete': 'closed'
+    };
+    function normalizeStage(raw) {
+      const s = String(raw || '').trim().toLowerCase();
+      if (!s) return 'opportunity';
+      const key = s.replace(/[_/]+/g, '-').replace(/\s+/g, ' ');
+      if (VALID_STATUSES.includes(key.replace(/\s+/g, '-'))) return key.replace(/\s+/g, '-');
+      if (VALID_STATUSES.includes(s)) return s;
+      return STAGE_ALIASES[s] || STAGE_ALIASES[key] || 'opportunity';
+    }
+    const STAGE_LABELS = {
+      'opportunity': 'Worklist (mailer)', 'opportunity-hold': 'On hold', 'pending': 'New Lead',
+      'offer-sent': 'Offer Sent', 'seller-signed': 'Accepted', 'pending-ep-sig': 'Pending EP Sig',
+      'ip': 'Inspection', 'manager-driven': 'Manager Driven', 'survey-rcvd': "Survey Rcv'd",
+      'cd-approved': 'CD Approved', 'ctc': 'Clear to Close', 'closed': 'Closed', 'offer-denied': 'Offer Denied'
+    };
+
+    // Review/confirm before anything is written — Kevin sees exactly what will
+    // be added (and which rows already exist) and clicks Confirm & Add.
+    const ipOverlay = document.getElementById('importPreviewOverlay');
+    let pendingImport = [];
+    function existingKeys() {
+      return new Set((lastLots || []).map(l => (l.address || '').toLowerCase().replace(/[^a-z0-9]/g, '')));
+    }
+    function openImportPreview(lots, staged) {
+      const have = existingKeys();
+      const seen = new Set();
+      let dups = 0;
+      pendingImport = [];
+      const tbody = document.getElementById('ipRows');
+      tbody.textContent = '';
+      lots.forEach((l, i) => {
+        const key = (l.address || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const isDup = have.has(key) || seen.has(key);
+        seen.add(key);
+        if (isDup) dups++; else pendingImport.push(l);
+        const tr = document.createElement('tr');
+        if (isDup) tr.className = 'p-dup';
+        const cells = [
+          String(i + 1),
+          l.address || '',
+          l.owner || '—',
+          STAGE_LABELS[l.status] || l.status || 'Worklist',
+          l.offer ? (String(l.offer).startsWith('$') ? l.offer : '$' + l.offer) : '—'
+        ];
+        cells.forEach((val, ci) => {
+          const td = document.createElement('td');
+          if (ci === 3) td.className = 'p-stage';
+          td.textContent = val;
+          if (ci === 1 && isDup) { const b = document.createElement('span'); b.className = 'p-badge'; b.textContent = 'already in system'; td.appendChild(b); }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      const stageMsg = staged ? (staged + ' at a set pipeline stage · ') : '';
+      document.getElementById('ipSummary').textContent =
+        pendingImport.length + ' new to add · ' + stageMsg + dups + ' already in system (skipped).';
+      document.getElementById('ipSub').textContent = staged
+        ? 'These include in-progress deals — check the Stage column, then confirm.'
+        : 'These are mailer contacts (they go to the worklist). Check them, then confirm.';
+      document.getElementById('ipErr').style.display = 'none';
+      const confirmBtn = document.getElementById('ipConfirm');
+      confirmBtn.disabled = pendingImport.length === 0;
+      confirmBtn.textContent = pendingImport.length ? ('Confirm & Add ' + pendingImport.length) : 'Nothing new to add';
+      ipOverlay.classList.add('show');
+    }
+    function closeImportPreview() { ipOverlay.classList.remove('show'); pendingImport = []; }
+    document.getElementById('ipCancel').addEventListener('click', closeImportPreview);
+    ipOverlay.addEventListener('click', e => { if (e.target === ipOverlay) closeImportPreview(); });
+    document.getElementById('ipConfirm').addEventListener('click', async function() {
+      if (!pendingImport.length) return;
+      this.disabled = true; this.textContent = 'Adding…';
+      try {
+        const res = await importLots(pendingImport);
+        closeImportPreview();
+        importMsg('Added ' + res.added + ' · ' + res.duplicates + ' already in system' + (res.failed ? ' · ' + res.failed + ' failed' : '') + '.', true);
+        render();
+      } catch (e) {
+        const err = document.getElementById('ipErr');
+        err.textContent = 'Could not save — check the connection and try again.'; err.style.display = 'block';
+        this.disabled = false; this.textContent = 'Confirm & Add ' + pendingImport.length;
       }
     });
 
@@ -1336,6 +2061,51 @@
         '<p class="no-print">Each QR is unique to its property for per-lot scan tracking. Print, or use for variable-data mailing.</p>' +
         '<div class="grid">' + cards + '</div>');
       w.document.close();
+    });
+
+    // ---------- Off-Market Sweep (county buy-box mailer generator) ----------
+    const swOverlay = document.getElementById('sweepOverlay');
+    function swMsg(t) { document.getElementById('swResult').textContent = t; }
+    function swParams(extra) {
+      const q = new URLSearchParams();
+      q.set('minAcres', document.getElementById('swMinAcres').value || '0.2');
+      q.set('maxAcres', document.getElementById('swMaxAcres').value || '2');
+      q.set('maxValue', document.getElementById('swMaxValue').value || '40000');
+      q.set('absentee', document.getElementById('swAbsentee').checked ? '1' : '0');
+      q.set('limit', document.getElementById('swLimit').value || '50');
+      Object.entries(extra || {}).forEach(([k, v]) => q.set(k, v));
+      return q.toString();
+    }
+    async function swFetch(countOnly) {
+      if (mode !== 'server') { swMsg('The sweep runs on the live site (it queries the county API).'); return null; }
+      try {
+        const res = await fetch('/api/land-acq/market-sweep?' + swParams(countOnly ? { count: '1' } : {}),
+          { headers: adminHeaders(), signal: AbortSignal.timeout(28000) });
+        if (!res.ok) { swMsg('County lookup failed (' + res.status + ').'); return null; }
+        return await res.json();
+      } catch (e) { swMsg('County lookup timed out — try a smaller pull.'); return null; }
+    }
+    document.getElementById('sweepBtn').addEventListener('click', () => { swOverlay.classList.add('show'); swMsg('Set your filters and click Preview Count.'); });
+    document.getElementById('swCancel').addEventListener('click', () => swOverlay.classList.remove('show'));
+    swOverlay.addEventListener('click', e => { if (e.target === swOverlay) swOverlay.classList.remove('show'); });
+    document.getElementById('swPreview').addEventListener('click', async () => {
+      swMsg('Counting…'); const d = await swFetch(true);
+      if (d) swMsg((d.count || 0).toLocaleString() + ' vacant lots match your buy box.');
+    });
+    document.getElementById('swCsv').addEventListener('click', async () => {
+      swMsg('Pulling list…'); const d = await swFetch(false); if (!d || !d.lots) return;
+      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const head = ['Owner', 'Owner Mailing Address', 'Property Address', 'Parcel', 'Acres', 'Assessed Land Value', 'Blind Offer'];
+      const lines = [head.join(',')].concat(d.lots.map(l => [l.owner, l.ownerContact, l.address, l.parcel, l.acres, l.taxValue, '$30,000'].map(esc).join(',')));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'off-market-mailer.csv'; a.click(); URL.revokeObjectURL(a.href);
+      swMsg('Downloaded ' + d.lots.length + ' recipients.');
+    });
+    document.getElementById('swAdd').addEventListener('click', async () => {
+      swMsg('Pulling list…'); const d = await swFetch(false); if (!d || !d.lots) return;
+      const lots = d.lots.map(l => ({ address: l.address, owner: l.owner, ownerContact: l.ownerContact, acres: l.acres, lotSize: l.lotSize, taxValue: l.taxValue, parcel: l.parcel, source: l.source, listStatus: l.listStatus, status: 'opportunity' }));
+      try { const r = await importLots(lots); swMsg('Added ' + r.added + ' to the worklist · ' + r.duplicates + ' already there.'); render(); }
+      catch (e) { swMsg('Could not add to the worklist (is the database up?).'); }
     });
 
     // ---------- Stipend settings (shared, audit-logged) ----------
