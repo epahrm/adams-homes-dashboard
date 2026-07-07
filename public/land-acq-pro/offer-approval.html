@@ -343,7 +343,8 @@
         <h3>Offer Packet</h3>
         <div class="hint">Generates the seller packet: your Vacant Land Contract (VAC-14) <b>auto-filled</b> with the terms below + Kevin's cover letter (14-day expiration) + the county property card.</div>
         <div class="actions" style="margin-top:12px;">
-          <button type="button" class="btn btn-outline" id="previewContractBtn">Preview Filled Contract</button>
+          <button type="button" class="btn btn-primary" id="downloadPdfBtn">Generate Offer PDF (Cover · Contract · Exhibit A)</button>
+          <button type="button" class="btn btn-outline" id="previewContractBtn" style="margin-top:12px;">Preview Filled Contract</button>
           <button type="button" class="btn btn-outline" id="previewPacketBtn" style="margin-top:12px;">Preview Cover Letter</button>
         </div>
         <div class="packet" id="packetPreview"></div>
@@ -590,7 +591,7 @@
       const c = resolveCommission();
       const commLine = c.listed
         ? c.pct + '% Buyer’s Agent Commission (' + money(c.amt) + ') — negotiated with Seller’s Broker, assigned to Buyer and credited to Buyer on the closing statement'
-        : 'None — off-market deal ($0)';
+        : '$0';
       return [
         'ADAMS HOMES — VACANT LAND CONTRACT (Florida Realtors VAC-14) — auto-filled offer terms',
         '',
@@ -628,6 +629,100 @@
         '  Buyer: Elizabeth Porter, Regional Manager — Adams Homes of Northwest Florida, Inc.',
         '  ECLand@AdamsHomes.Com · 407-523-0908'
       ].join('\n');
+    }
+
+    function escHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // The literal, print-ready offer packet PDF: cover letter + filled Vacant
+    // Land Contract offer + Exhibit "A" (Brevard County Property Appraiser card),
+    // each on its own page with Buyer/Seller initial lines and signature spots.
+    // Opened in a print window so it saves straight to PDF for Dotloop.
+    function buildPacketHtml() {
+      const price = document.getElementById('offerAmount').value.trim() || '$_____';
+      const emd = document.getElementById('emd').value.trim() || '$100';
+      const seller = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '__________';
+      const address = lot.address || 'See Exhibit "A"';
+      const legalM = (lot.ownerContact || '').match(/legal:\s*([^|]+)/i);
+      const legal = lot.legal || (legalM ? legalM[1].trim() : '') || 'See Exhibit "A"';
+      const parcel = lot.parcel || 'See Exhibit "A"';
+      const c = resolveCommission();
+      const commLine = c.listed
+        ? c.pct + '% Buyer’s Agent Commission (' + money(c.amt) + ') — negotiated with Seller’s Broker, assigned to Buyer and credited to Buyer on the closing statement'
+        : '$0';
+      const exp = lot.offerExpires ? fmtDate(lot.offerExpires) : fmtDate(addDays(new Date().toISOString(), OFFER_VALID_DAYS));
+      const lotSize = lot.lotSize || (lot.acres ? lot.acres + ' acres' : '—');
+      const zoning = lot.zoning || 'Residential (vacant)';
+      const utilities = lot.utilities || '—';
+      const taxVal = lot.taxValue || '—';
+      const annualTax = lot.annualTax || '';
+      const initials = '<div class="ini"><span>Buyer <b>______</b></span><span>Seller <b>______</b></span></div>';
+      const row = (k, v) => '<tr><td class="k">' + k + '</td><td>' + v + '</td></tr>';
+      return '<!doctype html><html><head><meta charset="utf-8"><title>Adams Homes Offer — ' + escHtml(address) + '</title><style>'
+        + '@page{size:letter;margin:.6in}*{box-sizing:border-box}'
+        + "body{font-family:Georgia,'Times New Roman',serif;color:#1a2330;font-size:12px;line-height:1.5;margin:0}"
+        + '.page{page-break-after:always;min-height:9in;position:relative;padding-bottom:44px}.page:last-child{page-break-after:auto}'
+        + 'h1{font-size:18px;color:#0a2c52;margin:0 0 4px}h2{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#0a2c52;border-bottom:2px solid #0a2c52;padding-bottom:4px;margin:18px 0 10px}'
+        + '.brand{font-size:22px;font-weight:bold;color:#0a2c52;letter-spacing:.5px}.muted{color:#667;font-size:11px}'
+        + 'pre{font-family:inherit;white-space:pre-wrap;margin:0;font-size:12px}'
+        + 'table.kv{width:100%;border-collapse:collapse}table.kv td{padding:5px 8px;border-bottom:1px solid #e3e8ef;vertical-align:top}table.kv td.k{width:34%;color:#556;font-weight:bold}'
+        + '.ini{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:flex-end;gap:40px;font-size:11px;color:#445}'
+        + '.sig{margin-top:24px}.sigline{border-top:1px solid #333;width:320px;margin-top:32px;padding-top:3px;font-size:11px;color:#556}'
+        + '.tag{display:inline-block;background:#0a2c52;color:#fff;font-weight:bold;letter-spacing:2px;padding:4px 14px;border-radius:3px}'
+        + '</style></head><body>'
+        + '<div class="page"><div class="brand">ADAMS HOMES</div>'
+        + '<div class="muted">Regional Land Acquisitions — Orlando · 4401 Vineland Rd. A-11, Orlando, FL 32811</div>'
+        + '<h2>Cash Offer — Cover Letter</h2><pre>' + escHtml(coverLetter()) + '</pre></div>'
+        + '<div class="page"><h1>Vacant Land Contract — Offer</h1>'
+        + '<div class="muted">Florida Realtors VAC-14 + Adams Homes Addendum · Offer expires ' + escHtml(exp) + '</div>'
+        + '<h2>Parties &amp; Property</h2><table class="kv">'
+        + row('Seller', escHtml(seller))
+        + row('Buyer', 'Adams Homes of Northwest Florida, Inc. (a Florida corporation)')
+        + row('Property Address', escHtml(address))
+        + row('Legal Description', escHtml(legal))
+        + row('County / Real Property ID', 'Brevard — ' + escHtml(parcel) + ' (see Exhibit “A”)')
+        + '</table><h2>Price &amp; Terms</h2><table class="kv">'
+        + row('Purchase Price', escHtml(price) + ' — all cash, no financing contingency (¶6a)')
+        + row('Initial Deposit', escHtml(emd) + ' to Escrow Agent within 10 days of Effective Date (¶2a)')
+        + row('Balance to Close', 'Wire / collected funds at closing (¶2e)')
+        + row('Escrow Agent', 'Emmanuel, Sheppard &amp; Condon, P.A. — John Monroe · 30 S. Spring St., Pensacola, FL 32502 · (850) 433-6581 · jwm@esclaw.com')
+        + row('Due Diligence', '45 days after Effective Date (¶9a1)')
+        + row('Closing', 'On/before 10 business days after the Due Diligence Period (¶4)')
+        + row('Title', 'Statutory warranty deed; title evidence at Buyer’s expense, ≥ 2 days before closing (¶8)')
+        + row('Assignability', 'Buyer may not assign (¶7)')
+        + row('Closing Costs', 'Seller pays $350 toward Escrow settlement charge; Buyer pays the balance')
+        + row('Addendum', 'Addendum for Vacant Land Contract attached (¶22C)')
+        + row('Buyer’s Broker', 'Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388) · 100 W. Garden St., 2nd Floor, Pensacola, FL 32502')
+        + row('Commission', escHtml(commLine))
+        + '</table><div class="sig"><div class="muted">Seller signs first; Buyer (Elizabeth Porter, Regional Manager) counter-signs last — the Effective Date.</div>'
+        + '<div class="sigline">Seller signature &nbsp;·&nbsp; Date</div>'
+        + '<div class="sigline">Buyer: Elizabeth Porter, Regional Manager — Adams Homes &nbsp;·&nbsp; Date</div></div>' + initials + '</div>'
+        + '<div class="page"><div class="tag">EXHIBIT “A”</div>'
+        + '<h1 style="margin-top:12px">Brevard County Property Appraiser Card</h1>'
+        + '<div class="muted">Property &amp; legal description referenced in the Vacant Land Contract above.</div>'
+        + '<table class="kv" style="margin-top:14px">'
+        + row('Property Address', escHtml(address))
+        + row('Parcel ID', escHtml(parcel))
+        + row('Owner of Record', escHtml(seller))
+        + row('Legal Description', escHtml(legal))
+        + row('Lot Size', escHtml(lotSize))
+        + row('Zoning / Use', escHtml(zoning))
+        + row('Utilities', escHtml(utilities))
+        + row('Assessed Value', escHtml(taxVal) + (annualTax ? ' · Annual Tax ' + escHtml(annualTax) : ''))
+        + '</table><div class="sig"><div class="muted">By initialing below, Seller and Buyer acknowledge this Exhibit “A” as the property described in the Contract.</div>'
+        + '<div class="sigline">Seller initials &nbsp;·&nbsp; Date</div>'
+        + '<div class="sigline">Buyer initials &nbsp;·&nbsp; Date</div></div>' + initials + '</div>'
+        + '</body></html>';
+    }
+
+    function printPacket() {
+      const w = window.open('', '_blank');
+      if (!w) { msg('Please allow pop-ups so the offer PDF can open, then try again.', false); return; }
+      w.document.write(buildPacketHtml());
+      w.document.close();
+      w.focus();
+      setTimeout(() => { try { w.print(); } catch (e) { /* user can print manually */ } }, 350);
     }
 
     // Post-closing thank-you + referral-request letter.
@@ -1004,6 +1099,7 @@
       p.textContent = contractSummary();
       p.classList.add('show');
     });
+    document.getElementById('downloadPdfBtn').addEventListener('click', printPacket);
     document.getElementById('docUpload').addEventListener('change', async function() {
       const files = Array.from(this.files || []);
       if (!files.length) return;
