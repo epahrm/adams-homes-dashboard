@@ -176,6 +176,27 @@ async function noHorizontalOverflow(page) {
     check('stipend column present in table',
       (await page.locator('table thead th').allTextContents()).includes('Stipend'));
 
+    // ---------- Buy Box reference panel ----------
+    check('buy box notes panel present', await page.locator('#buyBoxPanel').count() === 1);
+    await page.locator('#buyBoxPanel > summary').click();
+    const bbText = await page.textContent('#buyBoxPanel');
+    check('buy box notes list the criteria',
+      /Palm Bay ZIPs/i.test(bbText) && /stipend/i.test(bbText) && /Vacant/i.test(bbText));
+    check('buy box notes say where opportunities show',
+      /On-Market Opportunities/i.test(bbText) && /Off-Market Opportunities/i.test(bbText));
+
+    // ---------- Opportunity boxes always discoverable ----------
+    check('on-market opportunities box visible (empty-state ok)',
+      await page.locator('#oppsOnMarket').isVisible());
+    check('off-market opportunities box visible (empty-state ok)',
+      await page.locator('#oppsOffMarket').isVisible());
+
+    // ---------- Offer Follow-Up Due (offer sent 3+ days, no movement) ----------
+    check('offer follow-up block shows for a stale offer-sent lot',
+      await page.locator('#offerFollowBlock').isVisible());
+    check('offer follow-up shows a computed due date',
+      /follow-up due/i.test(await page.textContent('#offerFollowList')));
+
     // ---------- Data sync to admin ----------
     const leadsText = await page.textContent('#newLeadsBlock');
     check('new leads (pending) reach the New Leads inbox',
@@ -232,6 +253,13 @@ async function noHorizontalOverflow(page) {
     await page.waitForTimeout(100);
     check('commission defaults to 3% when listed', (await page.inputValue('#commission')) === '3%');
     check('commission hint notes cash-to-close deduction', /cash to close/i.test(await page.textContent('#commissionHint')));
+    // Listing-agent details save on their own (persist without regenerating).
+    check('save agent details button present', await page.locator('#saveAgentBtn').count() === 1);
+    await page.fill('#agentPhone', '(321) 555-7788');
+    await page.fill('#agentEmail', 'agent@brokerage.com');
+    await page.click('#saveAgentBtn');
+    await page.waitForSelector('#agentSaved', { state: 'visible', timeout: 8000 });
+    check('agent details save confirms', await page.locator('#agentSaved').isVisible());
     await page.selectOption('#listingType', 'off-market');
     await page.waitForTimeout(100);
     check('lot notes section present', await page.locator('#addNoteBtn').count() === 1);
