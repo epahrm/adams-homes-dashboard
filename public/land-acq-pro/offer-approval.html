@@ -235,6 +235,19 @@
         <div class="warn" id="overWarn"><b>Heads up:</b> this offer is <span id="overAmt"></span> over the approved stipend. Kevin may proceed; the over-stipend flag will show on the pipeline.</div>
       </div>
 
+      <!-- Listing agent / realtor (listed deals: the offer routes to the agent) -->
+      <div class="card" id="agentCard">
+        <h3>Listing Agent / Realtor <span style="font-weight:400; font-size:13px; color:#667;">— for listed deals</span></h3>
+        <div class="two-col">
+          <div><label class="form-label" for="agentName">Agent Name</label><input type="text" id="agentName" placeholder="Full name"></div>
+          <div><label class="form-label" for="agentBrokerage">Brokerage</label><input type="text" id="agentBrokerage" placeholder="e.g. Space Coast AOR"></div>
+          <div><label class="form-label" for="agentPhone">Agent Phone</label><input type="text" id="agentPhone" placeholder="(321) 555-0000"></div>
+          <div><label class="form-label" for="agentEmail">Agent Email</label><input type="text" id="agentEmail" placeholder="agent@brokerage.com"></div>
+          <div><label class="form-label" for="mlsNum">MLS #</label><input type="text" id="mlsNum" placeholder="MLS ID"></div>
+        </div>
+        <div class="hint">Auto-filled from the listing when available. The offer routes to this agent, and they're tracked in the Realtor CRM.</div>
+      </div>
+
       <!-- Offer terms -->
       <div class="card">
         <h3>Offer Terms</h3>
@@ -646,8 +659,18 @@
         offer: document.getElementById('offerAmount').value.trim(),
         emd: document.getElementById('emd').value.trim(),
         commission: document.getElementById('commission').value.trim(),
-        kevinNotes: document.getElementById('kevinNotes').value.trim()
+        kevinNotes: document.getElementById('kevinNotes').value.trim(),
+        agentName: document.getElementById('agentName').value.trim(),
+        agentBrokerage: document.getElementById('agentBrokerage').value.trim(),
+        agentPhone: document.getElementById('agentPhone').value.trim(),
+        agentEmail: document.getElementById('agentEmail').value.trim(),
+        mls: document.getElementById('mlsNum').value.trim()
       };
+    }
+
+    function toggleAgentCard() {
+      const listed = document.getElementById('listingType').value === 'listed';
+      document.getElementById('agentCard').style.display = listed ? '' : 'none';
     }
     function premiumChoiceValid() {
       const choice = document.querySelector('input[name=hasPremium]:checked');
@@ -735,8 +758,17 @@
 
       // Deal details
       document.getElementById('utilityType').value = lot.utilityType || inferUtilityType(lot) || '';
-      document.getElementById('listingType').value = lot.listingType || (lot.agentName ? 'listed' : 'off-market');
+      const listed = lot.listingType || ((lot.agentBrokerage || lot.agentName || /listing|active|auction/i.test(lot.listStatus || '')) ? 'listed' : 'off-market');
+      document.getElementById('listingType').value = listed;
       document.getElementById('leadSource').value = lot.source || 'Direct Mail';
+
+      // Listing agent / realtor — auto-filled from the listing
+      document.getElementById('agentName').value = lot.agentName || '';
+      document.getElementById('agentBrokerage').value = lot.agentBrokerage || '';
+      document.getElementById('agentPhone').value = lot.agentPhone || '';
+      document.getElementById('agentEmail').value = lot.agentEmail || '';
+      document.getElementById('mlsNum').value = lot.mls || '';
+      toggleAgentCard();
 
       // Offer terms
       const defOffer = lot.offer || (lot.listPrice ? money(lot.listPrice - 2000) : '$30,000');
@@ -759,6 +791,7 @@
 
     // ---------- Wiring ----------
     document.getElementById('utilityType').addEventListener('change', refreshStipend);
+    document.getElementById('listingType').addEventListener('change', toggleAgentCard);
     document.getElementById('offerAmount').addEventListener('input', refreshStipend);
     document.querySelectorAll('input[name=hasPremium]').forEach(r => r.addEventListener('change', function() {
       document.getElementById('premiumList').classList.toggle('show', this.value === 'yes');

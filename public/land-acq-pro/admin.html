@@ -211,6 +211,18 @@
     .gate button:hover { background: #0a4f8e; }
     .mode-banner { background: #fdf6df; border: 1px solid #e5c664; border-radius: 8px; padding: 12px 16px; font-size: 14px; color: #6d5410; margin-bottom: 18px; display: none; }
 
+    /* Realtor CRM */
+    .realtor-crm { border: 1px solid #dbe3ec; border-radius: 12px; background: #fff; padding: 4px 16px 14px; }
+    .realtor-crm summary { cursor: pointer; font-weight: 700; color: #123a63; font-size: 15px; padding: 12px 0; letter-spacing: 0.3px; }
+    .realtor-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .realtor-table th { text-align: left; color: #778; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 8px 10px; border-bottom: 2px solid #e6e9ee; }
+    .realtor-table td { padding: 10px; border-bottom: 1px solid #eef1f5; vertical-align: top; }
+    .realtor-table .r-name { font-weight: 700; color: #003d66; }
+    .realtor-table .r-brok { color: #667; font-size: 13px; }
+    .realtor-table .r-contact { color: #445; font-size: 13px; line-height: 1.5; }
+    .realtor-table .r-count { font-weight: 800; color: #1a5ba5; font-size: 16px; }
+    .realtor-table .r-pipe { color: #556; font-size: 13px; }
+
     @media print {
       .topbar .logout, .filters, .actions, .pager, .back-link { display: none !important; }
     }
@@ -366,6 +378,17 @@
       <div class="pager" id="pager"></div>
 
       <div style="text-align:center; color:#666; font-size:14px; margin-bottom:20px;" id="showingCount"></div>
+
+      <!-- Realtor CRM: every listing agent we've engaged, with their lots -->
+      <details class="realtor-crm" id="realtorCrm" style="margin-bottom:20px;">
+        <summary id="realtorSummary">Realtor CRM</summary>
+        <div class="table-wrap">
+          <table class="realtor-table">
+            <thead><tr><th>Realtor / Brokerage</th><th>Contact</th><th>Lots</th><th>Pipeline</th></tr></thead>
+            <tbody id="realtorRows"></tbody>
+          </table>
+        </div>
+      </details>
 
       <div class="footnote" id="footnote">* Re-outreach scheduled in 87 days</div>
 
@@ -813,10 +836,56 @@
       });
     }
 
+    // Realtor CRM — one row per listing agent/brokerage, with their lots.
+    const ACTIVE_OFFER = ['offer-sent', 'seller-signed', 'pending-ep-sig', 'ip', 'manager-driven', 'survey-rcvd', 'cd-approved', 'ctc'];
+    function renderRealtors(lots) {
+      const crm = document.getElementById('realtorCrm');
+      const rows = document.getElementById('realtorRows');
+      const map = new Map();
+      lots.forEach(l => {
+        const brokerage = (l.agentBrokerage || '').trim();
+        const name = (l.agentName || '').trim();
+        if (!brokerage && !name) return;
+        const key = (l.agentEmail || name || brokerage).toLowerCase().trim();
+        if (!map.has(key)) map.set(key, { name: '', brokerage: '', phone: '', email: '', lots: [] });
+        const e = map.get(key);
+        if (!e.name && name) e.name = name;
+        if (!e.brokerage && brokerage) e.brokerage = brokerage;
+        if (!e.phone && l.agentPhone) e.phone = l.agentPhone;
+        if (!e.email && l.agentEmail) e.email = l.agentEmail;
+        e.lots.push(l);
+      });
+      const realtors = Array.from(map.values()).sort((a, b) => b.lots.length - a.lots.length);
+      document.getElementById('realtorSummary').textContent = 'Realtor CRM — ' + realtors.length + ' contact' + (realtors.length === 1 ? '' : 's');
+      if (!realtors.length) { crm.style.display = 'none'; return; }
+      crm.style.display = 'block';
+      rows.innerHTML = '';
+      realtors.forEach(r => {
+        const tr = document.createElement('tr');
+        const c1 = document.createElement('td');
+        const nm = document.createElement('div'); nm.className = 'r-name'; nm.textContent = r.name || r.brokerage || '—';
+        c1.appendChild(nm);
+        if (r.name && r.brokerage) { const bk = document.createElement('div'); bk.className = 'r-brok'; bk.textContent = r.brokerage; c1.appendChild(bk); }
+        const c2 = document.createElement('td'); c2.className = 'r-contact';
+        c2.textContent = [r.phone, r.email].filter(Boolean).join(' · ') || 'No direct contact yet';
+        const c3 = document.createElement('td');
+        const cnt = document.createElement('span'); cnt.className = 'r-count'; cnt.textContent = r.lots.length; c3.appendChild(cnt);
+        const c4 = document.createElement('td'); c4.className = 'r-pipe';
+        const st = l => l.displayStatus || l.status;
+        const opps = r.lots.filter(l => l.status === 'opportunity').length;
+        const offers = r.lots.filter(l => ACTIVE_OFFER.includes(st(l))).length;
+        const closed = r.lots.filter(l => st(l) === 'closed').length;
+        c4.textContent = [opps ? opps + ' to offer' : null, offers ? offers + ' in progress' : null, closed ? closed + ' closed' : null].filter(Boolean).join(' · ') || '—';
+        tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4);
+        rows.appendChild(tr);
+      });
+    }
+
     async function render() {
       const lots = await loadLots();
       renderOpportunities(lots);
       renderReoffer(lots);
+      renderRealtors(lots);
 
       // KPIs (live pipeline stages; Closed shows this-month only)
       const count = st => lots.filter(l => l.displayStatus === st).length;

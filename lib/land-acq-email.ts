@@ -15,6 +15,8 @@ export type ParsedListing = {
   acres: number | null
   url: string | null
   source: string
+  mls?: string | null
+  brokerage?: string | null
   // true when the email had no street address (link-only alert, e.g. Crexi):
   // the lead still lands, flagged for Kevin to open the listing and confirm.
   needsAddress?: boolean
@@ -136,12 +138,19 @@ export function parseListingEmail(input: {
     // Match the URL whose slug contains this listing's street number.
     const url = urls.find((u) => cur.num && u.includes(cur.num)) || urls.find((u) => /homedetail|listing|property|\/homes\//i.test(u)) || null
 
+    // Realtor / MLS from the listing footer, e.g.
+    // "MLS ID #1059125. Space Coast AOR" or "MLS ID #2026019833, Keller Williams Island Life RE. Florida Gulf Coast MLS"
+    const mlsM = postWin.match(/MLS\s*ID?\s*#?\s*([A-Z0-9][A-Z0-9-]{3,})/i)
+    const brokM = postWin.match(/MLS\s*ID?\s*#?\s*[A-Z0-9-]+\s*[.,]\s*([A-Z][A-Za-z0-9 &'./-]+?)(?:\.\s|\.$|$)/i)
+
     out.push({
       address: cur.addr,
       listPrice: price,
       acres: acresM ? parseFloat(acresM[1]) : sqftM ? +(toNum(sqftM[1]) / 43560).toFixed(2) : null,
       url,
       source,
+      mls: mlsM ? mlsM[1] : null,
+      brokerage: brokM ? brokM[1].trim() : null,
     })
   }
 

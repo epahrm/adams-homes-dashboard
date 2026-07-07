@@ -31,6 +31,19 @@ that date arrives the lot surfaces in the **Re-offer Due** section prompting a
 follow-up if it's still listed (**Reviewed — 30d** re-arms the timer;
 **Unsuitable** drops it).
 
+## Listing agent / Realtor CRM
+On-market listings carry the listing agent — the offer routes to them, and a
+realtor who lists many Palm Bay lots is a relationship worth building.
+- The email parser captures **MLS #** and **brokerage** from the listing
+  (e.g. "MLS ID #1059125. Space Coast AOR").
+- The offer screen shows a **Listing Agent** card (name, brokerage, phone,
+  email, MLS #) that **auto-fills from the listing** and is editable/saved; it
+  only appears for listed deals.
+- The dashboard's **Realtor CRM** groups every listing agent/brokerage we've
+  engaged into one row each — contact info, lot count, and pipeline breakdown
+  (to-offer / in-progress / closed), ranked by volume. Derived from the lots so
+  it stays in sync.
+
 ## On-demand county enrichment (`/api/land-acq/parcel`)
 When Kevin opens a lot to make an offer, the offer screen auto-pulls the county
 record for that address (or he clicks **Pull County Record**). Source: the City

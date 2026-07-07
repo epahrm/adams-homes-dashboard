@@ -79,6 +79,8 @@ export async function GET(req: NextRequest) {
             acres: li.acres,
             url: li.url,
             listStatus: 'Active Listing',
+            mls: li.mls,
+            agentBrokerage: li.brokerage,
             offerSuggested: triage.offer,
             scanLight: triage.light,
             scanReasons: triage.reasons,
