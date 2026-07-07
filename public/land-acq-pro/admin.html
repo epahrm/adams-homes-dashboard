@@ -2004,8 +2004,9 @@
 
     // Add Deal modal
     const dealOverlay = document.getElementById('addDealOverlay');
+    let pendingContractExtras = null;   // fields read from a contract PDF with no form input
     function openDeal() { dealOverlay.classList.add('show'); }
-    function closeDeal() { dealOverlay.classList.remove('show'); document.getElementById('addDealForm').reset(); document.getElementById('dErr').style.display = 'none'; }
+    function closeDeal() { dealOverlay.classList.remove('show'); document.getElementById('addDealForm').reset(); document.getElementById('dErr').style.display = 'none'; pendingContractExtras = null; }
     document.getElementById('addDealBtn').addEventListener('click', openDeal);
     document.getElementById('dCancel').addEventListener('click', closeDeal);
 
@@ -2029,9 +2030,18 @@
         if (f.offer) document.getElementById('dOffer').value = f.offer;
         document.getElementById('dStage').value = 'offer-sent';   // a contract means an offer is out
         if (f.legal) document.getElementById('dOwnerContact').value = 'Legal: ' + f.legal;
-        const got = ['address', 'owner', 'offer', 'legal'].filter(k => f[k]).length;
+        if (f.utilityType) document.getElementById('dUtility').value = f.utilityType;
+        if (f.acceptedDate) document.getElementById('dAccepted').value = f.acceptedDate;
+        if (f.agentName || f.agentBrokerage) {
+          document.getElementById('dListing').value = 'listed';
+          if (f.agentName) document.getElementById('dAgentName').value = f.agentName;
+          if (f.agentBrokerage) document.getElementById('dAgentBrokerage').value = f.agentBrokerage;
+        }
+        // Commission has no Add-Deal field; stash it so it shows on the offer screen.
+        pendingContractExtras = f.commission ? { commission: f.commission } : null;
+        const got = ['address', 'owner', 'offer', 'legal', 'acceptedDate', 'utilityType', 'agentName', 'commission'].filter(k => f[k]).length;
         importMsg(got
-          ? 'Read “' + (j.fileName || file.name) + '”. Review the pre-filled details' + (f.legal ? ' (legal: ' + f.legal + ')' : '') + ', pick the stage, and confirm to add it.'
+          ? 'Read “' + (j.fileName || file.name) + '”. Review the pre-filled details' + (f.legal ? ' (legal: ' + f.legal + ')' : '') + (f.commission ? ' · commission ' + f.commission : '') + ', pick the stage, and confirm to add it.'
           : (j.note || 'Couldn’t auto-detect the fields — enter them below and save.'), true);
       } catch (e) {
         importMsg('Could not read that PDF — use Add Deal to enter it manually.', false);
@@ -2060,6 +2070,8 @@
         acceptedAt: iso(val('dAccepted')),
         scheduledClose: iso(val('dClose'))
       };
+      // Fields captured from a contract PDF that have no form input (e.g. commission).
+      if (pendingContractExtras) Object.assign(lot, pendingContractExtras);
       try {
         await importLots([lot]);
         closeDeal();
