@@ -188,6 +188,31 @@
     .btn-green:hover { background: #14472e; }
     .btn-outline { background: white; border: 2px solid #003d66; color: #003d66; }
     .btn-outline:hover { background: #eaf2fb; }
+    .btn-navy { background: #003d66; border: 2px solid #003d66; color: white; }
+    .btn-navy:hover { background: #0a4f8e; }
+
+    /* Pipeline toolbar */
+    .pipeline-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+    .pipeline-head h2 { margin: 0; }
+    .pipeline-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pipeline-tools button { font-size: 13px; padding: 9px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .import-msg { margin: 10px 0 4px; padding: 10px 14px; border-radius: 8px; font-size: 14px; }
+    .import-msg.ok { background: #e3f2ea; color: #14401d; border: 1px solid #bcd8c6; }
+    .import-msg.err { background: #fdecea; color: #b02a1a; border: 1px solid #f3c3bb; }
+
+    /* Modal (Add Deal) */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(3,20,38,0.55); z-index: 200; display: none; align-items: flex-start; justify-content: center; padding: 30px 16px; overflow-y: auto; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: #fff; border-radius: 14px; max-width: 640px; width: 100%; padding: 24px 24px 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.3); }
+    .modal h3 { color: #003d66; font-size: 20px; margin-bottom: 4px; }
+    .modal .m-sub { color: #667; font-size: 13px; margin-bottom: 16px; }
+    .modal .m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal label { display: block; font-size: 12px; font-weight: 700; color: #445; margin-bottom: 4px; }
+    .modal input, .modal select { width: 100%; padding: 10px 12px; border: 1px solid #ccd3db; border-radius: 8px; font-size: 15px; font-family: inherit; }
+    .modal .m-full { grid-column: 1 / -1; }
+    .modal .m-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+    .modal .m-err { color: #b02a1a; font-size: 13px; margin-top: 8px; display: none; }
+    @media (max-width: 560px) { .modal .m-grid { grid-template-columns: 1fr; } }
 
     .back-link { display: inline-block; margin-top: 22px; color: #003d66; font-size: 14px; text-decoration: none; font-weight: 600; }
     .back-link:hover { text-decoration: underline; }
@@ -255,7 +280,15 @@
 
     <div class="content">
       <div class="mode-banner" id="modeBanner">Offline demo mode &mdash; showing this browser's local data only. Live sync resumes when the server is reachable.</div>
-      <h2>Palm Bay Lot Pipeline</h2>
+      <div class="pipeline-head">
+        <h2>Palm Bay Lot Pipeline</h2>
+        <div class="pipeline-tools">
+          <button class="btn-navy" id="addDealBtn">+ Add Deal / Contract</button>
+          <button class="btn-green" id="importBtn">Import Contacts (CSV)</button>
+          <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
+        </div>
+      </div>
+      <div class="import-msg" id="importMsg" style="display:none;"></div>
 
       <!-- Compact stipend panel -->
       <div class="stipend-panel">
@@ -399,6 +432,59 @@
       </div>
 
       <a class="back-link" href="index.html">&larr; Back to Landing Page</a>
+    </div>
+  </div>
+
+  <!-- Add Deal / Contract modal -->
+  <div class="modal-overlay" id="addDealOverlay">
+    <div class="modal">
+      <h3>Add Deal / Contract</h3>
+      <div class="m-sub">Enter an existing or in-progress deal and drop it into the pipeline at the right stage.</div>
+      <form id="addDealForm">
+        <div class="m-grid">
+          <div class="m-full"><label for="dAddress">Property Address *</label><input type="text" id="dAddress" placeholder="123 Main St SE, Palm Bay, FL 32909" required></div>
+          <div><label for="dOwner">Owner / Seller</label><input type="text" id="dOwner" placeholder="Full name"></div>
+          <div><label for="dOwnerContact">Owner Contact</label><input type="text" id="dOwnerContact" placeholder="Phone / email / mailing"></div>
+          <div><label for="dStage">Pipeline Stage *</label>
+            <select id="dStage">
+              <option value="pending">New Lead (pre-offer)</option>
+              <option value="offer-sent">Offer Sent</option>
+              <option value="seller-signed">Offer Accepted (seller signed)</option>
+              <option value="pending-ep-sig">Pending EP Signature</option>
+              <option value="ip">Inspection Period</option>
+              <option value="manager-driven">Manager Driven</option>
+              <option value="survey-rcvd">Survey Rcv'd</option>
+              <option value="cd-approved">CD Approved</option>
+              <option value="ctc">Clear to Close</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          <div><label for="dOffer">Offer Amount</label><input type="text" id="dOffer" placeholder="$30,000"></div>
+          <div><label for="dUtility">Utility Type</label>
+            <select id="dUtility">
+              <option value="">Default (Well/Septic $30k)</option>
+              <option value="well-septic">Well / Septic</option>
+              <option value="water-septic">Water / Septic</option>
+              <option value="water-sewer">Water / Sewer</option>
+            </select>
+          </div>
+          <div><label for="dListing">Off-Market or Listed</label>
+            <select id="dListing"><option value="off-market">Off-Market</option><option value="listed">Listed (MLS)</option></select>
+          </div>
+          <div><label for="dSource">Lead Source</label>
+            <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Referral</option><option>Other</option></select>
+          </div>
+          <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
+          <div><label for="dAgentBrokerage">Brokerage</label><input type="text" id="dAgentBrokerage" placeholder="Brokerage"></div>
+          <div><label for="dAccepted">Accepted Date</label><input type="date" id="dAccepted"></div>
+          <div><label for="dClose">Scheduled Close</label><input type="date" id="dClose"></div>
+        </div>
+        <div class="m-err" id="dErr">Please enter a property address.</div>
+        <div class="m-actions">
+          <button type="button" class="btn-outline" id="dCancel">Cancel</button>
+          <button type="submit" class="btn-navy">Add to Pipeline</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1014,6 +1100,135 @@
       a.download = 'palm-bay-lot-pipeline.csv';
       a.click();
       URL.revokeObjectURL(a.href);
+    });
+
+    // ---------- Import contacts (CSV) + Add Deal ----------
+    function importMsg(text, ok) {
+      const el = document.getElementById('importMsg');
+      el.textContent = text; el.className = 'import-msg ' + (ok ? 'ok' : 'err'); el.style.display = 'block';
+    }
+
+    // Persist a batch of new lots (server bulk-insert or local store), dedup by address.
+    async function importLots(newLots) {
+      if (!newLots.length) return { added: 0, duplicates: 0, failed: 0 };
+      if (mode === 'server') {
+        const res = await fetch(API_LOTS.replace('/lots', '/import'), {
+          method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, adminHeaders()),
+          body: JSON.stringify({ lots: newLots }), signal: AbortSignal.timeout(15000)
+        });
+        if (!res.ok) throw new Error('import failed: ' + res.status);
+        return await res.json();
+      }
+      // Local/demo mode
+      const store = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+      const have = new Set(store.map(l => (l.address || '').toLowerCase().replace(/[^a-z0-9]/g, '')));
+      let added = 0, duplicates = 0;
+      const now = Date.now();
+      newLots.forEach((l, i) => {
+        const key = (l.address || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!key) return;
+        if (have.has(key)) { duplicates++; return; }
+        have.add(key);
+        store.push(Object.assign({ id: now + i, status: 'opportunity', createdAt: new Date().toISOString() }, l));
+        added++;
+      });
+      localStorage.setItem(STORE_KEY, JSON.stringify(store));
+      return { added, duplicates, failed: 0 };
+    }
+
+    // Minimal CSV parser (handles quoted fields + embedded commas/quotes).
+    function parseCsv(text) {
+      const rows = []; let row = [], field = '', inQ = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQ) {
+          if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
+          else field += c;
+        } else if (c === '"') inQ = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; if (field !== '' || row.length) { row.push(field); rows.push(row); row = []; field = ''; } }
+        else field += c;
+      }
+      if (field !== '' || row.length) { row.push(field); rows.push(row); }
+      return rows;
+    }
+
+    function pick(obj, keys) { for (const k of keys) if (obj[k] != null && obj[k] !== '') return obj[k]; return ''; }
+
+    document.getElementById('importBtn').addEventListener('click', () => document.getElementById('csvFile').click());
+    document.getElementById('csvFile').addEventListener('change', async function() {
+      const file = this.files && this.files[0];
+      this.value = '';
+      if (!file) return;
+      try {
+        const rows = parseCsv(await file.text());
+        if (rows.length < 2) { importMsg('That CSV has no data rows.', false); return; }
+        const headers = rows[0].map(h => h.trim().toLowerCase());
+        const idx = {}; headers.forEach((h, i) => idx[h] = i);
+        const get = (r, names) => { for (const n of names) if (idx[n] != null) return (r[idx[n]] || '').trim(); return ''; };
+        const lots = [];
+        for (let i = 1; i < rows.length; i++) {
+          const r = rows[i]; if (!r.length || r.every(c => !String(c).trim())) continue;
+          const address = get(r, ['address', 'property address', 'site address']);
+          if (!address) continue;
+          const phone = get(r, ['owner phone', 'phone']);
+          const email = get(r, ['owner email', 'email']);
+          const mailing = get(r, ['mailing address', 'owner mailing address']);
+          const contact = [mailing, phone, email].filter(Boolean).join(' | ');
+          lots.push({
+            address,
+            owner: get(r, ['owner name', 'owner']),
+            ownerContact: contact || undefined,
+            lotSize: get(r, ['lot size', 'acres']) || undefined,
+            source: get(r, ['source']) || 'Imported Contact',
+            lotNote: get(r, ['notes', 'note']) || undefined,
+            status: 'opportunity'
+          });
+        }
+        if (!lots.length) { importMsg('No rows with a valid Address were found. Required column: Address.', false); return; }
+        importMsg('Importing ' + lots.length + ' contact' + (lots.length === 1 ? '' : 's') + '…', true);
+        const res = await importLots(lots);
+        importMsg('Imported ' + res.added + ' new · ' + res.duplicates + ' already in system' + (res.failed ? ' · ' + res.failed + ' failed' : '') + '.', true);
+        render();
+      } catch (e) {
+        importMsg('Could not read that file. Use a .csv with an Address column.', false);
+      }
+    });
+
+    // Add Deal modal
+    const dealOverlay = document.getElementById('addDealOverlay');
+    function openDeal() { dealOverlay.classList.add('show'); }
+    function closeDeal() { dealOverlay.classList.remove('show'); document.getElementById('addDealForm').reset(); document.getElementById('dErr').style.display = 'none'; }
+    document.getElementById('addDealBtn').addEventListener('click', openDeal);
+    document.getElementById('dCancel').addEventListener('click', closeDeal);
+    dealOverlay.addEventListener('click', e => { if (e.target === dealOverlay) closeDeal(); });
+    document.getElementById('addDealForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const address = document.getElementById('dAddress').value.trim();
+      if (!address) { document.getElementById('dErr').style.display = 'block'; return; }
+      const val = id => document.getElementById(id).value.trim();
+      const iso = d => d ? new Date(d + 'T12:00:00').toISOString() : undefined;
+      const listed = val('dListing') === 'listed';
+      const lot = {
+        address,
+        status: document.getElementById('dStage').value,
+        owner: val('dOwner') || undefined,
+        ownerContact: val('dOwnerContact') || undefined,
+        offer: val('dOffer') || undefined,
+        utilityType: val('dUtility') || undefined,
+        listingType: val('dListing'),
+        source: val('dSource') || 'Direct Mail',
+        agentName: listed ? (val('dAgentName') || undefined) : undefined,
+        agentBrokerage: listed ? (val('dAgentBrokerage') || undefined) : undefined,
+        acceptedAt: iso(val('dAccepted')),
+        scheduledClose: iso(val('dClose'))
+      };
+      try {
+        await importLots([lot]);
+        closeDeal();
+        importMsg('Deal added: ' + address, true);
+        render();
+      } catch (err) { document.getElementById('dErr').textContent = 'Could not add the deal — try again.'; document.getElementById('dErr').style.display = 'block'; }
     });
 
     // ---------- Stipend settings (shared, audit-logged) ----------

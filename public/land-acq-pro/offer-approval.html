@@ -528,6 +528,24 @@
         'Warm regards,\nKevin Nelson\nLand Acquisition Manager, Adams Homes\n(407) 523-0908 · ecland@adamshomes.com';
     }
 
+    // Post-closing thank-you + referral-request letter.
+    function referralLetter() {
+      const owner = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || 'there';
+      const addr = (lot.address || 'your property');
+      return 'Dear ' + owner + ',\n\n' +
+        'On behalf of everyone at Adams Homes, thank you — truly — for entrusting us with ' + addr + '.\n\n' +
+        'Because of you, an empty lot won\'t stay empty for long. Soon it will become a home, and before long a family will carry their new beginning through the front door, put down roots, and fill those rooms with a lifetime of memories. Much like a stork arriving with a precious new bundle, your land marks the start of someone\'s next chapter — and we are deeply grateful that you made it possible.\n\n' +
+        'If your experience with us was a good one, the kindest thing you could do is help us find the next family\'s beginning. Do you know anyone else in Palm Bay with vacant land who\'d welcome a fair, all-cash offer — no agents, no commissions, no hidden fees? I\'d be honored to help them just as I helped you.\n\n' +
+        'Feel free to pass along my direct line, or simply send me their information and I\'ll reach out personally.\n\n' +
+        'With heartfelt thanks,\nKevin Nelson\nLand Acquisition Manager, Adams Homes\n(407) 523-0908 · ecland@adamshomes.com';
+    }
+    function showReferralLetter() {
+      const p = document.getElementById('packetPreview');
+      p.textContent = referralLetter();
+      p.classList.add('show');
+      p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     // ---------- Documents ----------
     function renderDocs() {
       const list = document.getElementById('docList');
@@ -645,6 +663,8 @@
       } else if (['ip','manager-driven','survey-rcvd','cd-approved','ctc'].includes(st)) {
         addBtn('Advance to Next Stage', 'btn-navy', advanceStage);
         addBtn('Mark Closed', 'btn-outline', markClosed);
+      } else if (st === 'closed') {
+        addBtn('Thank-You & Referral Letter', 'btn-primary', showReferralLetter);
       } else {
         const note = document.createElement('div'); note.className = 'hint'; note.textContent = 'No action available at this stage.'; box.appendChild(note);
       }
