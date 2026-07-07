@@ -169,6 +169,10 @@
         <div class="s-row"><span>Approved Lot Stipend</span><span class="s-val" id="sStipend">—</span></div>
         <div class="s-row"><span>Offer Amount</span><span class="s-val" id="sOffer">—</span></div>
         <div class="s-row"><span>Premiums</span><span class="s-val" id="sPremium">—</span></div>
+        <div class="s-row" id="premiumFinalizeRow" style="display:none;">
+          <span style="color:#b02a1a; font-weight:700;">Enter lot premium (required before signing)</span>
+          <span><input id="premiumFinalizeAmt" type="text" inputmode="numeric" placeholder="$0" style="width:120px; padding:6px 8px;"> <button type="button" id="premiumFinalizeBtn" class="btn btn-navy" style="padding:6px 12px;">Save premium</button></span>
+        </div>
         <div class="s-notes" id="sNotes">No notes from Kevin.</div>
       </div>
 
@@ -290,10 +294,12 @@
           <div class="premium-toggle">
             <label><input type="radio" name="hasPremium" value="no"> No</label>
             <label><input type="radio" name="hasPremium" value="yes"> Yes</label>
+            <label><input type="radio" name="hasPremium" value="possible"> Possible — amount TBD</label>
           </div>
           <div class="premium-list" id="premiumList"></div>
           <div class="premium-total" id="premiumTotal" style="display:none;"></div>
-          <div class="hint" id="premiumError" style="color:#b02a1a; display:none;">Please select Yes or No.</div>
+          <div class="hint" id="premiumPossibleNote" style="display:none; color:#8a5200;">Flagged as possible — you'll enter the exact premium amount when the signed contract comes back, before Elizabeth signs.</div>
+          <div class="hint" id="premiumError" style="color:#b02a1a; display:none;">Please select No, Yes, or Possible.</div>
         </div>
       </div>
 
@@ -865,7 +871,16 @@
         document.getElementById('sStipend').textContent = (stipendForLot() == null ? '—' : money(stipendForLot()));
         document.getElementById('sOffer').textContent = lot.offer || '—';
         const prem = lot.premiums || [];
-        document.getElementById('sPremium').textContent = prem.length ? money(prem.reduce((a, p) => a + p.amount, 0)) + ' — ' + prem.map(p => p.label).join(', ') : 'None';
+        const finRow = document.getElementById('premiumFinalizeRow');
+        if (lot.premiumTBD) {
+          // Kevin flagged a possible premium at offer time — the amount must be
+          // completed now that the contract is back, before Elizabeth signs.
+          document.getElementById('sPremium').textContent = '⚠ Amount pending — enter below';
+          finRow.style.display = '';
+        } else {
+          finRow.style.display = 'none';
+          document.getElementById('sPremium').textContent = prem.length ? money(prem.reduce((a, p) => a + p.amount, 0)) + ' — ' + prem.map(p => p.label).join(', ') : 'None';
+        }
         document.getElementById('sNotes').textContent = lot.kevinNotes ? ('Kevin: ' + lot.kevinNotes) : 'No notes from Kevin.';
       } else { ep.classList.remove('show'); }
 
@@ -877,6 +892,15 @@
       if (st === 'pending') {
         addBtn('Generate & Send Offer via Dotloop', 'btn-primary', generateOffer);
       } else if (st === 'offer-sent') {
+        // Kevin confirms he actually sent it (via Dotloop) — that starts the
+        // 3-day no-response follow-up clock, not the moment the packet was built.
+        if (!lot.offerConfirmedSentAt) {
+          addBtn('Confirm Offer Sent — start 3-day clock', 'btn-primary', confirmOfferSent);
+        } else {
+          const sent = document.createElement('div'); sent.className = 'hint';
+          sent.textContent = '✓ Offer confirmed sent ' + fmtDate(lot.offerConfirmedSentAt) + ' · follow up by ' + fmtDate(addDays(lot.offerConfirmedSentAt, 3)) + ' if no response.';
+          box.appendChild(sent);
+        }
         addBtn('Mark Seller Contract Received', 'btn-navy', markSellerReceived);
         addBtn('Resend Offer', 'btn-outline', generateOffer);
         addBtn('Seller Declined', 'btn-outline', sellerDeclined);
@@ -947,11 +971,13 @@
       }
       btn.disabled = false;
     }
-    function premiumChoiceValid() {
+    // Returns the chosen premium state: 'no' | 'yes' | 'possible', or null if
+    // nothing is selected (which blocks generating the offer).
+    function premiumChoiceValue() {
       const choice = document.querySelector('input[name=hasPremium]:checked');
       if (!choice) { document.getElementById('premiumError').style.display = 'block'; return null; }
       document.getElementById('premiumError').style.display = 'none';
-      return choice.value === 'yes' ? collectPremiums() : [];
+      return choice.value;
     }
 
     // Show the "not already listed" confirmation only for wholesaler deals.
@@ -961,8 +987,10 @@
     }
 
     async function generateOffer() {
-      const premiums = premiumChoiceValid();
-      if (premiums === null) return msg('Please select whether there is a lot premium.', false);
+      const premChoice = premiumChoiceValue();
+      if (premChoice === null) return msg('Please select whether there is a lot premium.', false);
+      const premiums = premChoice === 'yes' ? collectPremiums() : [];
+      const premiumPossible = premChoice === 'possible';
       const offerVal = num(document.getElementById('offerAmount').value);
       if (!(offerVal > 0)) return msg('Please enter a valid offer amount.', false);
       // Wholesaler gate: don't let an offer go out until Kevin confirms the
@@ -974,6 +1002,8 @@
       const now = new Date().toISOString();
       const set = Object.assign(readForm(), {
         premiums: premiums,
+        premiumPossible: premiumPossible,
+        premiumTBD: premiumPossible,   // amount to be completed when the contract returns
         lotStipend: stipendForLot(),
         status: 'offer-sent',
         generatedAt: now,
@@ -982,8 +1012,30 @@
       });
       try { await saveLot(set); } catch (e) { return msg('Could not save — please try again.', false); }
       lot.offerExpires = set.offerExpires;
+      lot.premiumTBD = premiumPossible;
       renderAll();
-      msg('Offer generated. Packet (contract + cover letter + property card) ready to send via Dotloop with Kevin’s login. Expires ' + fmtDate(set.offerExpires) + '.', true);
+      msg('Offer generated. Packet (contract + cover letter + property card) ready to send via Dotloop with Kevin’s login. Expires ' + fmtDate(set.offerExpires) + '.'
+        + (premiumPossible ? ' Premium flagged as possible — enter the amount when the signed contract comes back.' : ''), true);
+    }
+
+    // Kevin confirms the offer actually went out — this is what starts the
+    // 3-day no-response follow-up clock (the admin queue reads this timestamp).
+    async function confirmOfferSent() {
+      const now = new Date().toISOString();
+      try { await saveLot({ offerConfirmedSentAt: now }); } catch (e) { return msg('Could not save — please try again.', false); }
+      lot.offerConfirmedSentAt = now;
+      renderAll();
+      msg('Offer marked sent ' + fmtDate(now) + '. Follow-up reminder set for ' + fmtDate(addDays(now, 3)) + ' if the seller hasn’t responded.', true);
+    }
+
+    // Finalize a previously-flagged possible premium once the contract is back.
+    async function finalizePremium() {
+      const amt = num(document.getElementById('premiumFinalizeAmt').value);
+      const premiums = amt > 0 ? [{ key: 'lot-premium', label: 'Lot premium', amount: amt }] : [];
+      try { await saveLot({ premiums: premiums, premiumTBD: false }); } catch (e) { return msg('Could not save — please try again.', false); }
+      lot.premiums = premiums; lot.premiumTBD = false;
+      renderAll();
+      msg(amt > 0 ? ('Lot premium set to ' + money(amt) + '. Ready for Elizabeth’s signature.') : 'Recorded no premium. Ready for Elizabeth’s signature.', true);
     }
 
     async function markSellerReceived() {
@@ -997,6 +1049,10 @@
 
     async function elizabethSign() {
       if (!isElizabeth()) return msg('Only Elizabeth can sign.', false);
+      if (lot.premiumTBD) {
+        document.getElementById('premiumFinalizeRow').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return msg('Enter the lot premium amount before signing — Kevin flagged a possible premium at offer time.', false);
+      }
       const now = new Date().toISOString();               // Effective Date = Buyer (Elizabeth) signs last
       const ip = addDays(now, DD_PERIOD_DAYS);             // §9: due diligence / IP = 45 days after Effective Date
       const defClose = addBusinessDays(ip, BUSINESS_DAYS_TO_CLOSE); // §4: 10 business days after DD ends
@@ -1075,8 +1131,13 @@
       updateCommissionHint();
       document.getElementById('expiryVal').textContent = lot.offerExpires ? fmtDate(lot.offerExpires) : 'Set when the offer is generated (14 days)';
 
-      // Premium radio
-      if (lot.premiums) {
+      // Premium radio — restore Possible (amount TBD) when it was flagged that way.
+      if (lot.premiumTBD) {
+        const r = document.querySelector('input[name=hasPremium][value=possible]');
+        if (r) r.checked = true;
+        document.getElementById('premiumList').classList.remove('show');
+        document.getElementById('premiumPossibleNote').style.display = 'block';
+      } else if (lot.premiums) {
         const has = lot.premiums.length ? 'yes' : 'no';
         const r = document.querySelector('input[name=hasPremium][value=' + has + ']');
         if (r) r.checked = true;
@@ -1105,8 +1166,10 @@
     document.querySelectorAll('input[name=hasPremium]').forEach(r => r.addEventListener('change', function() {
       document.getElementById('premiumList').classList.toggle('show', this.value === 'yes');
       document.getElementById('premiumError').style.display = 'none';
+      document.getElementById('premiumPossibleNote').style.display = this.value === 'possible' ? 'block' : 'none';
       if (this.value === 'yes') updatePremiumTotal(); else document.getElementById('premiumTotal').style.display = 'none';
     }));
+    document.getElementById('premiumFinalizeBtn').addEventListener('click', finalizePremium);
     document.getElementById('previewPacketBtn').addEventListener('click', function() {
       const p = document.getElementById('packetPreview');
       p.textContent = coverLetter();

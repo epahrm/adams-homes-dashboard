@@ -314,6 +314,15 @@ async function noHorizontalOverflow(page) {
     await page.waitForSelector('#message.success', { timeout: 8000 });
     check('offer generated with 14-day expiration', (await page.textContent('#message')).includes('Expires'));
     check('offer expiration date set on timeline', (await page.textContent('#tExpires')) !== '—');
+    // Confirm-offer-sent starts the 3-day clock (not the moment the packet was built).
+    check('confirm-offer-sent button present after generating',
+      await page.locator('#actionButtons button', { hasText: 'Confirm Offer Sent' }).count() === 1);
+    await page.locator('#actionButtons button', { hasText: 'Confirm Offer Sent' }).click();
+    await page.waitForSelector('#message.success', { timeout: 8000 });
+    check('confirming offer sent records the send + follow-up date',
+      /marked sent/i.test(await page.textContent('#message')));
+    check('confirm-sent button replaced by confirmation once sent',
+      await page.locator('#actionButtons button', { hasText: 'Confirm Offer Sent' }).count() === 0);
     await page.fill('#offerAmount', '60000');
     check('over-stipend warning shows', await page.locator('#overWarn.show').isVisible());
     await page.click('#previewPacketBtn');
@@ -369,6 +378,26 @@ async function noHorizontalOverflow(page) {
     check('official notification logged', (await page.textContent('#notifList')).toLowerCase().includes('official'));
     check('IP + closing dates set on timeline',
       (await page.textContent('#tIp')) !== '—' && (await page.textContent('#tActualClose')) !== '—');
+
+    // ---------- Premium flagged "possible" must be finalized before signing ----------
+    await page.evaluate(() => {
+      const lots = JSON.parse(localStorage.getItem('landAcqSubmissions') || '[]');
+      lots.push({ id: 555001, address: '5 Premium Test Ln, Palm Bay, FL 32907', status: 'pending-ep-sig',
+        owner: 'Test Owner', offer: '$30,000', premiumPossible: true, premiumTBD: true,
+        utilityType: 'water-sewer', createdAt: new Date().toISOString(), sellerReceivedAt: new Date().toISOString() });
+      localStorage.setItem('landAcqSubmissions', JSON.stringify(lots));
+    });
+    await page.goto(BASE + '/offer-approval.html?id=555001');
+    await page.waitForSelector('#epSummary.show', { timeout: 10000 });
+    check('premium finalize row shows when amount is TBD', await page.locator('#premiumFinalizeRow').isVisible());
+    await page.locator('#actionButtons button', { hasText: 'Sign' }).click();
+    check('signing blocked until premium is entered',
+      /premium amount before signing/i.test(await page.textContent('#message')));
+    await page.fill('#premiumFinalizeAmt', '$2,500');
+    await page.click('#premiumFinalizeBtn');
+    await page.waitForSelector('#message.success', { timeout: 8000 });
+    check('finalizing the premium clears the sign gate',
+      /premium set to/i.test(await page.textContent('#message')) && !(await page.locator('#premiumFinalizeRow').isVisible()));
 
     // ---------- Regression: malicious lot renders as text, not markup ----------
     await page.goto(BASE + '/offer-approval.html?id=424242');
