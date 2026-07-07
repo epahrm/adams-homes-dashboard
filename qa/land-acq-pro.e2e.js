@@ -129,15 +129,18 @@ async function noHorizontalOverflow(page) {
     // seller pick their lot rather than guessing the first.
     // Stub the county API (file:// can't be network-routed) so the page sees an
     // owner holding three lots.
+    // A builder returns many lots — show 10, and only reveal more if the seller
+    // says none of those are theirs.
     await page.addInitScript(() => {
       const realFetch = window.fetch;
       window.fetch = (url, opts) => {
         if (String(url).includes('/api/land-acq/county') && /northwest/i.test(String(url))) {
-          return Promise.resolve(new Response(JSON.stringify({ records: [
-            { address: '1007 Soleway Ave NW, Palm Bay, FL 32907', owner: 'Adams Homes Of Northwest Florida Inc', lotSize: '0.23 acres', useDesc: 'Vacant Residential' },
-            { address: '2145 Emerson Dr SE, Palm Bay, FL 32909', owner: 'Adams Homes Of Northwest Florida Inc', lotSize: '0.25 acres', useDesc: 'Vacant Residential' },
-            { address: '880 Wyoming Dr SE, Palm Bay, FL 32909', owner: 'Adams Homes Of Northwest Florida Inc', lotSize: '0.28 acres', useDesc: 'Vacant Residential' },
-          ] }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+          const records = Array.from({ length: 12 }, (_, i) => ({
+            address: (100 + i) + ' Soleway Ave NW, Palm Bay, FL 32907',
+            owner: 'Adams Homes Of Northwest Florida Inc', lotSize: '0.23 acres', useDesc: 'Vacant Residential',
+          }));
+          return Promise.resolve(new Response(JSON.stringify({ records }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }));
         }
         return realFetch(url, opts);
       };
@@ -146,13 +149,18 @@ async function noHorizontalOverflow(page) {
     await page.fill('#ownerName', 'Adams Homes Of Northwest Florida');
     await page.click('#searchNameBtn');
     await page.waitForSelector('#chooserPanel', { state: 'visible', timeout: 15000 });
-    check('multi-lot owner shows chooser', (await page.locator('#chooserList .chooser-item').count()) === 3);
-    check('chooser count reflects match total', (await page.textContent('#chooserCount')).trim() === '3');
+    check('chooser count reflects full match total', (await page.textContent('#chooserCount')).trim() === '12');
+    check('chooser shows only first 10 lots', (await page.locator('#chooserList .chooser-item').count()) === 10);
+    check('show-more control visible when lots remain', await page.locator('#chooserMore').isVisible());
+    // "None of these are mine" reveals the remaining lots, then hides the button.
+    await page.click('#chooserMore');
+    check('show-more reveals remaining lots', (await page.locator('#chooserList .chooser-item').count()) === 12);
+    check('show-more control hidden once all shown', !(await page.locator('#chooserMore').isVisible()));
     // Picking a lot from the chooser resolves to that exact property.
-    await page.locator('#chooserList .chooser-item').nth(1).click();
+    await page.locator('#chooserList .chooser-item').nth(10).click();
     await page.waitForSelector('#resultPanel', { state: 'visible', timeout: 15000 });
     check('choosing a lot loads that property',
-      (await page.textContent('#recAddress')).includes('2145 Emerson'));
+      (await page.textContent('#recAddress')).includes('110 Soleway'));
 
     // ---------- Regression: symbol-only search must not match a record (F1) ----------
     await page.goto(BASE + '/index.html');
