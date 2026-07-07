@@ -142,6 +142,15 @@
 
     /* Found property card */
     #resultPanel { display: none; max-width: 640px; margin: 24px auto 0; }
+    #chooserPanel { display: none; max-width: 640px; margin: 24px auto 0; }
+    .chooser-card { border: 2px solid var(--blue); border-radius: 12px; padding: 22px 20px; background: white; }
+    .chooser-card h3 { color: var(--blue); font-size: 18px; margin-bottom: 4px; text-wrap: balance; }
+    .chooser-card #chooserCount { font-weight: 800; }
+    .chooser-hint { color: #667; font-size: 14px; margin-bottom: 14px; }
+    .chooser-item { display: block; width: 100%; text-align: left; background: #f6f9fd; border: 1px solid #d8e4f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; font-family: inherit; }
+    .chooser-item:hover { background: #eaf2fb; border-color: var(--blue); }
+    .chooser-item .ci-addr { font-weight: 700; color: var(--blue); font-size: 15px; }
+    .chooser-item .ci-meta { color: #667; font-size: 13px; margin-top: 2px; }
     .property-card { border: 2px solid var(--blue); border-radius: 12px; padding: 24px 22px; background: white; }
     .property-card h3 { color: var(--blue); font-size: 15px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid var(--blue); padding-bottom: 10px; margin-bottom: 18px; }
     .p-field { margin-bottom: 14px; }
@@ -325,6 +334,15 @@
         </div>
       </div>
 
+      <!-- Multiple properties under a name — seller picks theirs -->
+      <div id="chooserPanel">
+        <div class="chooser-card">
+          <h3>We found <span id="chooserCount">several</span> properties under that name</h3>
+          <p class="chooser-hint">Select the one you own. (Names can repeat, so check the address.)</p>
+          <div id="chooserList"></div>
+        </div>
+      </div>
+
       <!-- Found property -->
       <div id="resultPanel">
         <div class="property-card">
@@ -385,7 +403,7 @@
             <div class="field-error" id="rfAddressError">Please enter your property address or a short description.</div>
           </div>
           <div class="rf-group">
-            <input type="tel" id="rfPhone" placeholder="Phone *" autocomplete="tel">
+            <input type="tel" id="rfPhone" placeholder="Phone (optional)" autocomplete="tel">
             <div class="field-error" id="rfPhoneError">Please enter a phone number.</div>
           </div>
           <div class="rf-group">
@@ -497,6 +515,7 @@
     function showMatch(record) {
       matchedRecord = record;
       notFoundNote.style.display = 'none';
+      document.getElementById('chooserPanel').style.display = 'none';
       resultPanel.style.display = 'block';
       confirmMsg.style.display = 'none';
       resultMessage.style.display = 'none';
@@ -516,28 +535,55 @@
     function showNotFound() {
       matchedRecord = null;
       resultPanel.style.display = 'none';
+      document.getElementById('chooserPanel').style.display = 'none';
       notFoundNote.style.display = 'block';
       notFoundNote.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
+    // Returns an array of matches (an owner can hold many lots, and two owners
+    // can share a name — so we show them all and let the seller pick).
     function sampleSearch(kind, raw) {
       const q = normalize(raw);
-      if (!q) return null;
-      if (kind === 'name') return SAMPLE_RECORDS.find(r => normalize(r.owner).includes(q) || q.includes(normalize(r.owner))) || null;
-      return SAMPLE_RECORDS.find(r => normalize(r.address).includes(q) || q.includes(normalize(r.address).slice(0, 12))) || null;
+      if (!q) return [];
+      if (kind === 'name') return SAMPLE_RECORDS.filter(r => normalize(r.owner).includes(q) || q.includes(normalize(r.owner)));
+      const one = SAMPLE_RECORDS.find(r => normalize(r.address).includes(q) || q.includes(normalize(r.address).slice(0, 12)));
+      return one ? [one] : [];
     }
 
     async function countySearch(kind, raw) {
       try {
         const param = kind === 'name' ? 'name' : 'address';
-        const res = await fetch(API_COUNTY + '?' + param + '=' + encodeURIComponent(raw), { signal: AbortSignal.timeout(9000) });
+        const res = await fetch(API_COUNTY + '?' + param + '=' + encodeURIComponent(raw), { signal: AbortSignal.timeout(12000) });
         if (res.ok) {
           const body = await res.json();
-          if (body.records && body.records.length) return body.records[0];
-          return null;
+          if (body.records && body.records.length) return body.records;
+          return [];
         }
       } catch (e) { /* offline / county unavailable */ }
       return sampleSearch(kind, raw);
+    }
+
+    // Multiple properties under a name — let the seller choose theirs.
+    function showChooser(records) {
+      matchedRecord = null;
+      notFoundNote.style.display = 'none';
+      resultPanel.style.display = 'none';
+      const panel = document.getElementById('chooserPanel');
+      const list = document.getElementById('chooserList');
+      document.getElementById('chooserCount').textContent = records.length;
+      list.innerHTML = '';
+      records.forEach(r => {
+        const item = document.createElement('button');
+        item.type = 'button'; item.className = 'chooser-item';
+        const addr = document.createElement('div'); addr.className = 'ci-addr'; addr.textContent = r.address || '—';
+        const meta = document.createElement('div'); meta.className = 'ci-meta';
+        meta.textContent = [r.owner, r.lotSize, r.useDesc].filter(Boolean).join(' · ');
+        item.appendChild(addr); item.appendChild(meta);
+        item.addEventListener('click', () => { panel.style.display = 'none'; showMatch(r); });
+        list.appendChild(item);
+      });
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     async function runSearch(kind, inputId, errorId, btn) {
@@ -545,11 +591,14 @@
       const valid = kind === 'name' ? raw.length >= 2 : raw.length >= 5;
       showError(errorId, !valid);
       if (!valid) return;
+      document.getElementById('chooserPanel').style.display = 'none';
       const label = btn.textContent;
       btn.disabled = true; btn.textContent = 'Searching…';
       try {
-        const rec = await countySearch(kind, raw);
-        rec ? showMatch(rec) : showNotFound();
+        const recs = await countySearch(kind, raw);
+        if (!recs.length) showNotFound();
+        else if (recs.length === 1) showMatch(recs[0]);
+        else showChooser(recs);
       } finally {
         btn.disabled = false; btn.textContent = label;
       }
@@ -559,6 +608,7 @@
     document.getElementById('searchAddressBtn').addEventListener('click', function() { runSearch('address', 'streetAddress', 'streetAddressError', this); });
     document.getElementById('searchAgainBtn').addEventListener('click', function() {
       resultPanel.style.display = 'none';
+      document.getElementById('chooserPanel').style.display = 'none';
       matchedRecord = null;
       document.getElementById('ownerName').focus();
       document.querySelector('.search-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -659,9 +709,9 @@
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       showError('rfNameError', !name);
       showError('rfAddressError', !address);
-      showError('rfPhoneError', !phone);
+      showError('rfPhoneError', false);   // phone is optional here
       showError('rfEmailError', !emailOk);
-      if (!name || !address || !phone || !emailOk) return;
+      if (!name || !address || !emailOk) return;
       const btn = this.querySelector('button');
       const label = btn.textContent;
       btn.disabled = true; btn.textContent = 'Sending…';

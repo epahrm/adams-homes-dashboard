@@ -81,7 +81,10 @@ export async function GET(request: NextRequest) {
       'ParcelID,Address,SiteZip5,OwnerName,MailAddressLine1,MailCity,MailState,MailZip5,Acreage,UseCode,UseCodeDesc,LandValue,MarketValue'
     ) +
     '&orderByFields=' + encodeURIComponent('Address') +
-    '&resultRecordCount=8&f=json'
+    // Name searches can hit an owner with many lots (e.g. a builder) — return
+    // enough to list them all so the seller can pick the right one. Address
+    // searches stay tight.
+    '&resultRecordCount=' + (name ? '100' : '8') + '&f=json'
 
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(9000), headers: { Accept: 'application/json' } })

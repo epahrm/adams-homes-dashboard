@@ -117,11 +117,42 @@ async function noHorizontalOverflow(page) {
     check('research form validation fires', await page.locator('#rfNameError').isVisible());
     await page.fill('#rfName', 'Jane Doe');
     await page.fill('#rfAddress', 'Corner lot near Malabar Rd, Palm Bay');
-    await page.fill('#rfPhone', '(321) 555-0102');
     await page.fill('#rfEmail', 'jane@example.com');
+    // Phone is optional on the research request — submit without it.
     await page.click('#researchForm button[type=submit]');
     await page.waitForSelector('#researchMessage.success', { state: 'visible', timeout: 15000 });
-    check('research request submits', true);
+    check('research request submits without a phone number', true);
+
+    // ---------- Seller flow: owner with multiple lots -> chooser ----------
+    // An owner (e.g. a builder) can hold many parcels, and two owners can share
+    // a name. When the county returns more than one, show a chooser and let the
+    // seller pick their lot rather than guessing the first.
+    // Stub the county API (file:// can't be network-routed) so the page sees an
+    // owner holding three lots.
+    await page.addInitScript(() => {
+      const realFetch = window.fetch;
+      window.fetch = (url, opts) => {
+        if (String(url).includes('/api/land-acq/county') && /northwest/i.test(String(url))) {
+          return Promise.resolve(new Response(JSON.stringify({ records: [
+            { address: '1007 Soleway Ave NW, Palm Bay, FL 32907', owner: 'Adams Homes Of Northwest Florida Inc', lotSize: '0.23 acres', useDesc: 'Vacant Residential' },
+            { address: '2145 Emerson Dr SE, Palm Bay, FL 32909', owner: 'Adams Homes Of Northwest Florida Inc', lotSize: '0.25 acres', useDesc: 'Vacant Residential' },
+            { address: '880 Wyoming Dr SE, Palm Bay, FL 32909', owner: 'Adams Homes Of Northwest Florida Inc', lotSize: '0.28 acres', useDesc: 'Vacant Residential' },
+          ] }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        }
+        return realFetch(url, opts);
+      };
+    });
+    await page.goto(BASE + '/index.html');
+    await page.fill('#ownerName', 'Adams Homes Of Northwest Florida');
+    await page.click('#searchNameBtn');
+    await page.waitForSelector('#chooserPanel', { state: 'visible', timeout: 15000 });
+    check('multi-lot owner shows chooser', (await page.locator('#chooserList .chooser-item').count()) === 3);
+    check('chooser count reflects match total', (await page.textContent('#chooserCount')).trim() === '3');
+    // Picking a lot from the chooser resolves to that exact property.
+    await page.locator('#chooserList .chooser-item').nth(1).click();
+    await page.waitForSelector('#resultPanel', { state: 'visible', timeout: 15000 });
+    check('choosing a lot loads that property',
+      (await page.textContent('#recAddress')).includes('2145 Emerson'));
 
     // ---------- Regression: symbol-only search must not match a record (F1) ----------
     await page.goto(BASE + '/index.html');
