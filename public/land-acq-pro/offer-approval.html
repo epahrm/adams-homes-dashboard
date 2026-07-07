@@ -541,8 +541,19 @@
     }
     function showReferralLetter() {
       const p = document.getElementById('packetPreview');
-      p.textContent = referralLetter();
+      p.textContent = '';
       p.classList.add('show');
+      const img = document.createElement('img');
+      img.src = 'thank-you-card.png';
+      img.alt = 'Thank You — Adams Homes';
+      img.style.cssText = 'width:100%; max-width:660px; height:auto; border-radius:8px; display:block; margin:0 auto 12px; box-shadow:0 6px 20px rgba(0,0,0,0.15);';
+      p.appendChild(img);
+      const bar = document.createElement('div'); bar.style.cssText = 'text-align:center;';
+      const a = document.createElement('a');
+      a.href = 'thank-you-card.png'; a.download = 'adams-homes-thank-you.png';
+      a.textContent = 'Download to send / print';
+      a.style.cssText = 'font-weight:700; color:#1a5ba5; text-decoration:none;';
+      bar.appendChild(a); p.appendChild(bar);
       p.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 

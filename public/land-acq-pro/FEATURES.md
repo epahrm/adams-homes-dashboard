@@ -72,10 +72,8 @@ kept up to date for review and to present to leadership. ✅ = built & working �
 - ✅ Seller notifications logged on contract-received and when Elizabeth signs
 
 ## 9. Post-closing
-- 🟡 **Thank-you + referral-request letter** for closed deals — **placeholder draft in place** (auto-generates on the closed-deal screen)
-  - Intended tone: warm and heartfelt — the feel of a **stork bringing a baby home**, expressing genuine appreciation that the seller's vacant lot will become a home for a **new family** to put down roots
-  - Naturally leads into a referral ask for other Palm Bay landowners
-  - ⏳ Awaiting Elizabeth's final wording/design (see TODO.md)
+- ✅ **Thank-you card** for closed deals — Elizabeth's designed **stork-delivering-a-home** artwork ("You helped deliver a dream home"), shown on the closed-deal screen with a Download-to-send/print button
+  - 🔜 Optional later: personalize with the seller's name, and a matching referral ask
 
 ## 10. Data in/out
 - ✅ **Export to CSV / PDF** of the pipeline
