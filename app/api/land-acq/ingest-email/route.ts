@@ -14,8 +14,11 @@ export const maxDuration = 60
 // parses each listing, scores it against the buy box, and files the matches as
 // 'opportunity' lots for Kevin's dashboard. Triggered daily by Vercel Cron.
 
-const GMAIL_USER = process.env.LANDACQ_GMAIL_USER
-const GMAIL_PASS = process.env.LANDACQ_GMAIL_APP_PASSWORD
+// Gmail shows app passwords grouped as "abcd efgh ijkl mnop"; pasted with those
+// spaces, the IMAP LOGIN command is malformed ("Failed to parse your command").
+// Strip whitespace so the credential works however it was entered.
+const GMAIL_USER = (process.env.LANDACQ_GMAIL_USER || '').trim()
+const GMAIL_PASS = (process.env.LANDACQ_GMAIL_APP_PASSWORD || '').replace(/\s+/g, '')
 const CRON_SECRET = process.env.CRON_SECRET
 
 function authorized(req: NextRequest): boolean {
