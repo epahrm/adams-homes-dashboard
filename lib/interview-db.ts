@@ -177,10 +177,10 @@ export const REFERRAL_SOURCES = [
 // initials until a photo file exists.
 export const MANAGERS = [
   { name: 'Elizabeth Porter', title: 'Regional Manager', img: 'elizabeth-porter.jpg' },
-  { name: 'Kristi Worley', title: 'Orlando', img: 'kristi-worley.jpg' },
+  { name: 'Kristi Worley', title: 'Melbourne', img: 'kristi-worley.jpg' },
   { name: 'Scott Harris', title: 'Jacksonville', img: 'scott-harris.jpg' },
   { name: 'Eric Landrum', title: 'Daytona Beach', img: 'eric-landrum.jpg' },
-  { name: 'Liza Carrasquillo', title: 'Melbourne', img: 'liza-carrasquillo.jpg' },
+  { name: 'Liza Carrasquillo', title: 'Orlando', img: 'liza-carrasquillo.jpg' },
   { name: 'Bob Frein', title: 'Port St. Lucie', img: 'bob-frein.jpg' },
 ] as const
 
