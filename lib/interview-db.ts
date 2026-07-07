@@ -30,13 +30,15 @@ const globalForPool = global as unknown as {
   interviewTablesReady?: Promise<unknown>
 }
 
+const isLocalDb = /@(localhost|127\.0\.0\.1)[:/]/.test(databaseUrl)
+
 export const pool =
   globalForPool.interviewPool ||
   new Pool({
     connectionString: databaseUrl,
     max: 3,
     connectionTimeoutMillis: 8000,
-    ssl: { rejectUnauthorized: false },
+    ssl: isLocalDb ? undefined : { rejectUnauthorized: false },
   })
 globalForPool.interviewPool = pool
 
