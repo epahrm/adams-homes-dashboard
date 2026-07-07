@@ -20,6 +20,13 @@ adding to this as we go.
       ecland@adamshomes.com · Adams Homes (since 1991).
 
 ## Needs your action (to go live)
+- [ ] **Database** — the production DB is currently down (Supabase free tier
+      paused). Move to **Neon free tier** (no hard pausing + restore/backups,
+      no cost) or upgrade Supabase to Pro. Just set `DATABASE_URL` in Vercel;
+      tables auto-create. See the database note below.
+- [ ] **Lead-source accounts** — create free accounts + saved-search alerts on
+      Zillow / Realtor.com / Crexi / Land.com / LoopNet, pointed at
+      `landacq.leads@gmail.com`. Full list + status in **SOURCES.md**.
 - [ ] **Turn off the Vercel login wall** + set the admin password
       (`LAND_ACQ_ADMIN_KEY`) — see LAUNCH_CHECKLIST.md.
 - [ ] **Email feeds:** point your Zillow/Crexi saved-search alerts at
