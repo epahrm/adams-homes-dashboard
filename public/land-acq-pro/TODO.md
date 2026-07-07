@@ -15,9 +15,10 @@ adding to this as we go.
       Spark access (unlocks the automated on-market feed).
 - [ ] **Brand secondary color** — postcard handoff says navy + *forest green*;
       logo/site are navy + *red*. Which for postcards/emails?
-- [ ] **Confirm Kevin's contact** to lock into settings everywhere:
-      Kevin Nelson · Land Acquisition Manager · (407) 523-0908 ·
-      ecland@adamshomes.com · Adams Homes (since 1991).
+- [x] **Kevin's contact confirmed** (locked everywhere):
+      Kevin Nelson · Regional Land Acquisitions · Adams Homes — Orlando ·
+      4401 Vineland Rd. A-11, Orlando, FL 32811 · (407) 523-0908 ·
+      ecland@adamshomes.com · www.AdamsHomes.com
 
 ## Needs your action (to go live)
 - [ ] **Database** — the production DB is currently down (Supabase free tier

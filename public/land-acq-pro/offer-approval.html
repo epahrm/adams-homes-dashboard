@@ -558,10 +558,11 @@
       const exp = lot.offerExpires ? fmtDate(lot.offerExpires) : fmtDate(addDays(new Date().toISOString(), OFFER_VALID_DAYS));
       const owner = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || 'there';
       return 'Dear ' + owner + ',\n\n' +
-        'Thank you for the opportunity to make an offer on ' + addr + '. At Adams Homes, no one closes faster — we are a cash buyer, we handle everything, and there are no agents, commissions, or hidden fees.\n\n' +
-        'Your enclosed offer is firm and ready to sign electronically. Please note it expires on ' + exp + ', so we can keep your closing on our fast track. Once you sign, our team gets to work right away.\n\n' +
-        "I'll personally help you every step of the way. Call or email me anytime with questions.\n\n" +
-        'Warm regards,\nKevin Nelson\nLand Acquisition Manager, Adams Homes\n(407) 523-0908 · ecland@adamshomes.com';
+        'Adams Homes is proud to present the enclosed all-cash offer for ' + addr + '.\n\n' +
+        "Adams Homes is one of the nation's largest homebuilders — we've built more than 50,000 homes across 28 markets and purchased over 75,000 homesites nationwide. That scale is your advantage: we buy with our own cash, so there are no banks, no financing contingencies, and no waiting — and no agents, commissions, or hidden fees.\n\n" +
+        'Your enclosed offer is firm and ready to sign electronically. It expires on ' + exp + ', which keeps your closing on our fast track. The moment you sign, our team gets to work and we move straight to a fast, all-cash closing.\n\n' +
+        "I'll personally handle your sale from start to finish — call or email me anytime.\n\n" +
+        'Sincerely,\nKevin Nelson\nRegional Land Acquisitions\nAdams Homes — Orlando\n4401 Vineland Rd. A-11, Orlando, FL 32811\n(407) 523-0908 · ecland@adamshomes.com · www.AdamsHomes.com';
     }
 
     // Post-closing thank-you + referral-request letter.
@@ -573,7 +574,7 @@
         'Because of you, an empty lot won\'t stay empty for long. Soon it will become a home, and before long a family will carry their new beginning through the front door, put down roots, and fill those rooms with a lifetime of memories. Much like a stork arriving with a precious new bundle, your land marks the start of someone\'s next chapter — and we are deeply grateful that you made it possible.\n\n' +
         'If your experience with us was a good one, the kindest thing you could do is help us find the next family\'s beginning. Do you know anyone else in Palm Bay with vacant land who\'d welcome a fair, all-cash offer — no agents, no commissions, no hidden fees? I\'d be honored to help them just as I helped you.\n\n' +
         'Feel free to pass along my direct line, or simply send me their information and I\'ll reach out personally.\n\n' +
-        'With heartfelt thanks,\nKevin Nelson\nLand Acquisition Manager, Adams Homes\n(407) 523-0908 · ecland@adamshomes.com';
+        'With heartfelt thanks,\nKevin Nelson\nRegional Land Acquisitions, Adams Homes — Orlando\n(407) 523-0908 · ecland@adamshomes.com';
     }
     function showReferralLetter() {
       const p = document.getElementById('packetPreview');
