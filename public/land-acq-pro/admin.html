@@ -1945,14 +1945,11 @@
       btn.disabled = true; btn.textContent = 'Sweeping…';
       msg.style.display = 'block'; msg.className = 'sweep-msg'; msg.textContent = 'Checking the on-market inbox…';
       try {
-        const res = await fetch('/api/land-acq/ingest-email', { headers: adminHeaders(), signal: AbortSignal.timeout(60000) });
+        const res = await fetch('/api/land-acq/sweep-redfin', { headers: adminHeaders(), signal: AbortSignal.timeout(60000) });
         const j = await res.json().catch(() => ({}));
-        if (j.configured === false) {
-          msg.className = 'sweep-msg warn';
-          msg.textContent = 'On-market feed isn’t connected yet — add the dedicated Gmail credentials in Vercel (see the on-market setup guide) to go live.';
-        } else if (res.ok) {
+        if (res.ok) {
           msg.className = 'sweep-msg ok';
-          msg.textContent = 'Swept: ' + (j.added || 0) + ' new · ' + (j.duplicates || 0) + ' already had · ' + (j.rejected || 0) + ' outside the buy box.';
+          msg.textContent = 'Swept ' + (j.source || 'on-market') + ': ' + (j.added || 0) + ' new · ' + (j.duplicates || 0) + ' already had (of ' + (j.scanned || 0) + ' buy-box listings).';
           render();
         } else {
           msg.className = 'sweep-msg warn';

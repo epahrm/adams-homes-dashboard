@@ -1,11 +1,11 @@
 {
   "crons": [
     {
-      "path": "/api/land-acq/ingest-email",
+      "path": "/api/land-acq/sweep-redfin",
       "schedule": "0 10 * * *"
     },
     {
-      "path": "/api/land-acq/ingest-email",
+      "path": "/api/land-acq/sweep-redfin",
       "schedule": "0 16 * * *"
     }
   ]
