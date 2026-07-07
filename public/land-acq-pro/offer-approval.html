@@ -253,6 +253,8 @@
           <div><label class="form-label" for="mlsNum">MLS #</label><input type="text" id="mlsNum" placeholder="MLS ID"></div>
         </div>
         <div class="hint">Auto-filled from the listing when available. The offer routes to this agent, and they're tracked in the Realtor CRM.</div>
+        <button type="button" class="btn btn-outline" id="saveAgentBtn" style="margin-top:12px; width:auto;">Save Agent Details</button>
+        <span class="agent-saved" id="agentSaved" style="display:none; margin-left:12px; color:#1a7a44; font-weight:600; font-size:14px;">✓ Saved</span>
       </div>
 
       <!-- Offer terms -->
@@ -751,6 +753,31 @@
       const listed = document.getElementById('listingType').value === 'listed';
       document.getElementById('agentCard').style.display = listed ? '' : 'none';
     }
+
+    // Save just the listing-agent details on their own (so Kevin/Elizabeth can
+    // add a phone/email without having to regenerate the whole offer). These
+    // now persist across refresh and feed the Realtor CRM.
+    async function saveAgentDetails() {
+      const btn = document.getElementById('saveAgentBtn');
+      const set = {
+        listingType: document.getElementById('listingType').value,
+        agentName: document.getElementById('agentName').value.trim(),
+        agentBrokerage: document.getElementById('agentBrokerage').value.trim(),
+        agentPhone: document.getElementById('agentPhone').value.trim(),
+        agentEmail: document.getElementById('agentEmail').value.trim(),
+        mls: document.getElementById('mlsNum').value.trim()
+      };
+      btn.disabled = true;
+      try {
+        await saveLot(set);
+        const s = document.getElementById('agentSaved');
+        s.style.display = 'inline';
+        setTimeout(() => { s.style.display = 'none'; }, 2500);
+      } catch (e) {
+        msg('Could not save the agent details — please try again.', false);
+      }
+      btn.disabled = false;
+    }
     function premiumChoiceValid() {
       const choice = document.querySelector('input[name=hasPremium]:checked');
       if (!choice) { document.getElementById('premiumError').style.display = 'block'; return null; }
@@ -905,6 +932,7 @@
     document.getElementById('offerAmount').addEventListener('input', () => { refreshStipend(); updateCommissionHint(); });
     document.getElementById('commission').addEventListener('input', updateCommissionHint);
     document.getElementById('leadSource').addEventListener('change', toggleWholesaler);
+    document.getElementById('saveAgentBtn').addEventListener('click', saveAgentDetails);
     document.querySelectorAll('input[name=hasPremium]').forEach(r => r.addEventListener('change', function() {
       document.getElementById('premiumList').classList.toggle('show', this.value === 'yes');
       document.getElementById('premiumError').style.display = 'none';

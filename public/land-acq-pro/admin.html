@@ -36,6 +36,16 @@
 
     /* Stipend panel (compact) */
     .stipend-panel { border: 1px solid #cfddea; border-radius: 10px; background: #f3f8fd; padding: 12px 14px; margin-bottom: 20px; }
+    .buybox-panel > summary { cursor: pointer; color: #003d66; font-size: 14px; letter-spacing: 0.3px; list-style: none; }
+    .buybox-panel > summary::-webkit-details-marker { display: none; }
+    .buybox-panel > summary::before { content: '▸'; margin-right: 8px; color: #0a4f8e; }
+    .buybox-panel[open] > summary::before { content: '▾'; }
+    .buybox-panel .bb-hint { text-transform: none; letter-spacing: 0; font-weight: 400; color: #6b7d90; font-size: 12px; margin-left: 6px; }
+    .bb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; margin-top: 12px; }
+    @media (max-width: 560px) { .bb-grid { grid-template-columns: 1fr; } }
+    .bb-item { font-size: 13px; color: #33475b; line-height: 1.4; }
+    .bb-item b { color: #003d66; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #6b7d90; margin-bottom: 1px; }
+    .bb-where { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #cfddea; font-size: 12.5px; color: #33475b; line-height: 1.5; }
     .stipend-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
     .stipend-head h3 { color: #003d66; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase; }
     .stipend-edit { background: white; border: 1px solid #003d66; color: #003d66; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; min-height: 36px; }
@@ -83,6 +93,9 @@
     .opp-row.yellow { border-left-color: #e8963c; }
     .opp-row.blue { border-left-color: #0a4f8e; }
     .opp-row.blue .opp-reason { color: #0a4f8e; font-weight: 600; }
+    .opp-row.red { border-left-color: #c0392b; }
+    .opp-row.red .opp-reason { color: #c0392b; font-weight: 600; }
+    .opp-empty { color: #6b7d90; font-size: 13px; font-style: italic; padding: 6px 2px; }
     .opp-main { flex: 1; min-width: 0; }
     .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; }
     .opp-meta { font-size: 13px; color: #667; margin-top: 2px; }
@@ -97,7 +110,7 @@
     .opp-offer { font-weight: 800; color: #123a63; font-size: 15px; white-space: nowrap; }
     .opp-offer span { display: block; font-size: 10px; font-weight: 600; color: #5a7290; text-transform: uppercase; letter-spacing: 0.5px; }
     .opp-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
-    .opp-actions button { font-family: inherit; font-size: 12px; font-weight: 700; border-radius: 6px; padding: 6px 12px; cursor: pointer; border: 1px solid transparent; }
+    .opp-actions button { font-family: inherit; font-size: 12px; font-weight: 700; border-radius: 6px; padding: 6px 12px; min-height: 44px; cursor: pointer; border: 1px solid transparent; }
     .opp-btn-add { background: #1a5ba5; color: #fff; }
     .opp-btn-add:hover { background: #14508f; }
     .opp-btn-skip, .opp-btn-hold { background: #fff; border-color: #c3cfdc; color: #4a6b8f; }
@@ -385,6 +398,14 @@
         </details>
       </div>
 
+      <!-- Buy Box reference — the rules the triage runs on, kept in sync with
+           the live stipends. This is the "buy box notes" reference. -->
+      <details class="stipend-panel buybox-panel" id="buyBoxPanel">
+        <summary><b>Buy Box &mdash; criteria &amp; notes</b> <span class="bb-hint">what makes a lot green / yellow / red</span></summary>
+        <div class="bb-grid" id="buyBoxGrid"></div>
+        <div class="bb-where" id="buyBoxWhere"></div>
+      </details>
+
       <div class="kpi-grid">
         <div class="kpi orange"><div class="lbl">Pending EP Sig</div><div class="num" id="kpiEpSig">0</div></div>
         <div class="kpi green"><div class="lbl">Inspection Period</div><div class="num" id="kpiIp">0</div></div>
@@ -434,6 +455,13 @@
         <summary></summary>
         <div id="oppsRejectedList"></div>
       </details>
+
+      <!-- Offer sent but not moving toward Elizabeth's signature within 3 days -->
+      <div class="opps" id="offerFollowBlock" style="display:none; border-color:#c0392b; background:#fdf3f1;">
+        <h3 style="color:#c0392b;">Offer Follow-Up Due <span>&mdash; sent but not moving toward signature</span></h3>
+        <div class="opps-sub" id="offerFollowSub"></div>
+        <div id="offerFollowList"></div>
+      </div>
 
       <!-- Seller declined an offer: prompt Kevin to re-offer every 30 days -->
       <div class="opps" id="reofferBlock" style="display:none; border-color:#8a5200; background:#fff8ef;">
@@ -843,6 +871,13 @@
     }
 
     function money(n) { return '$' + Number(n || 0).toLocaleString('en-US'); }
+    // Normalize an address for matching (mirrors the server's addressKey: drop a
+    // trailing city/FL/zip, then strip to alphanumerics).
+    function normAddr(a) {
+      return (a || '').toLowerCase()
+        .replace(/,?\s*(?:palm bay|west melbourne|melbourne|malabar|grant|valkaria)?\s*,?\s*fl\s*\d{5}(?:-\d{4})?\s*$/i, '')
+        .replace(/[^a-z0-9]/g, '');
+    }
 
     // Infer a lot's utility type from its county utilities text so the right
     // stipend applies even before Kevin sets it explicitly.
@@ -1234,6 +1269,34 @@
     // Buy-box opportunities, split into On-Market and Off-Market boxes. Kevin
     // responds to every one (Send Offer or Unsuitable); 10 show at a time and the
     // next fill in as he clears them. Each box header shows the open-item count.
+    // Buy Box reference panel — the criteria the triage runs on, plus where the
+    // matching lots surface. Kept in sync with the live stipends.
+    function renderBuyBoxNotes() {
+      const grid = document.getElementById('buyBoxGrid');
+      if (!grid) return;
+      const s = stipendState.defaults;
+      const items = [
+        ['Where', 'Palm Bay ZIPs ' + BUY_BOX.zips.join(', ')],
+        ['Property type', 'Vacant, unimproved residential lots only — no structures'],
+        ['Lot size', BUY_BOX.minAcres + '–' + BUY_BOX.maxAcres + ' ac (off-market sweep targets ≤ 0.45 ac)'],
+        ['Max offer (stipend)', 'Well/Septic ' + money(s['well-septic']) + ' · Water/Septic ' + money(s['water-septic']) + ' · Water/Sewer ' + money(s['water-sewer'])],
+        ['Show window', 'Up to ' + money(BUY_BOX.showWindow) + ' over stipend (offer & negotiate); higher = auto-rejected'],
+        ['Offer rule', 'Offer never exceeds the stipend; on-market default is $2k below stipend'],
+        ['Triage', '🟢 ready to send · 🟡 needs review · 🔴 auto-rejected (logged with reason)']
+      ];
+      grid.innerHTML = items.map(([k, v]) => {
+        const d = document.createElement('div'); d.className = 'bb-item';
+        const b = document.createElement('b'); b.textContent = k; d.appendChild(b);
+        d.appendChild(document.createTextNode(v)); return d.outerHTML;
+      }).join('');
+      const w = document.getElementById('buyBoxWhere');
+      w.innerHTML = '';
+      const lead = document.createElement('b'); lead.textContent = 'Where these lots show up: ';
+      w.appendChild(lead);
+      w.appendChild(document.createTextNode(
+        'On-market listings in the buy box appear in the On-Market Opportunities box; county-sweep lots appear in Off-Market Opportunities — each with a 🟢/🟡/🔴 light and a suggested offer to Send Offer or mark Unsuitable.'));
+    }
+
     function renderOpportunities(lots) {
       const rejWrap = document.getElementById('oppsRejected');
       const rejList = document.getElementById('oppsRejectedList');
@@ -1248,7 +1311,20 @@
         const block = document.getElementById(blockId);
         const list = document.getElementById(listId);
         list.innerHTML = '';
-        if (!items.length) { block.style.display = 'none'; oppShow[key] = OPP_PAGE; return; }
+        // Always show the box so Kevin can see where buy-box lots live; when
+        // empty, explain how lots arrive here instead of hiding it.
+        if (!items.length) {
+          oppShow[key] = OPP_PAGE;
+          block.style.display = 'block';
+          document.getElementById(subId).textContent = '';
+          const empty = document.createElement('div');
+          empty.className = 'opp-empty';
+          empty.textContent = key === 'on'
+            ? 'No on-market buy-box lots right now. Listed lots that fall in the buy box (from imports or on-market alerts) appear here to offer on.'
+            : 'No off-market buy-box lots right now. Run the Off-Market Sweep to pull county lots into this queue.';
+          list.appendChild(empty);
+          return;
+        }
         block.style.display = 'block';
         const total = items.length;
         const g = items.filter(s => s.ev.light === 'green').length;
@@ -1288,6 +1364,58 @@
       } else {
         rejWrap.style.display = 'none';
       }
+    }
+
+    // Offer Follow-Up Due — an offer is out but the deal hasn't moved to
+    // Elizabeth's signature (pending-ep-sig) within 3 days of being sent. The
+    // due date is the send date + 3 days, auto-calculated. Kevin gets a nudge
+    // to chase the seller/agent so it doesn't stall.
+    const OFFER_FOLLOW_DAYS = 3;
+    function offerSentAt(l) { return l.generatedAt || l.offerSentAt || l.createdAt || null; }
+    function offerDueAt(l) {
+      const s = offerSentAt(l);
+      if (!s) return null;
+      const base = new Date(s).getTime() + OFFER_FOLLOW_DAYS * 86400000;
+      const snooze = l.offerFollowSnoozeAt ? new Date(l.offerFollowSnoozeAt).getTime() : 0;
+      return Math.max(base, snooze);
+    }
+    function renderOfferFollowups(lots) {
+      const block = document.getElementById('offerFollowBlock');
+      const list = document.getElementById('offerFollowList');
+      const now = Date.now();
+      const due = lots
+        .filter(l => (l.displayStatus || l.status) === 'offer-sent')
+        .map(l => ({ l, sent: offerSentAt(l), dueAt: offerDueAt(l) }))
+        .filter(x => x.dueAt && x.dueAt <= now)
+        .sort((a, b) => a.dueAt - b.dueAt);
+      if (!due.length) { block.style.display = 'none'; return; }
+      block.style.display = 'block';
+      document.getElementById('offerFollowSub').textContent =
+        due.length + ' offer' + (due.length === 1 ? '' : 's') + ' sent ' + OFFER_FOLLOW_DAYS
+        + '+ days ago with no movement toward signature — follow up to keep it alive.';
+      list.innerHTML = '';
+      due.forEach(({ l, sent, dueAt }) => {
+        const row = document.createElement('div'); row.className = 'opp-row red';
+        const main = document.createElement('div'); main.className = 'opp-main';
+        const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
+        const daysOver = Math.floor((now - dueAt) / 86400000);
+        const meta = document.createElement('div'); meta.className = 'opp-meta';
+        meta.textContent = 'Offer sent ' + new Date(sent).toLocaleDateString()
+          + (l.offer ? ' · ' + l.offer : '')
+          + ' · follow-up due ' + new Date(dueAt).toLocaleDateString()
+          + (daysOver > 0 ? ' · ' + daysOver + 'd overdue' : ' · due today');
+        const reason = document.createElement('div'); reason.className = 'opp-reason';
+        reason.textContent = '➡ Not moving toward signature — call the ' + (isListedLot(l) ? 'listing agent' : 'seller') + ' to follow up.';
+        main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+        const actions = document.createElement('div'); actions.className = 'opp-actions';
+        const open = document.createElement('button'); open.className = 'opp-btn-add'; open.textContent = 'Open Deal';
+        open.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
+        const snooze = document.createElement('button'); snooze.className = 'opp-btn-hold'; snooze.textContent = 'Followed up — 3d';
+        snooze.addEventListener('click', () => patchLot(l.id, { offerFollowSnoozeAt: new Date(now + OFFER_FOLLOW_DAYS * 86400000).toISOString() }));
+        actions.appendChild(open); actions.appendChild(snooze);
+        row.appendChild(main); row.appendChild(actions);
+        list.appendChild(row);
+      });
     }
 
     // Re-offer Due — seller-declined lots whose 30-day review has come up.
@@ -1734,7 +1862,9 @@
 
     async function render() {
       const lots = await loadLots();
+      renderBuyBoxNotes();
       renderOpportunities(lots);
+      renderOfferFollowups(lots);
       renderReoffer(lots);
       renderFollowups(lots);
       renderRealtors(lots);
@@ -2078,6 +2208,40 @@
         const j = await res.json().catch(() => ({}));
         if (!res.ok) { importMsg(j.error || 'Could not read that PDF — use Add Deal to enter it manually.', false); return; }
         const f = j.fields || {};
+
+        // If the contract's address matches a property already in the pipeline,
+        // update that lead directly (a contract means an offer is out) instead
+        // of trying to add a duplicate that the de-dupe would silently drop.
+        if (f.address) {
+          const key = normAddr(f.address);
+          const match = lastLots.find(l => key && normAddr(l.address) === key);
+          if (match) {
+            const set = {};
+            // A contract means an offer is out — advance a pre-offer lead to
+            // Offer Sent, but never drag a deal that's already further along
+            // (signed / in inspection / closing) backward.
+            const PRE_OFFER = ['pending', 'opportunity', 'offer-denied', 'dismissed'];
+            const advanced = !match.status || PRE_OFFER.includes(match.status);
+            if (advanced) set.status = 'offer-sent';
+            if (f.offer) set.offer = f.offer;
+            if (f.acceptedDate) set.acceptedAt = new Date(f.acceptedDate + 'T12:00:00').toISOString();
+            if (f.utilityType) set.utilityType = f.utilityType;
+            if (f.legal) set.legal = f.legal;
+            if (f.commission) set.commission = f.commission;
+            if (f.agentName || f.agentBrokerage) {
+              set.listingType = 'listed';
+              if (f.agentName) set.agentName = f.agentName;
+              if (f.agentBrokerage) set.agentBrokerage = f.agentBrokerage;
+            }
+            Object.assign(match, set);           // optimistic: reflect immediately
+            await patchLot(match.id, set);       // persist + re-render
+            importMsg('Contract matched “' + match.address + '” — saved to that lead'
+              + (advanced ? ' (stage: Offer Sent)' : ' (kept current stage: ' + (PILL_LABELS[match.status] || match.status) + ')')
+              + (f.commission ? ' · commission ' + f.commission : '')
+              + (f.acceptedDate ? ' · accepted ' + f.acceptedDate : '') + '. Open it to review.', true);
+            return;
+          }
+        }
         openDeal();
         document.getElementById('dAddress').value = f.address || '';
         document.getElementById('dOwner').value = f.owner || '';
