@@ -5,13 +5,13 @@ Admin reference for dylantheacorn.com. Lives in `docs/` (private repo), NOT in
 whenever hosting, costs, or accounts change — automated reminders (below)
 assume it is accurate.
 
-_Last updated: 2026-07-08_
+_Last updated: 2026-07-08 (DNS records set; awaiting propagation)_
 
 ## Where everything lives
 
 | Asset | Provider / location | Login owner | Cost | Renewal / expiry |
 |---|---|---|---|---|
-| Domain `dylantheacorn.com` | Porkbun (order 10453999) | elizporter15@gmail.com | ~$11.08/yr | **May 24, 2027** — enable auto-renew! |
+| Domain `dylantheacorn.com` | Porkbun (order 10453999) | elizporter15@gmail.com | ~$11.08/yr | **May 24, 2027** — ⚠️ AUTO-RENEW IS OFF, please enable it! |
 | Website hosting | Vercel, project `adams-homes-dashboard` (team `ecf-projects`), served from `public/dylan-the-acorn/` via middleware host rule | Vercel team login | $0 (Hobby plan) | None — but 100 deployments/day account-wide cap; batch pushes |
 | Site source code | GitHub `epahrm/adams-homes-dashboard`, folder `public/dylan-the-acorn/` | GitHub account | $0 | None |
 | Book listing (paperback) | Amazon KDP — ASIN B0H2KTZP97 | KDP account | $0 | None |
@@ -22,9 +22,9 @@ _Last updated: 2026-07-08_
 
 ## Action checklist (as of last update)
 
-- [ ] Vercel: add `dylantheacorn.com` + `www.dylantheacorn.com` to project domains
-- [ ] Porkbun: set A record `@ → 76.76.21.21`, CNAME `www → cname.vercel-dns.com`
-- [ ] Porkbun: turn ON auto-renew for the domain
+- [x] Porkbun: set A record `@ → 216.198.79.1`, CNAME `www → cname.vercel-dns.com` (records created 2026-07-08, awaiting DNS propagation)
+- [ ] **URGENT:** Porkbun: turn ON auto-renew for the domain (currently OFF; expires May 24, 2027)
+- [ ] Vercel: verify `dylantheacorn.com` + `www.dylantheacorn.com` domains appear in project settings once DNS propagates
 - [ ] Collect first Amazon reviews → paste best ones into site (only ≥3 stars display; filter is enforced in code)
 - [ ] Personalize Seth's bio on the author page
 - [ ] First event for the events section
