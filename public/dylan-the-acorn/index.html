@@ -502,12 +502,14 @@ const EVENTS = [
    =================================================================== */
 function starRow(n){ return "★".repeat(n) + "☆".repeat(5 - n); }
 
+// Only reviews with 3 or more stars are shown on the site.
+const shownReviews = REVIEWS.filter(r => r.stars >= 3);
 const reviewGrid = document.getElementById("review-grid");
 const reviewsEmpty = document.getElementById("reviews-empty");
-if (REVIEWS.length === 0) {
+if (shownReviews.length === 0) {
   reviewsEmpty.hidden = false;
 } else {
-  for (const r of REVIEWS) {
+  for (const r of shownReviews) {
     const card = document.createElement("div");
     card.className = "review-card";
     card.innerHTML =
