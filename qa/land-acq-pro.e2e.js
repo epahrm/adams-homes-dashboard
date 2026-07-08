@@ -235,6 +235,23 @@ async function noHorizontalOverflow(page) {
       await page.locator('#oppsOffMarket').isVisible());
     check('on-market Sweep Now control present',
       await page.locator('#sweepNowBtn').isVisible());
+    // ---------- Layout (desktop width): two-column pairing + one-row KPI tiles ----------
+    // The rest of this suite runs at mobile width (390px), where .row2 rightly
+    // stacks to one column — these two checks need a desktop-sized viewport,
+    // so resize just for them and restore mobile width immediately after.
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.waitForTimeout(150);
+    const onBox = await page.locator('#oppsOnMarket').boundingBox();
+    const offBox = await page.locator('#oppsOffMarket').boundingBox();
+    check('on-market and off-market boxes render on the same row (side by side)',
+      onBox && offBox && Math.abs(onBox.y - offBox.y) < 5 && onBox.x !== offBox.x);
+    // Measure the tile containers, not inner text — a wrapped two-word label
+    // shifts its own .num down without the grid itself wrapping to a new row.
+    const kpiTops = await page.locator('.kpi-grid .kpi').evaluateAll(
+      els => els.map(e => Math.round(e.getBoundingClientRect().top)));
+    check('all 7 KPI tiles render on one row (no wrap)',
+      kpiTops.length === 7 && new Set(kpiTops).size === 1, JSON.stringify(kpiTops));
+    await page.setViewportSize({ width: 390, height: 844 });
     // ---------- No auto-reject: Kevin decides (Offer / Nurture / GM Defer / Unsuitable) ----------
     const cogan = page.locator('#oppsOffMarket .opp-row', { hasText: 'Cogan' });
     check('opportunity row shows the four-way decision + confirm utilities',
@@ -286,15 +303,23 @@ async function noHorizontalOverflow(page) {
     check('View listing link opens in a new tab',
       (await page.locator('#oppsOnMarket a.opp-listing-link').first().getAttribute('target')) === '_blank');
 
-    // ---------- Offer Follow-Up Due (offer sent 3+ days, no movement) ----------
+    // ---------- Awaiting Seller Response (offer sent 3+ days, no movement) ----------
     check('offer follow-up block shows for a stale offer-sent lot',
       await page.locator('#offerFollowBlock').isVisible());
     check('offer follow-up shows a computed due date',
       /follow-up due/i.test(await page.textContent('#offerFollowList')));
+    check('offer follow-up block titled Awaiting Seller Response',
+      /Awaiting Seller Response/i.test(await page.textContent('#offerFollowBlock')));
     // Secondary action button (e.g. "Followed up — 3d") has a distinct filled
     // background so the two buttons stand apart.
     check('secondary action button has a distinct filled background',
       (await page.locator('#offerFollowList .opp-btn-hold').first().evaluate(el => getComputedStyle(el).backgroundColor)) === 'rgb(232, 150, 60)');
+    // Moved up near the top of the page — above the Buy Box panel — so a
+    // stalling deal isn't buried under routine metrics.
+    const followTop = (await page.locator('#offerFollowBlock').boundingBox()).y;
+    const buyBoxTop = (await page.locator('#buyBoxPanel').boundingBox()).y;
+    check('Awaiting Seller Response sits above the Buy Box panel (near the top)',
+      followTop < buyBoxTop);
 
     // ---------- Contract stats (month / quarter / YTD) + cancellations review ----------
     const statsHeads = await page.locator('#contractStats thead th').allTextContents();
