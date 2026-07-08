@@ -85,6 +85,7 @@ export async function GET(req: NextRequest) {
             url: li.url,
             listStatus: 'Active Listing',
             mls: li.mls,
+            daysOnMarket: li.daysOnMarket,
             agentBrokerage: li.brokerage,
             agentName: li.agentName,
             agentPhone: li.agentPhone,

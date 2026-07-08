@@ -21,6 +21,7 @@ export type ParsedListing = {
   agentPhone?: string | null
   agentEmail?: string | null
   agentLicense?: string | null
+  daysOnMarket?: number | null
   // true when the email had no street address (link-only alert, e.g. Crexi):
   // the lead still lands, flagged for Kevin to open the listing and confirm.
   needsAddress?: boolean
@@ -63,9 +64,9 @@ function extractAgentDetails(body: string): {
 } {
   const result: Record<string, string> = {}
 
-  // Agent name: look for "Listing Agent:" or "Agent:" followed by a name up to newline.
-  // Stop at newlines to avoid capturing multi-line text.
-  let m = body.match(/(?:Listing\s+)?Agent\s*:?\s*([A-Z][A-Za-z\s.'-]{2,45}?)(?:\n|$|[0-9()])/i)
+  // Agent name: look for "Listed by:", "Listing Agent:", or "Agent:" followed by name.
+  // "Listed by: Eddy Desir 954-272-8123" is the standard Zillow format.
+  let m = body.match(/(?:Listed\s+by|Listing\s+Agent|Agent)\s*:?\s*([A-Z][A-Za-z\s.'-]{2,45}?)(?:\s+\d|\n|,|$)/i)
   if (m) {
     let name = m[1].trim()
     // Remove trailing "Phone", "Email", etc. if accidentally included
@@ -94,6 +95,13 @@ function extractAgentDetails(body: string): {
   if (m) result.agentLicense = m[1].trim()
 
   return result
+}
+
+// Extract days on market (DOM) from email body.
+// Looks for patterns like "1 day on Zillow" or "5 days on Market"
+function extractDaysOnMarket(body: string): number | null {
+  const m = body.match(/(\d+)\s+days?\s+on\s+(?:zillow|market|site)/i)
+  return m ? parseInt(m[1], 10) : null
 }
 
 const PALM_BAY = /\bPalm\s*Bay\b/i
@@ -149,6 +157,7 @@ export function parseListingEmail(input: {
   if (!PALM_BAY.test(body)) return []
   const urls = extractUrls(rawHtml)
   const agentDetails = extractAgentDetails(body)
+  const daysOnMarket = extractDaysOnMarket(body)
 
   const matches: Array<{ addr: string; num: string; idx: number; end: number }> = []
   let m: RegExpExecArray | null
@@ -203,13 +212,14 @@ export function parseListingEmail(input: {
       agentPhone: agentDetails.agentPhone,
       agentEmail: agentDetails.agentEmail,
       agentLicense: agentDetails.agentLicense,
+      daysOnMarket,
     })
   }
 
   // Fallback for link-only alerts (Crexi et al.) that carry no street address —
   // capture the listing title, city, acreage, and the "View Property" link so
   // the lead still reaches Kevin, flagged to open and confirm.
-  if (out.length === 0) out.push(...parseCardAlerts(rawHtml, body, source, agentDetails))
+  if (out.length === 0) out.push(...parseCardAlerts(rawHtml, body, source, agentDetails, daysOnMarket))
   return out
 }
 
@@ -218,7 +228,7 @@ export function parseListingEmail(input: {
 const CARD_RE =
   /([A-Z0-9][A-Za-z0-9 '&/-]{2,48}?)\s+(Palm\s*Bay)\s*,?\s*FL\s+Land\s*[|·\-–]\s*([\d.]+)\s*acres?/gi
 
-function parseCardAlerts(rawHtml: string, body: string, source: string, agentDetails: ReturnType<typeof extractAgentDetails>): ParsedListing[] {
+function parseCardAlerts(rawHtml: string, body: string, source: string, agentDetails: ReturnType<typeof extractAgentDetails>, daysOnMarket: number | null): ParsedListing[] {
   const out: ParsedListing[] = []
   const seen = new Set<string>()
   // "View Property" links point at each listing (portal tracking URLs).
@@ -246,6 +256,7 @@ function parseCardAlerts(rawHtml: string, body: string, source: string, agentDet
       agentPhone: agentDetails.agentPhone,
       agentEmail: agentDetails.agentEmail,
       agentLicense: agentDetails.agentLicense,
+      daysOnMarket,
       needsAddress: true,
     })
     n++
