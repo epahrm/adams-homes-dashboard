@@ -54,10 +54,14 @@ the match if possible.
 - PayPal Park — no meaningful pregame festivities; San Pedro Square was
   the right call.
 
-## Stop durations & visitor highlights
+## Stop durations & visitor highlights (Elizabeth, 2026-07-08)
 - Battery Spencer — plan 30 min. THE postcard Golden Gate viewpoint.
-- Other stops' durations: pending Elizabeth's input via the app's landmark
-  editor (visitor highlights drafted from her recap language, editable).
+- Pier 39 sea lions — plan 2 hrs.
+- Ferry Building & Embarcadero walk — plan 1 hr.
+- Apple Park Visitor Center — plan 2 hrs.
+- Santana Row evening — plan 3 hrs.
+- San Pedro Square Market — plan 2 hrs.
+Note: all are walk / stroll / dine activities with FREE ENTRY.
 
 ## Best of trip
 

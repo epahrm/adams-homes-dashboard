@@ -51,3 +51,6 @@ this into every pre-arrival email and reservation note when applicable.
   spare half day)
 - Planning lesson: don't try to "see everything" — fewer, higher-impact
   stops scored 9.7/10; cutting well is as valuable as choosing well
+- Winning pattern: every "do again" stop was a walk / stroll / dine
+  activity with FREE ENTRY — favor these when composing future days
+  (durations: 1–3 hrs each; see the recap for per-stop times)
