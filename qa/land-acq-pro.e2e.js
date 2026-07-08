@@ -327,6 +327,10 @@ async function noHorizontalOverflow(page) {
     check('over-stipend warning shows', await page.locator('#overWarn.show').isVisible());
     await page.click('#previewPacketBtn');
     check('cover letter preview shows expiration', (await page.textContent('#packetPreview')).includes('expires on'));
+    // The printable packet's cover page carries the Adams Homes logo image.
+    const packetHtml = await page.evaluate(() => buildPacketHtml());
+    check('packet cover page embeds the Adams Homes logo',
+      /class="cover-logo"/.test(packetHtml) && /adams-homes-logo\.png/.test(packetHtml));
     // Auto-filled Vacant Land Contract (VAC-14 + Adams Homes fixed terms)
     await page.click('#previewContractBtn');
     const contractText = await page.textContent('#packetPreview');
