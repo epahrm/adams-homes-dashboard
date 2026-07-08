@@ -81,6 +81,13 @@ export const RECRUIT_DDL: string[] = [
     "authorRole" TEXT NOT NULL DEFAULT 'ADVISOR', "body" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "RecNote_pkey" PRIMARY KEY ("id"))`),
+  T(`CREATE TABLE IF NOT EXISTS "RecEvent" (
+    "id" TEXT NOT NULL, "title" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'SHOWCASE', "location" TEXT NOT NULL DEFAULT '',
+    "startDate" TIMESTAMP(3) NOT NULL, "endDate" TIMESTAMP(3),
+    "link" TEXT NOT NULL DEFAULT '', "notes" TEXT NOT NULL DEFAULT '',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "RecEvent_pkey" PRIMARY KEY ("id"))`),
   // Unique indexes
   T(`CREATE UNIQUE INDEX IF NOT EXISTS "RecUser_email_key" ON "RecUser"("email")`),
   T(`CREATE UNIQUE INDEX IF NOT EXISTS "RecProfile_userId_key" ON "RecProfile"("userId")`),

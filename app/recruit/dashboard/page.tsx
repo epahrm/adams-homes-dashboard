@@ -133,6 +133,36 @@ function Dashboard({ me }: { me: Me }) {
         </div>
       </div>
 
+      {data.events?.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <div className="eyebrow" style={{ marginBottom: 10 }}>Upcoming camps & showcases · from your advisor</div>
+          <div className="rc-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
+            {data.events.map((ev: any) => {
+              const start = new Date(ev.startDate)
+              const end = ev.endDate ? new Date(ev.endDate) : null
+              const days = Math.round((new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime() - new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()).getTime()) / 86400000)
+              return (
+                <div key={ev.id} className="rc-card" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <span className="rc-chip accent">{ev.kind === 'ID_CAMP' ? 'ID Camp' : ev.kind === 'TOURNAMENT' ? 'Tournament' : ev.kind === 'OTHER' ? 'Event' : 'Showcase'}</span>
+                    <span className="num" style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--accent)', fontWeight: 700 }}>
+                      {days <= 0 ? 'Now' : `in ${days}d`}
+                    </span>
+                  </div>
+                  <h3 style={{ fontSize: 14.5 }}>{ev.title}</h3>
+                  <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>
+                    <span className="num">{start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}{end ? `–${end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : ''}</span>
+                    {ev.location ? ` · ${ev.location}` : ''}
+                  </div>
+                  {ev.notes && <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>{ev.notes}</div>}
+                  {ev.link && <a href={ev.link} target="_blank" rel="noopener" style={{ fontSize: 12.5, fontWeight: 700 }}>Event details →</a>}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {notes.length > 0 && (
         <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 10 }}>
           {notes.slice(0, 3).map((n: any) => (

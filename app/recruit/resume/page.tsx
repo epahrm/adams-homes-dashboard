@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Guard, Shell, Me, postData } from '@/components/recruit/ui'
 import { QUESTIONNAIRE } from '@/lib/recruit/content'
+import { BRAND_NAME } from '@/lib/recruit/brand'
 
 type Answers = Record<string, string | string[]>
 
@@ -75,6 +76,71 @@ function Resume({ me }: { me: Me }) {
       setStep('resume')
       load()
     }
+  }
+
+  async function downloadPdf() {
+    const { jsPDF } = await import('jspdf')
+    const p = data.profile
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' })
+    const W = doc.internal.pageSize.getWidth()
+    const M = 56
+    let y = 64
+
+    const green: [number, number, number] = [30, 92, 56]
+    const ink: [number, number, number] = [26, 38, 32]
+    const muted: [number, number, number] = [92, 107, 97]
+
+    doc.setFont('helvetica', 'bold').setFontSize(22).setTextColor(...ink)
+    doc.text(p.user.name, M, y)
+    y += 18
+    doc.setFont('helvetica', 'normal').setFontSize(10.5).setTextColor(...muted)
+    const tagline = [
+      `Class of ${p.gradYear}`, p.position, p.clubTeam, p.highSchool,
+      p.city ? `${p.city}${p.state ? ', ' + p.state : ''}` : '',
+    ].filter(Boolean).join('  ·  ')
+    doc.text(tagline, M, y)
+    y += 10
+    doc.setDrawColor(...green).setLineWidth(2)
+    doc.line(M, y, W - M, y)
+    y += 24
+
+    const section = (title: string, write: () => void) => {
+      if (y > 700) { doc.addPage(); y = 64 }
+      doc.setFont('helvetica', 'bold').setFontSize(10).setTextColor(...green)
+      doc.text(title.toUpperCase(), M, y)
+      y += 15
+      doc.setFont('helvetica', 'normal').setFontSize(10.5).setTextColor(...ink)
+      write()
+      y += 14
+    }
+    const paragraph = (text: string) => {
+      const lines = doc.splitTextToSize(text, W - M * 2)
+      doc.text(lines, M, y)
+      y += lines.length * 14
+    }
+    const bullets = (text: string) => {
+      for (const item of text.split('\n').filter(Boolean)) {
+        const lines = doc.splitTextToSize(item, W - M * 2 - 14)
+        doc.circle(M + 3, y - 3.5, 1.6, 'F')
+        doc.text(lines, M + 12, y)
+        y += lines.length * 14
+      }
+    }
+
+    if (content.summary) section('Player Profile', () => paragraph(content.summary))
+    const strengthsList: string[] = JSON.parse(p.strengths || '[]')
+    if (strengthsList.length) section('Strengths', () => paragraph(strengthsList.join('  ·  ')))
+    if (content.experience) section('Soccer Experience', () => bullets(content.experience))
+    if (content.academics) section('Academics', () => paragraph(content.academics))
+    if (content.honors) section('Honors & Community', () => bullets(content.honors))
+    if (p.highlightUrl) section('Film', () => paragraph(p.highlightUrl))
+    section('Contact', () => paragraph(
+      `${p.user.email}   ·   Full profile: ${window.location.origin}/recruit/p/${p.slug}`
+    ))
+
+    doc.setFontSize(8.5).setTextColor(...muted)
+    doc.text(`Prepared with ${BRAND_NAME}`, M, 758)
+    doc.save(`${p.user.name.replace(/\s+/g, '-')}-soccer-resume.pdf`)
   }
 
   async function saveResume(submit: boolean) {
@@ -207,7 +273,7 @@ function Resume({ me }: { me: Me }) {
                 <button className="rc-btn primary" onClick={() => saveResume(true)} disabled={busy}>
                   Send to advisor for review
                 </button>
-                <button className="rc-btn ghost" onClick={() => window.print()}>Print / PDF</button>
+                <button className="rc-btn ghost" onClick={downloadPdf}>Download PDF</button>
               </div>
             )}
           </div>

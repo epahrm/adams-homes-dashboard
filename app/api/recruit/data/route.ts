@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
   const { profile, session, readOnly } = resolved
   const band = bandForGradYear(profile.gradYear)
 
-  const [tasks, progress, modules, lessonProgress, schools, questionnaire, resume, notes] =
+  const [tasks, progress, modules, lessonProgress, schools, questionnaire, resume, notes, events] =
     await Promise.all([
       prisma.recTask.findMany({
         where: { OR: [{ athleteId: null }, { athleteId: profile.id }] },
@@ -68,6 +68,11 @@ export async function GET(request: NextRequest) {
       prisma.recQuestionnaire.findUnique({ where: { athleteId: profile.id } }),
       prisma.recResume.findUnique({ where: { athleteId: profile.id } }),
       prisma.recNote.findMany({ where: { athleteId: profile.id }, orderBy: { createdAt: 'desc' }, take: 10 }),
+      prisma.recEvent.findMany({
+        where: { startDate: { gte: new Date(Date.now() - 86400000) } },
+        orderBy: { startDate: 'asc' },
+        take: 6,
+      }),
     ])
 
   return NextResponse.json({
@@ -87,6 +92,7 @@ export async function GET(request: NextRequest) {
       ? { content: JSON.parse(resume.content || '{}'), status: resume.status, advisorComment: resume.advisorComment }
       : null,
     notes,
+    events,
   })
 }
 

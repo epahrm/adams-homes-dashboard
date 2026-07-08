@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Guard, Shell, Me, postData } from '@/components/recruit/ui'
 import { STAGES, SCHOOL_CATEGORIES, CONTACT_TYPES } from '@/lib/recruit/helpers'
-import { FL_DIRECTORY } from '@/lib/recruit/content'
+import { FL_DIRECTORY, EMAIL_TEMPLATES, EmailContext } from '@/lib/recruit/content'
 
 const EMPTY = { id: '', name: '', division: '', coachName: '', coachEmail: '', coachTwitter: '', category: 'TARGET', stage: 'RESEARCHING', notes: '' }
 
@@ -18,6 +18,10 @@ function Schools({ me }: { me: Me }) {
   const [log, setLog] = useState({ type: 'EMAIL_SENT', summary: '' })
   const [showDirectory, setShowDirectory] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [emailFor, setEmailFor] = useState<any>(null)
+  const [templateKey, setTemplateKey] = useState('intro')
+  const [draft, setDraft] = useState({ subject: '', body: '' })
+  const [copied, setCopied] = useState(false)
 
   const load = useCallback(() => {
     fetch('/api/recruit/data').then((r) => r.json()).then(setData).catch(() => {})
@@ -58,6 +62,44 @@ function Schools({ me }: { me: Me }) {
     load()
   }
 
+  function emailContext(s: any): EmailContext {
+    const p = data.profile
+    return {
+      athleteName: p.user.name,
+      gradYear: p.gradYear,
+      position: p.position,
+      clubTeam: p.clubTeam,
+      highSchool: p.highSchool,
+      gpa: p.gpa,
+      highlightUrl: p.highlightUrl,
+      profileUrl: typeof window !== 'undefined' ? `${window.location.origin}/recruit/p/${p.slug}` : '',
+      ncaaRegistered: p.ncaaRegistered,
+      schoolName: s.name,
+      coachName: s.coachName,
+    }
+  }
+
+  function openEmail(s: any, key = templateKey) {
+    const t = EMAIL_TEMPLATES.find((x) => x.key === key) || EMAIL_TEMPLATES[0]
+    const ctx = emailContext(s)
+    setEmailFor(s)
+    setTemplateKey(t.key)
+    setDraft({ subject: t.subject(ctx), body: t.body(ctx) })
+    setCopied(false)
+  }
+
+  async function copyDraft() {
+    await navigator.clipboard?.writeText(`Subject: ${draft.subject}\n\n${draft.body}`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  async function logEmailSent() {
+    await postData({ action: 'addContact', schoolId: emailFor.id, type: 'EMAIL_SENT', summary: `Sent "${EMAIL_TEMPLATES.find((t) => t.key === templateKey)?.label}" email` })
+    setEmailFor(null)
+    load()
+  }
+
   function quickAdd(d: (typeof FL_DIRECTORY)[number]) {
     setEditing({ ...EMPTY, name: d.name, division: d.division, coachTwitter: d.coachTwitter, notes: `Program: ${d.program} · ${d.city}, FL` })
     setShowDirectory(false)
@@ -68,7 +110,7 @@ function Schools({ me }: { me: Me }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 220 }}>
           <h2>Target schools</h2>
-          <p className="rc-sub"><span className="num">{schools.length}</span> schools on your list — aim for a mix of dream, target, and safety.</p>
+          <p className="rc-sub"><span className="num">{schools.length}</span> {schools.length === 1 ? 'school' : 'schools'} on your list — aim for a mix of dream, target, and safety.</p>
         </div>
         {!readOnly && (
           <div style={{ display: 'flex', gap: 8 }}>
@@ -148,6 +190,41 @@ function Schools({ me }: { me: Me }) {
         </div>
       )}
 
+      {emailFor && (
+        <div className="rc-card" style={{ marginTop: 16, borderColor: 'var(--brand)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <h3>✉ Email {emailFor.coachName ? `Coach ${emailFor.coachName}` : 'the coach'} — {emailFor.name}</h3>
+            <span style={{ marginLeft: 'auto', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {EMAIL_TEMPLATES.map((t) => (
+                <button key={t.key} className="rc-btn small" style={{
+                  borderRadius: 99, border: '1px solid ' + (templateKey === t.key ? 'var(--brand)' : 'var(--line)'),
+                  background: templateKey === t.key ? 'var(--brand)' : 'var(--surface)',
+                  color: templateKey === t.key ? 'var(--brand-ink)' : 'var(--muted)',
+                }} onClick={() => openEmail(emailFor, t.key)}>{t.label}</button>
+              ))}
+            </span>
+          </div>
+          <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '6px 0 0' }}>
+            Pre-filled from your profile. Personalize every <b>[bracketed]</b> part before sending — coaches can smell a mass email from a mile away.
+          </p>
+          <label className="rc-label">Subject</label>
+          <input className="rc-input" value={draft.subject} onChange={(e) => setDraft({ ...draft, subject: e.target.value })} />
+          <label className="rc-label">Email</label>
+          <textarea className="rc-textarea" rows={13} value={draft.body} onChange={(e) => setDraft({ ...draft, body: e.target.value })} style={{ fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 13 }} />
+          <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+            <button className="rc-btn primary" onClick={copyDraft}>{copied ? 'Copied ✓' : 'Copy email'}</button>
+            {emailFor.coachEmail && (
+              <a className="rc-btn ghost" style={{ textDecoration: 'none' }}
+                href={`mailto:${emailFor.coachEmail}?subject=${encodeURIComponent(draft.subject)}&body=${encodeURIComponent(draft.body)}`}>
+                Open in email app
+              </a>
+            )}
+            <button className="rc-btn ghost" onClick={logEmailSent}>I sent it — log it ✓</button>
+            <button className="rc-btn ghost" onClick={() => setEmailFor(null)}>Close</button>
+          </div>
+        </div>
+      )}
+
       {logFor && (
         <div className="rc-card" style={{ marginTop: 16, borderColor: 'var(--accent)' }}>
           <h3>Log activity — {logFor.name}</h3>
@@ -202,6 +279,7 @@ function Schools({ me }: { me: Me }) {
                   </td>
                   {!readOnly && (
                     <td style={{ whiteSpace: 'nowrap' }}>
+                      <button className="rc-btn ghost small" onClick={() => openEmail(s)}>✉ Email</button>{' '}
                       <button className="rc-btn ghost small" onClick={() => setLogFor(s)}>+ Log</button>{' '}
                       <button className="rc-btn ghost small" onClick={() => setEditing({ ...EMPTY, ...s })}>Edit</button>{' '}
                       <button className="rc-btn ghost small" style={{ color: 'var(--crit)' }} onClick={() => remove(s.id)}>✕</button>

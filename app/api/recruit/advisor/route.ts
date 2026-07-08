@@ -26,6 +26,7 @@ export async function GET() {
     orderBy: { createdAt: 'desc' },
   })
 
+  const events = await prisma.recEvent.findMany({ orderBy: { startDate: 'asc' } })
   const standardTasks = await prisma.recTask.findMany({ where: { athleteId: null } })
   const byBand: Record<string, number> = {}
   for (const t of standardTasks) byBand[t.band] = (byBand[t.band] || 0) + 1
@@ -80,7 +81,7 @@ export async function GET() {
     }
   })
 
-  return NextResponse.json({ roster })
+  return NextResponse.json({ roster, events })
 }
 
 export async function POST(request: NextRequest) {
@@ -129,6 +130,30 @@ export async function POST(request: NextRequest) {
         },
       })
       return NextResponse.json({ ok: true, note })
+    }
+
+    if (action === 'addEvent') {
+      const startDate = new Date(body.startDate)
+      if (!body.title?.trim() || isNaN(startDate.getTime())) {
+        return NextResponse.json({ error: 'Event title and a valid start date are required' }, { status: 400 })
+      }
+      const event = await prisma.recEvent.create({
+        data: {
+          title: String(body.title).trim(),
+          kind: String(body.kind || 'SHOWCASE'),
+          location: String(body.location || ''),
+          startDate,
+          endDate: body.endDate ? new Date(body.endDate) : null,
+          link: String(body.link || ''),
+          notes: String(body.notes || ''),
+        },
+      })
+      return NextResponse.json({ ok: true, event })
+    }
+
+    if (action === 'removeEvent') {
+      await prisma.recEvent.delete({ where: { id: String(body.eventId) } })
+      return NextResponse.json({ ok: true })
     }
 
     if (action === 'reviewResume') {

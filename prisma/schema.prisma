@@ -265,3 +265,15 @@ model RecNote {
 
   athlete RecProfile @relation(fields: [athleteId], references: [id], onDelete: Cascade)
 }
+
+model RecEvent {
+  id        String   @id @default(cuid())
+  title     String
+  kind      String   @default("SHOWCASE") // SHOWCASE | ID_CAMP | TOURNAMENT | OTHER
+  location  String   @default("")
+  startDate DateTime
+  endDate   DateTime?
+  link      String   @default("")
+  notes     String   @default("")
+  createdAt DateTime @default(now())
+}

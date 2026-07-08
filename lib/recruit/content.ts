@@ -135,6 +135,106 @@ export function buildSummary(
   return `${position || 'Soccer player'} known for ${lead || 'competitiveness and coachability'}.${student} ${first} leads on and off the field.${dream}`.trim()
 }
 
+// ---- Coach email templates (from the recruiting playbook) ----
+// Filled with athlete profile + school data; [brackets] mark what the
+// athlete still personalizes by hand.
+
+export interface EmailContext {
+  athleteName: string
+  gradYear: number
+  position: string
+  clubTeam: string
+  highSchool: string
+  gpa: string
+  highlightUrl: string
+  profileUrl: string
+  ncaaRegistered: boolean
+  schoolName: string
+  coachName: string
+}
+
+export interface EmailTemplate {
+  key: string
+  label: string
+  subject: (c: EmailContext) => string
+  body: (c: EmailContext) => string
+}
+
+const coachLine = (c: EmailContext) =>
+  `Coach ${c.coachName ? c.coachName.split(' ').slice(-1)[0] : '[Last name]'},`
+const signature = (c: EmailContext) =>
+  `${c.athleteName}\n[phone]\n${c.profileUrl}`
+const statsLine = (c: EmailContext) =>
+  [
+    c.highlightUrl ? `Highlights: ${c.highlightUrl}` : 'Highlights: [link]',
+    c.gpa ? `GPA: ${c.gpa}` : 'GPA: [#]',
+    c.ncaaRegistered ? 'NCAA Eligibility Center: registered' : null,
+  ].filter(Boolean).join(' · ')
+
+export const EMAIL_TEMPLATES: EmailTemplate[] = [
+  {
+    key: 'intro',
+    label: 'Introduction email',
+    subject: (c) => `${c.gradYear} ${c.position || '[Position]'} — ${c.athleteName}${c.clubTeam ? `, ${c.clubTeam}` : ''}`,
+    body: (c) => `${coachLine(c)}
+
+My name is ${c.athleteName} and I'm a ${c.gradYear} ${c.position || '[position]'}${c.highSchool ? ` at ${c.highSchool}` : ''}${c.clubTeam ? ` playing club for ${c.clubTeam}` : ''}.
+
+${statsLine(c)}
+
+I'm interested in ${c.schoolName} because [one specific, true reason — their major, style of play, something real about the program].
+
+My upcoming schedule:
+[event, date, location]
+
+Thank you for your time — I'd love to know what you look for in a ${c.position || '[position]'}.
+
+${signature(c)}`,
+  },
+  {
+    key: 'preEvent',
+    label: 'Pre-tournament / showcase',
+    subject: (c) => `${c.gradYear} ${c.position || '[Position]'} — ${c.athleteName} at [Event], [Dates]`,
+    body: (c) => `${coachLine(c)}
+
+I'm ${c.athleteName}, class of ${c.gradYear}, ${c.position || '[position]'}${c.clubTeam ? ` with ${c.clubTeam}` : ''}. I'll be playing at [event] in [city] on [dates]:
+
+- [Date, time] — Field [#] vs [opponent] — #[jersey] in [color]
+- [Date, time] — Field [#] vs [opponent]
+
+${statsLine(c)}
+
+I'm very interested in ${c.schoolName} because [one specific reason]. I'd love for you to see me play.
+
+Thank you,
+${signature(c)}`,
+  },
+  {
+    key: 'followUp',
+    label: '48-hour follow-up',
+    subject: (c) => `Thank you — ${c.athleteName}, ${c.gradYear} ${c.position || '[position]'} at [event]`,
+    body: (c) => `${coachLine(c)}
+
+Thank you for coming out to [event]. My team went [result summary]. Here's a short clip from the weekend: [10–20 second clip link].
+
+I remain very interested in ${c.schoolName} and would welcome the chance to talk. My updated highlights and schedule: ${c.profileUrl}
+
+${c.athleteName}`,
+  },
+  {
+    key: 'campThanks',
+    label: 'Post-camp thank you',
+    subject: (c) => `Thank you — ${c.athleteName}, ${c.gradYear} ${c.position || '[position]'} at your ID camp`,
+    body: (c) => `${coachLine(c)}
+
+Thank you for this weekend's camp — I especially enjoyed [specific drill or session moment]. It confirmed how interested I am in ${c.schoolName}.
+
+I'd appreciate any feedback on my performance and what you'd want to see me improve. My updated film and schedule: ${c.profileUrl}
+
+${c.athleteName}`,
+  },
+]
+
 export interface GlossaryTerm { term: string; def: string }
 
 export const GLOSSARY: GlossaryTerm[] = [
