@@ -251,8 +251,20 @@ async function noHorizontalOverflow(page) {
     const statsHeads = await page.locator('#contractStats thead th').allTextContents();
     check('contract stats show month / quarter / YTD columns',
       statsHeads.some(h => /month/i.test(h)) && statsHeads.some(h => /quarter/i.test(h)) && statsHeads.some(h => /year to date/i.test(h)));
-    check('contract stats list contracts, closed, cancellations',
-      /Contracts Accepted/i.test(await page.textContent('#contractStats')) && /Cancellations/i.test(await page.textContent('#contractStats')));
+    check('contract stats list contracts, closed, commissions, cancellations',
+      /Contracts Accepted/i.test(await page.textContent('#contractStats'))
+      && /Commissions to Adams Homes/i.test(await page.textContent('#contractStats'))
+      && /Cancellations/i.test(await page.textContent('#contractStats')));
+    // Commissions now live in the lot-metrics section (Contract Stats).
+    check('commissions appear as a metric with M/Q/YTD dollar values',
+      /^\$/.test((await page.textContent('#csComM')).trim())
+      && /^\$/.test((await page.textContent('#csComY')).trim()));
+    // Month/quarter/YTD report is downloadable from the metrics card.
+    check('contract-stats report download control present',
+      await page.locator('#downloadStatsBtn').isVisible());
+    const statsDl = page.waitForEvent('download', { timeout: 5000 }).catch(() => null);
+    await page.click('#downloadStatsBtn');
+    check('contract-stats report downloads as CSV', !!(await statsDl));
     check('cancellations are not a running list on the dashboard',
       !(await page.locator('#cancelReviewOverlay.show').isVisible()));
     await page.click('#reviewCancelBtn');
@@ -285,7 +297,8 @@ async function noHorizontalOverflow(page) {
     check('calendar summary shows monthly counts', /closing.*this month.*scheduled next month/i.test(await page.textContent('#calSummary')));
     check('KPI: Pending EP Sig present', (await page.textContent('.kpi-grid')).includes('Pending EP Sig'));
     check('KPI: Clear to Close present', (await page.textContent('.kpi-grid')).includes('Clear to Close'));
-    check('metrics: commission tracker removed', !(await page.textContent('.metrics')).includes('Commission'));
+    check('cancellations no longer shown as an ROI tile',
+      !/Cancellations/i.test(await page.textContent('#opsRoi')));
     check('scheduled-to-close metric populated', Number(await page.textContent('#mScheduled')) >= 1);
     // Table shows only active-contract lots (no closed/declined/pending)
     const tbl = await page.textContent('#lotRows');

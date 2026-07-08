@@ -191,6 +191,7 @@
     .stats-table td:first-child { font-weight: 600; color: #003d66; }
     .stats-table td:not(:first-child) { font-weight: 800; color: #123a63; font-size: 16px; }
     .stats-table tr:last-child td { border-bottom: none; }
+    .stats-note { margin-top: 10px; font-size: 12px; color: #5a6b7d; }
     .modal.modal-wide { max-width: 760px; }
     .metric { background: white; border-left: 4px solid #1a5a3a; border-radius: 6px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .metric:last-child { margin-bottom: 0; }
@@ -490,7 +491,10 @@
       <div class="metrics">
         <div class="stats-head">
           <h3>Contract Stats</h3>
-          <button type="button" class="btn-outline stats-review" id="reviewCancelBtn">Review Cancellations</button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn-outline stats-review" id="downloadStatsBtn">Download Report (CSV)</button>
+            <button type="button" class="btn-outline stats-review" id="reviewCancelBtn">Review Cancellations</button>
+          </div>
         </div>
         <div class="table-wrap">
           <table class="stats-table" id="contractStats">
@@ -498,10 +502,12 @@
             <tbody>
               <tr><td>Contracts Accepted</td><td id="csAccM">0</td><td id="csAccQ">0</td><td id="csAccY">0</td></tr>
               <tr><td>Closed</td><td id="csClsM">0</td><td id="csClsQ">0</td><td id="csClsY">0</td></tr>
+              <tr><td>Commissions to Adams Homes</td><td id="csComM">$0</td><td id="csComQ">$0</td><td id="csComY">$0</td></tr>
               <tr><td>Cancellations</td><td id="csCanM">0</td><td id="csCanQ">0</td><td id="csCanY">0</td></tr>
             </tbody>
           </table>
         </div>
+        <div class="stats-note" id="statsAsOf"></div>
       </div>
 
       <!-- Closing calendar: this month + next -->
@@ -941,6 +947,7 @@
     let currentPage = 1;
     let mode = null;          // 'server' = shared store (Kevin + Elizabeth), 'local' = offline demo
     let lastLots = [];        // last loaded lots, for exports
+    let lastStats = {};       // last computed month/quarter/YTD contract stats
     let stipendState = { defaults: Object.assign({}, DEFAULT_STIPENDS), audit: [] };
 
     function currentUser() { return sessionStorage.getItem('laRole') || 'Admin'; }
@@ -1909,8 +1916,10 @@
       }
       document.getElementById('cancelHint').textContent = cancels.length ? (cancels.length + ' logged') : '';
 
-      // --- Commissions to Adams Homes (on-market deals in the pipeline) ---
-      const COMM_STAGES = ['offer-sent', 'seller-signed', 'pending-ep-sig', 'ip', 'manager-driven', 'survey-rcvd', 'cd-approved', 'ctc', 'closed'];
+      // --- Commissions to Adams Homes (on-market deals UNDER CONTRACT) ---
+      // Closed deals drop out of this folder and live only in the database /
+      // metrics for recordkeeping — this list is the active under-contract set.
+      const COMM_STAGES = ['offer-sent', 'seller-signed', 'pending-ep-sig', 'ip', 'manager-driven', 'survey-rcvd', 'cd-approved', 'ctc'];
       const isListedDeal = l => l.listingType === 'listed' ||
         (l.listingType !== 'off-market' && (!!l.agentBrokerage || !!l.agentName || typeof l.listPrice === 'number' || /listing|active|auction/i.test(l.listStatus || '')));
       const commDeals = lastLots.filter(l => COMM_STAGES.includes(l.displayStatus || l.status) && isListedDeal(l));
@@ -1974,8 +1983,8 @@
         { val: contracts, lbl: 'Deals Contracted', sub: closed + ' closed' },
         { val: money(mailTotal), lbl: 'Mailing Spend', sub: piecesTotal.toLocaleString('en-US') + ' pieces' },
         { val: contracts ? money(Math.round(mailTotal / contracts)) : '—', lbl: 'Cost / Contract', sub: 'mail spend ÷ contracts' },
-        { val: money(annualSubs), lbl: 'Subscriptions / yr', sub: accts.filter(a => a.status !== 'cancelled').length + ' active tools' },
-        { val: cancelCount, lbl: 'Cancellations', sub: contracts ? Math.round((cancelCount / (contracts + cancelCount)) * 100) + '% of contracts' : 'no reasons yet' }
+        { val: money(annualSubs), lbl: 'Subscriptions / yr', sub: accts.filter(a => a.status !== 'cancelled').length + ' active tools' }
+        // Cancellations live with the lot metrics (Contract Stats), not in ROI.
       ];
       tiles.forEach(t => {
         const d = document.createElement('div'); d.className = 'roi-tile';
@@ -2011,6 +2020,25 @@
     document.getElementById('addMailBtn').addEventListener('click', () => opsModal('mailOverlay').classList.add('show'));
     document.getElementById('addCancelBtn').addEventListener('click', () => opsModal('cancelOverlay').classList.add('show'));
     document.getElementById('reviewCancelBtn').addEventListener('click', () => opsModal('cancelReviewOverlay').classList.add('show'));
+    // Download the current month / quarter / YTD contract stats as a CSV report.
+    document.getElementById('downloadStatsBtn').addEventListener('click', () => {
+      const s = lastStats || {};
+      const col = k => (s[k] || { acc: 0, cls: 0, com: 0, can: 0 });
+      const rows = [
+        ['Metric', 'This Month', 'This Quarter', 'Year to Date'],
+        ['Contracts Accepted', col('M').acc, col('Q').acc, col('Y').acc],
+        ['Closed', col('M').cls, col('Q').cls, col('Y').cls],
+        ['Commissions to Adams Homes', money(col('M').com), money(col('Q').com), money(col('Y').com)],
+        ['Cancellations', col('M').can, col('Q').can, col('Y').can]
+      ];
+      const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+      const stamp = new Date().toISOString().slice(0, 10);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Land-Acq-Contract-Stats-' + stamp + '.csv';
+      document.body.appendChild(a); a.click(); a.remove();
+    });
 
     // Manual on-market sweep: read the saved-search inbox now and file matches.
     document.getElementById('sweepNowBtn').addEventListener('click', async function() {
@@ -2157,14 +2185,33 @@
 
       // Contract stats over time (month / quarter / year-to-date)
       const cancels = (opsData && opsData.cancellations) || [];
+      // Commission earned on an on-market deal (uses the confirmed amount when
+      // present, else contract price × rate). Off-market deals are $0.
+      const isListedForStats = l => l.listingType === 'listed' ||
+        (l.listingType !== 'off-market' && (!!l.agentBrokerage || !!l.agentName || typeof l.listPrice === 'number' || /listing|active|auction/i.test(l.listStatus || '')));
+      const commissionOf = l => {
+        if (!isListedForStats(l)) return 0;
+        if (typeof l.commissionAmt === 'number' && l.commissionAmt) return l.commissionAmt;
+        const contract = parseMoney(l.offer) || Number(l.listPrice) || 0;
+        const pct = typeof l.commissionPct === 'number' ? l.commissionPct : 3;
+        return Math.round(contract * pct / 100);
+      };
+      const statsBy = {};
       [['M', 'month'], ['Q', 'quarter'], ['Y', 'ytd']].forEach(([sfx, kind]) => {
-        document.getElementById('csAcc' + sfx).textContent =
-          lots.filter(l => ACCEPTED.includes(l.displayStatus) && inPeriod(acceptedDate(l), kind)).length;
-        document.getElementById('csCls' + sfx).textContent =
-          lots.filter(l => l.displayStatus === 'closed' && inPeriod(closedDate(l), kind)).length;
-        document.getElementById('csCan' + sfx).textContent =
-          cancels.filter(c => inPeriod(c.date, kind)).length;
+        const acc = lots.filter(l => ACCEPTED.includes(l.displayStatus) && inPeriod(acceptedDate(l), kind)).length;
+        const cls = lots.filter(l => l.displayStatus === 'closed' && inPeriod(closedDate(l), kind)).length;
+        const com = lots.filter(l => (ACCEPTED.includes(l.displayStatus) || l.displayStatus === 'closed') && inPeriod(acceptedDate(l), kind))
+          .reduce((a, l) => a + commissionOf(l), 0);
+        const can = cancels.filter(c => inPeriod(c.date, kind)).length;
+        document.getElementById('csAcc' + sfx).textContent = acc;
+        document.getElementById('csCls' + sfx).textContent = cls;
+        document.getElementById('csCom' + sfx).textContent = money(com);
+        document.getElementById('csCan' + sfx).textContent = can;
+        statsBy[sfx] = { acc, cls, com, can };
       });
+      lastStats = statsBy;
+      const asOf = document.getElementById('statsAsOf');
+      if (asOf) asOf.textContent = 'As of ' + new Date().toLocaleDateString() + ' · month/quarter/YTD refresh automatically; download to archive an end-of-period report.';
 
       // Quick metrics
       document.getElementById('mClosedMonth').textContent = closedThisMonth.length;
