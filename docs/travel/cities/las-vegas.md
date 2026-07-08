@@ -1,6 +1,8 @@
 # Las Vegas
 
-Status: placeholder — fill in as trips happen.
+Status: placeholder — first trip UPCOMING: Aug 31–Sep 3, 2026, The Vault
+Conference (MGM Grand), Elizabeth solo, staying at The Cosmopolitan.
+Trip file: `../trips/2026-08_las-vegas_vault.md`
 
 ## Trips taken
 _None recorded yet._
