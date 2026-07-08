@@ -118,6 +118,16 @@
     .opp-uconf select { font-family: inherit; font-size: 12.5px; padding: 4px 6px; border: 1px solid #cdd6e0; border-radius: 6px; }
     .opp-reason-q { font-size: 12.5px; font-weight: 700; color: #b02a1a; align-self: center; margin-right: 2px; }
     .opp-search { width: 100%; box-sizing: border-box; margin: 4px 0 10px; padding: 9px 12px; border: 1px solid #cdd6e0; border-radius: 8px; font-family: inherit; font-size: 14px; }
+    .global-search { position: relative; margin-bottom: 16px; }
+    .global-search input { width: 100%; box-sizing: border-box; padding: 12px 14px; border: 2px solid #cdd6e0; border-radius: 10px; font-family: inherit; font-size: 15px; }
+    .global-search input:focus { outline: none; border-color: #0a4f8e; }
+    #globalSearchResults { position: absolute; z-index: 40; left: 0; right: 0; background: #fff; border: 1px solid #cdd6e0; border-radius: 10px; margin-top: 6px; box-shadow: 0 8px 26px rgba(16,32,46,.14); overflow: hidden; }
+    #globalSearchResults a { display: block; padding: 11px 14px; border-bottom: 1px solid #eef2f7; text-decoration: none; color: #16202e; font-size: 14px; }
+    #globalSearchResults a:last-child { border-bottom: none; }
+    #globalSearchResults a:hover { background: #f2f8ff; }
+    #globalSearchResults .gs-addr { font-weight: 700; color: #003d66; }
+    #globalSearchResults .gs-meta { font-size: 12.5px; color: #667; margin-top: 1px; }
+    #globalSearchResults .gs-empty { padding: 12px 14px; color: #667; font-size: 14px; }
     .opp-row.green .opp-reason { color: #1a7a44; }
     .opp-row.yellow .opp-reason { color: #a5651a; }
     .light { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
@@ -391,6 +401,11 @@
 
     <div class="content">
       <div class="mode-banner" id="modeBanner">Offline demo mode &mdash; showing this browser's local data only. Live sync resumes when the server is reachable.</div>
+      <!-- Global search: find any deal by owner, address, or realtor — at any stage -->
+      <div class="global-search">
+        <input type="search" id="globalSearch" placeholder="🔍 Find any deal — owner/seller name, address, realtor, MLS, parcel…" autocomplete="off">
+        <div id="globalSearchResults"></div>
+      </div>
       <div class="pipeline-head">
         <h2>Palm Bay Lot Pipeline</h2>
         <div class="pipeline-tools">
@@ -2524,6 +2539,34 @@
 
       document.getElementById('footnote').style.display = 'none';
     }
+
+    // Global search — find any deal at any stage by owner, address, or realtor.
+    (function () {
+      const input = document.getElementById('globalSearch');
+      const box = document.getElementById('globalSearchResults');
+      if (!input) return;
+      box.style.display = 'none';
+      const run = () => {
+        const q = input.value.trim().toLowerCase();
+        if (!q) { box.style.display = 'none'; box.innerHTML = ''; return; }
+        const hits = lastLots.filter(l =>
+          [l.address, l.owner, l.ownerContact, l.sellerName, l.agentName, l.agentBrokerage, l.wholesalerName, l.mls, l.parcel]
+            .some(v => String(v || '').toLowerCase().includes(q))).slice(0, 12);
+        box.innerHTML = '';
+        if (!hits.length) { const e = document.createElement('div'); e.className = 'gs-empty'; e.textContent = 'No deal matches “' + input.value.trim() + '”.'; box.appendChild(e); }
+        hits.forEach(l => {
+          const a = document.createElement('a'); a.href = 'offer-approval.html?id=' + l.id;
+          const ad = document.createElement('div'); ad.className = 'gs-addr'; ad.textContent = l.address || '(no address)';
+          const m = document.createElement('div'); m.className = 'gs-meta';
+          m.textContent = [STAGE_LABELS[l.status] || l.status, l.owner || l.sellerName, l.agentName || l.agentBrokerage, l.mls ? 'MLS ' + l.mls : null].filter(Boolean).join(' · ');
+          a.appendChild(ad); a.appendChild(m); box.appendChild(a);
+        });
+        box.style.display = 'block';
+      };
+      input.addEventListener('input', run);
+      input.addEventListener('focus', run);
+      document.addEventListener('click', e => { if (!e.target.closest('.global-search')) box.style.display = 'none'; });
+    })();
 
     // Export to CSV
     document.getElementById('exportCsv').addEventListener('click', () => {

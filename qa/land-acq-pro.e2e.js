@@ -358,6 +358,18 @@ async function noHorizontalOverflow(page) {
       (await page.locator('#realtorRows a.r-lookup').count()) >= 1
       && /google\.com\/search/.test(await page.locator('#realtorRows a.r-lookup').first().getAttribute('href')));
 
+    // ---------- Global search: find any deal at any stage ----------
+    await page.fill('#globalSearch', 'Garcia');
+    await page.waitForTimeout(200);
+    check('global search finds a deal by owner name',
+      await page.locator('#globalSearchResults a[href^="offer-approval.html?id="]').count() >= 1
+      && (await page.textContent('#globalSearchResults')).includes('Oak'));
+    await page.fill('#globalSearch', 'zzzznope');
+    await page.waitForTimeout(200);
+    check('global search shows no-match state', (await page.textContent('#globalSearchResults')).toLowerCase().includes('no deal'));
+    await page.fill('#globalSearch', '');
+    await page.waitForTimeout(100);
+
     // ---------- Wholesaler CRM: third deal type + spread tracking ----------
     await page.locator('#wholesalerCrm > summary').click();
     check('wholesaler CRM lists a wholesaler with company',
