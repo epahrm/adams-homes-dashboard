@@ -1,6 +1,6 @@
 {
-  "name": "Wander — Family Travel Planner",
-  "short_name": "Wander",
+  "name": "Porter Travel Planner",
+  "short_name": "Porter Travel",
   "description": "Plan trips together: itineraries, packing lists, budgets, and travel documents.",
   "start_url": "/travel/",
   "scope": "/travel/",

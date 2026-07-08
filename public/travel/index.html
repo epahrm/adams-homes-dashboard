@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Wander — Family Travel Planner</title>
+<title>Porter Travel Planner</title>
 <meta name="description" content="Plan trips together: itineraries, packing lists, budgets, and travel documents — all in one place, private to your family.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -22,6 +22,10 @@
   --shadow:0 1px 2px rgba(11,11,11,.05), 0 8px 24px -12px rgba(11,11,11,.18);
   --shadow-lg:0 24px 64px -24px rgba(11,11,11,.35);
   --r:16px;
+  /* skyline panorama (dusk) */
+  --pan-sky1:#aecdf5; --pan-sky2:#ffd9a8; --pan-sun:#ffb648; --pan-sil1:#8fa6c9;
+  --pan-sil2:#3c5580; --pan-water:#8fb9e6; --pan-star:0; --pan-flame:#ff9d3b;
+  --pan-smoke:#ffffff; --pan-umb:#ff7b6b;
 }
 [data-theme="dark"]{
   --page:#0d0d0d; --card:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
@@ -30,6 +34,9 @@
   --c1:#3987e5; --c2:#199e70; --c3:#c98500; --c4:#008300; --c5:#9085e9; --c6:#e66767;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
   --shadow-lg:0 24px 64px -24px rgba(0,0,0,.8);
+  --pan-sky1:#0c1230; --pan-sky2:#39406e; --pan-sun:#f2e9cf; --pan-sil1:#28345a;
+  --pan-sil2:#111a38; --pan-water:#16224a; --pan-star:.9; --pan-flame:#ffb15c;
+  --pan-smoke:#c9d4ff; --pan-umb:#d95c6a;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -39,6 +46,9 @@
     --c1:#3987e5; --c2:#199e70; --c3:#c98500; --c4:#008300; --c5:#9085e9; --c6:#e66767;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
     --shadow-lg:0 24px 64px -24px rgba(0,0,0,.8);
+    --pan-sky1:#0c1230; --pan-sky2:#39406e; --pan-sun:#f2e9cf; --pan-sil1:#28345a;
+    --pan-sil2:#111a38; --pan-water:#16224a; --pan-star:.9; --pan-flame:#ffb15c;
+    --pan-smoke:#c9d4ff; --pan-umb:#d95c6a;
   }
 }
 /* ---------- base ---------- */
@@ -101,10 +111,34 @@ a{color:var(--accent)}
 .empty h3{font-size:18px;letter-spacing:-.01em;margin-bottom:6px}
 .empty p{color:var(--ink2);font-size:14.5px;max-width:340px;margin:0 auto 18px}
 
+/* ---------- panorama header (journal cities + Cape Canaveral home) ---------- */
+.pan{position:relative;margin:0 -16px;height:228px;overflow:hidden;border-radius:0 0 30px 30px;box-shadow:var(--shadow)}
+.pan svg{position:absolute;inset:0;width:100%;height:100%}
+.pan .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,12,30,.10),transparent 30%,rgba(8,12,30,.18) 58%,rgba(8,12,30,.58));pointer-events:none}
+.pan .overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:18px 20px;color:#fff;pointer-events:none}
+.pan .kick{font-size:11.5px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;opacity:.9;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+.pan h1{font-size:27px;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-top:3px;text-shadow:0 2px 14px rgba(0,0,0,.45)}
+.pan .tag{font-size:13px;font-weight:600;opacity:.92;margin-top:4px;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+.pan .tools{position:absolute;top:calc(12px + env(safe-area-inset-top));right:14px;display:flex;gap:8px}
+.pan .tools .iconbtn{background:rgba(255,255,255,.16);color:#fff;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.pan .tools .iconbtn:hover{background:rgba(255,255,255,.28)}
+
+/* ---------- journals ---------- */
+.jcard{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:15px 16px;margin-top:10px}
+.jcard .score{font-size:12.5px;font-weight:800;color:#fff;background:linear-gradient(135deg,#e9a13b,#d97b2f);padding:4px 10px;border-radius:999px;white-space:nowrap}
+.jhead{padding:20px;margin-top:14px}
+.trophygrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.troph{background:var(--wash);border-radius:14px;padding:11px 12px}
+.troph .tl{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.troph .tv{font-size:13.5px;font-weight:700;margin-top:2px;line-height:1.3}
+.jl{display:flex;gap:10px;align-items:flex-start;padding:10px 16px;border-top:1px solid var(--line);font-size:14.5px}
+.jl:first-child{border-top:0}
+.jl .je{flex:none}
+
 /* ---------- home ---------- */
 .hero{
   position:relative;overflow:hidden;border-radius:22px;padding:26px 22px;color:#fff;
-  background:linear-gradient(140deg,#1c5cab 0%, #2a78d6 45%, #4a3aa7 100%);
+  background:linear-gradient(140deg,#17457f 0%, #2a78d6 42%, #6a4bc4 78%, #a45a9e 100%);
   box-shadow:var(--shadow-lg);cursor:pointer;
 }
 .hero::after{content:"";position:absolute;inset:0;background:
@@ -329,7 +363,7 @@ a{color:var(--accent)}
 <script>
 "use strict";
 /* =============================================================
-   Wander — a private, offline-first family travel planner.
+   Porter Travel Planner — a private, offline-first family travel app.
    All data lives in this browser (localStorage). Export/Import
    moves plans between family phones. No accounts, no server.
    ============================================================= */
@@ -369,6 +403,116 @@ const MC_CATS = [
   ["verify","🔍","Final Verification"],
 ];
 const MC_STATES = { r:"Needed", y:"In progress", g:"Ready" };
+/* Completed trip journals — the family's institutional memory. Each new
+   post-trip review adds an entry here (and to docs/ in the repo). */
+const JOURNALS = [{
+  id:"ca-2026",
+  emoji:"🌉",
+  title:"California World Cup Trip",
+  city:"San Jose & San Francisco, CA",
+  dest:"San Francisco, CA",
+  dates:"Jun 30 – Jul 2, 2026",
+  score:"9.7",
+  summary:"SF icons + Silicon Valley + the FIFA World Cup. We skipped “seeing everything” and chose high-impact experiences — the trip that set our standard.",
+  bestOf:[
+    ["Best Photo","🌉 Battery Spencer"],
+    ["Best Family Activity","🦭 Pier 39 Sea Lions"],
+    ["Hidden Gem","⚽ San Pedro Square Market"],
+    ["Best Silicon Valley Stop","🍎 Apple Park Visitor Center"],
+    ["Best Scenic Walk","⛴️ Ferry Building & Embarcadero"],
+    ["Best Overall","🇺🇸 World Cup at Levi’s Stadium"],
+  ],
+  doAgain:[
+    "Battery Spencer — best Golden Gate photos",
+    "Pier 39 sea lions",
+    "Ferry Building & Embarcadero walk",
+    "Apple Park Visitor Center",
+    "Santana Row evening",
+    "San Pedro Square Market",
+  ],
+  skip:[
+    "Lombard Street — traffic not worth it on a short trip",
+    "Palace of Fine Arts — cut for routing, right call",
+    "Sausalito — weaker than the combo we chose",
+  ],
+  banked:[
+    "Hakone Gardens (adults trip)",
+    "Stanford University (needs a spare half-day)",
+  ],
+}];
+
+/* Dusk panorama: Golden Gate, NYC, Vegas, Charleston, Savannah oak, castle,
+   Destin beach — and home: Cocoa Beach palms with a Cape Canaveral launch. */
+function pano(){
+  /* Compact 520-unit composition so EVERY landmark survives a phone-width
+     crop: Golden Gate → NYC → Vegas → Charleston → Savannah oak → castle →
+     Cocoa Beach palms/umbrella/pier → Cape Canaveral launch. */
+  return `<svg viewBox="0 0 520 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="psky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--pan-sky1)"/><stop offset="1" stop-color="var(--pan-sky2)"/>
+    </linearGradient>
+    <linearGradient id="pplume" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--pan-smoke)" stop-opacity=".95"/><stop offset="1" stop-color="var(--pan-smoke)" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="520" height="300" fill="url(#psky)"/>
+  <g fill="#fff" opacity="var(--pan-star)">
+    <circle cx="40" cy="52" r="1.4"/><circle cx="110" cy="88" r="1.1"/><circle cx="180" cy="46" r="1.5"/>
+    <circle cx="250" cy="92" r="1.1"/><circle cx="315" cy="58" r="1.4"/><circle cx="380" cy="84" r="1.1"/>
+    <circle cx="445" cy="50" r="1.5"/><circle cx="490" cy="96" r="1.1"/><circle cx="75" cy="120" r="1"/><circle cx="415" cy="118" r="1"/>
+  </g>
+  <circle cx="140" cy="182" r="24" fill="var(--pan-sun)"/>
+  <rect x="0" y="252" width="520" height="48" fill="var(--pan-water)"/>
+  <rect x="126" y="252" width="28" height="44" fill="#ffffff" opacity=".2"/>
+  <path d="M60,272 q10,5 20,0 M300,276 q12,5 24,0 M420,268 q10,5 20,0" stroke="#ffffff" stroke-opacity=".35" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- distant: Golden Gate, NYC, Vegas -->
+  <g fill="var(--pan-sil1)">
+    <rect x="22" y="132" width="8" height="128"/><rect x="78" y="132" width="8" height="128"/>
+    <rect x="4" y="204" width="100" height="6"/>
+    <path d="M0,182 Q26,132 54,180 Q82,132 108,182" stroke="var(--pan-sil1)" stroke-width="3.5" fill="none"/>
+    <rect x="112" y="192" width="15" height="70"/><rect x="130" y="164" width="17" height="98"/>
+    <rect x="150" y="178" width="13" height="84"/><rect x="166" y="146" width="19" height="116"/>
+    <rect x="174" y="120" width="3" height="26"/><rect x="188" y="190" width="14" height="72"/>
+    <rect x="212" y="140" width="6" height="122"/><ellipse cx="215" cy="140" rx="12" ry="8"/><rect x="213.5" y="116" width="3" height="24"/>
+    <circle cx="243" cy="262" r="26"/>
+  </g>
+  <!-- foreground: Charleston, oak, castle, beach, launch -->
+  <g fill="var(--pan-sil2)">
+    <path d="M0,270 C70,262 140,274 210,266 C280,258 350,274 420,264 C470,258 500,266 520,262 L520,300 L0,300 Z"/>
+    <rect x="262" y="204" width="15" height="64"/><rect x="265.5" y="178" width="8" height="28"/>
+    <path d="M269.5,152 L276,180 L263,180 Z"/>
+    <rect x="281" y="222" width="11" height="46"/><rect x="294" y="216" width="11" height="52"/>
+    <rect x="322" y="222" width="7" height="46"/>
+    <ellipse cx="325" cy="204" rx="30" ry="18"/><ellipse cx="303" cy="214" rx="15" ry="9"/><ellipse cx="347" cy="214" rx="14" ry="8"/>
+    <path d="M311,216 v12 M337,215 v13" stroke="var(--pan-sil2)" stroke-width="2"/>
+    <rect x="366" y="178" width="14" height="90"/><path d="M373,152 L384,180 L362,180 Z"/>
+    <rect x="354" y="204" width="9" height="64"/><path d="M358.5,188 L365,206 L352,206 Z"/>
+    <rect x="384" y="204" width="9" height="64"/><path d="M388.5,188 L395,206 L382,206 Z"/>
+    <path d="M404,268 q6,-24 -2,-44" stroke="var(--pan-sil2)" stroke-width="4.5" fill="none"/>
+    <path d="M402,222 q-14,-9 -25,-2 q12,-3 25,5 M402,222 q3,-15 15,-20 q-9,9 -11,22 M402,222 q16,-8 26,1 q-13,-4 -26,3" />
+    <rect x="424" y="248" width="52" height="4.5"/>
+    <path d="M430,252 v13 M444,252 v14 M458,252 v13 M470,252 v12" stroke="var(--pan-sil2)" stroke-width="2.5"/>
+    <rect x="498" y="188" width="10" height="80"/>
+    <path d="M498,196 h10 M498,210 h10 M498,224 h10 M498,238 h10" stroke="var(--pan-sky2)" stroke-width="1.8" opacity=".5"/>
+  </g>
+  <!-- umbrella (accent) -->
+  <rect x="414" y="236" width="2.5" height="32" fill="var(--pan-sil2)"/>
+  <path d="M400,240 a16,14 0 0 1 32,0 Z" fill="var(--pan-umb)"/>
+  <!-- rocket -->
+  <g>
+    <rect x="484" y="164" width="7" height="94" fill="url(#pplume)"/>
+    <ellipse cx="487" cy="258" rx="13" ry="6" fill="var(--pan-smoke)" opacity=".8"/>
+    <ellipse cx="475" cy="262" rx="8" ry="4" fill="var(--pan-smoke)" opacity=".6"/>
+    <ellipse cx="500" cy="262" rx="8" ry="4" fill="var(--pan-smoke)" opacity=".6"/>
+    <path d="M482,166 L487.5,180 L493,166 Z" fill="var(--pan-flame)"/>
+    <rect x="482" y="126" width="11" height="40" rx="3.5" fill="#e8ecf5"/>
+    <path d="M482,130 L487.5,110 L493,130 Z" fill="#e8ecf5"/>
+    <path d="M482,166 L476,173 L482,157 Z" fill="#c2c9da"/>
+    <path d="M493,166 L499,173 L493,157 Z" fill="#c2c9da"/>
+  </g>
+</svg>`;
+}
 const PACK_TEMPLATES = {
   "Essentials ✅": ["IDs & passports","Phone chargers","Medications","Wallet","Sunglasses","Headphones","Water bottles","Snacks"],
   "Beach 🏖️": ["Swimsuits","Sunscreen","Beach towels","Flip flops","Sun hats","Beach bag","Goggles"],
@@ -466,14 +610,15 @@ function render(){
   const app = $("#app");
   const y = window.scrollY;
   if (R.view === "trip" && !trip(R.trip)) R.view = "home";
+  if (R.view === "journal" && !JOURNALS.some(j => j.id === R.jid)) R.view = "home";
   document.documentElement.dataset.theme = S.theme === "auto" ? "" : S.theme;
-  app.innerHTML = R.view === "trip" ? vTrip() : R.view === "settings" ? vSettings() : vHome();
+  app.innerHTML = R.view === "trip" ? vTrip() : R.view === "settings" ? vSettings() : R.view === "journal" ? vJournal() : vHome();
   window.scrollTo(0, Math.min(y, document.body.scrollHeight));
 }
 
 /* ---------- HOME ---------- */
 function vHome(){
-  const fam = S.familyName ? "The " + esc(S.familyName) + " Family" : "Wander";
+  const fam = S.familyName ? "The " + esc(S.familyName) + " Family" : "Porter Family Travel";
   const trips = [...S.trips];
   const upcoming = trips.filter(t => tripStatus(t) !== "past").sort((a,b) => (a.start||"9999") < (b.start||"9999") ? -1 : 1);
   const past = trips.filter(t => tripStatus(t) === "past").sort((a,b) => a.start < b.start ? 1 : -1);
@@ -499,14 +644,21 @@ function vHome(){
   }
 
   return `
-  <div class="topbar">
-    <div class="brand"><span class="globe">🧭</span> ${fam}</div>
-    <div class="spacer"></div>
-    <button class="iconbtn" data-a="theme" title="Theme">${S.theme === "dark" ? "🌙" : S.theme === "light" ? "☀️" : "🌗"}</button>
-    <button class="iconbtn" data-a="settings" title="Settings">⚙️</button>
+  <div class="pan">
+    ${pano()}
+    <div class="veil"></div>
+    <div class="tools noprint">
+      <button class="iconbtn" data-a="theme" title="Theme">${S.theme === "dark" ? "🌙" : S.theme === "light" ? "☀️" : "🌗"}</button>
+      <button class="iconbtn" data-a="settings" title="Settings">⚙️</button>
+    </div>
+    <div class="overlay">
+      <div class="kick">From Cape Canaveral to everywhere</div>
+      <h1>${fam}</h1>
+      <div class="tag">plan · pack · wander · remember</div>
+    </div>
   </div>
 
-  ${hero ? `<div style="margin-top:14px">${hero}</div>` : ""}
+  ${hero ? `<div style="margin-top:18px">${hero}</div>` : ""}
 
   ${trips.length === 0 ? `
     <div class="card empty" style="margin-top:16px">
@@ -521,6 +673,17 @@ function vHome(){
   ${upcoming.map(tripCard).join("")}
 
   ${past.length ? `<div class="section-title">Memories</div>` + past.map(tripCard).join("") : ""}
+
+  <div class="section-title">Travel Journals</div>
+  ${JOURNALS.map(j => `<button class="card jcard" data-a="openJournal" data-id="${j.id}">
+    <span class="tripemoji">${j.emoji}</span>
+    <span class="grow">
+      <h3>${esc(j.title)}</h3>
+      <div class="meta">${esc(j.city)} · ${esc(j.dates)}</div>
+    </span>
+    <span class="score">★ ${esc(j.score)}</span><span class="chev">›</span>
+  </button>`).join("")}
+  <p class="hint" style="margin:8px 6px">Every finished trip becomes a journal here — tap one to relive it, share it with family taking the same trip, or plan a return trip from its winners.</p>
 
   <div class="section-title">Family</div>
   <div class="famrow">
@@ -547,6 +710,48 @@ function tripCard(t){
   </button>`;
 }
 
+/* ---------- JOURNAL ---------- */
+function vJournal(){
+  const j = JOURNALS.find(x => x.id === R.jid);
+  return `
+  <div class="topbar">
+    <button class="backbtn" data-a="home">‹ Home</button>
+    <div class="spacer"></div>
+    <button class="iconbtn noprint" data-a="print" title="Print highlights">🖨️</button>
+  </div>
+
+  <div class="card jhead">
+    <div class="toprow" style="display:flex;gap:14px;align-items:flex-start">
+      <span class="tripemoji" style="width:54px;height:54px;font-size:28px">${j.emoji}</span>
+      <div class="grow">
+        <h1 style="font-size:22px;letter-spacing:-.02em;line-height:1.15">${esc(j.title)}</h1>
+        <div class="dest" style="color:var(--ink2);font-size:14px;margin-top:2px">${esc(j.city)} · ${esc(j.dates)}</div>
+      </div>
+      <span class="score" style="font-size:13px;font-weight:800;color:#fff;background:linear-gradient(135deg,#e9a13b,#d97b2f);padding:5px 11px;border-radius:999px">★ ${esc(j.score)}</span>
+    </div>
+    <p style="font-size:14.5px;color:var(--ink2);margin-top:12px">${esc(j.summary)}</p>
+    <div style="display:flex;gap:10px;margin-top:14px" class="noprint">
+      <button class="btn" data-a="planFromJournal" data-id="${j.id}">🗓️ Plan a return trip</button>
+      <button class="btn ghost" data-a="print">🖨️ Print</button>
+    </div>
+  </div>
+
+  <div class="section-title">Best of the trip</div>
+  <div class="trophygrid">
+    ${j.bestOf.map(([l, v]) => `<div class="troph card" style="box-shadow:none"><div class="tl">🏆 ${esc(l)}</div><div class="tv">${esc(v)}</div></div>`).join("")}
+  </div>
+
+  <div class="section-title">Do again ✔</div>
+  <div class="card">${j.doAgain.map(x => `<div class="jl"><span class="je">✅</span><span>${esc(x)}</span></div>`).join("")}</div>
+
+  <div class="section-title">Skip next time</div>
+  <div class="card">${j.skip.map(x => `<div class="jl"><span class="je">❌</span><span>${esc(x)}</span></div>`).join("")}</div>
+
+  <div class="section-title">Banked for later</div>
+  <div class="card">${j.banked.map(x => `<div class="jl"><span class="je">🏦</span><span>${esc(x)}</span></div>`).join("")}</div>
+  <p class="hint" style="margin:12px 6px">Planning a return trip pre-loads the “do again” winners onto the new trip’s idea board — and always starts with the intake questions.</p>`;
+}
+
 /* ---------- SETTINGS ---------- */
 function vSettings(){
   return `
@@ -566,9 +771,9 @@ function vSettings(){
   <div class="section-title">Your data</div>
   <div class="card">
     <button class="setrow" data-a="export"><span class="ic">📤</span><span class="grow">Export backup<div class="sub">Download everything as a file — share it with family phones</div></span>›</button>
-    <button class="setrow" data-a="import"><span class="ic">📥</span><span class="grow">Import backup<div class="sub">Load a Wander file from another device</div></span>›</button>
+    <button class="setrow" data-a="import"><span class="ic">📥</span><span class="grow">Import backup<div class="sub">Load a backup file from another device</div></span>›</button>
   </div>
-  <p class="hint" style="margin:14px 6px">Everything stays on this device — no account, no cloud. Add Wander to your home screen to use it like an app, even offline. To share plans, export a backup and send the file to a family member.</p>
+  <p class="hint" style="margin:14px 6px">Everything stays on this device — no account, no cloud. Add Porter Travel to your home screen to use it like an app, even offline. To share plans, export a backup and send the file to a family member.</p>
 
   <div class="section-title">Danger zone</div>
   <div class="card"><button class="setrow" style="color:var(--bad)" data-a="wipe"><span class="ic">🗑️</span><span class="grow">Erase all data</span></button></div>
@@ -1017,6 +1222,8 @@ const A = {
   addTrip(){ tripWizard(); },
   editTrip(){ tripForm(trip(R.trip)); },
   resumeIntake(){ tripWizard3(trip(R.trip)); },
+  openJournal(el){ go({ view:"journal", jid: el.dataset.id }); },
+  planFromJournal(el){ tripWizard(JOURNALS.find(j => j.id === el.dataset.id)); },
   sample(){
     const id = uid();
     const base = new Date(); base.setDate(base.getDate() + 45);
@@ -1204,7 +1411,7 @@ const A = {
     const blob = new Blob([JSON.stringify(S, null, 2)], { type:"application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "wander-backup-" + today() + ".json";
+    a.download = "porter-travel-backup-" + today() + ".json";
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     toast("Backup downloaded");
@@ -1222,7 +1429,7 @@ const A = {
           S = normalize(d);
           save(); go({ view:"home" });
           toast("Backup imported ✨");
-        }catch(e){ toast("That doesn’t look like a Wander backup"); }
+        }catch(e){ toast("That doesn’t look like a Porter Travel backup"); }
       };
       rd.readAsText(f);
       inp.value = "";
@@ -1253,21 +1460,23 @@ const C = {
 /* ---------- forms ---------- */
 /* Intake wizard (Planning Standard v2 §0): who/type → dates/commitment →
    confirmed bookings. No day planning until intake completes. */
-function tripWizard(){
+function tripWizard(j){
   openModal({
     title:"New trip · 1 of 3 — Who & what",
     submit:"Next",
     fields:[
       { k:"travelers", label:"Who’s going?", type:"members", value:S.family.map(m => m.id) },
       { k:"type", label:"What kind of trip?", type:"select", value:"vacation", options:Object.entries(TRIP_TYPES) },
-      { k:"name", label:"Trip name", required:true, placeholder:"e.g. Savannah Long Weekend" },
-      { k:"dest", label:"Destination", placeholder:"e.g. Savannah, GA" },
-      { k:"emoji", label:"Vibe", type:"emoji", options:TRIP_EMOJI, value:"🏖️" },
+      { k:"name", label:"Trip name", required:true, placeholder: j ? j.city + " — the return" : "e.g. Savannah Long Weekend" },
+      { k:"dest", label:"Destination", value: j?.dest || "", placeholder:"e.g. Savannah, GA" },
+      { k:"emoji", label:"Vibe", type:"emoji", options:TRIP_EMOJI, value: j ? "🛳️" : "🏖️" },
+      ...(j ? [{ k:"carry", label:"Start from the journal’s winners?", type:"select", value:"yes",
+        options:[["yes","⭐ Yes — preload the “do again” list as ideas"],["no","Fresh start"]] }] : []),
     ],
-    onSubmit(v1){ if (v1.name) tripWizard2(v1); }
+    onSubmit(v1){ if (v1.name) tripWizard2(v1, j); }
   });
 }
-function tripWizard2(v1){
+function tripWizard2(v1, j){
   openModal({
     title:"New trip · 2 of 3 — Dates & commitment",
     submit:"Next",
@@ -1282,11 +1491,13 @@ function tripWizard2(v1){
       let [a, b] = [v2.start, v2.end];
       if (a && b && b < a) [a, b] = [b, a];
       const id = uid();
+      const carried = j && v1.carry !== "no" ? j.doAgain.map(text => ({ id:uid(), text, votes:[] })) : [];
       S.trips.push({ id, name:v1.name, dest:v1.dest, emoji:v1.emoji, type:v1.type, start:a, end:b, notes:"", travelers:v1.travelers,
-        stops:[], packing:[], budget:{ total:0, expenses:[] }, wallet:[], ideas:[],
+        stops:[], packing:[], budget:{ total:0, expenses:[] }, wallet:[], ideas:carried,
         mission:{ purpose:"", cats:Object.fromEntries(MC_CATS.map(([k]) => [k, { s:"r", note:"" }])) },
         intake:{ mode:v2.mode, fixed:v2.fixed, complete:false } });
       save(); go({ view:"trip", trip:id, tab:"mission" });
+      if (carried.length) toast(`Loaded ${carried.length} winners from the journal ⭐`);
       tripWizard3(trip(id));
     }
   });

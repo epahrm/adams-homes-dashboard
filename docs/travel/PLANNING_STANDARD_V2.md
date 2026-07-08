@@ -15,6 +15,11 @@ NO planning happens until intake is complete, in this exact order:
    the obligated dates/events everything else must schedule around.
 Only after all three: begin planning the gaps.
 
+## 0.5 Hard planner rules (added 2026-07-08)
+- NEVER make hotel recommendations unless Elizabeth explicitly asks.
+- NEVER search for flights unless Elizabeth explicitly asks.
+- The app/journals stay private: unlisted link shared only by Elizabeth.
+
 ## 1. Clarifying questions
 One at a time, A/B/C/D choices. When relevant, ask whether something is a
 REQUIREMENT or PREFERENCE.
