@@ -312,6 +312,8 @@
     .realtor-table .r-name { font-weight: 700; color: #003d66; }
     .realtor-table .r-brok { color: #667; font-size: 13px; }
     .realtor-table .r-contact { color: #445; font-size: 13px; line-height: 1.5; }
+    .realtor-table .r-lookup { display: inline-block; margin-top: 3px; font-size: 12.5px; font-weight: 700; color: #0a4f8e; text-decoration: none; }
+    .realtor-table .r-lookup:hover { text-decoration: underline; }
     .realtor-table .r-count { font-weight: 800; color: #1a5ba5; font-size: 16px; }
     .realtor-table .r-pipe { color: #556; font-size: 13px; }
 
@@ -383,12 +385,12 @@
         <h2>Palm Bay Lot Pipeline</h2>
         <div class="pipeline-tools">
           <button class="btn-navy" id="addDealBtn">+ Add Deal / Contract</button>
-          <button class="btn-navy" id="contractBtn">Upload Contract (PDF)</button>
+          <button class="btn-navy" id="contractBtn">Upload Contract (PDF/JPEG)</button>
           <button class="btn-green" id="importBtn">Import Contacts (CSV)</button>
           <button class="btn-navy" id="sweepBtn">Off-Market Sweep</button>
           <button class="btn-outline" id="postcardBtn">Postcards / QR</button>
           <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
-          <input type="file" id="contractFile" accept="application/pdf,.pdf" style="display:none">
+          <input type="file" id="contractFile" accept="application/pdf,.pdf,image/jpeg,.jpg,.jpeg" style="display:none">
         </div>
       </div>
       <div class="import-msg" id="importMsg" style="display:none;"></div>
@@ -594,6 +596,7 @@
       <!-- Realtor CRM: every listing agent we've engaged, with their lots -->
       <details class="realtor-crm" id="realtorCrm" style="margin-bottom:20px;">
         <summary id="realtorSummary">Realtor CRM</summary>
+        <div class="ops-note">Name, brokerage &amp; contact come from the listing and what Kevin saves on the offer screen — not auto-pulled from submitted contracts. Use <b>Look up ↗</b> to confirm an agent online before relying on their details.</div>
         <div class="table-wrap">
           <table class="realtor-table">
             <thead><tr><th>Realtor / Brokerage</th><th>Contact</th><th>Lots</th><th>Pipeline</th></tr></thead>
@@ -1741,9 +1744,18 @@
         const c1 = document.createElement('td');
         const nm = document.createElement('div'); nm.className = 'r-name'; nm.textContent = r.name || r.brokerage || '—';
         c1.appendChild(nm);
+        // Always show the brokerage on its own line when we have both.
         if (r.name && r.brokerage) { const bk = document.createElement('div'); bk.className = 'r-brok'; bk.textContent = r.brokerage; c1.appendChild(bk); }
         const c2 = document.createElement('td'); c2.className = 'r-contact';
-        c2.textContent = [r.phone, r.email].filter(Boolean).join(' · ') || 'No direct contact yet';
+        const contactLine = document.createElement('div');
+        contactLine.textContent = [r.phone, r.email].filter(Boolean).join(' · ') || 'No direct contact yet';
+        c2.appendChild(contactLine);
+        // Basic internet lookup to confirm the agent's details (brokerage, phone,
+        // license) before Kevin relies on them.
+        const look = document.createElement('a'); look.className = 'r-lookup';
+        look.href = 'https://www.google.com/search?q=' + encodeURIComponent([r.name, r.brokerage, 'realtor Florida'].filter(Boolean).join(' '));
+        look.target = '_blank'; look.rel = 'noopener noreferrer'; look.textContent = 'Look up ↗';
+        c2.appendChild(look);
         const c3 = document.createElement('td');
         const cnt = document.createElement('span'); cnt.className = 'r-count'; cnt.textContent = r.lots.length; c3.appendChild(cnt);
         const c4 = document.createElement('td'); c4.className = 'r-pipe';
@@ -2539,6 +2551,14 @@
     document.getElementById('contractFile').addEventListener('change', async function() {
       const file = this.files && this.files[0]; this.value = '';
       if (!file) return;
+      // JPEG/photo contracts can't be text-parsed — open the Add Deal form so
+      // Kevin can enter the details, then attach the image on the deal.
+      const isImage = /^image\//.test(file.type) || /\.jpe?g$/i.test(file.name);
+      if (isImage) {
+        openDeal();
+        importMsg('Image contract “' + file.name + '” received. Photos/JPEGs can’t be auto-read — enter the details below and save, then attach the image on the deal’s document list.', true);
+        return;
+      }
       importMsg('Reading “' + file.name + '”…', true);
       try {
         const fd = new FormData(); fd.append('file', file);
