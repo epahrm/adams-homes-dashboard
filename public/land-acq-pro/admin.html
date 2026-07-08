@@ -856,7 +856,10 @@
             <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Wholesaler</option><option>Referral</option><option>Other</option></select>
           </div>
           <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
+          <div><label for="dAgentPhone">Agent Phone</label><input type="text" id="dAgentPhone" placeholder="(321) 555-0100"></div>
+          <div><label for="dAgentEmail">Agent Email</label><input type="text" id="dAgentEmail" placeholder="agent@example.com"></div>
           <div><label for="dAgentBrokerage">Brokerage</label><input type="text" id="dAgentBrokerage" placeholder="Brokerage"></div>
+          <div><label for="dAgentLicense">License #</label><input type="text" id="dAgentLicense" placeholder="AB123456"></div>
           <div><label for="dWholesaler">Wholesaler (if wholesaler deal)</label><input type="text" id="dWholesaler" placeholder="Wholesaler name / company"></div>
           <div><label for="dAccepted">Accepted Date</label><input type="date" id="dAccepted"></div>
           <div><label for="dClose">Scheduled Close</label><input type="date" id="dClose"></div>
@@ -2918,10 +2921,13 @@
         if (f.legal) document.getElementById('dOwnerContact').value = 'Legal: ' + f.legal;
         if (f.utilityType) document.getElementById('dUtility').value = f.utilityType;
         if (f.acceptedDate) document.getElementById('dAccepted').value = f.acceptedDate;
-        if (f.agentName || f.agentBrokerage) {
+        if (f.agentName || f.agentBrokerage || f.agentPhone || f.agentEmail || f.agentLicense) {
           document.getElementById('dListing').value = 'listed';
           if (f.agentName) document.getElementById('dAgentName').value = f.agentName;
+          if (f.agentPhone) document.getElementById('dAgentPhone').value = f.agentPhone;
+          if (f.agentEmail) document.getElementById('dAgentEmail').value = f.agentEmail;
           if (f.agentBrokerage) document.getElementById('dAgentBrokerage').value = f.agentBrokerage;
+          if (f.agentLicense) document.getElementById('dAgentLicense').value = f.agentLicense;
         }
         // Commission has no Add-Deal field; stash it so it shows on the offer screen.
         pendingContractExtras = f.commission ? { commission: f.commission } : null;
@@ -2953,7 +2959,10 @@
         listingType: val('dListing'),
         source: isWholesaler ? 'Wholesaler' : (val('dSource') || 'Direct Mail'),
         agentName: listed ? (val('dAgentName') || undefined) : undefined,
+        agentPhone: listed ? (val('dAgentPhone') || undefined) : undefined,
+        agentEmail: listed ? (val('dAgentEmail') || undefined) : undefined,
         agentBrokerage: listed ? (val('dAgentBrokerage') || undefined) : undefined,
+        agentLicense: listed ? (val('dAgentLicense') || undefined) : undefined,
         wholesalerName: isWholesaler ? (val('dWholesaler') || undefined) : undefined,
         acceptedAt: iso(val('dAccepted')),
         scheduledClose: iso(val('dClose'))

@@ -63,14 +63,19 @@ function extractAgentDetails(body: string): {
 } {
   const result: Record<string, string> = {}
 
-  // Agent name: look for "Listing Agent:" or "Agent:" or "Contact:" followed by a name
-  // Try to find patterns like "Listing Agent: John Smith" or "Agent: John Smith"
-  let m = body.match(/(?:Listing\s+)?Agent\s*:?\s*([A-Z][A-Za-z\s.'-]{2,45})/i)
-  if (m) result.agentName = m[1].trim()
+  // Agent name: look for "Listing Agent:" or "Agent:" followed by a name up to newline.
+  // Stop at newlines to avoid capturing multi-line text.
+  let m = body.match(/(?:Listing\s+)?Agent\s*:?\s*([A-Z][A-Za-z\s.'-]{2,45}?)(?:\n|$|[0-9()])/i)
+  if (m) {
+    let name = m[1].trim()
+    // Remove trailing "Phone", "Email", etc. if accidentally included
+    name = name.replace(/\s+(Phone|Email|License|Mobile|Tel|Brokerage).*$/i, '')
+    if (name.length > 2) result.agentName = name
+  }
 
   // Phone: look for (XXX) XXX-XXXX or XXX-XXX-XXXX or similar patterns
-  // Look for phone near "Phone" label or standalone
-  m = body.match(/(?:Phone|Mobile|Tel)\s*:?\s*([\d\s\-().+]+)/i)
+  // Match phone labels + the phone number up to a newline
+  m = body.match(/(?:Phone|Mobile|Tel)\s*:?\s*([\d\s\-().+]+?)(?:\n|$)/i)
   if (m) {
     const phone = m[1].trim()
     // Only keep if it looks like a valid phone (has at least 10 digits)
@@ -79,13 +84,13 @@ function extractAgentDetails(body: string): {
     }
   }
 
-  // Email: look for email addresses
+  // Email: look for email addresses (standard format)
   m = body.match(/(?:Email|Contact)\s*:?\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i)
   if (m) result.agentEmail = m[1].trim()
 
   // License: look for license # patterns like "License #" or "License:" or "Lic #"
   // Typically FL licenses are 2 uppercase letters + digits, or just a number
-  m = body.match(/(?:License|Lic\.?)\s*#?\s*:?\s*([A-Z0-9]{4,20})/i)
+  m = body.match(/(?:License|Lic\.?)\s*#?\s*:?\s*([A-Z0-9]{4,20}?)(?:\n|$)/i)
   if (m) result.agentLicense = m[1].trim()
 
   return result
