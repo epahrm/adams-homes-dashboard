@@ -1,5 +1,14 @@
 # Working notes for Claude sessions
 
+## Verification (Elizabeth's rule — do not skip)
+- NEVER report a deploy as done/live without verifying the DEPLOYED URL —
+  local tests are not enough. Fetch the live page and confirm new assets
+  actually load (Vercel preview protection 302s subresources to SSO, which
+  local testing never catches). If the live URL can't be reached from the
+  session, say so explicitly rather than implying it was checked.
+- Prefer inlining assets (data URIs) in public/travel — the app must have
+  no external subresources so protection/caching can't break it.
+
 ## Communication
 - Whenever you report a delivery/deployment update in chat, ALWAYS include
   the relevant live link(s) in that same message — preview URL and PR link —
