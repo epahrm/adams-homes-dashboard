@@ -16,6 +16,12 @@ const nextConfig = {
         destination: '/land-acq-pro/index.html',
         permanent: false,
       },
+      // Family travel planner (static app in public/travel).
+      {
+        source: '/travel',
+        destination: '/travel/index.html',
+        permanent: false,
+      },
     ]
   },
 }

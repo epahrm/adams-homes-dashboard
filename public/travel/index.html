@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wander — Family Travel Planner</title>
+<meta name="description" content="Plan trips together: itineraries, packing lists, budgets, and travel documents — all in one place, private to your family.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --page:#f9f9f7; --card:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --line:#e1e0d9; --hair:rgba(11,11,11,.10); --wash:rgba(11,11,11,.045);
+  --accent:#2a78d6; --accent-ink:#ffffff; --good:#0ca30c; --good-text:#006300; --bad:#d03b3b;
+  --c1:#2a78d6; --c2:#1baf7a; --c3:#eda100; --c4:#008300; --c5:#4a3aa7; --c6:#e34948;
+  --shadow:0 1px 2px rgba(11,11,11,.05), 0 8px 24px -12px rgba(11,11,11,.18);
+  --shadow-lg:0 24px 64px -24px rgba(11,11,11,.35);
+  --r:16px;
+}
+[data-theme="dark"]{
+  --page:#0d0d0d; --card:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --line:#2c2c2a; --hair:rgba(255,255,255,.10); --wash:rgba(255,255,255,.06);
+  --accent:#3987e5; --accent-ink:#ffffff; --good:#0ca30c; --good-text:#0ca30c; --bad:#d03b3b;
+  --c1:#3987e5; --c2:#199e70; --c3:#c98500; --c4:#008300; --c5:#9085e9; --c6:#e66767;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  --shadow-lg:0 24px 64px -24px rgba(0,0,0,.8);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --page:#0d0d0d; --card:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+    --line:#2c2c2a; --hair:rgba(255,255,255,.10); --wash:rgba(255,255,255,.06);
+    --accent:#3987e5; --accent-ink:#ffffff; --good:#0ca30c; --good-text:#0ca30c; --bad:#d03b3b;
+    --c1:#3987e5; --c2:#199e70; --c3:#c98500; --c4:#008300; --c5:#9085e9; --c6:#e66767;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    --shadow-lg:0 24px 64px -24px rgba(0,0,0,.8);
+  }
+}
+/* ---------- base ---------- */
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--page); color:var(--ink);
+  min-height:100vh; line-height:1.45;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+input,select,textarea{font:inherit;color:var(--ink)}
+a{color:var(--accent)}
+#app{max-width:720px;margin:0 auto;padding:0 16px 96px}
+::selection{background:var(--accent);color:var(--accent-ink)}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:8px;
+  padding:12px 0 10px;margin:0 -16px;padding-left:16px;padding-right:16px;
+  background:color-mix(in srgb, var(--page) 86%, transparent);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  padding-top:calc(12px + env(safe-area-inset-top));
+}
+.topbar .spacer{flex:1}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.02em}
+.brand .globe{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--c1),var(--c5));display:grid;place-items:center;font-size:16px;box-shadow:var(--shadow)}
+.iconbtn{
+  width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:17px;
+  color:var(--ink2);transition:background .15s;
+}
+.iconbtn:hover{background:var(--wash)}
+.backbtn{display:flex;align-items:center;gap:4px;color:var(--ink2);font-weight:600;font-size:15px;padding:8px 12px 8px 6px;border-radius:12px;margin-left:-6px}
+.backbtn:hover{background:var(--wash)}
+
+/* ---------- generic ---------- */
+.card{background:var(--card);border:1px solid var(--hair);border-radius:var(--r);box-shadow:var(--shadow)}
+.section-title{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:26px 4px 10px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  font-weight:650;font-size:15px;padding:11px 18px;border-radius:13px;
+  background:var(--accent);color:var(--accent-ink);transition:transform .1s, filter .15s;
+}
+.btn:hover{filter:brightness(1.07)} .btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--wash);color:var(--ink)}
+.btn.subtle{background:none;color:var(--accent);padding:8px 10px}
+.btn.danger{background:none;color:var(--bad)}
+.btn.small{font-size:13.5px;padding:7px 13px;border-radius:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--ink2);background:var(--wash);border-radius:999px;padding:5px 11px}
+.rowline{display:flex;align-items:center;gap:10px}
+.grow{flex:1;min-width:0}
+.mono{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)} .ink2{color:var(--ink2)}
+.hint{font-size:13.5px;color:var(--muted)}
+
+/* ---------- empty state ---------- */
+.empty{padding:44px 24px;text-align:center}
+.empty .big{font-size:44px;margin-bottom:10px}
+.empty h3{font-size:18px;letter-spacing:-.01em;margin-bottom:6px}
+.empty p{color:var(--ink2);font-size:14.5px;max-width:340px;margin:0 auto 18px}
+
+/* ---------- home ---------- */
+.hero{
+  position:relative;overflow:hidden;border-radius:22px;padding:26px 22px;color:#fff;
+  background:linear-gradient(140deg,#1c5cab 0%, #2a78d6 45%, #4a3aa7 100%);
+  box-shadow:var(--shadow-lg);cursor:pointer;
+}
+.hero::after{content:"";position:absolute;inset:0;background:
+  radial-gradient(120% 90% at 90% -10%, rgba(255,255,255,.22), transparent 55%);}
+.hero>*{position:relative;z-index:1}
+.hero .kicker{font-size:12.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.82}
+.hero h2{font-size:26px;letter-spacing:-.02em;margin:6px 0 2px;line-height:1.2}
+.hero .sub{font-size:14.5px;opacity:.88}
+.hero .count{display:flex;gap:14px;margin-top:18px}
+.hero .cnum{font-size:30px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.hero .clab{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-top:4px}
+.tripcard{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:15px 16px;margin-top:10px}
+.tripcard:hover{border-color:var(--accent)}
+.tripemoji{width:48px;height:48px;border-radius:14px;background:var(--wash);display:grid;place-items:center;font-size:25px;flex:none}
+.tripcard h3{font-size:16.5px;letter-spacing:-.01em}
+.tripcard .meta{font-size:13.5px;color:var(--ink2);margin-top:1px}
+.tripcard .chev{color:var(--muted);font-size:18px}
+.tripcard .badge{font-size:11.5px;font-weight:700;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%, transparent);padding:3px 9px;border-radius:999px;white-space:nowrap}
+.famrow{display:flex;flex-wrap:wrap;gap:8px}
+.avatar{
+  display:inline-flex;align-items:center;gap:7px;padding:6px 13px 6px 7px;border-radius:999px;
+  background:var(--card);border:1px solid var(--hair);font-size:14px;font-weight:600;box-shadow:var(--shadow)
+}
+.avatar .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:14px;color:#fff}
+.addchip{border:1.5px dashed var(--line);border-radius:999px;padding:8px 14px;color:var(--muted);font-weight:600;font-size:14px}
+.addchip:hover{color:var(--accent);border-color:var(--accent)}
+
+/* ---------- trip header ---------- */
+.triphead{padding:20px;margin-top:14px}
+.triphead .toprow{display:flex;gap:14px;align-items:flex-start}
+.triphead h1{font-size:23px;letter-spacing:-.02em;line-height:1.15}
+.triphead .dest{color:var(--ink2);font-size:14.5px;margin-top:2px}
+.triphead .datebar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.countpill{background:color-mix(in srgb,var(--accent) 11%, transparent);color:var(--accent);font-weight:700}
+[data-theme="dark"] .countpill{background:color-mix(in srgb,var(--accent) 20%, transparent)}
+.travbar{display:flex;align-items:center;margin-top:14px;gap:2px}
+.travbar .tdot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:15px;color:#fff;border:2px solid var(--card);margin-right:-7px}
+.travbar .tadd{margin-left:14px}
+
+/* ---------- tabs ---------- */
+.tabs{
+  position:sticky;top:calc(58px + env(safe-area-inset-top));z-index:30;display:flex;gap:2px;margin:16px -16px 4px;padding:6px 16px;
+  overflow-x:auto;scrollbar-width:none;
+  background:color-mix(in srgb, var(--page) 86%, transparent);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:none;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:650;color:var(--ink2);
+  padding:9px 14px;border-radius:999px;white-space:nowrap;transition:background .15s;
+}
+.tab:hover{background:var(--wash)}
+.tab.on{background:var(--ink);color:var(--page)}
+
+/* ---------- itinerary ---------- */
+.daycard{padding:16px 16px 8px;margin-top:14px}
+.dayhead{display:flex;align-items:baseline;gap:10px;padding-bottom:8px}
+.dayhead .dnum{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.dayhead .ddate{font-size:15.5px;font-weight:700;letter-spacing:-.01em}
+.stop{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.stop .time{flex:none;width:62px;font-size:12.5px;font-weight:700;color:var(--muted);padding-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stop .icon{flex:none;width:34px;height:34px;border-radius:10px;background:var(--wash);display:grid;place-items:center;font-size:16px}
+.stop .body{flex:1;min-width:0}
+.stop .t{font-size:15px;font-weight:650;letter-spacing:-.01em}
+.stop.done .t{text-decoration:line-through;color:var(--muted)}
+.stop .loc{font-size:13px;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.stop .notes{font-size:13.5px;color:var(--ink2);margin-top:2px;white-space:pre-wrap}
+.stop .check{flex:none;padding-top:2px}
+.addstop{width:100%;text-align:left;color:var(--muted);font-weight:600;font-size:14px;padding:11px 0;border-top:1px solid var(--line)}
+.addstop:hover{color:var(--accent)}
+
+/* checkbox */
+.cb{appearance:none;-webkit-appearance:none;width:23px;height:23px;border-radius:8px;border:2px solid var(--line);display:inline-grid;place-items:center;cursor:pointer;transition:all .15s;background:var(--card);flex:none}
+.cb:checked{background:var(--good);border-color:var(--good)}
+.cb:checked::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+
+/* ---------- packing ---------- */
+.ownertabs{display:flex;gap:8px;overflow-x:auto;padding:14px 2px 4px;scrollbar-width:none}
+.ownertabs::-webkit-scrollbar{display:none}
+.ochip{flex:none;display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;background:var(--card);border:1px solid var(--hair);font-weight:650;font-size:14px;color:var(--ink2);box-shadow:var(--shadow)}
+.ochip.on{background:var(--ink);color:var(--page);border-color:var(--ink)}
+.packitem{display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid var(--line)}
+.packitem:first-child{border-top:0}
+.packitem .txt{flex:1;font-size:15px;font-weight:550}
+.packitem.done .txt{text-decoration:line-through;color:var(--muted)}
+.packitem .who{font-size:12px;color:var(--muted)}
+.progress{height:8px;border-radius:99px;background:var(--wash);overflow:hidden}
+.progress>i{display:block;height:100%;border-radius:99px;background:var(--good);transition:width .4s cubic-bezier(.2,.8,.2,1)}
+.packsum{padding:16px;margin-top:14px}
+.tpl-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+
+/* ---------- budget / dataviz ---------- */
+.statrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.stat{padding:14px 12px 12px;min-width:0}
+.stat .lab{font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.stat .val{font-size:clamp(15px,4.6vw,22px);font-weight:800;letter-spacing:-.02em;margin-top:3px;white-space:nowrap}
+.stat .val.neg{color:var(--bad)}
+.meterwrap{padding:16px;margin-top:10px}
+.meter{height:12px;border-radius:99px;background:var(--wash);overflow:hidden;margin-top:10px}
+.meter>i{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .4s}
+.meter>i.over{background:var(--bad)}
+.catbars{padding:16px;margin-top:14px}
+.catrow{margin-top:13px}
+.catrow:first-of-type{margin-top:8px}
+.catrow .lr{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;margin-bottom:5px}
+.catrow .nm{font-weight:650;color:var(--ink);display:flex;align-items:center;gap:7px}
+.catrow .nm .sw{width:10px;height:10px;border-radius:3px;flex:none}
+.catrow .amt{font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink2)}
+.catrow .bar{height:10px;border-radius:0 4px 4px 0;min-width:3px;transition:width .4s}
+.expitem{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);width:100%;text-align:left}
+.expitem:first-child{border-top:0}
+.expitem .cat{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:16px;flex:none;background:var(--wash)}
+.expitem .d{font-size:15px;font-weight:600}
+.expitem .m{font-size:12.5px;color:var(--muted)}
+.expitem .amt{font-weight:750;font-variant-numeric:tabular-nums;font-size:15px}
+
+/* ---------- wallet ---------- */
+.wcard{padding:15px 16px;margin-top:12px}
+.wcard .k{display:flex;align-items:center;gap:12px}
+.wcard .wicon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:18px;background:var(--wash);flex:none}
+.wcard h4{font-size:15.5px;letter-spacing:-.01em}
+.wcard .kind{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.code{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;
+  background:var(--wash);border-radius:11px;padding:10px 13px;
+}
+.code b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:15px;letter-spacing:.1em}
+.wcard .det{font-size:13.5px;color:var(--ink2);margin-top:10px;white-space:pre-wrap}
+
+/* ---------- ideas ---------- */
+.idea{padding:14px 16px;margin-top:12px}
+.idea .t{font-size:15.5px;font-weight:600;letter-spacing:-.01em}
+.idea .votes{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
+.votedot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;color:#fff;border:2px solid var(--card)}
+.voteb{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:650;color:var(--ink2);background:var(--wash);border-radius:999px;padding:6px 12px}
+.voteb.mine{background:color-mix(in srgb,var(--accent) 12%, transparent);color:var(--accent)}
+
+/* ---------- fab ---------- */
+.fab{
+  position:fixed;right:max(18px, calc(50% - 342px));bottom:calc(20px + env(safe-area-inset-bottom));z-index:45;
+  width:58px;height:58px;border-radius:19px;background:var(--accent);color:#fff;font-size:26px;
+  display:grid;place-items:center;box-shadow:0 10px 30px -6px color-mix(in srgb, var(--accent) 60%, transparent);
+  transition:transform .12s;
+}
+.fab:active{transform:scale(.93)}
+
+/* ---------- modal ---------- */
+.modal-back{position:fixed;inset:0;z-index:80;background:rgba(11,11,11,.45);display:flex;align-items:flex-end;justify-content:center;
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:fade .18s}
+@media(min-width:560px){.modal-back{align-items:center}}
+.modal{
+  width:100%;max-width:480px;max-height:88vh;overflow-y:auto;background:var(--card);
+  border-radius:24px 24px 0 0;padding:20px 20px calc(22px + env(safe-area-inset-bottom));animation:up .22s cubic-bezier(.2,.9,.3,1);
+}
+@media(min-width:560px){.modal{border-radius:22px;padding-bottom:22px}}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal h3{font-size:18px;letter-spacing:-.015em;margin-bottom:14px}
+.field{margin-top:13px}
+.field label{display:block;font-size:12.5px;font-weight:700;letter-spacing:.03em;color:var(--muted);margin-bottom:5px;text-transform:uppercase}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--page);border:1.5px solid var(--line);border-radius:12px;padding:11px 13px;font-size:16px;outline:none;transition:border-color .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:74px}
+.fieldrow{display:flex;gap:10px}.fieldrow>.field{flex:1}
+.emojirow{display:flex;flex-wrap:wrap;gap:6px}
+.emojirow button{width:42px;height:42px;border-radius:12px;font-size:21px;background:var(--page);border:1.5px solid var(--line)}
+.emojirow button.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%, transparent)}
+.colorrow{display:flex;gap:8px;flex-wrap:wrap}
+.colorrow button{width:34px;height:34px;border-radius:50%;border:3px solid transparent}
+.colorrow button.on{border-color:var(--ink)}
+.modal .actions{display:flex;gap:10px;margin-top:20px}
+.modal .actions .btn{flex:1}
+.memberpick{display:flex;flex-wrap:wrap;gap:8px}
+.memberpick button{display:inline-flex;align-items:center;gap:7px;padding:7px 13px 7px 7px;border-radius:999px;border:1.5px solid var(--line);background:var(--page);font-weight:600;font-size:14px}
+.memberpick button.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%, transparent)}
+.memberpick .dot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;color:#fff}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100;
+  background:var(--ink);color:var(--page);font-size:14px;font-weight:650;padding:11px 18px;border-radius:99px;
+  box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+
+/* ---------- settings list ---------- */
+.setrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 16px;border-top:1px solid var(--line);font-size:15px;font-weight:600}
+.setrow:first-child{border-top:0}
+.setrow .ic{width:34px;height:34px;border-radius:10px;background:var(--wash);display:grid;place-items:center;font-size:16px;flex:none}
+.setrow .sub{font-size:12.5px;color:var(--muted);font-weight:500}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:120}
+
+/* ---------- print ---------- */
+@media print{
+  body{background:#fff;color:#000}
+  .topbar,.tabs,.fab,.addstop,.stop .check,.noprint{display:none !important}
+  #app{max-width:100%;padding:0}
+  .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<canvas id="confetti"></canvas>
+<script>
+"use strict";
+/* =============================================================
+   Wander — a private, offline-first family travel planner.
+   All data lives in this browser (localStorage). Export/Import
+   moves plans between family phones. No accounts, no server.
+   ============================================================= */
+
+const KEY = "wander.v1";
+const $ = s => document.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const TRIP_EMOJI = ["🏖️","🏔️","🎢","🗽","🏕️","🌴","⛷️","🛳️","🏰","🌋","🚗","✈️"];
+const MEMBER_EMOJI = ["😀","😎","🥳","🤠","😺","🦖","🦄","🐻","🌟","🌸","⚽","🎨"];
+const MEMBER_COLORS = ["#2a78d6","#1baf7a","#eda100","#4a3aa7","#e34948","#e87ba4","#eb6834","#008300"];
+const STOP_CATS = { food:"🍽️", activity:"🎟️", travel:"🚌", lodging:"🏨", beach:"🏖️", shopping:"🛍️", other:"📍" };
+const WALLET_KINDS = { flight:["✈️","Flight"], stay:["🏨","Stay"], car:["🚗","Rental car"], train:["🚆","Train"], ticket:["🎟️","Tickets"], doc:["📄","Document"] };
+/* Budget categories: fixed palette-slot order — colors follow the category, never its rank. */
+const BUDGET_CATS = [
+  { k:"lodging",   n:"Lodging",    e:"🏨", c:"var(--c1)" },
+  { k:"transport", n:"Transport",  e:"✈️", c:"var(--c2)" },
+  { k:"food",      n:"Food",       e:"🍽️", c:"var(--c3)" },
+  { k:"activities",n:"Activities", e:"🎟️", c:"var(--c4)" },
+  { k:"shopping",  n:"Shopping",   e:"🛍️", c:"var(--c5)" },
+  { k:"other",     n:"Other",      e:"💵", c:"var(--c6)" },
+];
+const PACK_TEMPLATES = {
+  "Essentials ✅": ["IDs & passports","Phone chargers","Medications","Wallet","Sunglasses","Headphones","Water bottles","Snacks"],
+  "Beach 🏖️": ["Swimsuits","Sunscreen","Beach towels","Flip flops","Sun hats","Beach bag","Goggles"],
+  "Cold weather ❄️": ["Coats","Gloves","Beanies","Thermal layers","Warm boots","Hand warmers","Scarves"],
+  "Flight ✈️": ["Boarding passes","Neck pillows","Downloaded movies","Gum","Empty water bottle","Pen for forms","Carry-on locks"],
+  "Road trip 🚗": ["Car snacks","Road trip playlist","Car charger","Trash bags","Paper towels","Travel games","First-aid kit"],
+  "Kids 🧸": ["Favorite stuffed animal","Tablet + kid headphones","Extra change of clothes","Wipes","Night light","Activity books"],
+  "Toiletries 🪥": ["Toothbrushes","Toothpaste","Shampoo","Deodorant","Hairbrush","Contacts / glasses","Razor"],
+};
+
+/* ---------- state ---------- */
+let S = load();
+let R = loadR();   // route: {view:'home'|'trip'|'settings', trip, tab, packOwner}
+
+function blank(){ return { v:1, familyName:"", currency:"$", theme:"auto", family:[], trips:[] }; }
+function load(){
+  try{
+    const d = JSON.parse(localStorage.getItem(KEY));
+    if (d && d.v === 1 && Array.isArray(d.trips)) return Object.assign(blank(), d);
+  }catch(e){}
+  return blank();
+}
+function loadR(){
+  try{
+    const r = JSON.parse(sessionStorage.getItem(KEY + ".route"));
+    if (r && r.view) return r;
+  }catch(e){}
+  return { view:"home", trip:null, tab:"plan", packOwner:"all" };
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
+function go(patch){ Object.assign(R, patch); sessionStorage.setItem(KEY + ".route", JSON.stringify(R)); render(); }
+
+/* ---------- date helpers (all local-time, no TZ surprises) ---------- */
+function pd(iso){ const [y,m,d] = iso.split("-").map(Number); return new Date(y, m-1, d); }
+function iso(d){ return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); }
+function today(){ return iso(new Date()); }
+const WD = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fmtD(isoStr, wd){ if(!isoStr) return ""; const d = pd(isoStr); return (wd ? WD[d.getDay()] + ", " : "") + MO[d.getMonth()] + " " + d.getDate(); }
+function fmtRange(a, b){
+  if (!a) return "Dates TBD";
+  if (!b || a === b) return fmtD(a);
+  const da = pd(a), db = pd(b);
+  const yr = db.getFullYear() !== new Date().getFullYear() ? ", " + db.getFullYear() : "";
+  if (da.getMonth() === db.getMonth()) return MO[da.getMonth()] + " " + da.getDate() + "–" + db.getDate() + yr;
+  return fmtD(a) + " – " + fmtD(b) + yr;
+}
+function daysBetween(a, b){ return Math.round((pd(b) - pd(a)) / 864e5); }
+function tripDays(t){
+  if (!t.start) return [];
+  const out = [], end = t.end || t.start;
+  let d = pd(t.start);
+  const last = pd(end);
+  let guard = 0;
+  while (d <= last && guard++ < 60){ out.push(iso(d)); d = new Date(d.getFullYear(), d.getMonth(), d.getDate()+1); }
+  return out;
+}
+function fmtTime(hm){
+  if (!hm) return "";
+  let [h, m] = hm.split(":").map(Number);
+  const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
+  return h + ":" + String(m).padStart(2,"0") + " " + ap;
+}
+function money(n){
+  const v = Math.round(Number(n) * 100) / 100;
+  return S.currency + v.toLocaleString(undefined, { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 });
+}
+
+/* ---------- lookups ---------- */
+const trip = id => S.trips.find(t => t.id === id);
+const member = id => S.family.find(m => m.id === id);
+function tripStatus(t){
+  if (!t.start) return "someday";
+  const now = today();
+  if (now < t.start) return "upcoming";
+  if (now > (t.end || t.start)) return "past";
+  return "now";
+}
+
+/* =============================================================
+   RENDER
+   ============================================================= */
+function render(){
+  const app = $("#app");
+  const y = window.scrollY;
+  if (R.view === "trip" && !trip(R.trip)) R.view = "home";
+  document.documentElement.dataset.theme = S.theme === "auto" ? "" : S.theme;
+  app.innerHTML = R.view === "trip" ? vTrip() : R.view === "settings" ? vSettings() : vHome();
+  window.scrollTo(0, Math.min(y, document.body.scrollHeight));
+}
+
+/* ---------- HOME ---------- */
+function vHome(){
+  const fam = S.familyName ? "The " + esc(S.familyName) + " Family" : "Wander";
+  const trips = [...S.trips];
+  const upcoming = trips.filter(t => tripStatus(t) !== "past").sort((a,b) => (a.start||"9999") < (b.start||"9999") ? -1 : 1);
+  const past = trips.filter(t => tripStatus(t) === "past").sort((a,b) => a.start < b.start ? 1 : -1);
+  const next = upcoming.find(t => t.start);
+
+  let hero = "";
+  if (next){
+    const st = tripStatus(next);
+    const dleft = st === "upcoming" ? daysBetween(today(), next.start) : 0;
+    const dayN = st === "now" ? daysBetween(next.start, today()) + 1 : 0;
+    const total = next.start ? daysBetween(next.start, next.end || next.start) + 1 : 0;
+    hero = `<div class="hero" data-a="openTrip" data-id="${next.id}" role="button" tabindex="0">
+      <div class="kicker">${st === "now" ? "Happening now" : "Next adventure"}</div>
+      <h2>${esc(next.emoji)} ${esc(next.name)}</h2>
+      <div class="sub">${esc(next.dest || "")}${next.dest ? " · " : ""}${fmtRange(next.start, next.end)}</div>
+      <div class="count">${
+        st === "now"
+        ? `<div><div class="cnum">Day ${dayN}</div><div class="clab">of ${total} — have fun!</div></div>`
+        : `<div><div class="cnum">${dleft}</div><div class="clab">day${dleft === 1 ? "" : "s"} to go</div></div>
+           <div><div class="cnum">${total}</div><div class="clab">day trip</div></div>`
+      }</div>
+    </div>`;
+  }
+
+  return `
+  <div class="topbar">
+    <div class="brand"><span class="globe">🧭</span> ${fam}</div>
+    <div class="spacer"></div>
+    <button class="iconbtn" data-a="theme" title="Theme">${S.theme === "dark" ? "🌙" : S.theme === "light" ? "☀️" : "🌗"}</button>
+    <button class="iconbtn" data-a="settings" title="Settings">⚙️</button>
+  </div>
+
+  ${hero ? `<div style="margin-top:14px">${hero}</div>` : ""}
+
+  ${trips.length === 0 ? `
+    <div class="card empty" style="margin-top:16px">
+      <div class="big">🗺️</div>
+      <h3>Where to first?</h3>
+      <p>Plan the itinerary, pack together, track the budget, and keep every confirmation number in one place.</p>
+      <button class="btn" data-a="addTrip">＋ Plan a trip</button>
+      <div style="margin-top:10px"><button class="btn subtle" data-a="sample">or try a sample trip</button></div>
+    </div>` : ""}
+
+  ${upcoming.length ? `<div class="section-title">Trips</div>` : ""}
+  ${upcoming.map(tripCard).join("")}
+
+  ${past.length ? `<div class="section-title">Memories</div>` + past.map(tripCard).join("") : ""}
+
+  <div class="section-title">Family</div>
+  <div class="famrow">
+    ${S.family.map(m => `<button class="avatar" data-a="editMember" data-id="${m.id}">
+        <span class="dot" style="background:${esc(m.color)}">${esc(m.emoji)}</span>${esc(m.name)}
+      </button>`).join("")}
+    <button class="addchip" data-a="addMember">＋ Add family member</button>
+  </div>
+
+  ${trips.length ? `<button class="fab" data-a="addTrip" title="Plan a trip">＋</button>` : ""}`;
+}
+
+function tripCard(t){
+  const st = tripStatus(t);
+  const badge = st === "now" ? `<span class="badge">Happening now</span>`
+    : st === "upcoming" && t.start ? `<span class="badge">${daysBetween(today(), t.start)}d</span>` : "";
+  return `<button class="card tripcard" data-a="openTrip" data-id="${t.id}">
+    <span class="tripemoji">${esc(t.emoji)}</span>
+    <span class="grow">
+      <h3>${esc(t.name)}</h3>
+      <div class="meta">${esc(t.dest || "")}${t.dest ? " · " : ""}${fmtRange(t.start, t.end)}</div>
+    </span>
+    ${badge}<span class="chev">›</span>
+  </button>`;
+}
+
+/* ---------- SETTINGS ---------- */
+function vSettings(){
+  return `
+  <div class="topbar">
+    <button class="backbtn" data-a="home">‹ Back</button>
+    <div class="spacer"></div>
+  </div>
+  <h1 style="font-size:24px;letter-spacing:-.02em;margin:8px 4px 4px">Settings</h1>
+
+  <div class="section-title">Family</div>
+  <div class="card">
+    <button class="setrow" data-a="familyName"><span class="ic">🏡</span><span class="grow">Family name<div class="sub">${S.familyName ? esc(S.familyName) : "Shown on your home screen"}</div></span>›</button>
+    <button class="setrow" data-a="currency"><span class="ic">💱</span><span class="grow">Currency symbol<div class="sub">Currently “${esc(S.currency)}”</div></span>›</button>
+    <button class="setrow" data-a="theme"><span class="ic">🎨</span><span class="grow">Theme<div class="sub">${S.theme === "auto" ? "Match device" : S.theme === "dark" ? "Dark" : "Light"}</div></span>›</button>
+  </div>
+
+  <div class="section-title">Your data</div>
+  <div class="card">
+    <button class="setrow" data-a="export"><span class="ic">📤</span><span class="grow">Export backup<div class="sub">Download everything as a file — share it with family phones</div></span>›</button>
+    <button class="setrow" data-a="import"><span class="ic">📥</span><span class="grow">Import backup<div class="sub">Load a Wander file from another device</div></span>›</button>
+  </div>
+  <p class="hint" style="margin:14px 6px">Everything stays on this device — no account, no cloud. Add Wander to your home screen to use it like an app, even offline. To share plans, export a backup and send the file to a family member.</p>
+
+  <div class="section-title">Danger zone</div>
+  <div class="card"><button class="setrow" style="color:var(--bad)" data-a="wipe"><span class="ic">🗑️</span><span class="grow">Erase all data</span></button></div>
+  <input type="file" id="importfile" accept=".json,application/json" style="display:none">`;
+}
+
+/* ---------- TRIP ---------- */
+function vTrip(){
+  const t = trip(R.trip);
+  const st = tripStatus(t);
+  const days = t.start ? daysBetween(t.start, t.end || t.start) + 1 : 0;
+  const count = st === "upcoming" ? `⏳ ${daysBetween(today(), t.start)} days to go`
+    : st === "now" ? `🎉 Day ${daysBetween(t.start, today()) + 1} of ${days}`
+    : st === "past" ? "📸 Memories" : "🗓️ Dates TBD";
+
+  const TABS = [["plan","🗓️","Plan"],["pack","🧳","Packing"],["budget","💵","Budget"],["wallet","🎫","Wallet"],["ideas","💡","Ideas"]];
+  const body = { plan:vPlan, pack:vPack, budget:vBudget, wallet:vWallet, ideas:vIdeas }[R.tab] || vPlan;
+
+  return `
+  <div class="topbar">
+    <button class="backbtn" data-a="home">‹ Trips</button>
+    <div class="spacer"></div>
+    <button class="iconbtn noprint" data-a="print" title="Print plan">🖨️</button>
+    <button class="iconbtn noprint" data-a="editTrip" title="Edit trip">✏️</button>
+  </div>
+
+  <div class="card triphead">
+    <div class="toprow">
+      <span class="tripemoji" style="width:54px;height:54px;font-size:28px">${esc(t.emoji)}</span>
+      <div class="grow">
+        <h1>${esc(t.name)}</h1>
+        <div class="dest">${esc(t.dest || "Somewhere wonderful")}</div>
+      </div>
+    </div>
+    <div class="datebar">
+      <span class="pill">📅 ${fmtRange(t.start, t.end)}</span>
+      <span class="pill countpill">${count}</span>
+    </div>
+    <div class="travbar">
+      ${t.travelers.map(id => { const m = member(id); return m ? `<span class="tdot" title="${esc(m.name)}" style="background:${esc(m.color)}">${esc(m.emoji)}</span>` : ""; }).join("")}
+      <button class="btn subtle small tadd noprint" data-a="pickTravelers">${t.travelers.length ? "Edit travelers" : "＋ Who’s going?"}</button>
+    </div>
+    ${t.notes ? `<p style="font-size:14px;color:var(--ink2);margin-top:12px;white-space:pre-wrap">${esc(t.notes)}</p>` : ""}
+  </div>
+
+  <div class="tabs noprint">
+    ${TABS.map(([k,e,l]) => `<button class="tab ${R.tab === k ? "on" : ""}" data-a="tab" data-id="${k}">${e} ${l}</button>`).join("")}
+  </div>
+
+  ${body(t)}`;
+}
+
+/* ---------- PLAN (itinerary) ---------- */
+function vPlan(t){
+  const days = tripDays(t);
+  if (!days.length){
+    return `<div class="card empty" style="margin-top:14px">
+      <div class="big">🗓️</div><h3>No dates yet</h3>
+      <p>Set the trip dates and we’ll lay out a day-by-day plan you can fill in together.</p>
+      <button class="btn" data-a="editTrip">Set dates</button>
+    </div>`;
+  }
+  const byDay = {};
+  for (const s of t.stops) (byDay[s.date] = byDay[s.date] || []).push(s);
+  const extras = t.stops.filter(s => !days.includes(s.date));
+
+  return days.map((d, i) => {
+    const stops = (byDay[d] || []).sort((a,b) => (a.time || "99") < (b.time || "99") ? -1 : 1);
+    const isToday = d === today();
+    return `<div class="card daycard" ${isToday ? 'style="border-color:var(--accent)"' : ""}>
+      <div class="dayhead">
+        <span class="dnum">Day ${i+1}${isToday ? " · Today" : ""}</span>
+        <span class="ddate">${fmtD(d, true)}</span>
+      </div>
+      ${stops.map(s => vStop(t, s)).join("") || ""}
+      <button class="addstop noprint" data-a="addStop" data-id="${d}">＋ Add to this day…</button>
+    </div>`;
+  }).join("") + (extras.length ? `<div class="card daycard"><div class="dayhead"><span class="dnum">Outside trip dates</span></div>${extras.map(s => vStop(t, s)).join("")}</div>` : "");
+}
+
+function vStop(t, s){
+  const mapq = s.loc ? `https://maps.google.com/?q=${encodeURIComponent(s.loc + (t.dest ? ", " + t.dest : ""))}` : "";
+  return `<div class="stop ${s.done ? "done" : ""}">
+    <span class="time">${s.time ? fmtTime(s.time) : "—"}</span>
+    <span class="icon">${STOP_CATS[s.cat] || "📍"}</span>
+    <button class="body" data-a="editStop" data-id="${s.id}" style="text-align:left">
+      <div class="t">${esc(s.title)}</div>
+      ${s.notes ? `<div class="notes">${esc(s.notes)}</div>` : ""}
+    </button>
+    ${s.loc ? `<a class="loc noprint" style="align-self:center;flex:none" href="${esc(mapq)}" target="_blank" rel="noopener">🧭 Map</a>` : ""}
+    <span class="check noprint"><input type="checkbox" class="cb" data-c="stopDone" data-id="${s.id}" ${s.done ? "checked" : ""} title="Done"></span>
+  </div>`;
+}
+
+/* ---------- PACKING ---------- */
+function vPack(t){
+  const owners = [["all","👨‍👩‍👧‍👦","Everyone"], ["shared","🧺","Shared"], ...t.travelers.map(id => { const m = member(id); return m ? [m.id, m.emoji, m.name] : null; }).filter(Boolean)];
+  const cur = owners.some(o => o[0] === R.packOwner) ? R.packOwner : "all";
+  const items = t.packing.filter(p => cur === "all" ? true : (p.owner || "shared") === cur);
+  const done = items.filter(p => p.done).length;
+  const pct = items.length ? Math.round(done / items.length * 100) : 0;
+
+  return `
+  <div class="ownertabs noprint">
+    ${owners.map(([k,e,n]) => `<button class="ochip ${cur === k ? "on" : ""}" data-a="packOwner" data-id="${k}">${e} ${esc(n)}</button>`).join("")}
+  </div>
+
+  ${items.length ? `
+  <div class="card packsum">
+    <div class="rowline"><b style="font-size:15px">${done} of ${items.length} packed</b><span class="grow"></span><b class="mono" style="color:${pct === 100 ? "var(--good-text)" : "var(--ink2)"}">${pct}%</b></div>
+    <div class="progress" style="margin-top:9px"><i style="width:${pct}%"></i></div>
+    ${pct === 100 ? `<div style="margin-top:9px;font-size:14px;color:var(--good-text);font-weight:650">All packed — let’s go! 🎉</div>` : ""}
+  </div>
+  <div class="card" style="margin-top:12px">
+    ${items.map(p => { const m = p.owner && p.owner !== "shared" ? member(p.owner) : null; return `
+    <div class="packitem ${p.done ? "done" : ""}">
+      <input type="checkbox" class="cb" data-c="packDone" data-id="${p.id}" ${p.done ? "checked" : ""}>
+      <span class="txt">${esc(p.text)}</span>
+      ${cur === "all" ? `<span class="who">${m ? esc(m.emoji + " " + m.name) : "🧺 Shared"}</span>` : ""}
+      <button class="iconbtn noprint" style="width:30px;height:30px;font-size:14px" data-a="delPack" data-id="${p.id}">✕</button>
+    </div>`; }).join("")}
+  </div>` : `
+  <div class="card empty" style="margin-top:12px">
+    <div class="big">🧳</div><h3>Nothing on the list yet</h3>
+    <p>Add items one by one, or start from a template — each person gets their own list.</p>
+  </div>`}
+
+  <div class="section-title">Quick-add a template</div>
+  <div class="tpl-row" style="margin-top:0">
+    ${Object.keys(PACK_TEMPLATES).map(k => `<button class="pill" data-a="tpl" data-id="${esc(k)}">${esc(k)}</button>`).join("")}
+  </div>
+  <p class="hint" style="margin:10px 4px">Templates add to <b>${esc(owners.find(o => o[0] === cur)[2])}</b>${cur === "all" ? " (as shared items)" : ""}. Duplicates are skipped.</p>
+
+  <button class="fab noprint" data-a="addPack" title="Add item">＋</button>`;
+}
+
+/* ---------- BUDGET ---------- */
+function vBudget(t){
+  const ex = t.budget.expenses;
+  const spent = ex.reduce((a,e) => a + Number(e.amount || 0), 0);
+  const total = Number(t.budget.total || 0);
+  const left = total - spent;
+  const pct = total > 0 ? Math.min(100, spent / total * 100) : 0;
+  const over = total > 0 && spent > total;
+
+  const byCat = {};
+  for (const e of ex) byCat[e.cat] = (byCat[e.cat] || 0) + Number(e.amount || 0);
+  const cats = BUDGET_CATS.filter(c => byCat[c.k] > 0);
+  const maxCat = Math.max(1, ...cats.map(c => byCat[c.k]));
+
+  return `
+  <div class="statrow">
+    <div class="card stat"><div class="lab">Spent</div><div class="val mono">${money(spent)}</div></div>
+    <button class="card stat" data-a="setBudget" style="text-align:left"><div class="lab">Budget ✏️</div><div class="val mono">${total ? money(total) : "—"}</div></button>
+    <div class="card stat"><div class="lab">${left < 0 ? "Over by" : "Left"}</div><div class="val mono ${left < 0 ? "neg" : ""}">${total ? money(Math.abs(left)) : "—"}</div></div>
+  </div>
+
+  ${total > 0 ? `
+  <div class="card meterwrap">
+    <div class="rowline" style="font-size:13.5px"><b>${Math.round(spent / total * 100)}% of budget used</b><span class="grow"></span>${over ? `<b style="color:var(--bad)">over budget</b>` : ""}</div>
+    <div class="meter"><i class="${over ? "over" : ""}" style="width:${pct}%"></i></div>
+  </div>` : ""}
+
+  ${cats.length ? `
+  <div class="card catbars">
+    <b style="font-size:15px">Where it’s going</b>
+    ${cats.map(c => `
+    <div class="catrow" title="${esc(c.n)}: ${money(byCat[c.k])} (${Math.round(byCat[c.k] / spent * 100)}% of spending)">
+      <div class="lr"><span class="nm"><span class="sw" style="background:${c.c}"></span>${c.e} ${c.n}</span><span class="amt">${money(byCat[c.k])}</span></div>
+      <div class="bar" style="background:${c.c};width:${Math.max(2, byCat[c.k] / maxCat * 100)}%"></div>
+    </div>`).join("")}
+  </div>` : ""}
+
+  ${ex.length ? `
+  <div class="section-title">Expenses</div>
+  <div class="card">
+    ${[...ex].sort((a,b) => (a.date || "") < (b.date || "") ? 1 : -1).map(e => {
+      const c = BUDGET_CATS.find(x => x.k === e.cat) || BUDGET_CATS[5];
+      const m = e.by ? member(e.by) : null;
+      return `<button class="expitem" data-a="editExp" data-id="${e.id}">
+        <span class="cat">${c.e}</span>
+        <span class="grow"><div class="d">${esc(e.desc)}</div><div class="m">${c.n}${e.date ? " · " + fmtD(e.date) : ""}${m ? " · " + esc(m.name) : ""}</div></span>
+        <span class="amt mono">${money(e.amount)}</span>
+      </button>`;
+    }).join("")}
+  </div>` : `
+  <div class="card empty" style="margin-top:14px">
+    <div class="big">💵</div><h3>No expenses yet</h3>
+    <p>Log spending as you go — flights, hotels, gelato — and see exactly where the money went.</p>
+  </div>`}
+
+  <button class="fab noprint" data-a="addExp" title="Add expense">＋</button>`;
+}
+
+/* ---------- WALLET ---------- */
+function vWallet(t){
+  return `
+  ${t.wallet.length ? t.wallet.map(w => {
+    const [ic, kn] = WALLET_KINDS[w.kind] || WALLET_KINDS.doc;
+    return `<div class="card wcard">
+      <div class="k">
+        <span class="wicon">${ic}</span>
+        <button class="grow" data-a="editWallet" data-id="${w.id}" style="text-align:left">
+          <div class="kind">${kn}</div><h4>${esc(w.title)}</h4>
+        </button>
+      </div>
+      ${w.code ? `<div class="code"><b>${esc(w.code)}</b><button class="btn ghost small" data-a="copy" data-id="${esc(w.code)}">Copy</button></div>` : ""}
+      ${w.details ? `<div class="det">${esc(w.details)}</div>` : ""}
+    </div>`;
+  }).join("") : `
+  <div class="card empty" style="margin-top:14px">
+    <div class="big">🎫</div><h3>Your travel wallet</h3>
+    <p>Keep flight confirmations, hotel bookings, and ticket numbers here — findable in two taps at the check-in desk, even offline.</p>
+  </div>`}
+  <button class="fab noprint" data-a="addWallet" title="Add booking">＋</button>`;
+}
+
+/* ---------- IDEAS ---------- */
+function vIdeas(t){
+  return `
+  ${t.ideas.length ? [...t.ideas].sort((a,b) => b.votes.length - a.votes.length).map(i => `
+  <div class="card idea">
+    <div class="rowline">
+      <span class="grow t">${esc(i.text)}</span>
+      <button class="iconbtn" style="width:30px;height:30px;font-size:14px" data-a="delIdea" data-id="${i.id}">✕</button>
+    </div>
+    <div class="votes">
+      ${i.votes.map(v => { const m = member(v); return m ? `<span class="votedot" title="${esc(m.name)}" style="background:${esc(m.color)}">${esc(m.emoji)}</span>` : ""; }).join("")}
+      <button class="voteb" data-a="vote" data-id="${i.id}">👍 Vote</button>
+      <span class="grow"></span>
+      <button class="voteb" data-a="ideaToPlan" data-id="${i.id}">🗓️ Add to plan</button>
+    </div>
+  </div>`).join("") : `
+  <div class="card empty" style="margin-top:14px">
+    <div class="big">💡</div><h3>Family idea board</h3>
+    <p>Everyone drops in what they want to do — then vote. The winners graduate to the plan.</p>
+  </div>`}
+  <button class="fab noprint" data-a="addIdea" title="Add idea">＋</button>`;
+}
+
+/* =============================================================
+   MODAL
+   ============================================================= */
+let modalEl = null;
+function closeModal(){ if (modalEl){ modalEl.remove(); modalEl = null; } }
+function openModal(cfg){
+  closeModal();
+  modalEl = document.createElement("div");
+  modalEl.className = "modal-back";
+  modalEl.innerHTML = `<form class="modal">
+    <h3>${esc(cfg.title)}</h3>
+    ${cfg.fields.map(f => {
+      if (f.type === "emoji") return `<div class="field"><label>${esc(f.label)}</label>
+        <div class="emojirow" data-k="${f.k}">${f.options.map(e => `<button type="button" data-v="${esc(e)}" class="${e === f.value ? "on" : ""}">${esc(e)}</button>`).join("")}</div></div>`;
+      if (f.type === "color") return `<div class="field"><label>${esc(f.label)}</label>
+        <div class="colorrow" data-k="${f.k}">${f.options.map(c => `<button type="button" data-v="${esc(c)}" class="${c === f.value ? "on" : ""}" style="background:${esc(c)}"></button>`).join("")}</div></div>`;
+      if (f.type === "members") return `<div class="field"><label>${esc(f.label)}</label>
+        <div class="memberpick" data-k="${f.k}">${S.family.map(m => `<button type="button" data-v="${m.id}" class="${(f.value || []).includes(m.id) ? "on" : ""}"><span class="dot" style="background:${esc(m.color)}">${esc(m.emoji)}</span>${esc(m.name)}</button>`).join("") || `<span class="hint">No family members yet — add them from the home screen.</span>`}</div></div>`;
+      if (f.type === "select") return `<div class="field"><label>${esc(f.label)}</label>
+        <select name="${f.k}">${f.options.map(([v,l]) => `<option value="${esc(v)}" ${v === f.value ? "selected" : ""}>${esc(l)}</option>`).join("")}</select></div>`;
+      if (f.type === "textarea") return `<div class="field"><label>${esc(f.label)}</label>
+        <textarea name="${f.k}" placeholder="${esc(f.placeholder || "")}">${esc(f.value || "")}</textarea></div>`;
+      const half = f.half ? "data-half" : "";
+      return `<div class="field" ${half}><label>${esc(f.label)}</label>
+        <input name="${f.k}" type="${f.type || "text"}" value="${esc(f.value ?? "")}" placeholder="${esc(f.placeholder || "")}"
+          ${f.required ? "required" : ""} ${f.type === "number" ? 'inputmode="decimal" step="any" min="0"' : ""} autocomplete="off"></div>`;
+    }).join("")}
+    <div class="actions">
+      ${cfg.onDelete ? `<button type="button" class="btn danger" data-x="del">Delete</button>` : ""}
+      <button type="button" class="btn ghost" data-x="cancel">Cancel</button>
+      <button type="submit" class="btn">${esc(cfg.submit || "Save")}</button>
+    </div>
+  </form>`;
+  document.body.appendChild(modalEl);
+
+  // pair up half-width date/time fields
+  const halves = [...modalEl.querySelectorAll(".field[data-half]")];
+  for (let i = 0; i < halves.length - 1; i += 2){
+    const row = document.createElement("div"); row.className = "fieldrow";
+    halves[i].before(row); row.append(halves[i], halves[i+1]);
+  }
+
+  const picked = {};
+  for (const f of cfg.fields){
+    if (f.type === "emoji" || f.type === "color") picked[f.k] = f.value;
+    if (f.type === "members") picked[f.k] = [...(f.value || [])];
+  }
+  modalEl.addEventListener("click", e => {
+    if (e.target === modalEl){ closeModal(); return; }
+    const b = e.target.closest("button[data-v]");
+    if (b){
+      const wrap = b.parentElement, k = wrap.dataset.k, v = b.dataset.v;
+      if (wrap.classList.contains("memberpick")){
+        const arr = picked[k];
+        const ix = arr.indexOf(v);
+        ix >= 0 ? arr.splice(ix, 1) : arr.push(v);
+        b.classList.toggle("on");
+      } else {
+        picked[k] = v;
+        wrap.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+      }
+      return;
+    }
+    const x = e.target.closest("button[data-x]");
+    if (x){
+      if (x.dataset.x === "cancel") closeModal();
+      if (x.dataset.x === "del"){ closeModal(); cfg.onDelete(); }
+    }
+  });
+  modalEl.querySelector("form").addEventListener("submit", e => {
+    e.preventDefault();
+    const vals = { ...picked };
+    for (const el of e.target.elements) if (el.name) vals[el.name] = el.value.trim();
+    closeModal();
+    cfg.onSubmit(vals);
+  });
+  const first = modalEl.querySelector("input");
+  if (first && window.matchMedia("(min-width:560px)").matches) first.focus();
+}
+
+/* =============================================================
+   TOAST + CONFETTI
+   ============================================================= */
+let toastT = null;
+function toast(msg){
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove("show"), 2200);
+}
+function confetti(){
+  const cv = $("#confetti"), ctx = cv.getContext("2d");
+  cv.width = innerWidth; cv.height = innerHeight;
+  const P = [], colors = ["#2a78d6","#1baf7a","#eda100","#4a3aa7","#e34948","#e87ba4"];
+  for (let i = 0; i < 120; i++) P.push({
+    x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * .5,
+    vy: 2.2 + Math.random() * 3, vx: (Math.random() - .5) * 1.6,
+    s: 5 + Math.random() * 6, r: Math.random() * Math.PI, vr: (Math.random() - .5) * .25,
+    c: colors[i % colors.length]
+  });
+  let frames = 0;
+  (function tick(){
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    for (const p of P){
+      p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.s/2, -p.s/3, p.s, p.s * .66);
+      ctx.restore();
+    }
+    if (frames++ < 170) requestAnimationFrame(tick);
+    else ctx.clearRect(0, 0, cv.width, cv.height);
+  })();
+}
+
+/* =============================================================
+   ACTIONS
+   ============================================================= */
+const A = {
+  home(){ go({ view:"home" }); },
+  settings(){ go({ view:"settings" }); },
+  openTrip(el){ go({ view:"trip", trip: el.dataset.id, tab:"plan", packOwner:"all" }); },
+  tab(el){ go({ tab: el.dataset.id }); },
+  packOwner(el){ go({ packOwner: el.dataset.id }); },
+  print(){ window.print(); },
+  theme(){
+    S.theme = S.theme === "auto" ? "light" : S.theme === "light" ? "dark" : "auto";
+    save(); render();
+    toast("Theme: " + (S.theme === "auto" ? "match device" : S.theme));
+  },
+
+  /* ----- trips ----- */
+  addTrip(){ tripForm(null); },
+  editTrip(){ tripForm(trip(R.trip)); },
+  sample(){
+    const id = uid();
+    const base = new Date(); base.setDate(base.getDate() + 45);
+    const d0 = iso(base), dd = n => { const x = new Date(base); x.setDate(x.getDate() + n); return iso(x); };
+    const mom = { id: uid(), name:"Mom", emoji:"😎", color:MEMBER_COLORS[0] };
+    const dad = { id: uid(), name:"Dad", emoji:"🤠", color:MEMBER_COLORS[1] };
+    const kid = { id: uid(), name:"Sam", emoji:"🦖", color:MEMBER_COLORS[2] };
+    if (!S.family.length) S.family.push(mom, dad, kid);
+    const fam = S.family.slice(0, 3).map(m => m.id);
+    S.trips.push({
+      id, name:"Beach Week", dest:"St. Augustine, FL", emoji:"🏖️", start:d0, end:dd(4),
+      notes:"Our sample trip — poke around, then make it your own!", travelers:fam,
+      stops:[
+        { id:uid(), date:d0, time:"09:00", title:"Hit the road", cat:"travel", loc:"", notes:"Snacks packed, playlist ready", done:false },
+        { id:uid(), date:d0, time:"15:00", title:"Check in at the beach house", cat:"lodging", loc:"Vilano Beach", notes:"", done:false },
+        { id:uid(), date:dd(1), time:"10:00", title:"Castillo de San Marcos", cat:"activity", loc:"Castillo de San Marcos", notes:"Kids are free under 15", done:false },
+        { id:uid(), date:dd(1), time:"18:30", title:"Dinner on St. George Street", cat:"food", loc:"St. George Street", notes:"", done:false },
+        { id:uid(), date:dd(2), time:"", title:"All-day beach day", cat:"beach", loc:"Vilano Beach", notes:"Reapply sunscreen every 2 hours 🙃", done:false },
+      ],
+      packing:[
+        { id:uid(), owner:"shared", text:"Sunscreen", done:false },
+        { id:uid(), owner:"shared", text:"Beach towels", done:false },
+        { id:uid(), owner:fam[0], text:"Beach reads", done:false },
+        { id:uid(), owner:fam[2] || "shared", text:"Sand toys", done:false },
+      ],
+      budget:{ total:1800, expenses:[
+        { id:uid(), desc:"Beach house (4 nights)", amount:920, cat:"lodging", date:today(), by:fam[1] || "" },
+        { id:uid(), desc:"Gas", amount:85, cat:"transport", date:today(), by:fam[0] || "" },
+      ]},
+      wallet:[ { id:uid(), kind:"stay", title:"Beach house — Vilano Beach", code:"HMB-4821", details:"Check-in 3pm · door code arrives by text the day before" } ],
+      ideas:[ { id:uid(), text:"Sunset dolphin cruise", votes:fam.slice(0,2) }, { id:uid(), text:"Mini golf tournament — loser buys ice cream", votes:[...fam] } ],
+    });
+    save(); go({ view:"trip", trip:id, tab:"plan" });
+    toast("Sample trip created ✨");
+  },
+
+  /* ----- family ----- */
+  addMember(){ memberForm(null); },
+  editMember(el){ memberForm(member(el.dataset.id)); },
+  pickTravelers(){
+    const t = trip(R.trip);
+    if (!S.family.length){ toast("Add family members first"); memberForm(null); return; }
+    openModal({
+      title:"Who’s going?",
+      fields:[{ k:"tr", type:"members", label:"Travelers", value:t.travelers }],
+      onSubmit(v){ t.travelers = v.tr; save(); render(); }
+    });
+  },
+
+  /* ----- itinerary ----- */
+  addStop(el){ stopForm(trip(R.trip), null, el.dataset.id); },
+  editStop(el){ const t = trip(R.trip); stopForm(t, t.stops.find(s => s.id === el.dataset.id)); },
+
+  /* ----- packing ----- */
+  addPack(){
+    const t = trip(R.trip);
+    const owners = [["shared","🧺 Shared"], ...t.travelers.map(id => { const m = member(id); return m ? [m.id, m.emoji + " " + m.name] : null; }).filter(Boolean)];
+    openModal({
+      title:"Add packing item",
+      fields:[
+        { k:"text", label:"Item", required:true, placeholder:"e.g. Sunscreen" },
+        { k:"owner", label:"Whose bag?", type:"select", options:owners, value: R.packOwner !== "all" ? R.packOwner : "shared" },
+      ],
+      submit:"Add",
+      onSubmit(v){
+        if (!v.text) return;
+        t.packing.push({ id:uid(), owner:v.owner, text:v.text, done:false });
+        save(); render();
+      }
+    });
+  },
+  delPack(el){ const t = trip(R.trip); t.packing = t.packing.filter(p => p.id !== el.dataset.id); save(); render(); },
+  tpl(el){
+    const t = trip(R.trip);
+    const items = PACK_TEMPLATES[el.dataset.id] || [];
+    const owner = R.packOwner === "all" ? "shared" : R.packOwner;
+    const have = new Set(t.packing.filter(p => (p.owner || "shared") === owner).map(p => p.text.toLowerCase()));
+    let n = 0;
+    for (const it of items) if (!have.has(it.toLowerCase())){ t.packing.push({ id:uid(), owner, text:it, done:false }); n++; }
+    save(); render();
+    toast(n ? `Added ${n} item${n === 1 ? "" : "s"}` : "Already on the list");
+  },
+
+  /* ----- budget ----- */
+  setBudget(){
+    const t = trip(R.trip);
+    openModal({
+      title:"Trip budget",
+      fields:[{ k:"total", label:"Total budget (" + S.currency + ")", type:"number", value:t.budget.total || "" }],
+      onSubmit(v){ t.budget.total = Number(v.total) || 0; save(); render(); }
+    });
+  },
+  addExp(){ expForm(trip(R.trip), null); },
+  editExp(el){ const t = trip(R.trip); expForm(t, t.budget.expenses.find(e => e.id === el.dataset.id)); },
+
+  /* ----- wallet ----- */
+  addWallet(){ walletForm(trip(R.trip), null); },
+  editWallet(el){ const t = trip(R.trip); walletForm(t, t.wallet.find(w => w.id === el.dataset.id)); },
+  copy(el){
+    const txt = el.dataset.id;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(
+      () => toast("Copied: " + txt),
+      () => { const i = document.createElement("input"); i.value = txt; document.body.appendChild(i); i.select(); document.execCommand("copy"); i.remove(); toast("Copied: " + txt); }
+    );
+  },
+
+  /* ----- ideas ----- */
+  addIdea(){
+    const t = trip(R.trip);
+    openModal({
+      title:"New idea",
+      fields:[{ k:"text", label:"What should we do?", required:true, placeholder:"e.g. Sunrise hike ⛰️" }],
+      submit:"Add idea",
+      onSubmit(v){ if (!v.text) return; t.ideas.push({ id:uid(), text:v.text, votes:[] }); save(); render(); }
+    });
+  },
+  delIdea(el){ const t = trip(R.trip); t.ideas = t.ideas.filter(i => i.id !== el.dataset.id); save(); render(); },
+  vote(el){
+    const t = trip(R.trip), idea = t.ideas.find(i => i.id === el.dataset.id);
+    if (!S.family.length){ toast("Add family members to vote"); return; }
+    openModal({
+      title:"Who’s in?",
+      fields:[{ k:"v", type:"members", label:"Tap everyone who wants to do this", value:idea.votes }],
+      onSubmit(v){ idea.votes = v.v; save(); render(); }
+    });
+  },
+  ideaToPlan(el){
+    const t = trip(R.trip), idea = t.ideas.find(i => i.id === el.dataset.id);
+    stopForm(t, null, t.start || today(), idea.text, () => { t.ideas = t.ideas.filter(i => i.id !== idea.id); });
+  },
+
+  /* ----- settings ----- */
+  familyName(){
+    openModal({
+      title:"Family name",
+      fields:[{ k:"n", label:"Shown as “The ___ Family”", value:S.familyName, placeholder:"e.g. Porter" }],
+      onSubmit(v){ S.familyName = v.n; save(); render(); }
+    });
+  },
+  currency(){
+    openModal({
+      title:"Currency symbol",
+      fields:[{ k:"c", label:"Symbol", value:S.currency, placeholder:"$  €  £  ¥" }],
+      onSubmit(v){ S.currency = v.c || "$"; save(); render(); }
+    });
+  },
+  export(){
+    const blob = new Blob([JSON.stringify(S, null, 2)], { type:"application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "wander-backup-" + today() + ".json";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast("Backup downloaded");
+  },
+  import(){
+    const inp = $("#importfile");
+    inp.onchange = () => {
+      const f = inp.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => {
+        try{
+          const d = JSON.parse(rd.result);
+          if (!d || d.v !== 1 || !Array.isArray(d.trips)) throw 0;
+          if (!confirm("Replace everything on this device with the imported backup?")) return;
+          S = Object.assign(blank(), d);
+          save(); go({ view:"home" });
+          toast("Backup imported ✨");
+        }catch(e){ toast("That doesn’t look like a Wander backup"); }
+      };
+      rd.readAsText(f);
+      inp.value = "";
+    };
+    inp.click();
+  },
+  wipe(){
+    if (!confirm("Erase ALL trips, lists, and family members from this device? This cannot be undone.")) return;
+    if (!confirm("Really erase everything?")) return;
+    S = blank(); save(); go({ view:"home" });
+    toast("All data erased");
+  },
+};
+
+/* checkbox changes */
+const C = {
+  stopDone(el){ const t = trip(R.trip), s = t.stops.find(x => x.id === el.dataset.id); s.done = el.checked; save(); render(); },
+  packDone(el){
+    const t = trip(R.trip), p = t.packing.find(x => x.id === el.dataset.id);
+    p.done = el.checked; save(); render();
+    if (el.checked){
+      const scope = t.packing.filter(x => R.packOwner === "all" ? true : (x.owner || "shared") === R.packOwner);
+      if (scope.length && scope.every(x => x.done)) confetti();
+    }
+  },
+};
+
+/* ---------- forms ---------- */
+function tripForm(t){
+  const isNew = !t;
+  openModal({
+    title: isNew ? "Plan a trip" : "Edit trip",
+    submit: isNew ? "Create trip" : "Save",
+    fields:[
+      { k:"name", label:"Trip name", value:t?.name, required:true, placeholder:"e.g. Spring Break 2027" },
+      { k:"dest", label:"Destination", value:t?.dest, placeholder:"e.g. Yellowstone" },
+      { k:"emoji", label:"Vibe", type:"emoji", options:TRIP_EMOJI, value:t?.emoji || "🏖️" },
+      { k:"start", label:"First day", type:"date", value:t?.start, half:true },
+      { k:"end", label:"Last day", type:"date", value:t?.end, half:true },
+      { k:"travelers", label:"Who’s going?", type:"members", value:t?.travelers || S.family.map(m => m.id) },
+      { k:"notes", label:"Notes", type:"textarea", value:t?.notes, placeholder:"Anything the family should know…" },
+    ],
+    onDelete: isNew ? null : () => {
+      if (!confirm(`Delete “${t.name}” and everything in it?`)) return;
+      S.trips = S.trips.filter(x => x.id !== t.id);
+      save(); go({ view:"home" });
+      toast("Trip deleted");
+    },
+    onSubmit(v){
+      if (!v.name) return;
+      let [a, b] = [v.start, v.end];
+      if (a && b && b < a) [a, b] = [b, a];
+      if (isNew){
+        const id = uid();
+        S.trips.push({ id, name:v.name, dest:v.dest, emoji:v.emoji, start:a, end:b, notes:v.notes, travelers:v.travelers,
+          stops:[], packing:[], budget:{ total:0, expenses:[] }, wallet:[], ideas:[] });
+        save(); go({ view:"trip", trip:id, tab:"plan" });
+        toast("Adventure created 🎉");
+      } else {
+        Object.assign(t, { name:v.name, dest:v.dest, emoji:v.emoji, start:a, end:b, notes:v.notes, travelers:v.travelers });
+        save(); render();
+      }
+    }
+  });
+}
+
+function memberForm(m){
+  const isNew = !m;
+  const usedColors = new Set(S.family.map(x => x.color));
+  const nextColor = MEMBER_COLORS.find(c => !usedColors.has(c)) || MEMBER_COLORS[S.family.length % MEMBER_COLORS.length];
+  openModal({
+    title: isNew ? "Add family member" : "Edit " + m.name,
+    submit: isNew ? "Add" : "Save",
+    fields:[
+      { k:"name", label:"Name", value:m?.name, required:true, placeholder:"e.g. Liz" },
+      { k:"emoji", label:"Avatar", type:"emoji", options:MEMBER_EMOJI, value:m?.emoji || MEMBER_EMOJI[S.family.length % MEMBER_EMOJI.length] },
+      { k:"color", label:"Color", type:"color", options:MEMBER_COLORS, value:m?.color || nextColor },
+    ],
+    onDelete: isNew ? null : () => {
+      if (!confirm(`Remove ${m.name}? Their packing items become shared.`)) return;
+      S.family = S.family.filter(x => x.id !== m.id);
+      for (const t of S.trips){
+        t.travelers = t.travelers.filter(id => id !== m.id);
+        for (const p of t.packing) if (p.owner === m.id) p.owner = "shared";
+        for (const i of t.ideas) i.votes = i.votes.filter(id => id !== m.id);
+        for (const e of t.budget.expenses) if (e.by === m.id) e.by = "";
+      }
+      save(); render();
+    },
+    onSubmit(v){
+      if (!v.name) return;
+      if (isNew) S.family.push({ id:uid(), name:v.name, emoji:v.emoji, color:v.color });
+      else Object.assign(m, { name:v.name, emoji:v.emoji, color:v.color });
+      save(); render();
+    }
+  });
+}
+
+function stopForm(t, s, defaultDate, defaultTitle, afterCreate){
+  const isNew = !s;
+  const days = tripDays(t);
+  const dateOpts = days.length
+    ? days.map((d, i) => [d, "Day " + (i+1) + " — " + fmtD(d, true)])
+    : [[defaultDate || today(), fmtD(defaultDate || today(), true)]];
+  openModal({
+    title: isNew ? "Add to the plan" : "Edit plan item",
+    submit: isNew ? "Add" : "Save",
+    fields:[
+      { k:"title", label:"What", value:s?.title ?? defaultTitle, required:true, placeholder:"e.g. Snorkeling at the cove" },
+      { k:"cat", label:"Type", type:"select", value:s?.cat || "activity",
+        options:Object.entries(STOP_CATS).map(([k, e]) => [k, e + "  " + k[0].toUpperCase() + k.slice(1)]) },
+      { k:"date", label:"Day", type:"select", options:dateOpts, value:s?.date || (days.includes(defaultDate) ? defaultDate : dateOpts[0][0]) },
+      { k:"time", label:"Time (optional)", type:"time", value:s?.time },
+      { k:"loc", label:"Place (links to maps)", value:s?.loc, placeholder:"e.g. Castillo de San Marcos" },
+      { k:"notes", label:"Notes", type:"textarea", value:s?.notes },
+    ],
+    onDelete: isNew ? null : () => { t.stops = t.stops.filter(x => x.id !== s.id); save(); render(); },
+    onSubmit(v){
+      if (!v.title) return;
+      if (isNew){
+        t.stops.push({ id:uid(), date:v.date, time:v.time, title:v.title, cat:v.cat, loc:v.loc, notes:v.notes, done:false });
+        if (afterCreate) afterCreate();
+        toast("Added to the plan");
+      } else Object.assign(s, { date:v.date, time:v.time, title:v.title, cat:v.cat, loc:v.loc, notes:v.notes });
+      save(); render();
+    }
+  });
+}
+
+function expForm(t, e){
+  const isNew = !e;
+  openModal({
+    title: isNew ? "Add expense" : "Edit expense",
+    submit: isNew ? "Add" : "Save",
+    fields:[
+      { k:"desc", label:"What", value:e?.desc, required:true, placeholder:"e.g. Airport tacos" },
+      { k:"amount", label:"Amount (" + S.currency + ")", type:"number", value:e?.amount, required:true, half:true },
+      { k:"date", label:"Date", type:"date", value:e?.date || today(), half:true },
+      { k:"cat", label:"Category", type:"select", value:e?.cat || "food", options:BUDGET_CATS.map(c => [c.k, c.e + "  " + c.n]) },
+      { k:"by", label:"Paid by", type:"select", value:e?.by || "", options:[["","—"], ...S.family.map(m => [m.id, m.emoji + " " + m.name])] },
+    ],
+    onDelete: isNew ? null : () => { t.budget.expenses = t.budget.expenses.filter(x => x.id !== e.id); save(); render(); },
+    onSubmit(v){
+      if (!v.desc || !(Number(v.amount) >= 0)) return;
+      if (isNew) t.budget.expenses.push({ id:uid(), desc:v.desc, amount:Number(v.amount), cat:v.cat, date:v.date, by:v.by });
+      else Object.assign(e, { desc:v.desc, amount:Number(v.amount), cat:v.cat, date:v.date, by:v.by });
+      save(); render();
+    }
+  });
+}
+
+function walletForm(t, w){
+  const isNew = !w;
+  openModal({
+    title: isNew ? "Add to wallet" : "Edit booking",
+    submit: isNew ? "Add" : "Save",
+    fields:[
+      { k:"kind", label:"Type", type:"select", value:w?.kind || "flight", options:Object.entries(WALLET_KINDS).map(([k, [e, n]]) => [k, e + "  " + n]) },
+      { k:"title", label:"Name", value:w?.title, required:true, placeholder:"e.g. Delta 1132 · MCO → JFK" },
+      { k:"code", label:"Confirmation #", value:w?.code, placeholder:"e.g. ABC123" },
+      { k:"details", label:"Details", type:"textarea", value:w?.details, placeholder:"Times, seats, addresses, phone numbers…" },
+    ],
+    onDelete: isNew ? null : () => { t.wallet = t.wallet.filter(x => x.id !== w.id); save(); render(); },
+    onSubmit(v){
+      if (!v.title) return;
+      if (isNew) t.wallet.push({ id:uid(), kind:v.kind, title:v.title, code:v.code, details:v.details });
+      else Object.assign(w, { kind:v.kind, title:v.title, code:v.code, details:v.details });
+      save(); render();
+    }
+  });
+}
+
+/* =============================================================
+   WIRING
+   ============================================================= */
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-a]");
+  if (!el || (modalEl && modalEl.contains(el))) return;
+  const fn = A[el.dataset.a];
+  if (fn) fn(el);
+});
+document.addEventListener("change", e => {
+  const el = e.target.closest("[data-c]");
+  if (!el) return;
+  const fn = C[el.dataset.c];
+  if (fn) fn(el);
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+render();
+
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")){
+  addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
