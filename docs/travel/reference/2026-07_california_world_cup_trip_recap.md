@@ -1,7 +1,7 @@
 # San Jose & San Francisco World Cup Trip Recap (benchmark journal)
 
-PURPOSE: attend the FIFA World Cup at Levi's Stadium (family vacation —
-⚽ World Cup). Purpose shows on the journal cover so repeat visits to a
+PURPOSE: attend the FIFA World Cup at Levi's Stadium — USA 2-0 Bosnia &
+Herzegovina, Round of 32, July 1 (family vacation — ⚽ World Cup). Purpose shows on the journal cover so repeat visits to a
 city can be told apart (work vs family) at a glance.
 
 Residence Inn by Marriott San Jose North/Silicon Valley · FIFA World Cup 2026
@@ -80,7 +80,7 @@ pending. Rental pickup on-site vs shuttle: pending.
   (Elizabeth; short walk from San Pedro Square Market) · Southern Comfort
   Kitchen inside the Market — Seth's pick: southern comfort food, brown
   sugar lemonade, fresh beignets for dessert. (Lunch stop after Santana
-  Row, before heading back to dress for USA vs. Iran.)
+  Row, before heading back to dress for USA vs. Bosnia & Herzegovina.)
 - Dinner: Hard Rock Cafe, Pier 39 — fast casual done right
 - Coffee: Apple Park Visitor Center latte — pair with the visit
 
@@ -113,3 +113,6 @@ ate breakfast out). Left Seth a birthday gift; walking distance to Levi's.
 🏆 Best Silicon Valley Stop: Apple Park Visitor Center
 🏆 Best Scenic Walk: Ferry Building & Embarcadero
 🏆 Best Overall Experience: FIFA World Cup at Levi's Stadium
+
+## Executive scorecard (in progress)
+- Family Fun: 10/10
