@@ -53,6 +53,8 @@ the match if possible.
 - Winchester Mystery House — Seth wasn't interested. Correct.
 - Municipal Rose Garden — beautiful, not the right fit.
 - Hakone Gardens — excellent; recommend for a future adults trip.
+- Giants game at Oracle Park — banked rec: waterfront ballpark, easy pair
+  with the Pier 39 / Ferry Building day (Elizabeth, 2026-07-08).
 - Communications Hill — not strong enough vs World Cup atmosphere.
 - Stanford University — next-best stop if there were another half day.
 - PayPal Park — no meaningful pregame festivities; San Pedro Square was
@@ -116,3 +118,4 @@ ate breakfast out). Left Seth a birthday gift; walking distance to Levi's.
 
 ## Executive scorecard (in progress)
 - Family Fun: 10/10
+- Hotel: 10/10
