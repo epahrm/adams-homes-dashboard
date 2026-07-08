@@ -12,8 +12,9 @@ export const maxDuration = 60
 // the other portals show, so it's a strong single source for Palm Bay.
 //
 // It pulls current vacant-land listings for Palm Bay, keeps the buy-box ones
-// (<= 0.45 ac, <= $60k), and files new ones as 'opportunity' lots — de-duped by
-// address, so a lot already worked or dismissed never comes back.
+// (<= 0.45 ac, <= $65k), and files new ones as 'opportunity' lots — de-duped by
+// address, so a lot already worked or dismissed never comes back. Nothing is
+// auto-rejected on price; Kevin decides (offer / nurture / GM defer / unsuitable).
 
 const CRON_SECRET = process.env.CRON_SECRET
 
@@ -28,7 +29,7 @@ const REDFIN_CSV =
   'https://www.redfin.com/stingray/api/gis-csv?al=1&market=orlando&num_homes=350&ord=redfin-recommended-asc&page_number=1&region_id=13979&region_type=6&status=9&uipt=5&v=8'
 
 const MAX_ACRES = 0.45
-const MAX_PRICE = 60000
+const MAX_PRICE = 65000
 
 function parseCsvLine(line: string): string[] {
   const out: string[] = []
