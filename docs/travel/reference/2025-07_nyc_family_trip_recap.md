@@ -82,4 +82,6 @@ smart to pre-register / join the queue before arriving. Logged in the
 journal (busy + prebook fields).
 
 ## Open items (ask one at a time)
-1. Per-stop durations + highlights; photos; favorite lunch/dinner spots.
+1. PAUSED by Elizabeth 2026-07-08: per-stop durations + highlights,
+   photos, and lunch/dinner favorites — pick back up when she's ready
+   (offer brain-dump / one-at-a-time / photos-first again).
