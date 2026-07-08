@@ -229,8 +229,8 @@
     }
 
     /* Admin button + modal */
-    #adminBtn { position: fixed; top: 16px; right: 16px; background: rgba(26,91,165,0.92); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; z-index: 998; transition: background 0.2s; }
-    #adminBtn:hover { background: rgba(26,91,165,1); }
+    #adminBtn { background: rgba(255,255,255,0.16); color: white; border: 1px solid rgba(255,255,255,0.5); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background 0.2s; margin-top: 14px; }
+    #adminBtn:hover { background: rgba(255,255,255,0.26); }
     #adminOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; }
     #adminOverlay.active { display: block; }
     .admin-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 1000; max-width: 380px; width: 90%; }
@@ -249,16 +249,14 @@
   </style>
 </head>
 <body>
-  <!-- Admin login button -->
-  <button id="adminBtn">🔐 Admin</button>
   <div id="adminOverlay"></div>
   <div class="admin-modal" id="adminModal" style="display: none;">
     <h3>Admin Access</h3>
     <div class="rf-group">
-      <label for="adminRole">Role</label>
+      <label for="adminRole">Admin</label>
       <select id="adminRole">
-        <option value="admin">Admin</option>
-        <option value="guest">Guest</option>
+        <option value="kevin">Kevin Nelson</option>
+        <option value="elizabeth">Elizabeth Porter</option>
       </select>
     </div>
     <div class="rf-group">
@@ -522,6 +520,7 @@
   <footer class="site-footer">
     <div class="footer-logo"><img src="adams-homes-logo.png" alt="Adams Homes"></div>
     <div class="footer-links"><a href="#">Privacy Policy</a> &nbsp;|&nbsp; <a href="#">Terms</a></div>
+    <button id="adminBtn">🔐 Admin Access</button>
     <p class="footer-copy">&copy; 2026 Adams Homes. All Rights Reserved.</p>
   </footer>
 
