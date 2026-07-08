@@ -21,6 +21,14 @@ Format per trip:
 Full journal: `reference/2026-07_california_world_cup_trip_recap.md`
 - Favorite restaurant: Hard Rock Cafe at Pier 39 (Seth's favorite — burgers
   + energy; family-friendly chains at iconic locations are a winning combo)
+- Favorite dessert: Seth's free birthday ice cream sundae at Hard Rock Cafe
+- Hotel feedback: Residence Inn SJ North left Seth a birthday gift after
+  Elizabeth mentioned it — Marriott delivered
+
+PERMANENT PLAY — Birthday/milestone mentions: ALWAYS tell the hotel (in the
+pre-arrival email) and restaurants when a trip includes a birthday or
+milestone. Proven results: hotel gift + free dessert on the CA trip. Bake
+this into every pre-arrival email and reservation note when applicable.
 - Favorite photo location: Battery Spencer (best Golden Gate viewpoint)
 - Favorite family activity: Pier 39 sea lions
 - Favorite hidden gem: San Pedro Square Market (World Cup week)

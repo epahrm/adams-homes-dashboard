@@ -57,6 +57,8 @@ the match if possible.
 ## Best of trip
 
 🏆 Best Restaurant: Hard Rock Cafe, Pier 39 (Seth's favorite)
+🏆 Best Dessert: free birthday sundae at Hard Rock Cafe (they comped it when
+   told it was Seth's birthday; Residence Inn also left him a birthday gift)
 🏆 Best Photo: Battery Spencer
 🏆 Best Family Activity: Pier 39 sea lions
 🏆 Best Hidden Gem: San Pedro Square Market during World Cup week
