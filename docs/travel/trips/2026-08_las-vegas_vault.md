@@ -12,8 +12,10 @@ VENUE VERIFIED: MGM Grand, Las Vegas — Aug 31–Sep 3, 2026
   5/30/2026; pull confirmation # from that email at final verification.)
 - 🔴 Flights — NOT BOOKED (nothing in Gmail). Per hard rule: no flight
   searches unless Elizabeth asks.
-- 🟡 Conference ticket — no confirmation found in Gmail; status pending
-  Elizabeth (Q1 open).
+- 🔴 Conference ticket — NOT PURCHASED (Elizabeth, 7/8). NEXT RECOMMENDED
+  STEP: buy the Vault ticket — hotel refund window closes Aug 28, so the
+  ticket should be locked well before that. Forward the confirmation to
+  Gmail when purchased.
 - 🟡 Reservations — none yet; dining Top-3s on request only.
 - 🔴 Rental car — likely unnecessary: Cosmopolitan → MGM Grand is ~0.8 mi
   on the Strip (≈15–18 min walk or a 5-min rideshare). Preference pending.
@@ -52,7 +54,6 @@ extend off-Strip.
 (City journal placeholder has the full candidate list: docs/travel/cities/las-vegas.md)
 
 ## Open questions (one at a time)
-1. Vault ticket — purchased? (forward the confirmation to Gmail)
 2. Flights — say the word if you want them tracked once booked
 3. Walk vs rideshare preference for the conference commute
 4. Any evening events/dinners tied to the conference?
