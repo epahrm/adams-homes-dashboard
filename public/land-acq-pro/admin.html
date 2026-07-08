@@ -428,6 +428,7 @@
           <button class="btn-green" id="importBtn">Import Contacts (CSV)</button>
           <button class="btn-navy" id="sweepBtn">Off-Market Sweep</button>
           <button class="btn-outline" id="postcardBtn">Postcards / QR</button>
+          <button class="btn-navy" id="ingestEmailBtn">📧 Ingest Zillow Emails</button>
           <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
           <input type="file" id="contractFile" accept="application/pdf,.pdf,image/jpeg,.jpg,.jpeg" style="display:none">
         </div>
@@ -856,7 +857,11 @@
             <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Wholesaler</option><option>Referral</option><option>Other</option></select>
           </div>
           <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
+          <div><label for="dAgentPhone">Agent Phone</label><input type="tel" id="dAgentPhone" placeholder="(321) 555-0000"></div>
+          <div><label for="dAgentEmail">Agent Email</label><input type="email" id="dAgentEmail" placeholder="agent@example.com"></div>
           <div><label for="dAgentBrokerage">Brokerage</label><input type="text" id="dAgentBrokerage" placeholder="Brokerage"></div>
+          <div><label for="dAgentLicense">Agent License</label><input type="text" id="dAgentLicense" placeholder="License number"></div>
+          <div><label for="dDaysOnMarket">Days on Market</label><input type="number" id="dDaysOnMarket" min="0" placeholder="0"></div>
           <div><label for="dWholesaler">Wholesaler (if wholesaler deal)</label><input type="text" id="dWholesaler" placeholder="Wholesaler name / company"></div>
           <div><label for="dAccepted">Accepted Date</label><input type="date" id="dAccepted"></div>
           <div><label for="dClose">Scheduled Close</label><input type="date" id="dClose"></div>
@@ -2854,6 +2859,34 @@
     document.getElementById('addDealBtn').addEventListener('click', openDeal);
     document.getElementById('dCancel').addEventListener('click', closeDeal);
 
+    // Email ingest — fetch unread Zillow alerts from Gmail
+    document.getElementById('ingestEmailBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('ingestEmailBtn');
+      const label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Scanning…';
+      try {
+        const res = await fetch('/api/land-acq/ingest-email', {
+          headers: adminHeaders()
+        });
+        const data = await res.json();
+        if (res.ok && data.configured) {
+          const msg = `Scanned: ${data.scanned} | Added: ${data.added} | Duplicates: ${data.duplicates} | Rejected: ${data.rejected}`;
+          importMsg(msg, data.added > 0 || data.scanned > 0);
+          if (data.added > 0) render();
+        } else if (!data.configured) {
+          importMsg('Gmail credentials not configured — set LANDACQ_GMAIL_USER and LANDACQ_GMAIL_APP_PASSWORD in Vercel environment.', false);
+        } else {
+          importMsg(`Error: ${data.reason || 'Unknown error'}. ${data.hint || ''}`, false);
+        }
+      } catch (err) {
+        console.error('[email ingest]', err);
+        importMsg('Could not connect to email service — check your network and try again.', false);
+      }
+      btn.disabled = false;
+      btn.textContent = label;
+    });
+
     // ---------- Upload Contract (PDF) -> read -> pre-fill Add Deal for review ----------
     document.getElementById('contractBtn').addEventListener('click', () => document.getElementById('contractFile').click());
     document.getElementById('contractFile').addEventListener('change', async function() {
@@ -2953,7 +2986,11 @@
         listingType: val('dListing'),
         source: isWholesaler ? 'Wholesaler' : (val('dSource') || 'Direct Mail'),
         agentName: listed ? (val('dAgentName') || undefined) : undefined,
+        agentPhone: listed ? (val('dAgentPhone') || undefined) : undefined,
+        agentEmail: listed ? (val('dAgentEmail') || undefined) : undefined,
         agentBrokerage: listed ? (val('dAgentBrokerage') || undefined) : undefined,
+        agentLicense: listed ? (val('dAgentLicense') || undefined) : undefined,
+        daysOnMarket: val('dDaysOnMarket') ? parseInt(val('dDaysOnMarket'), 10) : undefined,
         wholesalerName: isWholesaler ? (val('dWholesaler') || undefined) : undefined,
         acceptedAt: iso(val('dAccepted')),
         scheduledClose: iso(val('dClose'))
