@@ -477,6 +477,12 @@ async function noHorizontalOverflow(page) {
     await page.click('#saveAgentBtn');
     await page.waitForSelector('#agentSaved', { state: 'visible', timeout: 8000 });
     check('agent details save confirms', await page.locator('#agentSaved').isVisible());
+    // Notes to Elizabeth save on their own (persist to the deal / CRM).
+    check('notes-to-Elizabeth Save button present', await page.locator('#saveNotesBtn').count() === 1);
+    await page.fill('#kevinNotes', 'Seller wants a fast close; flexible on date.');
+    await page.click('#saveNotesBtn');
+    await page.waitForSelector('#notesSaved', { state: 'visible', timeout: 8000 });
+    check('notes save confirms', await page.locator('#notesSaved').isVisible());
     await page.selectOption('#listingType', 'off-market');
     await page.waitForTimeout(100);
     check('lot notes section present', await page.locator('#addNoteBtn').count() === 1);
