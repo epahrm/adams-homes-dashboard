@@ -81,7 +81,11 @@ Sapphire LGA busyness (Elizabeth 2026-07-08): BUSY — a real crowd;
 smart to pre-register / join the queue before arriving. Logged in the
 journal (busy + prebook fields).
 
-## Open items (ask one at a time)
-1. PAUSED by Elizabeth 2026-07-08: per-stop durations + highlights,
-   photos, and lunch/dinner favorites — pick back up when she's ready
-   (offer brain-dump / one-at-a-time / photos-first again).
+## Status (Elizabeth 2026-07-08): journal CLOSED for now
+"Organize the stops by area: Times Square, Financial District, etc and
+leave it at that." → Stops are grouped by area in the journal (Midtown
+& Fifth Avenue · Central Park · Hudson Yards & Chelsea · Little Italy &
+Chinatown · Financial District & the Harbor · Across the Hudson · All
+over the city). Do NOT push for per-stop durations/photos/meal
+favorites — she can add them organically through the journal's tap-to-
+edit prompts whenever she wants.
