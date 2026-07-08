@@ -25,8 +25,12 @@ Full journal: `reference/2026-07_california_world_cup_trip_recap.md`
 - Hotel feedback: Residence Inn SJ North left Seth a birthday gift after
   Elizabeth mentioned it — Marriott delivered
 
-- Favorite drink: brown sugar lemonade at the San Pedro Square Market
-  restaurant (Seth's favorite; restaurant name TBD — Elizabeth to confirm)
+- Favorite drink: brown sugar lemonade at Southern Comfort Kitchen, San
+  Pedro Square Market (Seth's favorite; fresh beignets there too)
+- Lunch win: Erik's DeliCafe (Downtown San Jose) — chicken Caesar salad;
+  deli + Caesar remains a reliable Elizabeth order in any city
+- World Cup food highlights: Erik's chicken Caesar · Southern Comfort
+  Kitchen · brown sugar lemonade · fresh beignets · Levi's stadium food
 - Favorite coffee: sugar-free vanilla latte with almond milk at the Apple
   Park Visitor Center café — Apple logo in the foam (photo in the journal).
   NEW STANDING PREFERENCE: Elizabeth's coffee order = sugar-free vanilla

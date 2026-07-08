@@ -76,8 +76,11 @@ pending. Rental pickup on-site vs shuttle: pending.
 ## Favorites by meal (Elizabeth, 2026-07-08)
 - Breakfast: Residence Inn hotel breakfast — excellent, huge hot & cold
   spread; never needed breakfast outside the hotel
-- Lunch: deli at San Pedro Square Market — chicken Caesar salad (Elizabeth,
-  great), chicken tenders (Seth) · restaurant name TBD (Elizabeth resending)
+- Lunch: Erik's DeliCafe, Downtown San Jose — chicken Caesar salad
+  (Elizabeth; short walk from San Pedro Square Market) · Southern Comfort
+  Kitchen inside the Market — Seth's pick: southern comfort food, brown
+  sugar lemonade, fresh beignets for dessert. (Lunch stop after Santana
+  Row, before heading back to dress for USA vs. Iran.)
 - Dinner: Hard Rock Cafe, Pier 39 — fast casual done right
 - Coffee: Apple Park Visitor Center latte — pair with the visit
 
@@ -98,8 +101,8 @@ ate breakfast out). Left Seth a birthday gift; walking distance to Levi's.
 🏆 Best Restaurant: Hard Rock Cafe, Pier 39 (Seth's favorite)
 🏆 Best Dessert: free birthday sundae at Hard Rock Cafe (they comped it when
    told it was Seth's birthday; Residence Inn also left him a birthday gift)
-🏆 Best Drink: brown sugar lemonade, San Pedro Square Market (Seth's
-   favorite; vendor name TBD)
+🏆 Best Drink: brown sugar lemonade — Southern Comfort Kitchen, San Pedro
+   Square Market (Seth's favorite; their fresh beignets also a highlight)
 🏆 Best Coffee: sugar-free vanilla latte (almond milk) at the Apple Park
    Visitor Center café, 7/1 10:17 AM — Apple logo in the foam (photo saved
    in the journal). Elsewhere coffee was a struggle — lesson: verify
