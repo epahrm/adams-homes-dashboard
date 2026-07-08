@@ -1,6 +1,6 @@
 /* Wander service worker — makes the planner work offline once visited.
    Bump VERSION whenever any file in /travel changes so clients pick it up. */
-const VERSION = "porter-v4";
+const VERSION = "porter-v5";
 const ASSETS = [
   "/travel/",
   "/travel/index.html",
@@ -9,6 +9,8 @@ const ASSETS = [
   "/travel/icon-180.png",
   "/travel/icon-192.png",
   "/travel/icon-512.png",
+  "/travel/bg.jpg",
+  "/travel/bg-blur.jpg",
 ];
 
 self.addEventListener("install", (e) => {
