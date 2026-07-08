@@ -323,6 +323,23 @@ async function noHorizontalOverflow(page) {
       (await page.locator('#realtorRows a.r-lookup').count()) >= 1
       && /google\.com\/search/.test(await page.locator('#realtorRows a.r-lookup').first().getAttribute('href')));
 
+    // ---------- Wholesaler CRM: third deal type + spread tracking ----------
+    await page.locator('#wholesalerCrm > summary').click();
+    check('wholesaler CRM lists a wholesaler with company',
+      (await page.locator('#wholesalerRows .r-name').count()) >= 1
+      && /Marcus Vale/.test(await page.textContent('#wholesalerRows')));
+    check('wholesaler CRM shows the spread they made off us',
+      /\$12,000/.test(await page.textContent('#wholesalerRows')));
+    check('wholesaler CRM summary totals the spread paid',
+      /total spread/i.test(await page.textContent('#wholesalerSummary')));
+
+    // ---------- Closed deals CSV (sorted by month) ----------
+    check('download-closed-by-month control present',
+      await page.locator('#exportClosedCsv').isVisible());
+    const closedDl = page.waitForEvent('download', { timeout: 5000 }).catch(() => null);
+    await page.click('#exportClosedCsv');
+    check('closed-by-month CSV downloads', !!(await closedDl));
+
     // ---------- Contract upload accepts PDF or JPEG ----------
     check('upload-contract control accepts PDF and JPEG',
       /pdf/i.test(await page.getAttribute('#contractFile', 'accept'))
@@ -389,6 +406,19 @@ async function noHorizontalOverflow(page) {
     await page.selectOption('#listingType', 'listed');
     await page.waitForTimeout(100);
     check('commission defaults to 3% when listed', (await page.inputValue('#commission')) === '3%');
+    // Wholesaler is a third deal type: reveals the wholesaler card + spread, $0 commission.
+    await page.selectOption('#listingType', 'wholesaler');
+    await page.waitForTimeout(100);
+    check('wholesaler deal type reveals the Wholesaler card', await page.locator('#wholesalerCard').isVisible());
+    check('wholesaler deal defaults commission to 0%', (await page.inputValue('#commission')) === '0%');
+    await page.fill('#wsName', 'Marcus Vale');
+    await page.fill('#wsPaid', '$12,000');
+    await page.fill('#wsSold', '$24,000');
+    check('wholesaler spread computes what they made off us',
+      /\$12,000/.test(await page.textContent('#wsSpreadOut')));
+    // Reset to listed so the following agent-card checks have their fields visible.
+    await page.selectOption('#listingType', 'listed');
+    await page.waitForTimeout(100);
     check('commission hint notes cash-to-close deduction', /cash to close/i.test(await page.textContent('#commissionHint')));
     // Listing-agent details save on their own (persist without regenerating).
     check('save agent details button present', await page.locator('#saveAgentBtn').count() === 1);
