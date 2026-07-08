@@ -47,6 +47,15 @@ const EVENTS = [
 ];
 ```
 
+## Official artwork
+
+All official art lives in the `images/` folder (web-optimized copies of the
+originals — cropped/resized only, never redrawn). Two extra pieces are
+included but not currently used on the page, ready whenever you want them:
+`dylan-jump.jpg` and `dylan-red-swirl-wide.jpg`. To add new art anywhere,
+drop the file into `images/` and reference it like
+`<img src="images/your-file.jpg" alt="description">`.
+
 ## Add characters
 
 Search for `TO ADD MORE CHARACTERS` in `index.html`. Copy one of the
