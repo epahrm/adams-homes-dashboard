@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dylan the Acorn — Dylan and the Big Feelings by Seth Porter</title>
+<meta name="description" content="The official home of Dylan the Acorn! Read about Dylan and the Big Feelings by Seth Porter, meet the characters, find book signings and events, and get the book.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌰</text></svg>">
+<style>
+  :root{
+    --green:#2e7d46; --green-dark:#1c5b30; --green-light:#e3f4e8;
+    --brown:#8b5a2b; --brown-dark:#5f3d1c; --tan:#d9a05b; --tan-light:#f3d9b1;
+    --cream:#fff8ec; --sky:#eaf6ff; --sun:#ffc63d; --swirl:#ff6b57; --swirl-soft:#ffe3de;
+    --ink:#3a2c1e; --ink-soft:#6b5b49;
+    --radius:22px;
+    --font-head:'Baloo 2','Comic Sans MS','Trebuchet MS',cursive,sans-serif;
+    --font-body:'Nunito','Segoe UI',Verdana,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font-body);color:var(--ink);background:var(--cream);line-height:1.6;overflow-x:hidden}
+  h1,h2,h3,h4{font-family:var(--font-head);line-height:1.15;color:var(--brown-dark)}
+  img{max-width:100%}
+  a{color:var(--green-dark)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  section{padding:72px 0}
+  .section-title{font-size:clamp(1.9rem,4.5vw,2.7rem);text-align:center;margin-bottom:10px}
+  .section-sub{text-align:center;color:var(--ink-soft);max-width:620px;margin:0 auto 44px;font-size:1.08rem}
+  .squiggle{display:block;width:130px;margin:10px auto 0}
+
+  /* ============ NAV ============ */
+  .nav{position:sticky;top:0;z-index:50;background:rgba(255,248,236,.92);backdrop-filter:blur(8px);border-bottom:3px solid var(--tan-light)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;max-width:1080px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .brand svg{width:44px;height:44px}
+  .brand-name{font-family:var(--font-head);font-weight:800;font-size:1.25rem;color:var(--brown-dark)}
+  .brand-name span{color:var(--green)}
+  .nav-links{display:flex;gap:4px;list-style:none;flex-wrap:wrap}
+  .nav-links a{font-family:var(--font-head);font-weight:600;text-decoration:none;color:var(--brown-dark);padding:8px 14px;border-radius:999px;transition:.2s}
+  .nav-links a:hover{background:var(--green-light);color:var(--green-dark)}
+  .nav-links a.nav-cta{background:var(--swirl);color:#fff}
+  .nav-links a.nav-cta:hover{background:#e8553f;color:#fff}
+  @media(max-width:720px){.nav-inner{flex-direction:column;gap:6px;padding-bottom:8px}.nav-links{justify-content:center}}
+
+  /* ============ HERO ============ */
+  .hero{background:linear-gradient(180deg,var(--sky) 0%,#d5f0dd 100%);position:relative;padding:70px 0 0;overflow:hidden}
+  .hero-inner{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:center;position:relative;z-index:2}
+  .hero-kicker{display:inline-block;background:var(--sun);color:var(--brown-dark);font-family:var(--font-head);font-weight:700;padding:7px 18px;border-radius:999px;font-size:.95rem;margin-bottom:16px;box-shadow:0 3px 0 rgba(0,0,0,.08);transform:rotate(-2deg)}
+  .hero h1{font-size:clamp(2.4rem,6vw,3.9rem);margin-bottom:14px}
+  .hero h1 .big-feelings{color:var(--swirl)}
+  .hero p.lede{font-size:1.18rem;color:var(--ink-soft);max-width:520px;margin-bottom:26px}
+  .btn{display:inline-block;font-family:var(--font-head);font-weight:700;font-size:1.05rem;text-decoration:none;padding:14px 28px;border-radius:999px;transition:transform .15s,box-shadow .15s;border:none;cursor:pointer}
+  .btn:hover{transform:translateY(-3px) scale(1.02)}
+  .btn-primary{background:var(--swirl);color:#fff;box-shadow:0 5px 0 #c94a37}
+  .btn-secondary{background:#fff;color:var(--green-dark);box-shadow:0 5px 0 var(--tan-light)}
+  .btn-green{background:var(--green);color:#fff;box-shadow:0 5px 0 var(--green-dark)}
+  .hero-btns{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:40px}
+  .hero-art{text-align:center;position:relative}
+  .hero-art .dylan-main{width:min(360px,84%);border-radius:28px;border:8px solid #fff;box-shadow:0 18px 36px rgba(60,40,10,.28);animation:bob 4s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(1.5deg)}}
+  .float-leaf{position:absolute;font-size:1.8rem;animation:drift 6s ease-in-out infinite;opacity:.85}
+  @keyframes drift{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-18px) rotate(18deg)}}
+  .hills{display:block;width:100%;margin-top:30px}
+  @media(max-width:820px){.hero-inner{grid-template-columns:1fr;text-align:center}.hero p.lede{margin:0 auto 26px}.hero-btns{justify-content:center}}
+
+  /* ============ STORY ============ */
+  .story-grid{display:grid;grid-template-columns:340px 1fr;gap:44px;align-items:center}
+  .book-cover-card{background:linear-gradient(160deg,var(--tan) 0%,var(--brown) 100%);border-radius:var(--radius);padding:18px;text-align:center;color:#fff;box-shadow:0 16px 34px rgba(95,61,28,.28);transform:rotate(-2deg)}
+  .book-cover-card img{display:block;width:100%;border-radius:14px}
+  .book-cover-card .by{font-style:italic;color:#f3e3cc;margin-top:12px}
+  .book-cover-card .series-tag{display:inline-block;margin-top:8px;background:var(--green-light);color:var(--green-dark);font-weight:700;font-size:.82rem;padding:4px 12px;border-radius:999px}
+  .story-text h2{font-size:clamp(1.8rem,4vw,2.4rem);margin-bottom:16px}
+  .story-text p{margin-bottom:14px;font-size:1.07rem}
+  .story-text .swirl-word{color:var(--swirl);font-weight:800}
+  @media(max-width:820px){.story-grid{grid-template-columns:1fr}.book-cover-card{max-width:340px;margin:0 auto}}
+
+  .trick{background:var(--green-light);border-radius:var(--radius);padding:44px 30px;margin-top:60px}
+  .trick h3{text-align:center;font-size:1.7rem;margin-bottom:6px}
+  .trick > p{text-align:center;color:var(--ink-soft);margin-bottom:30px}
+  .trick-body{display:grid;grid-template-columns:.9fr 1.1fr;gap:28px;align-items:center}
+  .trick-art{border-radius:18px;border:6px solid #fff;box-shadow:0 10px 24px rgba(46,125,70,.22);display:block;width:100%}
+  .trick-steps{display:grid;gap:16px}
+  @media(max-width:820px){.trick-body{grid-template-columns:1fr}.trick-art{max-width:440px;margin:0 auto}}
+  .trick-step{background:#fff;border-radius:18px;padding:26px 20px;text-align:center;box-shadow:0 6px 0 rgba(46,125,70,.15);transition:transform .2s}
+  .trick-step:hover{transform:translateY(-6px)}
+  .trick-step .emoji{font-size:2.6rem;display:block;margin-bottom:10px}
+  .trick-step h4{font-size:1.2rem;color:var(--green-dark);margin-bottom:6px}
+  .trick-step p{font-size:.98rem;color:var(--ink-soft)}
+
+  /* ============ AUTHOR ============ */
+  .author-grid{display:grid;grid-template-columns:300px 1fr;gap:40px;align-items:center;margin-bottom:50px}
+  .author-photo{width:100%;border-radius:var(--radius);border:8px solid #fff;box-shadow:0 14px 30px rgba(60,40,10,.2);transform:rotate(2deg)}
+  .author-text h2{font-size:clamp(1.8rem,4vw,2.4rem);margin-bottom:14px}
+  .author-text p{margin-bottom:14px;font-size:1.07rem}
+  .journey{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .journey-card{background:#fff;border-radius:18px;padding:14px;box-shadow:0 8px 20px rgba(60,40,10,.12);text-align:center}
+  .journey-card img{width:100%;height:200px;object-fit:cover;border-radius:12px}
+  .journey-card figcaption{font-family:var(--font-head);font-weight:700;color:var(--brown-dark);padding:12px 4px 4px;font-size:1rem}
+  .journey-title{text-align:center;font-size:1.5rem;margin-bottom:22px}
+  @media(max-width:820px){.author-grid{grid-template-columns:1fr}.author-photo{max-width:280px;margin:0 auto;display:block}.author-text{text-align:center}.journey{grid-template-columns:1fr}.journey-card img{height:260px}}
+
+  /* ============ CHARACTERS ============ */
+  .characters{background:linear-gradient(180deg,var(--cream),var(--sky))}
+  .char-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px}
+  .char-card{background:#fff;border-radius:var(--radius);padding:30px 22px;text-align:center;box-shadow:0 10px 24px rgba(60,40,10,.1);border-bottom:6px solid var(--tan);transition:transform .2s}
+  .char-card:hover{transform:translateY(-8px) rotate(-1deg)}
+  .char-card.featured{border-bottom-color:var(--green);background:linear-gradient(180deg,#fff,var(--green-light))}
+  .char-card .char-art{width:120px;height:120px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;background:var(--sky);border-radius:50%;font-size:3rem;overflow:hidden;border:5px solid var(--tan-light)}
+  .char-card.featured .char-art{background:var(--sun);border-color:var(--sun)}
+  .char-card .char-art svg{width:84px;height:84px}
+  .char-card .char-art img{width:100%;height:100%;object-fit:cover}
+  .char-card h3{font-size:1.3rem;margin-bottom:4px}
+  .char-card .char-role{color:var(--green-dark);font-weight:800;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+  .char-card p{font-size:.97rem;color:var(--ink-soft)}
+  .char-card.mystery{border-bottom-color:var(--tan-light);background:repeating-linear-gradient(45deg,#fff,#fff 12px,#fdf5e6 12px,#fdf5e6 24px)}
+
+  /* ============ REVIEWS ============ */
+  .stars{color:var(--sun);letter-spacing:2px;font-size:1.15rem}
+  .review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:24px;margin-bottom:36px}
+  .review-card{background:#fff;border-radius:var(--radius);padding:28px;box-shadow:0 10px 24px rgba(60,40,10,.1);position:relative}
+  .review-card::before{content:"“";position:absolute;top:6px;left:18px;font-family:var(--font-head);font-size:4rem;color:var(--tan-light);line-height:1}
+  .review-card blockquote{font-size:1.02rem;margin:18px 0 14px;font-style:italic}
+  .review-card .review-meta{font-weight:800;color:var(--brown-dark);font-size:.92rem}
+  .review-card .review-meta span{display:block;font-weight:600;color:var(--ink-soft);font-size:.84rem}
+  .reviews-empty{background:var(--swirl-soft);border:3px dashed var(--swirl);border-radius:var(--radius);padding:40px 26px;text-align:center;max-width:640px;margin:0 auto 36px}
+  .reviews-empty .emoji{font-size:2.6rem;display:block;margin-bottom:8px}
+  .reviews-cta{text-align:center}
+  .reviews-cta p{color:var(--ink-soft);margin-bottom:16px}
+
+  /* ============ EVENTS ============ */
+  .events{background:var(--green-light)}
+  .event-list{max-width:720px;margin:0 auto 40px;display:grid;gap:18px}
+  .event-card{background:#fff;border-radius:18px;padding:22px 26px;display:flex;gap:22px;align-items:center;box-shadow:0 6px 0 rgba(46,125,70,.14)}
+  .event-date{background:var(--green);color:#fff;border-radius:14px;padding:10px 16px;text-align:center;font-family:var(--font-head);min-width:86px}
+  .event-date .month{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em}
+  .event-date .day{display:block;font-size:1.7rem;font-weight:800;line-height:1.1}
+  .event-info h3{font-size:1.2rem;margin-bottom:2px}
+  .event-info p{color:var(--ink-soft);font-size:.95rem}
+  .events-empty{background:#fff;border:3px dashed var(--green);border-radius:var(--radius);padding:40px 26px;text-align:center;max-width:640px;margin:0 auto 40px}
+  .events-empty .emoji{font-size:2.6rem;display:block;margin-bottom:8px}
+  .invite-box{background:var(--brown-dark);color:#fff;border-radius:var(--radius);padding:40px 30px;text-align:center;max-width:760px;margin:0 auto}
+  .invite-box h3{color:#fff;font-size:1.5rem;margin-bottom:8px}
+  .invite-box p{color:#f0e2ce;margin-bottom:20px;max-width:520px;margin-left:auto;margin-right:auto}
+
+  /* ============ SHOP ============ */
+  .shop-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:26px}
+  .shop-card{background:#fff;border-radius:var(--radius);padding:30px 26px;text-align:center;box-shadow:0 10px 24px rgba(60,40,10,.1);display:flex;flex-direction:column;align-items:center;gap:12px}
+  .shop-card .shop-art{font-size:3.2rem}
+  .shop-card .shop-art img{width:170px;height:170px;object-fit:cover;border-radius:16px;border:5px solid var(--tan-light);display:block}
+  .shop-card h3{font-size:1.3rem}
+  .shop-card p{color:var(--ink-soft);font-size:.97rem;flex:1}
+  .shop-card .price{font-family:var(--font-head);font-weight:800;color:var(--green-dark);font-size:1.15rem}
+  .badge-soon{background:var(--sun);color:var(--brown-dark);font-family:var(--font-head);font-weight:700;font-size:.8rem;padding:4px 14px;border-radius:999px}
+  .shop-note{text-align:center;color:var(--ink-soft);font-size:.92rem;margin-top:26px}
+
+  /* ============ GROWNUPS / NEWSLETTER ============ */
+  .grownups{background:linear-gradient(180deg,var(--sky),#d5eaff)}
+  .grownups-inner{display:grid;grid-template-columns:300px 1fr;gap:40px;align-items:center;max-width:920px;margin:0 auto}
+  .grownups-art{width:100%;border-radius:var(--radius);border:8px solid #fff;box-shadow:0 14px 30px rgba(60,40,10,.18);transform:rotate(-2deg)}
+  @media(max-width:820px){.grownups-inner{grid-template-columns:1fr}.grownups-art{max-width:300px;margin:0 auto;display:block}}
+  .grownups-box{max-width:680px;margin:0 auto;text-align:center}
+  .grownups-box h2{font-size:clamp(1.7rem,4vw,2.3rem);margin-bottom:10px}
+  .grownups-box p{color:var(--ink-soft);margin-bottom:24px}
+  .signup-form{display:flex;gap:10px;max-width:480px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+  .signup-form input{flex:1;min-width:220px;padding:14px 20px;border-radius:999px;border:3px solid var(--tan-light);font-family:var(--font-body);font-size:1rem;outline:none}
+  .signup-form input:focus{border-color:var(--green)}
+  .form-note{font-size:.82rem;color:var(--ink-soft);margin-top:12px}
+
+  /* ============ FOOTER ============ */
+  footer{background:var(--brown-dark);color:#e8d9c3;padding:44px 0 30px;text-align:center}
+  footer .foot-brand{font-family:var(--font-head);font-weight:800;font-size:1.3rem;color:#fff;margin-bottom:8px}
+  footer a{color:var(--sun)}
+  footer .foot-links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:14px 0 20px;list-style:none}
+  footer .foot-links a{color:#f0e2ce;text-decoration:none;font-weight:700}
+  footer .foot-links a:hover{color:var(--sun)}
+  footer small{color:#c9b394}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top" aria-label="Dylan the Acorn home">
+      <img src="/dylan-the-acorn/images/dylan-face.jpg" alt="" style="width:44px;height:44px;border-radius:50%;border:3px solid var(--tan)">
+      <span class="brand-name">Dylan <span>the Acorn</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#story">The Story</a></li>
+      <li><a href="#characters">Characters</a></li>
+      <li><a href="#author">The Author</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#shop">Shop</a></li>
+      <li><a class="nav-cta" href="https://www.amazon.com/Dylan-Big-Feelings-Adventures-Acorn/dp/B0H2KTZP97" target="_blank" rel="noopener">Get the Book!</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero" id="top">
+  <div class="wrap hero-inner">
+    <div>
+      <span class="hero-kicker">🌟 A new adventure from author Seth Porter</span>
+      <h1>Dylan and the <span class="big-feelings">Big Feelings</span></h1>
+      <p class="lede">Meet Dylan — a little acorn with some really BIG feelings. When a red swirl of emotion starts spinning inside, Dylan learns a trick every kid can use: <strong>pause, name your feeling, and take a deep breath.</strong></p>
+      <div class="hero-btns">
+        <a class="btn btn-primary" href="https://www.amazon.com/Dylan-Big-Feelings-Adventures-Acorn/dp/B0H2KTZP97" target="_blank" rel="noopener">📖 Get the Book on Amazon</a>
+        <a class="btn btn-secondary" href="#characters">🌰 Meet Dylan</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <span class="float-leaf" style="top:0;left:8%">🍃</span>
+      <span class="float-leaf" style="top:12%;right:4%;animation-delay:1.2s">🍂</span>
+      <span class="float-leaf" style="bottom:18%;left:0;animation-delay:2.1s">🍁</span>
+      <img class="dylan-main" src="/dylan-the-acorn/images/dylan-tree-slide.jpg" alt="Dylan the Acorn joyfully sliding down a tree trunk — official artwork from the book">
+    </div>
+  </div>
+  <svg class="hills" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 120 L0 70 Q360 0 720 60 T1440 50 L1440 120 Z" fill="#2e7d46"/>
+    <path d="M0 120 L0 95 Q480 40 960 90 T1440 85 L1440 120 Z" fill="#1c5b30" opacity=".85"/>
+  </svg>
+</header>
+
+<main>
+<!-- ================= STORY ================= -->
+<section id="story">
+  <div class="wrap">
+    <div class="story-grid">
+      <div class="book-cover-card">
+        <img src="/dylan-the-acorn/images/book-cover.jpg" alt="Book cover of Dylan and the Big Feelings: Dylan the Acorn walking through a magical forest with colorful swirls">
+        <p class="by">by Seth Porter</p>
+        <span class="series-tag">Adventures with Dylan the Acorn</span>
+      </div>
+      <div class="story-text">
+        <h2>What's the story about? 📖</h2>
+        <p>Something doesn't feel right for Dylan. A warm <span class="swirl-word">red swirl</span> starts spinning deep inside — and it gets bigger, and bigger, and BIGGER!</p>
+        <p>Have you ever felt so mad, so frustrated, or so overwhelmed that you didn't know what to do? Dylan knows exactly how that feels. But in this story, Dylan discovers something amazing: <strong>big feelings are totally normal</strong> — and there are ways to handle them.</p>
+        <p>Instead of letting the red swirl take over, Dylan remembers an important tool: <strong>pause</strong>, <strong>name your feeling</strong>, and <strong>take a deep breath</strong>. It's empowering, honest, and hopeful — and it's a trick you can use every single day.</p>
+        <p><em>Perfect for readers ages 6–10 (and grown-ups with big feelings, too!).</em></p>
+      </div>
+    </div>
+
+    <!-- Dylan's calm-down trick -->
+    <div class="trick">
+      <h3>Try Dylan's Calm-Down Trick! 🌀</h3>
+      <p>The next time a red swirl starts spinning inside YOU, try these three steps:</p>
+      <div class="trick-body">
+      <img class="trick-art" src="/dylan-the-acorn/images/dylan-campfire.jpg" alt="Dylan the Acorn sitting on a log by a campfire, calmly holding a glowing light — official artwork from the book">
+      <div class="trick-steps">
+        <div class="trick-step">
+          <span class="emoji">✋</span>
+          <h4>1. Pause</h4>
+          <p>Stop what you're doing. Stand still like an acorn on a branch.</p>
+        </div>
+        <div class="trick-step">
+          <span class="emoji">💬</span>
+          <h4>2. Name It</h4>
+          <p>Say what you feel out loud: "I feel angry." "I feel worried." Naming it makes it smaller!</p>
+        </div>
+        <div class="trick-step">
+          <span class="emoji">🌬️</span>
+          <h4>3. Breathe</h4>
+          <p>Take a slow, deep breath — in through your nose, out through your mouth. Ahhh.</p>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHARACTERS ================= -->
+<section id="characters" class="characters">
+  <div class="wrap">
+    <h2 class="section-title">Meet the Characters 🌳</h2>
+    <p class="section-sub">Every big adventure starts with a little acorn. Say hello to Dylan and the friends of the forest!</p>
+    <div class="char-grid">
+      <div class="char-card featured">
+        <div class="char-art"><img src="/dylan-the-acorn/images/dylan-front.jpg" alt="Dylan the Acorn — official character artwork"></div>
+        <h3>Dylan</h3>
+        <div class="char-role">The Hero · A Little Acorn</div>
+        <p>Dylan is small, but Dylan's feelings are BIG. Brave, curious, and learning every day, Dylan shows us that even the littlest acorn can grow into something mighty — one deep breath at a time.</p>
+      </div>
+
+      <!--
+        ✏️ TO ADD OR EDIT CHARACTERS:
+        Copy a card below and fill in the name, role, and description.
+        For art, either use an image: <img src="/dylan-the-acorn/images/your-image.jpg" alt="...">
+        or just put an emoji inside char-art. (Tip: update the squirrel's
+        name below once you tell us what it's called in the book!)
+      -->
+      <div class="char-card">
+        <div class="char-art"><img src="/dylan-the-acorn/images/squirrel.jpg" alt="Dylan's squirrel friend wearing a beret, sitting on a branch — official artwork"></div>
+        <h3>The Squirrel</h3>
+        <div class="char-role">Dylan's Forest Friend</div>
+        <p>He doesn't have a name — and he doesn't need one! This beret-wearing squirrel is always nearby when Dylan needs a friend, watching over the forest from the branches above.</p>
+      </div>
+      <div class="char-card">
+        <div class="char-art"><img src="/dylan-the-acorn/images/dylan-red-swirl-sq.jpg" alt="Dylan the Acorn with a swirling red feeling around him — official artwork"></div>
+        <h3>The Red Swirl</h3>
+        <div class="char-role">The Big Feeling</div>
+        <p>It's warm, it spins, and it grows bigger and bigger! The red swirl isn't a monster — it's a feeling. And Dylan knows just what to do with it.</p>
+      </div>
+      <div class="char-card mystery">
+        <div class="char-art">🌳</div>
+        <h3>Coming Soon</h3>
+        <div class="char-role">???</div>
+        <p>More adventures with Dylan the Acorn are on the way — and that means more friends to meet. Stay tuned!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABOUT THE AUTHOR ================= -->
+<section id="author">
+  <div class="wrap">
+    <h2 class="section-title">Meet the Author ✍️</h2>
+    <p class="section-sub">The real kid behind Dylan the Acorn.</p>
+    <div class="author-grid">
+      <img class="author-photo" src="/dylan-the-acorn/images/seth-portrait.jpg" alt="Author Seth Porter">
+      <div class="author-text">
+        <h2>Hi, I'm Seth! 👋</h2>
+        <!-- ✏️ Edit Seth's bio below — add his age, hobbies, and anything he wants readers to know! -->
+        <p>Seth Porter is a kid author with a big imagination — and sometimes big feelings, too. That's exactly why he created Dylan: a little acorn who learns that every feeling is okay, and that a pause and a deep breath can change everything.</p>
+        <p>Dylan started as a drawing in Seth's notebook and grew, page by page, into a real published book that helps other kids name and tame their biggest feelings.</p>
+      </div>
+    </div>
+    <h3 class="journey-title">From a Sketch to a Real Book! 🚀</h3>
+    <div class="journey">
+      <figure class="journey-card">
+        <img src="/dylan-the-acorn/images/seth-sketch.jpg" alt="Seth's original notebook sketch of Dylan the Acorn">
+        <figcaption>1. It started with a sketch…</figcaption>
+      </figure>
+      <figure class="journey-card">
+        <img src="/dylan-the-acorn/images/seth-writing.jpg" alt="Seth writing his book on a laptop">
+        <figcaption>2. …then came the writing…</figcaption>
+      </figure>
+      <figure class="journey-card">
+        <img src="/dylan-the-acorn/images/seth-book.jpg" alt="Seth smiling and holding the finished, printed book">
+        <figcaption>3. …and now it's a real book!</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= REVIEWS ================= -->
+<section id="reviews">
+  <div class="wrap">
+    <h2 class="section-title">What Readers Are Saying ⭐</h2>
+    <p class="section-sub">Real reviews from real readers, parents, and teachers.</p>
+    <div id="review-grid" class="review-grid"></div>
+    <div id="reviews-empty" class="reviews-empty" hidden>
+      <span class="emoji">🌱</span>
+      <h3>Reviews are sprouting!</h3>
+      <p>Have you read <em>Dylan and the Big Feelings</em>? Be one of the very first to share what you thought — your review helps other families find Dylan!</p>
+    </div>
+    <div class="reviews-cta">
+      <p>Read the book? Reviews on Amazon are a HUGE help for new authors. 💛</p>
+      <a class="btn btn-green" href="https://www.amazon.com/product-reviews/B0H2KTZP97" target="_blank" rel="noopener">⭐ Read &amp; Write Reviews on Amazon</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EVENTS ================= -->
+<section id="events" class="events">
+  <div class="wrap">
+    <h2 class="section-title">Book Signings &amp; Events 🎉</h2>
+    <p class="section-sub">Come meet author Seth Porter, hear the story read aloud, and get your book signed!</p>
+    <div id="event-list" class="event-list"></div>
+    <div id="events-empty" class="events-empty" hidden>
+      <span class="emoji">📅</span>
+      <h3>New events are being planned!</h3>
+      <p>Check back soon for book signings, story times, and school visits — or join the newsletter below so you never miss one.</p>
+    </div>
+    <div class="invite-box">
+      <h3>📚 Invite Seth to Your School or Library!</h3>
+      <p>Seth Porter loves reading <em>Dylan and the Big Feelings</em> with kids and talking about how to handle big emotions. Teachers, librarians, and event planners — get in touch!</p>
+      <a class="btn btn-primary" href="mailto:elizporter15@gmail.com?subject=Event%20request%3A%20Dylan%20and%20the%20Big%20Feelings">✉️ Request an Event</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SHOP ================= -->
+<section id="shop">
+  <div class="wrap">
+    <h2 class="section-title">Get the Books &amp; Goodies 🛍️</h2>
+    <p class="section-sub">Take Dylan home with you! Books ship from Amazon, and Dylan merchandise is on the way.</p>
+    <div class="shop-grid">
+      <div class="shop-card">
+        <div class="shop-art"><img src="/dylan-the-acorn/images/book-cover.jpg" alt="Cover of Dylan and the Big Feelings"></div>
+        <h3>Dylan and the Big Feelings</h3>
+        <p>The newest adventure! Dylan learns that big feelings are normal — and discovers the pause–name–breathe trick. Paperback &amp; Kindle.</p>
+        <a class="btn btn-primary" href="https://www.amazon.com/Dylan-Big-Feelings-Adventures-Acorn/dp/B0H2KTZP97" target="_blank" rel="noopener">🛒 Buy on Amazon</a>
+      </div>
+      <div class="shop-card">
+        <div class="shop-art"><img src="/dylan-the-acorn/images/dylan-bench-calm.jpg" alt="Dylan the Acorn sitting calmly on a park bench — official artwork"></div>
+        <h3>Adventures with Dylan the Acorn</h3>
+        <p>Where it all began! Join Dylan on the very first adventure in the series. A perfect starting point for new readers.</p>
+        <a class="btn btn-green" href="https://www.amazon.com/Adventures-with-Dylan-the-Acorn/dp/B0H2G8RC2P" target="_blank" rel="noopener">🛒 Buy on Amazon</a>
+      </div>
+      <div class="shop-card">
+        <div class="shop-art">👕</div>
+        <span class="badge-soon">Coming Soon!</span>
+        <h3>Dylan Merch</h3>
+        <p>T-shirts, stickers, plushies, and more Dylan goodies are in the works. Want first dibs? Tell us what you'd love to see!</p>
+        <a class="btn btn-secondary" href="mailto:elizporter15@gmail.com?subject=Dylan%20merch%20waitlist&body=Hi!%20Please%20let%20me%20know%20when%20Dylan%20merchandise%20is%20available.">🔔 Join the Merch Waitlist</a>
+      </div>
+    </div>
+    <p class="shop-note">As an Amazon listing, purchases are handled safely on Amazon.com. Ask a grown-up before buying! 😊</p>
+  </div>
+</section>
+
+<!-- ================= FOR GROWN-UPS / NEWSLETTER ================= -->
+<section class="grownups" id="newsletter">
+  <div class="wrap grownups-inner">
+  <img class="grownups-art" src="/dylan-the-acorn/images/dylan-bench-swirl.jpg" alt="Dylan the Acorn sitting on a bench with a red swirl of feeling, his squirrel friend watching from a branch — official artwork">
+  <div class="grownups-box">
+    <h2>For Grown-Ups 💌</h2>
+    <p><em>Dylan and the Big Feelings</em> gives kids practical, everyday tools for emotional regulation — pausing, naming feelings, and breathing — wrapped in a story they'll actually want to read again. Join the newsletter for new books, events, and free activity pages.</p>
+    <!--
+      ✏️ NEWSLETTER SETUP: This form currently opens an email. To collect
+      signups automatically, create a free form at https://formspree.io,
+      then replace the mailto link below with your Formspree form.
+    -->
+    <div class="signup-form">
+      <a class="btn btn-primary" href="mailto:elizporter15@gmail.com?subject=Newsletter%20signup%20%E2%80%94%20Dylan%20the%20Acorn&body=Hi!%20Please%20add%20me%20to%20the%20Dylan%20the%20Acorn%20newsletter.">💌 Join the Newsletter</a>
+      <a class="btn btn-secondary" href="https://www.instagram.com/dylantheacorn" target="_blank" rel="noopener">📸 Follow @dylantheacorn</a>
+    </div>
+    <p class="form-note">We only send acorn-sized updates. No spam, ever.</p>
+  </div>
+  </div>
+</section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-brand">🌰 Dylan the Acorn</div>
+    <p>Stories that help little readers with BIG feelings.</p>
+    <ul class="foot-links">
+      <li><a href="#story">The Story</a></li>
+      <li><a href="#characters">Characters</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#shop">Shop</a></li>
+      <li><a href="https://www.instagram.com/dylantheacorn" target="_blank" rel="noopener">Instagram</a></li>
+      <li><a href="mailto:elizporter15@gmail.com">Contact</a></li>
+    </ul>
+    <small>© <span id="year"></span> Seth Porter · <em>Adventures with Dylan the Acorn</em>. All rights reserved.<br>
+    Amazon and the Amazon logo are trademarks of Amazon.com, Inc. or its affiliates.</small>
+  </div>
+</footer>
+
+<script>
+/* =====================================================================
+   ✏️✏️✏️  EDIT YOUR SITE CONTENT HERE  ✏️✏️✏️
+   Everything below is plain text you can change — no coding needed.
+   ===================================================================== */
+
+/* ---------- REVIEWS ----------
+   Paste real reviews here (from Amazon, teachers, bloggers, etc.).
+   Copy the block between { and }, including the comma, for each review.
+   "stars" can be 1–5. Leave the list empty [] to show the
+   "reviews are sprouting" message instead.
+
+   Example:
+   {
+     stars: 5,
+     text: "My 8-year-old asks for this book every night!",
+     name: "Jamie R.",
+     source: "Amazon Customer Review"
+   },
+*/
+const REVIEWS = [
+  // 👇 Paste your real reviews between these brackets 👇
+
+  // 👆 Paste your real reviews between these brackets 👆
+];
+
+/* ---------- EVENTS ----------
+   Add book signings, story times, and school visits here.
+   Leave the list empty [] to show the "events being planned" message.
+
+   Example:
+   {
+     month: "Sep", day: "14",
+     title: "Story Time & Book Signing",
+     details: "Main Street Library, 10:30 AM — Meet Seth Porter and Dylan!"
+   },
+*/
+const EVENTS = [
+  // 👇 Add your upcoming events between these brackets 👇
+
+  // 👆 Add your upcoming events between these brackets 👆
+];
+
+/* ===================================================================
+   (No need to edit anything below this line.)
+   =================================================================== */
+function starRow(n){ return "★".repeat(n) + "☆".repeat(5 - n); }
+
+const reviewGrid = document.getElementById("review-grid");
+const reviewsEmpty = document.getElementById("reviews-empty");
+if (REVIEWS.length === 0) {
+  reviewsEmpty.hidden = false;
+} else {
+  for (const r of REVIEWS) {
+    const card = document.createElement("div");
+    card.className = "review-card";
+    card.innerHTML =
+      '<div class="stars" aria-label="' + r.stars + ' out of 5 stars">' + starRow(r.stars) + "</div>" +
+      "<blockquote></blockquote>" +
+      '<div class="review-meta"><b></b><span></span></div>';
+    card.querySelector("blockquote").textContent = "“" + r.text + "”";
+    card.querySelector(".review-meta b").textContent = "— " + r.name;
+    card.querySelector(".review-meta span").textContent = r.source || "";
+    reviewGrid.appendChild(card);
+  }
+}
+
+const eventList = document.getElementById("event-list");
+const eventsEmpty = document.getElementById("events-empty");
+if (EVENTS.length === 0) {
+  eventsEmpty.hidden = false;
+} else {
+  for (const ev of EVENTS) {
+    const card = document.createElement("div");
+    card.className = "event-card";
+    card.innerHTML =
+      '<div class="event-date"><span class="month"></span><span class="day"></span></div>' +
+      '<div class="event-info"><h3></h3><p></p></div>';
+    card.querySelector(".month").textContent = ev.month;
+    card.querySelector(".day").textContent = ev.day;
+    card.querySelector("h3").textContent = ev.title;
+    card.querySelector(".event-info p").textContent = ev.details;
+    eventList.appendChild(card);
+  }
+}
+
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
