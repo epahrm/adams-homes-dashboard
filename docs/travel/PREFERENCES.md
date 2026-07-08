@@ -35,6 +35,13 @@ Full journal: `reference/2026-07_california_world_cup_trip_recap.md`
   LESSON: deliberately plan the coffee/tea stop with verified hours;
   Santana Row / Ferry Building were the backups that never happened.
 
+PERMANENT PLAY — Tripod: pack a tripod on photo-oriented family trips —
+proved perfect for family-together shots in CA 2026. Add to packing lists
+whenever iconic photo spots are on the plan.
+
+PERMANENT PLAY — Layers for coastal/SF-like climates: pack hoodies for
+mornings/evenings even in summer.
+
 PERMANENT PLAY — Birthday/milestone mentions: ALWAYS tell the hotel (in the
 pre-arrival email) and restaurants when a trip includes a birthday or
 milestone. Proven results: hotel gift + free dessert on the CA trip. Bake

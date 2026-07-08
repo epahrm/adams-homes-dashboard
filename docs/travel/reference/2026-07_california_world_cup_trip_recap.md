@@ -1,5 +1,9 @@
 # San Jose & San Francisco World Cup Trip Recap (benchmark journal)
 
+PURPOSE: attend the FIFA World Cup at Levi's Stadium (family vacation —
+⚽ World Cup). Purpose shows on the journal cover so repeat visits to a
+city can be told apart (work vs family) at a glance.
+
 Residence Inn by Marriott San Jose North/Silicon Valley · FIFA World Cup 2026
 Overall Trip Score: ★★★★★ (9.7/10)
 
@@ -64,8 +68,15 @@ the match if possible.
 Note: all are walk / stroll / dine activities with FREE ENTRY.
 
 ## Getting around
-Main transportation: rental car (Avis from SJC). Walkability and bicycle
-assessment: pending Elizabeth's answers via the app's Getting Around prompt.
+Main transportation: rental car (Avis from SJC). Walkability (Elizabeth,
+2026-07-08): walkable at the stops, drive between areas. Hotel was walking
+distance to Levi's Stadium — no rideshare needed on match day. Bikes:
+pending. Rental pickup on-site vs shuttle: pending.
+
+## Special packing (Elizabeth, 2026-07-08)
+- Tripod — for family photos together; worked perfectly
+- Hoodies — SF mornings/evenings drop very low, even in summer
+- USA gear for match day
 
 ## Best of trip
 

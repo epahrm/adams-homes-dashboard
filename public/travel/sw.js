@@ -1,6 +1,6 @@
 /* Wander service worker — makes the planner work offline once visited.
    Bump VERSION whenever any file in /travel changes so clients pick it up. */
-const VERSION = "porter-v18";
+const VERSION = "porter-v19";
 const ASSETS = [
   "/travel/",
   "/travel/index.html",
