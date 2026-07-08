@@ -227,9 +227,51 @@
       .hero .subtitle { font-size: 18px; }
       .section h2 { font-size: 25px; }
     }
+
+    /* Admin button + modal */
+    #adminBtn { position: fixed; top: 16px; right: 16px; background: rgba(26,91,165,0.92); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; z-index: 998; transition: background 0.2s; }
+    #adminBtn:hover { background: rgba(26,91,165,1); }
+    #adminOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; }
+    #adminOverlay.active { display: block; }
+    .admin-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 1000; max-width: 380px; width: 90%; }
+    .admin-modal h3 { color: var(--blue); font-size: 22px; margin-bottom: 20px; }
+    .admin-modal .rf-group { margin-bottom: 16px; }
+    .admin-modal label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: var(--ink); }
+    .admin-modal select, .admin-modal input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; font-family: inherit; }
+    .admin-modal select:focus, .admin-modal input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,91,165,0.14); }
+    .admin-modal .modal-btns { display: flex; gap: 10px; margin-top: 24px; }
+    .admin-modal button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; }
+    .admin-modal .btn-login { background: var(--blue); color: white; }
+    .admin-modal .btn-login:hover { background: var(--blue-dark); }
+    .admin-modal .btn-cancel { background: #e0e0e0; color: var(--ink); }
+    .admin-modal .btn-cancel:hover { background: #d0d0d0; }
+    .admin-modal .error { color: #c62828; font-size: 13px; margin-top: 12px; display: none; }
   </style>
 </head>
 <body>
+  <!-- Admin login button -->
+  <button id="adminBtn">🔐 Admin</button>
+  <div id="adminOverlay"></div>
+  <div class="admin-modal" id="adminModal" style="display: none;">
+    <h3>Admin Access</h3>
+    <div class="rf-group">
+      <label for="adminRole">Role</label>
+      <select id="adminRole">
+        <option value="admin">Admin</option>
+        <option value="guest">Guest</option>
+      </select>
+    </div>
+    <div class="rf-group">
+      <label for="adminPass">Password</label>
+      <input type="password" id="adminPass" placeholder="Enter password">
+    </div>
+    <div class="error" id="adminError"></div>
+    <div class="modal-btns">
+      <button class="btn-login" id="adminLoginBtn">Login</button>
+      <button class="btn-cancel" id="adminCancelBtn">Cancel</button>
+    </div>
+  </div>
+
   <!-- Hero (logo lives inside the blue box; no white header bar above) -->
   <section class="hero">
     <div class="container">
@@ -761,6 +803,74 @@
       msg.textContent = 'Thanks! Kevin will research your property and get back to you within one business day.';
       msg.style.display = 'block';
       this.reset();
+    });
+
+    // Admin login modal
+    const adminBtn = document.getElementById('adminBtn');
+    const adminModal = document.getElementById('adminModal');
+    const adminOverlay = document.getElementById('adminOverlay');
+    const adminLoginBtn = document.getElementById('adminLoginBtn');
+    const adminCancelBtn = document.getElementById('adminCancelBtn');
+    const adminPass = document.getElementById('adminPass');
+    const adminError = document.getElementById('adminError');
+
+    adminBtn.addEventListener('click', () => {
+      adminModal.style.display = 'block';
+      adminOverlay.classList.add('active');
+      adminPass.focus();
+    });
+
+    adminCancelBtn.addEventListener('click', () => {
+      adminModal.style.display = 'none';
+      adminOverlay.classList.remove('active');
+      adminPass.value = '';
+      adminError.style.display = 'none';
+    });
+
+    adminOverlay.addEventListener('click', () => {
+      adminModal.style.display = 'none';
+      adminOverlay.classList.remove('active');
+      adminPass.value = '';
+      adminError.style.display = 'none';
+    });
+
+    adminLoginBtn.addEventListener('click', async () => {
+      const password = adminPass.value.trim();
+      if (!password) {
+        adminError.textContent = 'Please enter a password';
+        adminError.style.display = 'block';
+        return;
+      }
+
+      adminLoginBtn.disabled = true;
+      adminLoginBtn.textContent = 'Checking…';
+
+      try {
+        const response = await fetch('/api/land-acq/lots', {
+          headers: { 'X-Admin-Key': password }
+        });
+
+        if (response.status === 200) {
+          sessionStorage.setItem('adminKey', password);
+          window.location.href = '/land-acq-pro/admin.html';
+        } else if (response.status === 401) {
+          adminError.textContent = 'Invalid password';
+          adminError.style.display = 'block';
+        } else {
+          sessionStorage.setItem('adminKey', password);
+          window.location.href = '/land-acq-pro/admin.html';
+        }
+      } catch (e) {
+        sessionStorage.setItem('adminKey', password);
+        window.location.href = '/land-acq-pro/admin.html';
+      }
+
+      adminLoginBtn.disabled = false;
+      adminLoginBtn.textContent = 'Login';
+    });
+
+    adminPass.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') adminLoginBtn.click();
     });
   </script>
 </body>
