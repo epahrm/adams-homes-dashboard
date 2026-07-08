@@ -17,6 +17,10 @@ export type ParsedListing = {
   source: string
   mls?: string | null
   brokerage?: string | null
+  agentName?: string | null
+  agentPhone?: string | null
+  agentEmail?: string | null
+  agentLicense?: string | null
   // true when the email had no street address (link-only alert, e.g. Crexi):
   // the lead still lands, flagged for Kevin to open the listing and confirm.
   needsAddress?: boolean
@@ -47,6 +51,44 @@ export function htmlToText(html: string): string {
     .replace(/&#\d+;/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+// Extract agent details from email body (name, phone, email, license).
+// Looks for patterns like "Listing Agent: Name", phone numbers, emails, and license #.
+function extractAgentDetails(body: string): {
+  agentName?: string
+  agentPhone?: string
+  agentEmail?: string
+  agentLicense?: string
+} {
+  const result: Record<string, string> = {}
+
+  // Agent name: look for "Listing Agent:" or "Agent:" or "Contact:" followed by a name
+  // Try to find patterns like "Listing Agent: John Smith" or "Agent: John Smith"
+  let m = body.match(/(?:Listing\s+)?Agent\s*:?\s*([A-Z][A-Za-z\s.'-]{2,45})/i)
+  if (m) result.agentName = m[1].trim()
+
+  // Phone: look for (XXX) XXX-XXXX or XXX-XXX-XXXX or similar patterns
+  // Look for phone near "Phone" label or standalone
+  m = body.match(/(?:Phone|Mobile|Tel)\s*:?\s*([\d\s\-().+]+)/i)
+  if (m) {
+    const phone = m[1].trim()
+    // Only keep if it looks like a valid phone (has at least 10 digits)
+    if (/\d{10,}/.test(phone.replace(/\D/g, ''))) {
+      result.agentPhone = phone
+    }
+  }
+
+  // Email: look for email addresses
+  m = body.match(/(?:Email|Contact)\s*:?\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i)
+  if (m) result.agentEmail = m[1].trim()
+
+  // License: look for license # patterns like "License #" or "License:" or "Lic #"
+  // Typically FL licenses are 2 uppercase letters + digits, or just a number
+  m = body.match(/(?:License|Lic\.?)\s*#?\s*:?\s*([A-Z0-9]{4,20})/i)
+  if (m) result.agentLicense = m[1].trim()
+
+  return result
 }
 
 const PALM_BAY = /\bPalm\s*Bay\b/i
@@ -101,6 +143,7 @@ export function parseListingEmail(input: {
       : htmlToText(rawHtml || input.text || '')
   if (!PALM_BAY.test(body)) return []
   const urls = extractUrls(rawHtml)
+  const agentDetails = extractAgentDetails(body)
 
   const matches: Array<{ addr: string; num: string; idx: number; end: number }> = []
   let m: RegExpExecArray | null
@@ -151,13 +194,17 @@ export function parseListingEmail(input: {
       source,
       mls: mlsM ? mlsM[1] : null,
       brokerage: brokM ? brokM[1].trim() : null,
+      agentName: agentDetails.agentName,
+      agentPhone: agentDetails.agentPhone,
+      agentEmail: agentDetails.agentEmail,
+      agentLicense: agentDetails.agentLicense,
     })
   }
 
   // Fallback for link-only alerts (Crexi et al.) that carry no street address —
   // capture the listing title, city, acreage, and the "View Property" link so
   // the lead still reaches Kevin, flagged to open and confirm.
-  if (out.length === 0) out.push(...parseCardAlerts(rawHtml, body, source))
+  if (out.length === 0) out.push(...parseCardAlerts(rawHtml, body, source, agentDetails))
   return out
 }
 
@@ -166,7 +213,7 @@ export function parseListingEmail(input: {
 const CARD_RE =
   /([A-Z0-9][A-Za-z0-9 '&/-]{2,48}?)\s+(Palm\s*Bay)\s*,?\s*FL\s+Land\s*[|·\-–]\s*([\d.]+)\s*acres?/gi
 
-function parseCardAlerts(rawHtml: string, body: string, source: string): ParsedListing[] {
+function parseCardAlerts(rawHtml: string, body: string, source: string, agentDetails: ReturnType<typeof extractAgentDetails>): ParsedListing[] {
   const out: ParsedListing[] = []
   const seen = new Set<string>()
   // "View Property" links point at each listing (portal tracking URLs).
@@ -190,6 +237,10 @@ function parseCardAlerts(rawHtml: string, body: string, source: string): ParsedL
       acres: Number.isFinite(acres) ? acres : null,
       url: propUrls[n] || propUrls[0] || null,
       source,
+      agentName: agentDetails.agentName,
+      agentPhone: agentDetails.agentPhone,
+      agentEmail: agentDetails.agentEmail,
+      agentLicense: agentDetails.agentLicense,
       needsAddress: true,
     })
     n++
