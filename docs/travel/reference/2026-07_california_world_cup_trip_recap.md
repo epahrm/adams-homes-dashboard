@@ -63,6 +63,10 @@ the match if possible.
 - San Pedro Square Market — plan 2 hrs.
 Note: all are walk / stroll / dine activities with FREE ENTRY.
 
+## Getting around
+Main transportation: rental car (Avis from SJC). Walkability and bicycle
+assessment: pending Elizabeth's answers via the app's Getting Around prompt.
+
 ## Best of trip
 
 🏆 Best Restaurant: Hard Rock Cafe, Pier 39 (Seth's favorite)

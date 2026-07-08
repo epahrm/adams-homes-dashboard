@@ -140,6 +140,9 @@ When building out a journal, PROMPT Elizabeth for each stop's recommended
 duration ("how long should we plan here next time") and its HIGHLIGHTS —
 a friends-and-family blurb explaining why they'd want to visit. Journals
 double as recommendation guides when shared.
+Also PROMPT for the city's GETTING AROUND assessment: is it OK to walk?
+Are bicycles OK? Is the main transportation public transit, rental car, or
+rideshare? Plus free-form notes (parking, traffic, transit tips).
 
 ## 20. Permanent travel profile
 Elizabeth prefers compact, executive-style itineraries with verified
