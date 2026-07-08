@@ -698,6 +698,10 @@ const JOURNALS = [{
     notes:"Perfect downtown base \u2014 steps from the Oculus and the Fulton St subway hub, and the Two Bridges morning run starts right outside the door.",
   },
   markets:"Whole Foods at One Wall Street (66 Broadway) \u2014 two blocks from the hotel; groceries + grab-and-go covered us all trip.",
+  lounge:{
+    name:"LGA \u2014 Chase Sapphire Lounge by The Club (Terminal B, Level 4) \u00b7 MCO \u2014 The Club (Priority Pass)",
+    review:"Used lounges on both ends. The Sapphire Lounge was one of the nicest Elizabeth has EVER been to \u2014 two floors, 21,800 sq ft; Sapphire Reserve gets you in up to 3 h before departure with 2 guests free.",
+  },
 }];
 
 
@@ -985,7 +989,7 @@ function vJournal(){
 
   <div class="section-title">Airport lounge</div>
   ${(() => {
-    const lg = X.lounge || {};
+    const lg = Object.assign({}, j.lounge || {}, X.lounge || {});
     const unset = !lg.name && !lg.review && !lg.qr && !lg.busy && !lg.prebook;
     return `<button class="card" data-a="jLounge" style="display:block;width:100%;text-align:left">
       ${unset ? `<div class="notesbody">🛋️ <b>Tap to answer:</b> which lounge did we use, how was it, was it busy, did it need pre-booking \u2014 and do you have a QR code to pre-register for next time?</div>` : `
@@ -1628,7 +1632,7 @@ const A = {
   },
   jLounge(){
     const j = journal(R.jid), X = jx(j.id);
-    const lg = X.lounge || {};
+    const lg = Object.assign({}, j.lounge || {}, X.lounge || {});
     openModal({
       title:"Airport lounge",
       fields:[

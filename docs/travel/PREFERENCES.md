@@ -86,6 +86,12 @@ Pass / Chase Sapphire-accessible lounges and bake the result into the plan
 and the journal. Journal debrief asks: was it busy, and was pre-booking
 needed?
 
+PERMANENT PLAY — Chase Sapphire Lounges are the gold standard (NYC 2025):
+the Sapphire Lounge at LGA (Terminal B, Level 4) was "one of the nicest
+I have ever been to" — Elizabeth. When a Sapphire Lounge exists at
+either end of a route, plan it first; other Priority Pass lounges are
+the fallback.
+
 PERMANENT PLAY — Corner room with a view (NYC 2025): the corner King
 Studio at the Residence Inn WTC had a great view and Elizabeth would
 "definitely want that again" — request a corner/high-floor room with a

@@ -65,6 +65,10 @@ Priority Pass or Chase Sapphire access, and put the result in the plan
 MCO ×2 (Terminal A Airside 1 gates 1–29 · Terminal B Airside 4 gates
 70–99, the busier one, has showers) — both Priority Pass; CSR includes
 Priority Pass Select, entry up to 3 h before departure, 2 guests.
+LGA = Chase Sapphire Lounge by The Club, Terminal B Level 4 — two
+floors, 21,800 sq ft; Elizabeth: one of the nicest she's EVER visited
+(NYC 2025). PREFERENCE: when a Chase Sapphire Lounge exists at either
+airport, route the lounge plan through it first.
 
 ## 7. Preferences (soft)
 Marriott first, IHG if better · free breakfast preferred but hotel quality

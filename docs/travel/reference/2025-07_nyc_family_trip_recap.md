@@ -68,9 +68,15 @@ Tower visit — the brick-oven pizza in the 725 5th Ave atrium
 the Trump Tower & Fifth Avenue stop and in the city file as a
 restaurant winner.
 
+## Airport lounges (Elizabeth 2026-07-08 — mostly resolved)
+Used lounges at BOTH ends. LGA: Chase Sapphire Lounge by The Club
+(Terminal B, Level 4, two floors, 21,800 sq ft) — "one of the nicest I
+have ever been to." MCO: Priority Pass lounge (The Club — confirm which
+Airside). → PERMANENT PLAY: Sapphire Lounges first wherever they exist.
+
 ## Open items (ask one at a time)
-1. Lounge report: MCO out (The Club MCO, Priority Pass) / LGA back —
-   used one? busy? pre-booking needed? QR?
+1. Lounge follow-up: was the Sapphire Lounge busy, and was pre-booking/
+   pre-registration needed? (Same two for the MCO Club.)
 2. Which Starbucks exactly (Brookfield Place assumed).
 3. Per-stop durations + highlights; photos; favorite lunch/dinner spots.
 4. Confirm who traveled (kids = Seth + twin nieces?).
