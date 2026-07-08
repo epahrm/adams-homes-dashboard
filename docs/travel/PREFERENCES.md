@@ -19,6 +19,8 @@ Format per trip:
 
 ## California FIFA World Cup — Jul 2026 (benchmark trip, ★9.7/10)
 Full journal: `reference/2026-07_california_world_cup_trip_recap.md`
+- Favorite restaurant: Hard Rock Cafe at Pier 39 (Seth's favorite — burgers
+  + energy; family-friendly chains at iconic locations are a winning combo)
 - Favorite photo location: Battery Spencer (best Golden Gate viewpoint)
 - Favorite family activity: Pier 39 sea lions
 - Favorite hidden gem: San Pedro Square Market (World Cup week)

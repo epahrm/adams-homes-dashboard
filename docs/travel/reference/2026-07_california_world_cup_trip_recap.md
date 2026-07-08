@@ -56,6 +56,7 @@ the match if possible.
 
 ## Best of trip
 
+🏆 Best Restaurant: Hard Rock Cafe, Pier 39 (Seth's favorite)
 🏆 Best Photo: Battery Spencer
 🏆 Best Family Activity: Pier 39 sea lions
 🏆 Best Hidden Gem: San Pedro Square Market during World Cup week
