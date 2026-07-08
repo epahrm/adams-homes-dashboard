@@ -427,6 +427,7 @@
           <button class="btn-navy" id="contractBtn">Upload Contract (PDF/JPEG)</button>
           <button class="btn-green" id="importBtn">Import Contacts (CSV)</button>
           <button class="btn-navy" id="sweepBtn">Off-Market Sweep</button>
+          <button class="btn-navy" id="ingestEmailBtn">📧 Ingest Zillow Emails</button>
           <button class="btn-outline" id="postcardBtn">Postcards / QR</button>
           <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
           <input type="file" id="contractFile" accept="application/pdf,.pdf,image/jpeg,.jpg,.jpeg" style="display:none">
@@ -3086,6 +3087,32 @@
       } catch (e) { swMsg('County lookup timed out — try a smaller pull.'); return null; }
     }
     document.getElementById('sweepBtn').addEventListener('click', () => { swOverlay.classList.add('show'); swMsg('Set your filters and click Preview Count.'); });
+    document.getElementById('ingestEmailBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('ingestEmailBtn');
+      const origText = btn.textContent;
+      btn.textContent = '⏳ Processing emails…';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/land-acq/ingest-email', {
+          headers: { 'x-admin-key': sessionStorage.laAdminKey }
+        });
+        const result = await res.json();
+        if (result.configured === false) {
+          alert('Email ingest not configured. Set LANDACQ_GMAIL_USER and LANDACQ_GMAIL_APP_PASSWORD in Vercel environment.');
+        } else if (result.error) {
+          alert('Email ingest failed: ' + result.reason + '\n' + result.hint);
+        } else {
+          alert('Email ingest complete:\n' + result.scanned + ' listings scanned\n' + result.added + ' new lots added\n' + result.duplicates + ' duplicates\n' + result.rejected + ' rejected by buy box');
+          // Reload the page to see new lots
+          setTimeout(() => window.location.reload(), 1000);
+        }
+      } catch (e) {
+        alert('Email ingest error: ' + e.message);
+      } finally {
+        btn.textContent = origText;
+        btn.disabled = false;
+      }
+    });
     document.getElementById('swCancel').addEventListener('click', () => swOverlay.classList.remove('show'));
     swOverlay.addEventListener('click', e => { if (e.target === swOverlay) swOverlay.classList.remove('show'); });
     document.getElementById('swPreview').addEventListener('click', async () => {
