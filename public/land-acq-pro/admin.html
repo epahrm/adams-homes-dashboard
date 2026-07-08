@@ -605,6 +605,18 @@
         </div>
       </details>
 
+      <!-- Wholesaler CRM: every wholesaler who's brought us a deal, with spread -->
+      <details class="realtor-crm" id="wholesalerCrm" style="margin-bottom:20px;">
+        <summary id="wholesalerSummary">Wholesaler CRM</summary>
+        <div class="ops-note">Wholesalers who've brought us deals. <b>Spread</b> is how much they made off us (what we paid them minus what they paid for the lot) — Kevin logs it at closing on the deal.</div>
+        <div class="table-wrap">
+          <table class="realtor-table">
+            <thead><tr><th>Wholesaler / Company</th><th>Contact</th><th>Deals</th><th>Pipeline</th><th>Spread (made off us)</th></tr></thead>
+            <tbody id="wholesalerRows"></tbody>
+          </table>
+        </div>
+      </details>
+
       <!-- Costs, ROI & Renewals: subscriptions/accounts, mailing spend, ROI, cancellations -->
       <details class="ops-panel" id="opsPanel" style="margin-bottom:20px;">
         <summary id="opsSummary">Costs, ROI &amp; Renewals</summary>
@@ -676,6 +688,7 @@
 
       <div class="actions">
         <button class="btn-green" id="exportCsv">Export to CSV</button>
+        <button class="btn-green" id="exportClosedCsv">Download Closed (by month)</button>
         <button class="btn-green" id="exportPdf">Export to PDF</button>
         <button class="btn-outline" id="refreshBtn">Refresh Data</button>
       </div>
@@ -780,14 +793,15 @@
               <option value="water-sewer">Water / Sewer</option>
             </select>
           </div>
-          <div><label for="dListing">Off-Market or Listed</label>
-            <select id="dListing"><option value="off-market">Off-Market</option><option value="listed">Listed (MLS)</option></select>
+          <div><label for="dListing">Deal Type</label>
+            <select id="dListing"><option value="off-market">Off-Market</option><option value="listed">On-Market (Listed / MLS)</option><option value="wholesaler">Wholesaler</option></select>
           </div>
           <div><label for="dSource">Lead Source</label>
             <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Wholesaler</option><option>Referral</option><option>Other</option></select>
           </div>
           <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
           <div><label for="dAgentBrokerage">Brokerage</label><input type="text" id="dAgentBrokerage" placeholder="Brokerage"></div>
+          <div><label for="dWholesaler">Wholesaler (if wholesaler deal)</label><input type="text" id="dWholesaler" placeholder="Wholesaler name / company"></div>
           <div><label for="dAccepted">Accepted Date</label><input type="date" id="dAccepted"></div>
           <div><label for="dClose">Scheduled Close</label><input type="date" id="dClose"></div>
         </div>
@@ -1125,7 +1139,9 @@
         // Seller declined an earlier offer — 30-day follow-up now due.
         { id: now - 27, status: 'offer-denied', source: 'Zillow', address: '318 Abetti Rd SE, Palm Bay, FL 32909', listStatus: 'Active Listing', listPrice: 31000, zoningClass: 'Residential', mls: '1077410', agentBrokerage: 'Space Coast AOR', offer: '$30,000', deniedAt: iso(now - 32 * day), nextReviewAt: iso(now - 2 * day), createdAt: iso(now - 45 * day) },
         // Off-market county lot from a sweep — a blind mailer target (no listing).
-        { id: now - 28, status: 'opportunity', source: 'Off-Market', listingType: 'off-market', address: '640 Cogan Dr SE, Palm Bay, FL 32909', owner: 'H & T Land Holdings LLC', ownerContact: 'PO Box 1200, Orlando, FL 32801', acres: 0.24, lotSize: '0.24 acres', taxValue: '$18,400', parcel: '2948-06AB-33001', createdAt: iso(now - 1 * day) }
+        { id: now - 28, status: 'opportunity', source: 'Off-Market', listingType: 'off-market', address: '640 Cogan Dr SE, Palm Bay, FL 32909', owner: 'H & T Land Holdings LLC', ownerContact: 'PO Box 1200, Orlando, FL 32801', acres: 0.24, lotSize: '0.24 acres', taxValue: '$18,400', parcel: '2948-06AB-33001', createdAt: iso(now - 1 * day) },
+        // Wholesaler deal (closed) — spread logged at closing for CRM tracking.
+        { id: now - 29, status: 'closed', source: 'Wholesaler', listingType: 'wholesaler', address: '77 Redwing St NW, Palm Bay, FL 32907', owner: 'Prior Owner LLC', offer: '$24,000', wholesalerName: 'Marcus Vale', wholesalerCompany: 'Vale Land Group', wholesalerPhone: '(321) 555-7788', wholesalerPaid: 12000, wholesalerSoldPrice: 24000, wholesalerSpread: 12000, lotSize: '0.23 acres', parcel: '2949-02CD-44100', createdAt: iso(now - 40 * day), acceptedAt: iso(now - 30 * day), closedAt: dt(0, Math.max(1, new Date().getDate() - 4)) }
       ];
       const have = new Set(existing.map(s => (s.address || '').toLowerCase()));
       const merged = existing.concat(seeds.filter(s => !have.has(s.address.toLowerCase())));
@@ -1783,6 +1799,54 @@
       });
     }
 
+    // Wholesaler CRM — one row per wholesaler, with their deals and the total
+    // spread (how much they've made off us across all deals).
+    function renderWholesalers(lots) {
+      const crm = document.getElementById('wholesalerCrm');
+      const rows = document.getElementById('wholesalerRows');
+      const map = new Map();
+      lots.forEach(l => {
+        const isWs = l.listingType === 'wholesaler' || l.source === 'Wholesaler';
+        const name = (l.wholesalerName || '').trim() || (isWs ? 'Unnamed wholesaler' : '');
+        if (!isWs || !name) return;
+        const key = (l.wholesalerEmail || name).toLowerCase().trim();
+        if (!map.has(key)) map.set(key, { name: '', company: '', phone: '', email: '', spread: 0, lots: [] });
+        const e = map.get(key);
+        if (!e.name) e.name = name;
+        if (!e.company && l.wholesalerCompany) e.company = l.wholesalerCompany;
+        if (!e.phone && l.wholesalerPhone) e.phone = l.wholesalerPhone;
+        if (!e.email && l.wholesalerEmail) e.email = l.wholesalerEmail;
+        if (typeof l.wholesalerSpread === 'number') e.spread += l.wholesalerSpread;
+        e.lots.push(l);
+      });
+      const wholesalers = Array.from(map.values()).sort((a, b) => b.spread - a.spread || b.lots.length - a.lots.length);
+      const totalSpread = wholesalers.reduce((a, w) => a + w.spread, 0);
+      document.getElementById('wholesalerSummary').textContent = 'Wholesaler CRM — ' + wholesalers.length + ' wholesaler' + (wholesalers.length === 1 ? '' : 's')
+        + (totalSpread ? ' · ' + money(totalSpread) + ' total spread paid' : '');
+      if (!wholesalers.length) { crm.style.display = 'none'; return; }
+      crm.style.display = 'block';
+      rows.innerHTML = '';
+      const st = l => l.displayStatus || l.status;
+      wholesalers.forEach(w => {
+        const tr = document.createElement('tr');
+        const c1 = document.createElement('td');
+        const nm = document.createElement('div'); nm.className = 'r-name'; nm.textContent = w.name;
+        c1.appendChild(nm);
+        if (w.company) { const co = document.createElement('div'); co.className = 'r-brok'; co.textContent = w.company; c1.appendChild(co); }
+        const c2 = document.createElement('td'); c2.className = 'r-contact';
+        c2.textContent = [w.phone, w.email].filter(Boolean).join(' · ') || 'No direct contact yet';
+        const c3 = document.createElement('td');
+        const cnt = document.createElement('span'); cnt.className = 'r-count'; cnt.textContent = w.lots.length; c3.appendChild(cnt);
+        const c4 = document.createElement('td'); c4.className = 'r-pipe';
+        const offers = w.lots.filter(l => ACTIVE_OFFER.includes(st(l))).length;
+        const closed = w.lots.filter(l => st(l) === 'closed').length;
+        c4.textContent = [offers ? offers + ' in progress' : null, closed ? closed + ' closed' : null].filter(Boolean).join(' · ') || '—';
+        const c5 = document.createElement('td'); c5.className = 'r-name'; c5.textContent = w.spread ? money(w.spread) : '—';
+        tr.appendChild(c1); tr.appendChild(c2); tr.appendChild(c3); tr.appendChild(c4); tr.appendChild(c5);
+        rows.appendChild(tr);
+      });
+    }
+
     // ---------- Costs, ROI & Renewals ----------
     const OPS_LOCAL = { accounts: 'landAcqOpsAccounts', mailCosts: 'landAcqOpsMail', cancellations: 'landAcqOpsCancel' };
     let opsData = { accounts: [], mailCosts: [], cancellations: [] };
@@ -2191,6 +2255,7 @@
       renderFollowups(lots);
       renderThankYou(lots);
       renderRealtors(lots);
+      renderWholesalers(lots);
       loadAllOps();
 
       // KPIs (live pipeline stages; Closed shows this-month only)
@@ -2353,6 +2418,36 @@
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'palm-bay-lot-pipeline.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // Download every closed deal as one CSV, sorted by month (newest first) with
+    // a Month column — the year-long closings record that feeds monthly/quarterly
+    // reporting.
+    document.getElementById('exportClosedCsv').addEventListener('click', () => {
+      const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const closed = lastLots
+        .filter(l => (l.displayStatus || l.status) === 'closed')
+        .map(l => ({ l, d: closedDate(l) }))
+        .filter(x => x.d)
+        .sort((a, b) => new Date(b.d) - new Date(a.d)); // newest month first
+      const monthKey = d => { const x = new Date(d); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0'); };
+      const monthLabel = d => new Date(d).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      const head = ['Month', 'Closed Date', 'Address', 'Owner', 'Deal Type', 'Source', 'Wholesaler', 'Price / Offer', 'Commission to Adams', 'Wholesaler Spread', 'Parcel'];
+      const lines = [head.join(',')].concat(closed.map(({ l, d }) => [
+        monthLabel(d), new Date(d).toLocaleDateString(), l.address || '', l.owner || '',
+        l.listingType === 'wholesaler' ? 'Wholesaler' : (l.listingType === 'listed' ? 'On-Market' : 'Off-Market'),
+        l.source || '', l.wholesalerName || '', l.offer || '',
+        typeof l.commissionAmt === 'number' && l.commissionAmt ? money(l.commissionAmt) : '',
+        typeof l.wholesalerSpread === 'number' ? money(l.wholesalerSpread) : '',
+        l.parcel || ''
+      ].map(esc).join(',')));
+      // BOM so Excel opens it cleanly; sorted newest month first with a labeled column.
+      const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'closed-deals-by-month-' + new Date().toISOString().slice(0, 10) + '.csv';
       a.click();
       URL.revokeObjectURL(a.href);
     });
@@ -2648,6 +2743,7 @@
       const val = id => document.getElementById(id).value.trim();
       const iso = d => d ? new Date(d + 'T12:00:00').toISOString() : undefined;
       const listed = val('dListing') === 'listed';
+      const isWholesaler = val('dListing') === 'wholesaler';
       const lot = {
         address,
         status: document.getElementById('dStage').value,
@@ -2656,9 +2752,10 @@
         offer: val('dOffer') || undefined,
         utilityType: val('dUtility') || undefined,
         listingType: val('dListing'),
-        source: val('dSource') || 'Direct Mail',
+        source: isWholesaler ? 'Wholesaler' : (val('dSource') || 'Direct Mail'),
         agentName: listed ? (val('dAgentName') || undefined) : undefined,
         agentBrokerage: listed ? (val('dAgentBrokerage') || undefined) : undefined,
+        wholesalerName: isWholesaler ? (val('dWholesaler') || undefined) : undefined,
         acceptedAt: iso(val('dAccepted')),
         scheduledClose: iso(val('dClose'))
       };

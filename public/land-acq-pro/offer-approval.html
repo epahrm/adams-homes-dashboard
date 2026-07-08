@@ -213,10 +213,11 @@
             </select>
           </div>
           <div>
-            <label class="form-label" for="listingType">Off-Market or Listed</label>
+            <label class="form-label" for="listingType">Deal Type</label>
             <select id="listingType">
               <option value="off-market">Off-Market</option>
-              <option value="listed">Listed (MLS)</option>
+              <option value="listed">On-Market (Listed / MLS)</option>
+              <option value="wholesaler">Wholesaler</option>
             </select>
           </div>
           <div>
@@ -259,6 +260,31 @@
         <div class="hint">Auto-filled from the listing when available. The offer routes to this agent, and they're tracked in the Realtor CRM.</div>
         <button type="button" class="btn btn-outline" id="saveAgentBtn" style="margin-top:12px; width:auto;">Save Agent Details</button>
         <span class="agent-saved" id="agentSaved" style="display:none; margin-left:12px; color:#1a7a44; font-weight:600; font-size:14px;">✓ Saved</span>
+      </div>
+
+      <!-- Wholesaler (wholesaler deals: capture WHO the wholesaler is) -->
+      <div class="card" id="wholesalerCard" style="display:none;">
+        <h3>Wholesaler <span style="font-weight:400; font-size:13px; color:#667;">— who brought this deal</span></h3>
+        <div class="two-col">
+          <div><label class="form-label" for="wsName">Wholesaler Name</label><input type="text" id="wsName" placeholder="Full name"></div>
+          <div><label class="form-label" for="wsCompany">Company</label><input type="text" id="wsCompany" placeholder="e.g. Brevard Land Partners"></div>
+          <div><label class="form-label" for="wsPhone">Phone</label><input type="text" id="wsPhone" placeholder="(321) 555-0000"></div>
+          <div><label class="form-label" for="wsEmail">Email</label><input type="text" id="wsEmail" placeholder="name@company.com"></div>
+        </div>
+        <div class="hint">Labels who the wholesaler is so every deal they bring is tracked together in the Wholesaler CRM.</div>
+
+        <!-- Wholesaler spread: what they paid vs. what they sold to us (known at
+             closing) — tracks how much the wholesaler is making off us. -->
+        <div id="wsSpreadBlock" style="margin-top:16px; border-top:1px solid #eef2f6; padding-top:14px;">
+          <label class="form-label">Wholesaler Spread <span style="font-weight:400; color:#667;">— log at closing</span></label>
+          <div class="two-col">
+            <div><label class="form-label" for="wsPaid">What the wholesaler paid</label><input type="text" id="wsPaid" inputmode="numeric" placeholder="$0"></div>
+            <div><label class="form-label" for="wsSold">Sold to us for</label><input type="text" id="wsSold" inputmode="numeric" placeholder="$0"></div>
+          </div>
+          <div id="wsSpreadOut" style="margin-top:8px; font-weight:700; color:#003d66;">Spread: —</div>
+        </div>
+        <button type="button" class="btn btn-outline" id="saveWsBtn" style="margin-top:12px; width:auto;">Save Wholesaler</button>
+        <span class="agent-saved" id="wsSaved" style="display:none; margin-left:12px; color:#1a7a44; font-weight:600; font-size:14px;">✓ Saved</span>
       </div>
 
       <!-- Offer terms -->
@@ -434,7 +460,9 @@
       const hint = document.getElementById('commissionHint');
       const row = document.getElementById('commissionConfirmed').closest('label');
       if (!c.listed) {
-        hint.textContent = 'Off-market deal — no third-party commission ($0).';
+        hint.textContent = document.getElementById('listingType').value === 'wholesaler'
+          ? 'Wholesaler deal — no buyer-agent commission ($0). Log the wholesaler spread at closing.'
+          : 'Off-market deal — no third-party commission ($0).';
         if (row) row.style.display = 'none';
         return;
       }
@@ -922,6 +950,22 @@
       } else {
         const note = document.createElement('div'); note.className = 'hint'; note.textContent = 'No action available at this stage.'; box.appendChild(note);
       }
+
+      // Wholesaler spread — Kevin knows the numbers at closing, so surface the
+      // "Log Wholesaler Spread" action once the deal reaches clear-to-close.
+      const isWs = lot.listingType === 'wholesaler' || lot.source === 'Wholesaler';
+      if (isWs && (st === 'ctc' || st === 'closed')) {
+        if (lot.wholesalerSpread == null) {
+          addBtn('Log Wholesaler Spread', 'btn-navy', () => {
+            document.getElementById('wholesalerCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('wsPaid').focus();
+          });
+        } else {
+          const note = document.createElement('div'); note.className = 'hint';
+          note.textContent = '✓ Wholesaler spread logged: ' + money(lot.wholesalerSpread) + ' (they made this off us).';
+          box.appendChild(note);
+        }
+      }
     }
 
     // ---------- Actions ----------
@@ -942,13 +986,60 @@
         agentBrokerage: document.getElementById('agentBrokerage').value.trim(),
         agentPhone: document.getElementById('agentPhone').value.trim(),
         agentEmail: document.getElementById('agentEmail').value.trim(),
-        mls: document.getElementById('mlsNum').value.trim()
+        mls: document.getElementById('mlsNum').value.trim(),
+        wholesalerName: document.getElementById('wsName').value.trim(),
+        wholesalerCompany: document.getElementById('wsCompany').value.trim(),
+        wholesalerPhone: document.getElementById('wsPhone').value.trim(),
+        wholesalerEmail: document.getElementById('wsEmail').value.trim(),
+        wholesalerPaid: num(document.getElementById('wsPaid').value) || null,
+        wholesalerSoldPrice: num(document.getElementById('wsSold').value) || null
       };
     }
 
     function toggleAgentCard() {
-      const listed = document.getElementById('listingType').value === 'listed';
-      document.getElementById('agentCard').style.display = listed ? '' : 'none';
+      const type = document.getElementById('listingType').value;
+      document.getElementById('agentCard').style.display = type === 'listed' ? '' : 'none';
+      document.getElementById('wholesalerCard').style.display = type === 'wholesaler' ? '' : 'none';
+    }
+
+    // Live spread = what we paid the wholesaler minus what they paid for the lot.
+    function updateWsSpread() {
+      const paid = num(document.getElementById('wsPaid').value);
+      const sold = num(document.getElementById('wsSold').value);
+      const out = document.getElementById('wsSpreadOut');
+      if (paid > 0 && sold > 0) {
+        const spread = sold - paid;
+        out.textContent = 'Spread: ' + money(spread) + ' (wholesaler made ' + money(spread) + ' — paid ' + money(paid) + ', sold to us for ' + money(sold) + ')';
+      } else {
+        out.textContent = 'Spread: — (enter both at closing)';
+      }
+    }
+
+    // Save just the wholesaler details on their own — feeds the Wholesaler CRM.
+    async function saveWholesalerDetails() {
+      const btn = document.getElementById('saveWsBtn');
+      const paid = num(document.getElementById('wsPaid').value);
+      const sold = num(document.getElementById('wsSold').value);
+      const set = {
+        listingType: document.getElementById('listingType').value,
+        wholesalerName: document.getElementById('wsName').value.trim(),
+        wholesalerCompany: document.getElementById('wsCompany').value.trim(),
+        wholesalerPhone: document.getElementById('wsPhone').value.trim(),
+        wholesalerEmail: document.getElementById('wsEmail').value.trim(),
+        wholesalerPaid: paid > 0 ? paid : null,
+        wholesalerSoldPrice: sold > 0 ? sold : null,
+        wholesalerSpread: (paid > 0 && sold > 0) ? sold - paid : null
+      };
+      btn.disabled = true;
+      try {
+        await saveLot(set);
+        const s = document.getElementById('wsSaved');
+        s.style.display = 'inline';
+        setTimeout(() => { s.style.display = 'none'; }, 2500);
+      } catch (e) {
+        msg('Could not save the wholesaler details — please try again.', false);
+      }
+      btn.disabled = false;
     }
 
     // Save just the listing-agent details on their own (so Kevin/Elizabeth can
@@ -985,9 +1076,12 @@
     }
 
     // Show the "not already listed" confirmation only for wholesaler deals.
+    function isWholesalerDeal() {
+      return document.getElementById('listingType').value === 'wholesaler'
+        || document.getElementById('leadSource').value === 'Wholesaler';
+    }
     function toggleWholesaler() {
-      const isWholesaler = document.getElementById('leadSource').value === 'Wholesaler';
-      document.getElementById('wholesalerCheck').style.display = isWholesaler ? 'block' : 'none';
+      document.getElementById('wholesalerCheck').style.display = isWholesalerDeal() ? 'block' : 'none';
     }
 
     async function generateOffer() {
@@ -999,7 +1093,7 @@
       if (!(offerVal > 0)) return msg('Please enter a valid offer amount.', false);
       // Wholesaler gate: don't let an offer go out until Kevin confirms the
       // property isn't already listed for sale on a public site.
-      if (document.getElementById('leadSource').value === 'Wholesaler' && !document.getElementById('wholesalerConfirmed').checked) {
+      if (isWholesalerDeal() && !document.getElementById('wholesalerConfirmed').checked) {
         document.getElementById('wholesalerCheck').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return msg('Wholesaler deal: first confirm the property is not already listed for sale on a public site.', false);
       }
@@ -1117,6 +1211,14 @@
       document.getElementById('agentPhone').value = lot.agentPhone || '';
       document.getElementById('agentEmail').value = lot.agentEmail || '';
       document.getElementById('mlsNum').value = lot.mls || '';
+      // Wholesaler details (who brought the deal + the spread)
+      document.getElementById('wsName').value = lot.wholesalerName || '';
+      document.getElementById('wsCompany').value = lot.wholesalerCompany || '';
+      document.getElementById('wsPhone').value = lot.wholesalerPhone || '';
+      document.getElementById('wsEmail').value = lot.wholesalerEmail || '';
+      document.getElementById('wsPaid').value = lot.wholesalerPaid || '';
+      document.getElementById('wsSold').value = lot.wholesalerSoldPrice || lot.offer || '';
+      updateWsSpread();
       toggleAgentCard();
 
       // Offer terms. Default: on-market (listed) opens $2k below the stipend
@@ -1159,14 +1261,17 @@
       // listed → 3% (only when it's still on the other type's default, so a rate
       // Kevin actually typed is never clobbered).
       const cur = document.getElementById('commission').value.trim();
-      if (this.value === 'off-market' && (cur === '3%' || cur === '')) document.getElementById('commission').value = '0%';
+      if ((this.value === 'off-market' || this.value === 'wholesaler') && (cur === '3%' || cur === '')) document.getElementById('commission').value = '0%';
       if (this.value === 'listed' && (cur === '0%' || cur === '')) document.getElementById('commission').value = '3%';
-      toggleAgentCard(); updateCommissionHint();
+      toggleAgentCard(); toggleWholesaler(); updateCommissionHint();
     });
     document.getElementById('offerAmount').addEventListener('input', () => { refreshStipend(); updateCommissionHint(); });
     document.getElementById('commission').addEventListener('input', updateCommissionHint);
     document.getElementById('leadSource').addEventListener('change', toggleWholesaler);
     document.getElementById('saveAgentBtn').addEventListener('click', saveAgentDetails);
+    document.getElementById('saveWsBtn').addEventListener('click', saveWholesalerDetails);
+    document.getElementById('wsPaid').addEventListener('input', updateWsSpread);
+    document.getElementById('wsSold').addEventListener('input', updateWsSpread);
     document.querySelectorAll('input[name=hasPremium]').forEach(r => r.addEventListener('change', function() {
       document.getElementById('premiumList').classList.toggle('show', this.value === 'yes');
       document.getElementById('premiumError').style.display = 'none';
