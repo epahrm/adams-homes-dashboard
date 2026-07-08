@@ -1,7 +1,10 @@
 # New York City Family Trip Recap (journal #3 — in progress)
 
-PURPOSE: family summer vacation — Manhattan end to end with the kids and
-Elizabeth's twin nieces.
+PURPOSE: family summer vacation — Manhattan end to end.
+TRAVELERS (confirmed 2026-07-08): Elizabeth, Seth, and Elizabeth's twin
+nieces Payton and Taylor. Chelsea Piers was the girls' (Payton &
+Taylor's) stop; they also rented the Central Park bikes and picked
+Times Square at night.
 
 Dates: Wed Jul 30 – Sat Aug 2, 2025 (verified from Gmail 2026-07-08).
 
@@ -79,5 +82,4 @@ smart to pre-register / join the queue before arriving. Logged in the
 journal (busy + prebook fields).
 
 ## Open items (ask one at a time)
-1. Confirm who traveled (kids = Seth + twin nieces?).
-2. Per-stop durations + highlights; photos; favorite lunch/dinner spots.
+1. Per-stop durations + highlights; photos; favorite lunch/dinner spots.

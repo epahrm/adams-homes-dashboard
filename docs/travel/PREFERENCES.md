@@ -129,4 +129,5 @@ Full journal: `reference/2025-07_nyc_family_trip_recap.md`
   when scouting pizza in any city.
 - Sapphire LGA lounge: busy — pre-register/queue ahead (resolved)
 - Chill-spot Starbucks: Brookfield Place / Winter Garden (confirmed)
-- Pending: per-stop durations, photos, travelers roster
+- Travelers: Elizabeth, Seth, twin nieces Payton & Taylor (confirmed)
+- Pending: per-stop durations, photos, meal favorites (lunch/dinner)
