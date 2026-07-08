@@ -300,6 +300,22 @@ async function noHorizontalOverflow(page) {
     check('cancellations no longer shown as an ROI tile',
       !/Cancellations/i.test(await page.textContent('#opsRoi')));
     check('scheduled-to-close metric populated', Number(await page.textContent('#mScheduled')) >= 1);
+
+    // ---------- Realtor CRM: name/brokerage + internet lookup ----------
+    await page.locator('#realtorCrm > summary').click();
+    check('realtor CRM lists a name and brokerage',
+      (await page.locator('#realtorRows .r-name').count()) >= 1 && (await page.locator('#realtorRows .r-brok').count()) >= 1);
+    check('realtor rows have a Look up link to confirm the agent online',
+      (await page.locator('#realtorRows a.r-lookup').count()) >= 1
+      && /google\.com\/search/.test(await page.locator('#realtorRows a.r-lookup').first().getAttribute('href')));
+
+    // ---------- Contract upload accepts PDF or JPEG ----------
+    check('upload-contract control accepts PDF and JPEG',
+      /pdf/i.test(await page.getAttribute('#contractFile', 'accept'))
+      && /jpe?g/i.test(await page.getAttribute('#contractFile', 'accept')));
+    check('upload-contract button notes PDF/JPEG',
+      /jpe?g/i.test(await page.textContent('#contractBtn')));
+
     // Table shows only active-contract lots (no closed/declined/pending)
     const tbl = await page.textContent('#lotRows');
     check('table excludes closed lots', !tbl.includes('200 Harbor'));
