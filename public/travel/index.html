@@ -477,6 +477,16 @@ const JOURNALS = [{
   doAgainNote:"All are walk / stroll / dine stops with free entry.",
   /* Getting Around defaults — Elizabeth confirms/edits via the prompt */
   mobility:{ walk:"partly", bike:"", mode:"rental", notes:"Hotel was walking distance to Levi\u2019s Stadium \u2014 no rideshare needed on match day." },
+  scorecard:[
+    ["Food", null],
+    ["Family Fun", null],
+    ["Hotel", null],
+    ["Walkability", null],
+    ["Transportation", null],
+    ["Value", null],
+    ["Overall Experience", 9.7],
+  ],
+  planDiff:"",
   hotel:{
     name:"Residence Inn by Marriott San Jose North/Silicon Valley",
     amen:[
@@ -849,6 +859,18 @@ function vJournal(){
     ${X.notes ? `<div class="notesbody">${esc(X.notes)}</div>` : `<div class="notesbody muted">Memories, lessons, things to remember for next time…</div>`}
     <div style="padding:0 16px 14px" class="noprint"><button class="btn ghost small" data-a="jNotes">✏️ Edit notes</button></div>
   </div>
+
+  ${j.scorecard ? `
+  <div class="section-title">Executive scorecard</div>
+  <div class="card" style="padding:14px 16px">
+    ${j.scorecard.map(([l, v]) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 0">
+      <span style="flex:0 0 128px;font-size:13.5px;font-weight:650">${esc(l)}</span>
+      <span class="progress grow" style="height:7px"><i style="width:${v ? v * 10 : 0}%;background:${v ? "var(--accent)" : "transparent"}"></i></span>
+      <b class="mono" style="flex:0 0 34px;text-align:right;font-size:13.5px;color:${v ? "var(--ink)" : "var(--muted)"}">${v ?? "—"}</b>
+    </div>`).join("")}
+    ${j.planDiff ? `<div class="hint" style="margin-top:8px">🔁 <b>Plan differently next time:</b> ${esc(j.planDiff)}</div>` : `<div class="hint" style="margin-top:8px">🔁 Plan differently next time: <i>pending</i></div>`}
+  </div>` : ""}
 
   <div class="section-title">Banked for later</div>
   <div class="card">${j.banked.map(x => `<div class="jl"><span class="je">🏦</span><span>${esc(x)}</span></div>`).join("")}</div>
