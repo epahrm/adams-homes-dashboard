@@ -146,6 +146,10 @@ rideshare? Plus free-form notes (parking, traffic, transit tips).
 Also PROMPT for the AIRPORT LOUNGE report: which lounge was used, how it
 was, and whether Elizabeth has a QR/pre-registration code to save for the
 next visit (stored in the journal).
+Also PROMPT for: rental car pickup (on-site at the terminal vs bus/shuttle
+to the facility — budget extra time if shuttle), an OVERALL SAFETY rating
+of the places visited, and any FARMERS MARKETS or similar finds worth
+noting for the next visit.
 
 ## 20. Permanent travel profile
 Elizabeth prefers compact, executive-style itineraries with verified

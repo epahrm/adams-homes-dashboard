@@ -745,7 +745,17 @@ function vJournal(){
       ${mv.walk ? `<div class="jl"><span class="je">🚶</span><span>${WALK[mv.walk] || esc(mv.walk)}</span></div>` : ""}
       ${mv.bike ? `<div class="jl"><span class="je">🚲</span><span>${BIKE[mv.bike] || esc(mv.bike)}</span></div>` : ""}
       ${mv.mode ? `<div class="jl"><span class="je">🚗</span><span><b>Main transportation:</b> ${(MODE[mv.mode] || esc(mv.mode)).replace(/^..\s/, "")}</span></div>` : ""}
+      ${mv.pickup ? `<div class="jl"><span class="je">${mv.pickup === "shuttle" ? "🚌" : "🅿️"}</span><span><b>Rental pickup:</b> ${mv.pickup === "shuttle" ? "Shuttle/bus to the rental facility — budget extra time" : mv.pickup === "onsite" ? "On-site at the terminal" : esc(mv.pickup)}</span></div>` : ""}
+      ${mv.safety ? `<div class="jl"><span class="je">🛡️</span><span><b>Safety:</b> ${({ safe:"Felt safe everywhere we went", day:"Safe by day — usual city smarts at night", mixed:"Mixed — stick to the main areas", caution:"Use caution — plan routes carefully" })[mv.safety] || esc(mv.safety)}</span></div>` : ""}
       ${mv.notes ? `<div class="jl"><span class="je">📝</span><span>${esc(mv.notes)}</span></div>` : ""}`}
+    </button>`;
+  })()}
+
+  <div class="section-title">Farmers markets & finds</div>
+  ${(() => {
+    const mk = X.markets || "";
+    return `<button class="card" data-a="jMarkets" style="display:block;width:100%;text-align:left">
+      <div class="notesbody${mk ? "" : " muted"}">${mk ? "🧺 " + esc(mk) : "🧺 Tap to note any farmers markets or similar finds worth a stop next visit."}</div>
     </button>`;
   })()}
 
@@ -1333,9 +1343,22 @@ const A = {
           options:[["","— pick one —"],["yes","🚲 Yes — great option"],["some","🚲 In some areas"],["no","🚫 Not practical"]] },
         { k:"mode", label:"Main transportation", type:"select", value:mv.mode || "",
           options:[["","— pick one —"],["public","🚇 Public transit"],["rental","🚗 Rental car"],["rideshare","🚕 Rideshare"],["mix","🔀 A mix"]] },
+        { k:"pickup", label:"Rental car pickup", type:"select", value:mv.pickup || "",
+          options:[["","— pick one —"],["onsite","🅿️ On-site at the terminal"],["shuttle","🚌 Bus/shuttle to the facility"],["na","No rental this trip"]] },
+        { k:"safety", label:"Overall safety of the places we visited", type:"select", value:mv.safety || "",
+          options:[["","— pick one —"],["safe","🛡️ Felt safe everywhere"],["day","🌤️ Safe by day, smart at night"],["mixed","⚠️ Mixed — stick to main areas"],["caution","🚨 Use caution"]] },
         { k:"notes", label:"Notes for next time / friends", type:"textarea", value:mv.notes, placeholder:"Parking, traffic, transit tips…" },
       ],
-      onSubmit(v){ X.mobility = { walk:v.walk, bike:v.bike, mode:v.mode, notes:v.notes }; save(); render(); }
+      onSubmit(v){ X.mobility = { walk:v.walk, bike:v.bike, mode:v.mode, pickup:v.pickup === "na" ? "" : v.pickup, safety:v.safety, notes:v.notes }; save(); render(); }
+    });
+  },
+  jMarkets(){
+    const j = journal(R.jid), X = jx(j.id);
+    openModal({
+      title:"Farmers markets & finds",
+      fields:[{ k:"m", type:"textarea", label:"Markets or similar for next visit", value:X.markets,
+        placeholder:"e.g. Ferry Building farmers market (Sat mornings) — worth timing a visit around" }],
+      onSubmit(v){ X.markets = v.m; save(); render(); }
     });
   },
   jLounge(){
