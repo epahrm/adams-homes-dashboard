@@ -56,6 +56,10 @@ whenever iconic photo spots are on the plan.
 PERMANENT PLAY — Layers for coastal/SF-like climates: pack hoodies for
 mornings/evenings even in summer.
 
+PERMANENT PLAY — Pre-arrival email, kid edition: ask the hotel to remove
+minibar/incidental items when traveling with Seth (The Ann Savannah did it
+happily and added a birthday treat — proof the pre-arrival email pays).
+
 PERMANENT PLAY — Birthday/milestone mentions: ALWAYS tell the hotel (in the
 pre-arrival email) and restaurants when a trip includes a birthday or
 milestone. Proven results: hotel gift + free dessert on the CA trip. Bake
@@ -75,3 +79,10 @@ this into every pre-arrival email and reservation note when applicable.
 - Winning pattern: every "do again" stop was a walk / stroll / dine
   activity with FREE ENTRY — favor these when composing future days
   (durations: 1–3 hrs each; see the recap for per-stop times)
+
+## Savannah — Father's Day Weekend — Jun 12–15, 2025 (journal #2)
+Full journal: `reference/2025-06_savannah_fathers_day_recap.md`
+- Best farmers market EVER: Forsyth Farmers' Market (Sat 9–1)
+- Hotel winner: The Ann Savannah (loft + kitchen + Little James)
+- Bring-the-bikes play: downtown Savannah is perfect riding
+- Pending: overall score, dinner favorites, exact checkout, safety, photos

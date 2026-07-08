@@ -1,39 +1,56 @@
 # Savannah, Georgia
 
-Status: placeholder — fill in as trips happen.
+Status: journal #2 — first trip recorded (Father's Day weekend, Jun 2025).
+Full recap: `../reference/2025-06_savannah_fathers_day_recap.md`
 
 ## Trips taken
-_None recorded yet._
+- Jun 12–15, 2025 — Father's Day family getaway (drove from FL with bikes)
 
 ## Hotel notes
-_(Historic District walkability is the priority; verify parking — it's tight downtown; Marriott options on/near the riverfront.)_
+- The Ann Savannah (Apartments by Marriott Bonvoy) — two-story loft, pool,
+  great gym, full kitchen, Little James restaurant (all three meals),
+  lounge for checkers/cards. Pre-arrival email: incidentals removed + Seth
+  birthday amenity. WINNER — stay again.
+- Hotel Bardo — Elizabeth's business-trip stay; gorgeous, great spa; worth
+  a stroll/coffee even when not staying.
 
 ## Restaurants (winners)
-_TBD — no seafood; strong Southern chicken/biscuit scene to lean on._
+- Little James (The Ann) — coffee + all three meals, fantastic
+- Brighter Day Natural Foods deli (Bull St) — sandwiches/salads
+- The Collins Quarter at Forsyth — excellent café; long wait, check in on
+  arrival
+- Riverfront behind Plant Riverside — everything good
+- Starland Yard — pizza Seth loved
 
 ## Coffee, tea & chill spots
-_TBD._
-
-## Desserts & bakeries
-_TBD — Leopold's Ice Cream is the obvious candidate to vet (line strategy needed)._
+- Little James · Collins Quarter · Hotel Bardo lobby/café
 
 ## Activities — winners
-_TBD — squares walking loop, Forsyth Park, riverboat to vet._
+- Forsyth Farmers' Market (Sat 9–1) — best farmers market ever
+- Plant Riverside District + riverfront walk
+- Savannah Riverboat Cruise (short loop; online coupons)
+- Historic squares by bike · Cathedral Basilica of St. John the Baptist
+- Starland Yard
 
-## Seth list (bikes, basketball, beach)
-_TBD — Tybee Island beach day as the pairing move._
+## Seth list
+- Bikes through downtown · pizza at Starland Yard · riverboat · ice cream
+  on River Street · park lounging at Forsyth
 
 ## Photo & viral spots
-_TBD — Forsyth Fountain, Jones Street, Wormsloe oak avenue to vet for time/angle._
+- Forsyth Fountain · squares/oaks · Plant Riverside interior · riverfront
 
-## Running routes (4–5 mi, safe)
-_TBD — squares + Forsyth loop._
+## Running routes
+- Forsyth Park + squares loop (Elizabeth's route)
 
 ## Markets & shopping
-_TBD — City Market, Broughton Street._
+- Forsyth Farmers' Market Sat 9–1 · Starland Yard · River Street
 
 ## Skip next time
-_TBD._
+- (none recorded)
 
 ## Banked for future trips
-_TBD._
+- Electric Moon rooftop Sunday brunch (DJ)
+
+## Getting around
+- Bike city (took our own); cobblestones in spots — check comfort (Mimi);
+  hotels rent bikes hourly; walkable; car for the road trip.
