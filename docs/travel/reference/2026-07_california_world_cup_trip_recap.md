@@ -77,7 +77,7 @@ Note: all are walk / stroll / dine activities with FREE ENTRY.
 Main transportation: rental car (Avis from SJC). Walkability (Elizabeth,
 2026-07-08): walkable at the stops, drive between areas. Hotel was walking
 distance to Levi's Stadium — no rideshare needed on match day. Bikes: not
-practical (Elizabeth). Rental pickup on-site vs shuttle: pending.
+practical (Elizabeth). Rental pickup: on-site at the SJC terminal (Elizabeth) — no shuttle time needed.
 
 ## Favorites by meal (Elizabeth, 2026-07-08)
 - Breakfast: Residence Inn hotel breakfast — excellent, huge hot & cold
