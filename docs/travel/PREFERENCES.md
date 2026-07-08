@@ -17,7 +17,7 @@ Format per trip:
 - Skip next time:
 ```
 
-## California FIFA World Cup — Jul 2026 (benchmark trip, ★9.7/10)
+## California FIFA World Cup — Jul 2026 (benchmark trip)
 Full journal: `reference/2026-07_california_world_cup_trip_recap.md`
 - Favorite restaurant: Hard Rock Cafe at Pier 39 (Seth's favorite — burgers
   + energy; family-friendly chains at iconic locations are a winning combo)
@@ -75,7 +75,7 @@ this into every pre-arrival email and reservation note when applicable.
 - Bank for future trips: Hakone Gardens (adults trip), Stanford (needs a
   spare half day)
 - Planning lesson: don't try to "see everything" — fewer, higher-impact
-  stops scored 9.7/10; cutting well is as valuable as choosing well
+  stops made the best trip yet; cutting well is as valuable as choosing well
 - Winning pattern: every "do again" stop was a walk / stroll / dine
   activity with FREE ENTRY — favor these when composing future days
   (durations: 1–3 hrs each; see the recap for per-stop times)
@@ -85,4 +85,4 @@ Full journal: `reference/2025-06_savannah_fathers_day_recap.md`
 - Best farmers market EVER: Forsyth Farmers' Market (Sat 9–1)
 - Hotel winner: The Ann Savannah (loft + kitchen + Little James)
 - Bring-the-bikes play: downtown Savannah is perfect riding
-- Pending: overall score, dinner favorites, exact checkout, safety, photos
+- Pending: dinner favorites, safety, photos

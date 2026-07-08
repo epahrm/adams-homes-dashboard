@@ -39,4 +39,4 @@ Do again (all FREE except the riverboat):
 Banked: Electric Moon rooftop (Plant Riverside) Sunday brunch w/ DJ.
 Special packing: three bicycles on the car; blanket/towels for the park.
 Markets: Forsyth Farmers' Market, Sat 9–1 — the best one yet.
-Pending: overall score · dinner favorite name(s) · safety rating · lounge n/a (road trip) · photos.
+Pending: dinner favorite name(s) · safety rating · lounge n/a (road trip) · photos.

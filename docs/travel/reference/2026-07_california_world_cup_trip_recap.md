@@ -5,7 +5,6 @@ Herzegovina, Round of 32, July 1 (family vacation — ⚽ World Cup). Purpose sh
 city can be told apart (work vs family) at a glance.
 
 Residence Inn by Marriott San Jose North/Silicon Valley · FIFA World Cup 2026
-Overall Trip Score: ★★★★★ (9.7/10)
 
 Logistics (verified from TripIt/Gmail 2026-07-08):
 - Airline: Southwest, conf BZH7HG — out Jun 30 WN 4696 MCO 9:05 AM → LAS,
@@ -128,5 +127,5 @@ ate breakfast out). Left Seth a birthday gift; walking distance to Levi's.
 2. Battery Spencer — the postcard shot (1 hr)
 3. Back in the car to Pier 39 — several hours walking all the piers
 
-(Executive scorecard removed at Elizabeth's request — journals track
-favorites and reports instead of numeric ratings, except the overall ★.)
+(All numeric scoring removed at Elizabeth's request — journals track
+favorites, reports, and lessons instead of ratings.)
