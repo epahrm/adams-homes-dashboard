@@ -107,7 +107,10 @@ export async function GET(req: NextRequest) {
     pg.drawText(String(txt == null ? '' : txt), { x, y, size, font: f, color: INK })
 
   const p1 = pages[0]
-  put(p1, seller, 320, 688, 11)
+  // Seat the Seller name on the "Sale and Purchase" blank: baseline y=686 rests
+  // it on the underline (matching the pre-filled Buyer line just below), and
+  // x=308 left-aligns it just after the colon instead of floating mid-blank.
+  put(p1, seller, 308, 686, 11)
   if (offer) put(p1, Number(offer).toLocaleString('en-US'), 505, 549, 11)
   const p11 = pages[10]
   if (p11) {
