@@ -228,47 +228,9 @@
       .section h2 { font-size: 25px; }
     }
 
-    #adminBtn { background: rgba(255,255,255,0.16); color: white; border: 1px solid rgba(255,255,255,0.5); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background 0.2s; margin-top: 14px; }
-    #adminBtn:hover { background: rgba(255,255,255,0.26); }
-    #adminOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; }
-    #adminOverlay.active { display: block; }
-    .admin-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 1000; max-width: 380px; width: 90%; }
-    .admin-modal h3 { color: var(--blue); font-size: 22px; margin-bottom: 20px; }
-    .admin-modal .rf-group { margin-bottom: 16px; }
-    .admin-modal label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: var(--ink); }
-    .admin-modal select, .admin-modal input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; font-family: inherit; }
-    .admin-modal select:focus, .admin-modal input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,91,165,0.14); }
-    .admin-modal .modal-btns { display: flex; gap: 10px; margin-top: 24px; }
-    .admin-modal button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; }
-    .admin-modal .btn-login { background: var(--blue); color: white; }
-    .admin-modal .btn-login:hover { background: var(--blue-dark); }
-    .admin-modal .btn-cancel { background: #e0e0e0; color: var(--ink); }
-    .admin-modal .btn-cancel:hover { background: #d0d0d0; }
-    .admin-modal .error { color: #c62828; font-size: 13px; margin-top: 12px; display: none; }
   </style>
 </head>
 <body>
-  <div id="adminOverlay"></div>
-  <div class="admin-modal" id="adminModal" style="display: none;">
-    <h3>Admin Access</h3>
-    <div class="rf-group">
-      <label for="adminRole">Admin</label>
-      <select id="adminRole">
-        <option value="kevin">Kevin Nelson</option>
-        <option value="elizabeth">Elizabeth Porter</option>
-      </select>
-    </div>
-    <div class="rf-group">
-      <label for="adminPass">Password</label>
-      <input type="password" id="adminPass" placeholder="Enter password">
-    </div>
-    <div class="error" id="adminError"></div>
-    <div class="modal-btns">
-      <button class="btn-login" id="adminLoginBtn">Login</button>
-      <button class="btn-cancel" id="adminCancelBtn">Cancel</button>
-    </div>
-  </div>
-
   <!-- Hero (logo lives inside the blue box; no white header bar above) -->
   <section class="hero">
     <div class="container">
@@ -519,7 +481,6 @@
   <footer class="site-footer">
     <div class="footer-logo"><img src="adams-homes-logo.png" alt="Adams Homes"></div>
     <div class="footer-links"><a href="#">Privacy Policy</a> &nbsp;|&nbsp; <a href="#">Terms</a></div>
-    <button id="adminBtn">🔐 Admin Access</button>
     <p class="footer-copy">&copy; 2026 Adams Homes. All Rights Reserved.</p>
   </footer>
 
