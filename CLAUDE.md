@@ -17,9 +17,9 @@
   tell Elizabeth when the live preview is behind the repo.
 
 ## Communication
-- Whenever you report a delivery/deployment update in chat, ALWAYS include
-  the relevant live link(s) in that same message — preview URL and PR link —
-  so the user never has to scroll back through the chat to find them.
+- Include live link(s) (preview URL, PR) only with BIG pushes/meaningful
+  deploys — not with every small change (Elizabeth 2026-07-08). Same for
+  screenshots: save them for milestones.
 
 ## Travel planning
 - Before any trip-planning work, read `docs/travel/` in this order:

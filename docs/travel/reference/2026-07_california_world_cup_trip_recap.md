@@ -71,13 +71,16 @@ the match if possible.
 - Apple Park Visitor Center — plan 2 hrs.
 - Santana Row evening — plan 3 hrs.
 - San Pedro Square Market — plan 2 hrs.
-Note: all are walk / stroll / dine activities with FREE ENTRY.
+Note: all are walk / stroll / dine activities. ADMISSION CONFIRMED FREE at
+every landmark on this trip.
 
 ## Getting around
 Main transportation: rental car (Avis from SJC). Walkability (Elizabeth,
 2026-07-08): walkable at the stops, drive between areas. Hotel was walking
 distance to Levi's Stadium — no rideshare needed on match day. Bikes: not
-practical (Elizabeth). Rental pickup: on-site at the SJC terminal (Elizabeth) — no shuttle time needed.
+practical (Elizabeth). Rental pickup: on-site at the SJC terminal — no shuttle time needed.
+Safety: felt safe everywhere (mostly tourist landmarks; always back at the
+hotel by nightfall).
 
 ## Favorites by meal (Elizabeth, 2026-07-08)
 - Breakfast: Residence Inn hotel breakfast — excellent, huge hot & cold
