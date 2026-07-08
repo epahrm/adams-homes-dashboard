@@ -25,6 +25,16 @@ Full journal: `reference/2026-07_california_world_cup_trip_recap.md`
 - Hotel feedback: Residence Inn SJ North left Seth a birthday gift after
   Elizabeth mentioned it — Marriott delivered
 
+- Favorite drink: brown sugar lemonade at the San Pedro Square Market
+  restaurant (Seth's favorite; restaurant name TBD — Elizabeth to confirm)
+- Favorite coffee: sugar-free vanilla latte with almond milk at the Apple
+  Park Visitor Center café — Apple logo in the foam (photo in the journal).
+  NEW STANDING PREFERENCE: Elizabeth's coffee order = sugar-free vanilla
+  latte, almond milk.
+- Coffee elsewhere was a struggle (nothing great open when they looked).
+  LESSON: deliberately plan the coffee/tea stop with verified hours;
+  Santana Row / Ferry Building were the backups that never happened.
+
 PERMANENT PLAY — Birthday/milestone mentions: ALWAYS tell the hotel (in the
 pre-arrival email) and restaurants when a trip includes a birthday or
 milestone. Proven results: hotel gift + free dessert on the CA trip. Bake

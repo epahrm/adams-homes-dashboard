@@ -59,6 +59,12 @@ the match if possible.
 🏆 Best Restaurant: Hard Rock Cafe, Pier 39 (Seth's favorite)
 🏆 Best Dessert: free birthday sundae at Hard Rock Cafe (they comped it when
    told it was Seth's birthday; Residence Inn also left him a birthday gift)
+🏆 Best Drink: brown sugar lemonade, San Pedro Square Market (Seth's
+   favorite; vendor name TBD)
+🏆 Best Coffee: sugar-free vanilla latte (almond milk) at the Apple Park
+   Visitor Center café, 7/1 10:17 AM — Apple logo in the foam (photo saved
+   in the journal). Elsewhere coffee was a struggle — lesson: verify
+   coffee-stop hours in advance.
 🏆 Best Photo: Battery Spencer
 🏆 Best Family Activity: Pier 39 sea lions
 🏆 Best Hidden Gem: San Pedro Square Market during World Cup week
