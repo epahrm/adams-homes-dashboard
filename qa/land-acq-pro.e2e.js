@@ -231,6 +231,20 @@ async function noHorizontalOverflow(page) {
       await page.locator('#oppsOffMarket').isVisible());
     check('on-market Sweep Now control present',
       await page.locator('#sweepNowBtn').isVisible());
+    // Off-market lots can be marked "Mailed" -> added to the CRM as a contact.
+    check('off-market opportunity row has a Mailed -> CRM action',
+      (await page.locator('#oppsOffMarket .opp-row', { hasText: 'Cogan' }).locator('button', { hasText: 'Mailed' }).count()) === 1);
+    await page.locator('#oppsOffMarket .opp-row', { hasText: 'Cogan' }).locator('button', { hasText: 'Mailed' }).click();
+    await page.waitForTimeout(300);
+    check('mailed off-market lot leaves the worklist and enters the CRM as a Direct Mail contact',
+      !(await page.textContent('#oppsOffMarket')).includes('Cogan')
+      && await page.evaluate(() => JSON.parse(localStorage.getItem('landAcqSubmissions') || '[]')
+           .some(l => (l.address || '').includes('Cogan') && l.source === 'Direct Mail' && l.status === 'pending' && l.mailedAt)));
+    // The sweep modal offers a bulk "Add as Mailed -> CRM".
+    await page.click('#sweepBtn');
+    await page.waitForSelector('#sweepOverlay.show', { timeout: 5000 });
+    check('sweep modal offers Add as Mailed -> CRM', await page.locator('#swMailed').isVisible());
+    await page.click('#swCancel');
     // On-market opportunities link straight through to the listing found online.
     check('on-market opportunity row has a View listing link',
       (await page.locator('#oppsOnMarket a.opp-listing-link').count()) >= 1);

@@ -704,6 +704,7 @@
         <button type="button" class="btn-outline" id="swPreview">Preview Count</button>
         <button type="button" class="btn-green" id="swCsv">Download Mailing List</button>
         <button type="button" class="btn-navy" id="swAdd">Add to Worklist</button>
+        <button type="button" class="btn-navy" id="swMailed">Add as Mailed → CRM</button>
       </div>
     </div>
   </div>
@@ -1122,7 +1123,9 @@
         { id: now - 25, status: 'opportunity', source: 'Zillow', address: 'Merganser & Slimtwig Ave, Palm Bay, FL 32908', listStatus: 'Active Listing', listPrice: 32000, zoningClass: 'Residential', mls: 'A12047551', agentBrokerage: 'Douglas Elliman', createdAt: iso(now - 2 * day) },
         { id: now - 26, status: 'opportunity', source: 'Zillow', address: '124 Deeyan Ave NW, Palm Bay, FL 32907', listStatus: 'Active Listing', listPrice: 45000, zoningClass: 'Residential', mls: '1081559', agentBrokerage: 'Space Coast AOR', createdAt: iso(now - 3 * day) },
         // Seller declined an earlier offer — 30-day follow-up now due.
-        { id: now - 27, status: 'offer-denied', source: 'Zillow', address: '318 Abetti Rd SE, Palm Bay, FL 32909', listStatus: 'Active Listing', listPrice: 31000, zoningClass: 'Residential', mls: '1077410', agentBrokerage: 'Space Coast AOR', offer: '$30,000', deniedAt: iso(now - 32 * day), nextReviewAt: iso(now - 2 * day), createdAt: iso(now - 45 * day) }
+        { id: now - 27, status: 'offer-denied', source: 'Zillow', address: '318 Abetti Rd SE, Palm Bay, FL 32909', listStatus: 'Active Listing', listPrice: 31000, zoningClass: 'Residential', mls: '1077410', agentBrokerage: 'Space Coast AOR', offer: '$30,000', deniedAt: iso(now - 32 * day), nextReviewAt: iso(now - 2 * day), createdAt: iso(now - 45 * day) },
+        // Off-market county lot from a sweep — a blind mailer target (no listing).
+        { id: now - 28, status: 'opportunity', source: 'Off-Market', listingType: 'off-market', address: '640 Cogan Dr SE, Palm Bay, FL 32909', owner: 'H & T Land Holdings LLC', ownerContact: 'PO Box 1200, Orlando, FL 32801', acres: 0.24, lotSize: '0.24 acres', taxValue: '$18,400', parcel: '2948-06AB-33001', createdAt: iso(now - 1 * day) }
       ];
       const have = new Set(existing.map(s => (s.address || '').toLowerCase()));
       const merged = existing.concat(seeds.filter(s => !have.has(s.address.toLowerCase())));
@@ -1387,10 +1390,21 @@
       add.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
       const hold = document.createElement('button'); hold.className = 'opp-btn-hold'; hold.textContent = 'Hold';
       hold.addEventListener('click', () => patchLot(l.id, { status: 'opportunity-hold' }));
+      // Off-market lots are blind mailers to the owner. Marking one "Mailed"
+      // records the touch and moves the owner into the CRM as a contact we're
+      // now working (Direct Mail source, rides the follow-up cadence).
+      if (!isListedLot(l)) {
+        const mailed = document.createElement('button'); mailed.className = 'opp-btn-hold'; mailed.textContent = 'Mailed ✉';
+        mailed.title = 'Kevin mailed this owner — add to the CRM as a Direct Mail contact';
+        mailed.addEventListener('click', () => patchLot(l.id, { status: 'pending', source: 'Direct Mail', mailedAt: new Date().toISOString(), mailedBy: currentUser() }));
+        actions.appendChild(add); actions.appendChild(mailed); actions.appendChild(hold);
+      } else {
+        actions.appendChild(add); actions.appendChild(hold);
+      }
       const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Unsuitable';
       skip.title = 'Remove permanently — will not be shown again';
       skip.addEventListener('click', () => { if (confirm('Mark ' + (l.address || 'this lot') + ' unsuitable? It will be removed and never shown again.')) patchLot(l.id, { status: 'dismissed', dismissedAt: new Date().toISOString() }); });
-      actions.appendChild(add); actions.appendChild(hold); actions.appendChild(skip);
+      actions.appendChild(skip);
       row.appendChild(badge); row.appendChild(main); row.appendChild(actions);
       return row;
     }
@@ -2782,6 +2796,16 @@
       const lots = d.lots.map(l => ({ address: l.address, owner: l.owner, ownerContact: l.ownerContact, acres: l.acres, lotSize: l.lotSize, taxValue: l.taxValue, parcel: l.parcel, source: l.source, listStatus: l.listStatus, status: 'opportunity' }));
       try { const r = await importLots(lots); swMsg('Added ' + r.added + ' to the worklist · ' + r.duplicates + ' already there.'); render(); }
       catch (e) { swMsg('Could not add to the worklist (is the database up?).'); }
+    });
+    // Add the whole pulled batch straight into the CRM as mailed contacts — for
+    // when Kevin mails everyone in the pull. (To mail only a subset, add to the
+    // worklist and mark the specific lots "Mailed" there.)
+    document.getElementById('swMailed').addEventListener('click', async () => {
+      swMsg('Pulling list…'); const d = await swFetch(false); if (!d || !d.lots) return;
+      const now = new Date().toISOString();
+      const lots = d.lots.map(l => ({ address: l.address, owner: l.owner, ownerContact: l.ownerContact, acres: l.acres, lotSize: l.lotSize, taxValue: l.taxValue, parcel: l.parcel, source: 'Direct Mail', mailedAt: now, mailedBy: currentUser(), status: 'pending' }));
+      try { const r = await importLots(lots); swMsg('Added ' + r.added + ' to the CRM as mailed Direct Mail contacts · ' + r.duplicates + ' already there.'); render(); }
+      catch (e) { swMsg('Could not add to the CRM (is the database up?).'); }
     });
 
     // ---------- Stipend settings (shared, audit-logged) ----------
