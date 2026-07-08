@@ -74,9 +74,11 @@ Used lounges at BOTH ends. LGA: Chase Sapphire Lounge by The Club
 have ever been to." MCO: Priority Pass lounge (The Club — confirm which
 Airside). → PERMANENT PLAY: Sapphire Lounges first wherever they exist.
 
+Sapphire LGA busyness (Elizabeth 2026-07-08): BUSY — a real crowd;
+smart to pre-register / join the queue before arriving. Logged in the
+journal (busy + prebook fields).
+
 ## Open items (ask one at a time)
-1. Lounge follow-up: was the Sapphire Lounge busy, and was pre-booking/
-   pre-registration needed? (Same two for the MCO Club.)
-2. Which Starbucks exactly (Brookfield Place assumed).
-3. Per-stop durations + highlights; photos; favorite lunch/dinner spots.
-4. Confirm who traveled (kids = Seth + twin nieces?).
+1. Which Starbucks exactly (Brookfield Place assumed).
+2. Per-stop durations + highlights; photos; favorite lunch/dinner spots.
+3. Confirm who traveled (kids = Seth + twin nieces?).
