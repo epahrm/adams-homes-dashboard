@@ -257,6 +257,7 @@
           <div><label class="form-label" for="agentEmail">Agent Email</label><input type="text" id="agentEmail" placeholder="agent@brokerage.com"></div>
           <div><label class="form-label" for="mlsNum">MLS #</label><input type="text" id="mlsNum" placeholder="MLS ID"></div>
           <div><label class="form-label" for="agentLicense">FL License # <span style="font-weight:400; color:#667;">(BK/SL…)</span></label><input type="text" id="agentLicense" placeholder="e.g. BK3312099"></div>
+          <div><label class="form-label" for="daysOnMarket">Days on Market</label><input type="number" id="daysOnMarket" min="0" placeholder="0"></div>
         </div>
         <div class="hint">Auto-filled from the listing when available; fills the contract's Seller-agent lines. Confirm the agent on <a id="lookupMfl" href="https://www.myfloridalicense.com/wl11.asp?mode=2&search=Name&SID=" target="_blank" rel="noopener">myfloridalicense.com ↗</a> · <a id="lookupZillow" href="https://www.zillow.com/professionals/real-estate-agent-reviews/" target="_blank" rel="noopener">Zillow agent search ↗</a> to verify the license #, phone, and brokerage.</div>
         <button type="button" class="btn btn-outline" id="saveAgentBtn" style="margin-top:12px; width:auto;">Save Agent Details</button>
@@ -991,6 +992,7 @@
         agentPhone: document.getElementById('agentPhone').value.trim(),
         agentEmail: document.getElementById('agentEmail').value.trim(),
         agentLicense: document.getElementById('agentLicense').value.trim(),
+        daysOnMarket: document.getElementById('daysOnMarket').value ? parseInt(document.getElementById('daysOnMarket').value, 10) : null,
         mls: document.getElementById('mlsNum').value.trim(),
         wholesalerName: document.getElementById('wsName').value.trim(),
         wholesalerCompany: document.getElementById('wsCompany').value.trim(),
@@ -1070,6 +1072,7 @@
         agentPhone: document.getElementById('agentPhone').value.trim(),
         agentEmail: document.getElementById('agentEmail').value.trim(),
         agentLicense: document.getElementById('agentLicense').value.trim(),
+        daysOnMarket: document.getElementById('daysOnMarket').value ? parseInt(document.getElementById('daysOnMarket').value, 10) : null,
         mls: document.getElementById('mlsNum').value.trim()
       };
       btn.disabled = true;
@@ -1228,6 +1231,7 @@
       document.getElementById('agentPhone').value = lot.agentPhone || '';
       document.getElementById('agentEmail').value = lot.agentEmail || '';
       document.getElementById('agentLicense').value = lot.agentLicense || '';
+      document.getElementById('daysOnMarket').value = lot.daysOnMarket || '';
       document.getElementById('mlsNum').value = lot.mls || '';
       // Point the "look up" links at this agent's name to speed verification.
       updateAgentLookups();
