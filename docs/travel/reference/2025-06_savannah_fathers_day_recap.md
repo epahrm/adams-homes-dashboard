@@ -1,7 +1,8 @@
 # Savannah, GA — Father's Day Weekend Recap (journal #2)
 
-PURPOSE: Father's Day family getaway (family vacation). Check-in verified
-from email: June 12, 2025 (The Ann pre-arrival thread); ~Jun 12–15.
+PURPOSE: Father's Day family getaway (family vacation). Dates CONFIRMED:
+Jun 12–15, 2025 (check-in verified from The Ann pre-arrival email; checkout
+Father's Day, confirmed by Elizabeth).
 
 Logistics: drove own car from Florida with ALL THREE BICYCLES · Hotel: The
 Ann Savannah, Apartments by Marriott Bonvoy — two-story loft · Getting
@@ -38,5 +39,4 @@ Do again (all FREE except the riverboat):
 Banked: Electric Moon rooftop (Plant Riverside) Sunday brunch w/ DJ.
 Special packing: three bicycles on the car; blanket/towels for the park.
 Markets: Forsyth Farmers' Market, Sat 9–1 — the best one yet.
-Pending: overall score · dinner favorite name(s) · exact checkout date ·
-safety rating · lounge n/a (road trip) · photos.
+Pending: overall score · dinner favorite name(s) · safety rating · lounge n/a (road trip) · photos.
