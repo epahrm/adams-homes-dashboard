@@ -98,10 +98,30 @@ function extractAgentDetails(body: string): {
 }
 
 // Extract days on market (DOM) from email body.
-// Looks for patterns like "1 day on Zillow" or "5 days on Market"
+// Looks for patterns like "1 day on Zillow" or "5 days on Market".
+// Falls back to calculating DOM from listing date if explicit DOM not found.
 function extractDaysOnMarket(body: string): number | null {
-  const m = body.match(/(\d+)\s+days?\s+on\s+(?:zillow|market|site)/i)
-  return m ? parseInt(m[1], 10) : null
+  // First try explicit "X days on market" pattern
+  let m = body.match(/(\d+)\s+days?\s+on\s+(?:zillow|market|site)/i)
+  if (m) return parseInt(m[1], 10)
+
+  // Fallback: look for listing date (common patterns: "Listed", "List Date", "Date Listed", etc.)
+  // Match dates like "2026-07-08", "July 8", "7/8/2026", "07/08/2026"
+  m = body.match(/(?:listed|list\s+date|date\s+listed|on\s+market)\s*:?\s*([A-Za-z]+ \d{1,2}(?:,? \d{4})?|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2})/i)
+  if (m) {
+    try {
+      const listDate = new Date(m[1])
+      if (!isNaN(listDate.getTime())) {
+        const today = new Date()
+        const dom = Math.floor((today.getTime() - listDate.getTime()) / (1000 * 60 * 60 * 24))
+        return dom >= 0 ? dom : null
+      }
+    } catch (e) {
+      // Date parsing failed, return null
+    }
+  }
+
+  return null
 }
 
 const PALM_BAY = /\bPalm\s*Bay\b/i
