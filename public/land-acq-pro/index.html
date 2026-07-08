@@ -218,6 +218,27 @@
     .footer-links a { color: #cfe0f2; text-decoration: underline; }
     .footer-copy { font-size: 14px; color: #a9bcd4; }
 
+    /* Admin login */
+    .admin-link { position: fixed; top: 16px; right: 18px; z-index: 50; }
+    .admin-link button { background: rgba(26,91,165,0.12); color: var(--blue); border: 1px solid rgba(26,91,165,0.3); border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; letter-spacing: 0.3px; text-transform: uppercase; transition: all 0.15s; }
+    .admin-link button:hover { background: rgba(26,91,165,0.2); border-color: rgba(26,91,165,0.5); }
+    .admin-gate { position: fixed; inset: 0; background: rgba(3,20,38,0.55); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .admin-gate.show { display: flex; }
+    .admin-gate-box { background: white; border-radius: 12px; max-width: 380px; width: 100%; padding: 32px 28px; box-shadow: 0 24px 60px rgba(0,0,0,0.3); }
+    .admin-gate-box h3 { color: var(--blue); font-size: 20px; margin-bottom: 6px; }
+    .admin-gate-box p { color: #666; font-size: 14px; margin-bottom: 18px; }
+    .admin-gate-box input { width: 100%; padding: 12px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-family: inherit; margin-bottom: 10px; }
+    .admin-gate-box input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,91,165,0.12); }
+    .admin-gate-box select { width: 100%; padding: 11px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-family: inherit; margin-bottom: 12px; background: white; }
+    .admin-gate-box label { display: block; text-align: left; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .admin-gate-box .error { color: #c62828; font-size: 14px; margin-bottom: 8px; display: none; }
+    .admin-gate-box button { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 4px; }
+    .admin-gate-box button:hover { background: #14508f; }
+    .admin-gate-actions { display: flex; gap: 10px; margin-top: 12px; }
+    .admin-gate-actions button { flex: 1; padding: 10px; margin-top: 0; }
+    .admin-gate-actions .cancel { background: #f0f0f0; color: #333; }
+    .admin-gate-actions .cancel:hover { background: #e0e0e0; }
+
     @media (min-width: 768px) {
       .values { grid-template-columns: repeat(3, 1fr); }
       .hero h1 { font-size: 48px; }
@@ -230,6 +251,33 @@
   </style>
 </head>
 <body>
+  <!-- Admin login button (top-right corner) -->
+  <div class="admin-link">
+    <button id="adminBtn">🔐 Admin</button>
+  </div>
+
+  <!-- Admin login modal -->
+  <div class="admin-gate" id="adminGate">
+    <div class="admin-gate-box">
+      <h3>Admin Access</h3>
+      <p>Enter your credentials to access the dashboard.</p>
+      <form id="adminForm">
+        <label for="adminRole">Sign in as</label>
+        <select id="adminRole" aria-label="Sign in as">
+          <option value="Kevin Nelson">Kevin Nelson</option>
+          <option value="Elizabeth Porter">Elizabeth Porter</option>
+        </select>
+        <label for="adminPwd">Password</label>
+        <input type="password" id="adminPwd" placeholder="Admin password" aria-label="Admin password" autocomplete="current-password">
+        <div class="error" id="adminError">Invalid password</div>
+        <button type="submit">Sign In</button>
+      </form>
+      <div class="admin-gate-actions">
+        <button type="button" class="cancel" id="adminCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Hero (logo lives inside the blue box; no white header bar above) -->
   <section class="hero">
     <div class="container">
@@ -761,6 +809,58 @@
       msg.textContent = 'Thanks! Kevin will research your property and get back to you within one business day.';
       msg.style.display = 'block';
       this.reset();
+    });
+
+    // Admin login
+    const adminGate = document.getElementById('adminGate');
+    document.getElementById('adminBtn').addEventListener('click', () => adminGate.classList.add('show'));
+    document.getElementById('adminCancel').addEventListener('click', () => adminGate.classList.remove('show'));
+    adminGate.addEventListener('click', e => { if (e.target === adminGate) adminGate.classList.remove('show'); });
+
+    document.getElementById('adminForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const role = document.getElementById('adminRole').value;
+      const password = document.getElementById('adminPwd').value;
+      const errorDiv = document.getElementById('adminError');
+      const btn = this.querySelector('button');
+
+      if (!password) {
+        errorDiv.style.display = 'block';
+        return;
+      }
+      errorDiv.style.display = 'none';
+      btn.disabled = true;
+      const label = btn.textContent;
+      btn.textContent = 'Checking…';
+
+      try {
+        const res = await fetch('/api/land-acq/lots', {
+          headers: { 'X-Admin-Key': password },
+          signal: AbortSignal.timeout(9000)
+        });
+        if (res.ok) {
+          sessionStorage.laAdminKey = password;
+          sessionStorage.laRole = role;
+          sessionStorage.laMode = 'server';
+          window.location.href = 'admin.html';
+        } else if (res.status === 401) {
+          errorDiv.style.display = 'block';
+        } else {
+          sessionStorage.laAdminKey = password;
+          sessionStorage.laRole = role;
+          sessionStorage.laMode = 'local';
+          window.location.href = 'admin.html';
+        }
+      } catch (e) {
+        // Server unreachable - allow offline demo mode
+        sessionStorage.laAdminKey = password;
+        sessionStorage.laRole = role;
+        sessionStorage.laMode = 'local';
+        window.location.href = 'admin.html';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
     });
   </script>
 </body>
