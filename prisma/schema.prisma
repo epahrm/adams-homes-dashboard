@@ -89,3 +89,179 @@ model MarketingLesson {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+// ============================================================
+// Soccer Recruiting Platform (namespaced Rec*)
+// Coexists with the Adams Homes onboarding models above.
+// ============================================================
+
+model RecUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   // ATHLETE | PARENT | ADVISOR
+  athleteId String?  // PARENT only: RecProfile.id of the athlete they follow
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile RecProfile?
+}
+
+model RecProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  slug           String   @unique
+  gradYear       Int
+  position       String   @default("")
+  clubTeam       String   @default("")
+  highSchool     String   @default("")
+  city           String   @default("")
+  state          String   @default("")
+  gpa            String   @default("")
+  height         String   @default("")
+  jerseyNumber   String   @default("")
+  ncaaRegistered Boolean  @default(false)
+  highlightUrl   String   @default("")
+  summary        String   @default("")
+  strengths      String   @default("[]") // JSON string[]
+  academics      String   @default("")
+  honors         String   @default("")
+  refs           String   @default("")
+  upcoming       String   @default("")
+  isPublic       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           RecUser             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customTasks    RecTask[]
+  taskProgress   RecTaskProgress[]
+  lessonProgress RecLessonProgress[]
+  schools        RecSchool[]
+  questionnaire  RecQuestionnaire?
+  resume         RecResume?
+  notes          RecNote[]
+}
+
+model RecTask {
+  id        String   @id @default(cuid())
+  band      String   // PRE_HS | GRADE_9_10 | GRADE_11 | GRADE_12
+  order     Int
+  title     String
+  detail    String   @default("")
+  source    String   @default("STANDARD") // STANDARD | ADVISOR
+  athleteId String?  // null = standard plan task; set = custom task for one athlete
+  createdAt DateTime @default(now())
+
+  athlete  RecProfile?       @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  progress RecTaskProgress[]
+}
+
+model RecTaskProgress {
+  id          String    @id @default(cuid())
+  athleteId   String
+  taskId      String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  athlete RecProfile @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  task    RecTask    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([athleteId, taskId])
+}
+
+model RecModule {
+  id          String @id @default(cuid())
+  slug        String @unique
+  order       Int
+  title       String
+  description String @default("")
+  band        String @default("ALL") // ALL | PRE_HS | GRADE_9_10 | GRADE_11 | GRADE_12
+
+  lessons RecLesson[]
+}
+
+model RecLesson {
+  id       String @id @default(cuid())
+  moduleId String
+  order    Int
+  title    String
+  kind     String @default("READ") // READ | VIDEO | TEMPLATE | WORKSHEET | CALL
+  content  String @default("")
+
+  module   RecModule           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress RecLessonProgress[]
+}
+
+model RecLessonProgress {
+  id        String    @id @default(cuid())
+  athleteId String
+  lessonId  String
+  completed Boolean   @default(false)
+  completedAt DateTime?
+
+  athlete RecProfile @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  lesson  RecLesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([athleteId, lessonId])
+}
+
+model RecSchool {
+  id           String   @id @default(cuid())
+  athleteId    String
+  name         String
+  division     String   @default("")
+  conference   String   @default("")
+  coachName    String   @default("")
+  coachEmail   String   @default("")
+  coachTwitter String   @default("")
+  category     String   @default("TARGET") // DREAM | TARGET | SAFETY
+  stage        String   @default("RESEARCHING") // RESEARCHING | CONTACTED | CONVERSATION | VISIT_PLANNED | OFFER | COMMITTED
+  notes        String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  athlete  RecProfile   @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  contacts RecContact[]
+}
+
+model RecContact {
+  id       String   @id @default(cuid())
+  schoolId String
+  date     DateTime @default(now())
+  type     String   @default("NOTE") // EMAIL_SENT | REPLY | CALL | VISIT | CAMP | NOTE
+  summary  String
+
+  school RecSchool @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+}
+
+model RecQuestionnaire {
+  id          String    @id @default(cuid())
+  athleteId   String    @unique
+  answers     String    @default("{}") // JSON {questionId: answer}
+  completedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  athlete RecProfile @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+}
+
+model RecResume {
+  id             String   @id @default(cuid())
+  athleteId      String   @unique
+  content        String   @default("{}") // JSON sections
+  status         String   @default("DRAFT") // DRAFT | SUBMITTED | APPROVED
+  advisorComment String   @default("")
+  updatedAt      DateTime @updatedAt
+
+  athlete RecProfile @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+}
+
+model RecNote {
+  id         String   @id @default(cuid())
+  athleteId  String
+  authorRole String   @default("ADVISOR")
+  body       String
+  createdAt  DateTime @default(now())
+
+  athlete RecProfile @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+}
