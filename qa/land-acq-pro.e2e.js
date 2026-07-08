@@ -484,6 +484,16 @@ async function noHorizontalOverflow(page) {
     check('commission hint notes cash-to-close deduction', /cash to close/i.test(await page.textContent('#commissionHint')));
     // Listing-agent details save on their own (persist without regenerating).
     check('save agent details button present', await page.locator('#saveAgentBtn').count() === 1);
+    // Listing agent gets a FL license # field + verify links for the contract lines.
+    check('agent license field + verify links present',
+      (await page.locator('#agentLicense').count()) === 1
+      && (await page.locator('#lookupMfl').count()) === 1
+      && (await page.locator('#lookupZillow').count()) === 1);
+    await page.fill('#agentName', 'Sarah Lee');
+    await page.waitForTimeout(50);
+    check('myfloridalicense lookup targets the agent name',
+      /LName=Lee/i.test(await page.getAttribute('#lookupMfl', 'href')));
+    await page.fill('#agentLicense', 'BK3312099');
     await page.fill('#agentPhone', '(321) 555-7788');
     await page.fill('#agentEmail', 'agent@brokerage.com');
     await page.click('#saveAgentBtn');

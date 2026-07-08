@@ -98,6 +98,15 @@ export async function GET(req: NextRequest) {
   const assessed = parcel && typeof parcel.AssessedValue === 'number'
     ? '$' + parcel.AssessedValue.toLocaleString('en-US') : (lot.taxValue as string) || '—'
 
+  // Listing-agent details (on-market / listed deals only) — populate the
+  // Seller's-side broker block. License # is verified/entered by Kevin.
+  const agentName = String(lot.agentName || '').trim()
+  const agentLicense = String(lot.agentLicense || '').trim()
+  const agentEmail = String(lot.agentEmail || '').trim()
+  const agentPhone = String(lot.agentPhone || '').trim()
+  const agentBrokerage = String(lot.agentBrokerage || '').trim()
+  if (listed && !agentLicense && agentName) review.push('Listing agent license # not confirmed — verify on myfloridalicense.com (BK/SL…) before sending.')
+
   // ---- Fill the PDF ----
   const pdf = await PDFDocument.load(Buffer.from(VAC14_TEMPLATE_B64, 'base64'), { ignoreEncryption: true })
   const font = await pdf.embedFont(StandardFonts.Helvetica)
@@ -117,6 +126,33 @@ export async function GET(req: NextRequest) {
   while (sellerSize > 8 && font.widthOfTextAtSize(seller, sellerSize) > 208) sellerSize -= 0.5
   put(p1, seller, 308, 686, sellerSize)
   if (offer) put(p1, Number(offer).toLocaleString('en-US'), 505, 549, 11)
+
+  // Listing-agent (Seller's-side) block — the Buyer's side is pre-printed with
+  // Adams Homes. Fill the left column from the lot for on-market deals:
+  //   pg 6 (idx 5) line 327: Seller's Sales Associate / License No.
+  //   pg 7 (idx 6) line 329: email · line 332: phone · line 335: listing brokerage
+  if (listed) {
+    const pAgentName = pages[5]
+    if (pAgentName && (agentName || agentLicense)) {
+      put(pAgentName, [agentName, agentLicense].filter(Boolean).join(' / '), 175, 108, 10)
+    }
+    const pAgent = pages[6]
+    if (pAgent) {
+      if (agentEmail) put(pAgent, agentEmail, 175, 726, 10)
+      if (agentPhone) put(pAgent, agentPhone, 175, 690, 10)
+      if (agentBrokerage) put(pAgent, agentBrokerage, 175, 655, 10)
+    }
+  }
+
+  // Addendum for Vacant Land Contract — Seller name in line 1 (the intro
+  // "entered into by and between ___ (Seller)"). Auto-fit like the cover line.
+  const pAddendum = pages[8]
+  if (pAddendum) {
+    let addSize = 11
+    while (addSize > 8 && font.widthOfTextAtSize(seller, addSize) > 280) addSize -= 0.5
+    put(pAddendum, seller, 220, 688, addSize)
+  }
+
   const p11 = pages[10]
   if (p11) {
     if (listed) { put(p11, commPct, 150, 486, 10); put(p11, 'X', 126, 546, 11, fontB) }
