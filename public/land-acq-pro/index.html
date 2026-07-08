@@ -228,7 +228,6 @@
       .section h2 { font-size: 25px; }
     }
 
-    /* Admin button + modal */
     #adminBtn { background: rgba(255,255,255,0.16); color: white; border: 1px solid rgba(255,255,255,0.5); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background 0.2s; margin-top: 14px; }
     #adminBtn:hover { background: rgba(255,255,255,0.26); }
     #adminOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; }
@@ -804,73 +803,6 @@
       this.reset();
     });
 
-    // Admin login modal
-    const adminBtn = document.getElementById('adminBtn');
-    const adminModal = document.getElementById('adminModal');
-    const adminOverlay = document.getElementById('adminOverlay');
-    const adminLoginBtn = document.getElementById('adminLoginBtn');
-    const adminCancelBtn = document.getElementById('adminCancelBtn');
-    const adminPass = document.getElementById('adminPass');
-    const adminError = document.getElementById('adminError');
-
-    adminBtn.addEventListener('click', () => {
-      adminModal.style.display = 'block';
-      adminOverlay.classList.add('active');
-      adminPass.focus();
-    });
-
-    adminCancelBtn.addEventListener('click', () => {
-      adminModal.style.display = 'none';
-      adminOverlay.classList.remove('active');
-      adminPass.value = '';
-      adminError.style.display = 'none';
-    });
-
-    adminOverlay.addEventListener('click', () => {
-      adminModal.style.display = 'none';
-      adminOverlay.classList.remove('active');
-      adminPass.value = '';
-      adminError.style.display = 'none';
-    });
-
-    adminLoginBtn.addEventListener('click', async () => {
-      const password = adminPass.value.trim();
-      if (!password) {
-        adminError.textContent = 'Please enter a password';
-        adminError.style.display = 'block';
-        return;
-      }
-
-      adminLoginBtn.disabled = true;
-      adminLoginBtn.textContent = 'Checking…';
-
-      try {
-        const response = await fetch('/api/land-acq/lots', {
-          headers: { 'X-Admin-Key': password }
-        });
-
-        if (response.status === 200) {
-          sessionStorage.setItem('adminKey', password);
-          window.location.href = '/land-acq-pro/admin.html';
-        } else if (response.status === 401) {
-          adminError.textContent = 'Invalid password';
-          adminError.style.display = 'block';
-        } else {
-          sessionStorage.setItem('adminKey', password);
-          window.location.href = '/land-acq-pro/admin.html';
-        }
-      } catch (e) {
-        sessionStorage.setItem('adminKey', password);
-        window.location.href = '/land-acq-pro/admin.html';
-      }
-
-      adminLoginBtn.disabled = false;
-      adminLoginBtn.textContent = 'Login';
-    });
-
-    adminPass.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') adminLoginBtn.click();
-    });
   </script>
 </body>
 </html>
