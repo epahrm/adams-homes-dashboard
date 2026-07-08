@@ -256,8 +256,9 @@
           <div><label class="form-label" for="agentPhone">Agent Phone</label><input type="text" id="agentPhone" placeholder="(321) 555-0000"></div>
           <div><label class="form-label" for="agentEmail">Agent Email</label><input type="text" id="agentEmail" placeholder="agent@brokerage.com"></div>
           <div><label class="form-label" for="mlsNum">MLS #</label><input type="text" id="mlsNum" placeholder="MLS ID"></div>
+          <div><label class="form-label" for="agentLicense">FL License # <span style="font-weight:400; color:#667;">(BK/SL…)</span></label><input type="text" id="agentLicense" placeholder="e.g. BK3312099"></div>
         </div>
-        <div class="hint">Auto-filled from the listing when available. The offer routes to this agent, and they're tracked in the Realtor CRM.</div>
+        <div class="hint">Auto-filled from the listing when available; fills the contract's Seller-agent lines. Confirm the agent on <a id="lookupMfl" href="https://www.myfloridalicense.com/wl11.asp?mode=2&search=Name&SID=" target="_blank" rel="noopener">myfloridalicense.com ↗</a> · <a id="lookupZillow" href="https://www.zillow.com/professionals/real-estate-agent-reviews/" target="_blank" rel="noopener">Zillow agent search ↗</a> to verify the license #, phone, and brokerage.</div>
         <button type="button" class="btn btn-outline" id="saveAgentBtn" style="margin-top:12px; width:auto;">Save Agent Details</button>
         <span class="agent-saved" id="agentSaved" style="display:none; margin-left:12px; color:#1a7a44; font-weight:600; font-size:14px;">✓ Saved</span>
       </div>
@@ -989,6 +990,7 @@
         agentBrokerage: document.getElementById('agentBrokerage').value.trim(),
         agentPhone: document.getElementById('agentPhone').value.trim(),
         agentEmail: document.getElementById('agentEmail').value.trim(),
+        agentLicense: document.getElementById('agentLicense').value.trim(),
         mls: document.getElementById('mlsNum').value.trim(),
         wholesalerName: document.getElementById('wsName').value.trim(),
         wholesalerCompany: document.getElementById('wsCompany').value.trim(),
@@ -1048,6 +1050,17 @@
     // Save just the listing-agent details on their own (so Kevin/Elizabeth can
     // add a phone/email without having to regenerate the whole offer). These
     // now persist across refresh and feed the Realtor CRM.
+    // Point the verify links at the current agent name/brokerage so Kevin can
+    // confirm the license #, phone, and brokerage in one click.
+    function updateAgentLookups() {
+      const name = document.getElementById('agentName').value.trim();
+      const brok = document.getElementById('agentBrokerage').value.trim();
+      const mfl = document.getElementById('lookupMfl');
+      const zil = document.getElementById('lookupZillow');
+      if (mfl) mfl.href = 'https://www.myfloridalicense.com/wl11.asp?mode=2&search=Name&SID=' + (name ? '&LName=' + encodeURIComponent(name.split(' ').slice(-1)[0]) + '&FName=' + encodeURIComponent(name.split(' ')[0]) : '');
+      if (zil) zil.href = 'https://www.google.com/search?q=' + encodeURIComponent([name, brok, 'realtor Florida license'].filter(Boolean).join(' '));
+    }
+
     async function saveAgentDetails() {
       const btn = document.getElementById('saveAgentBtn');
       const set = {
@@ -1056,6 +1069,7 @@
         agentBrokerage: document.getElementById('agentBrokerage').value.trim(),
         agentPhone: document.getElementById('agentPhone').value.trim(),
         agentEmail: document.getElementById('agentEmail').value.trim(),
+        agentLicense: document.getElementById('agentLicense').value.trim(),
         mls: document.getElementById('mlsNum').value.trim()
       };
       btn.disabled = true;
@@ -1213,7 +1227,10 @@
       document.getElementById('agentBrokerage').value = lot.agentBrokerage || '';
       document.getElementById('agentPhone').value = lot.agentPhone || '';
       document.getElementById('agentEmail').value = lot.agentEmail || '';
+      document.getElementById('agentLicense').value = lot.agentLicense || '';
       document.getElementById('mlsNum').value = lot.mls || '';
+      // Point the "look up" links at this agent's name to speed verification.
+      updateAgentLookups();
       // Wholesaler details (who brought the deal + the spread)
       document.getElementById('wsName').value = lot.wholesalerName || '';
       document.getElementById('wsCompany').value = lot.wholesalerCompany || '';
@@ -1272,6 +1289,8 @@
     document.getElementById('commission').addEventListener('input', updateCommissionHint);
     document.getElementById('leadSource').addEventListener('change', toggleWholesaler);
     document.getElementById('saveAgentBtn').addEventListener('click', saveAgentDetails);
+    document.getElementById('agentName').addEventListener('input', updateAgentLookups);
+    document.getElementById('agentBrokerage').addEventListener('input', updateAgentLookups);
     document.getElementById('saveWsBtn').addEventListener('click', saveWholesalerDetails);
     document.getElementById('saveNotesBtn').addEventListener('click', async function() {
       this.disabled = true;
