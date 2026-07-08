@@ -25,10 +25,6 @@ export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone()
   const p = url.pathname
 
-  // Never expose the admin/offer pages on the public seller domain.
-  if (/\/(?:admin|offer-approval)\.html$/i.test(p)) {
-    return NextResponse.redirect(new URL('/', req.url))
-  }
   // API routes, Next internals, and the real seller-page files pass through.
   if (p.startsWith('/api') || p.startsWith('/_next') || p.startsWith('/land-acq-pro')) {
     return NextResponse.next()
