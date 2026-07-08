@@ -30,7 +30,7 @@ Status: journal #3 in progress — trip taken Jul 30 – Aug 2, 2025
 ## Coffee, tea & chill spots
 - Brookfield Place Winter Garden — palm-filled glass atrium on the
   Hudson — with the multi-story Starbucks; the family's repeat chill
-  spot (several visits). (Exact Starbucks location to confirm.)
+  spot (several visits). CONFIRMED (Elizabeth 2026-07-08).
 
 ## Desserts & bakeries
 _TBD — cookies for Seth._

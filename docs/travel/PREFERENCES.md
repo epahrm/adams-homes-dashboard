@@ -127,5 +127,6 @@ Full journal: `reference/2025-07_nyc_family_trip_recap.md`
 - SETH BENCHMARK — best pizza EVER: brick-oven pizza in Trump Tower's
   5th Ave atrium (resolved 2026-07-08). Use as Seth's pizza bar to beat
   when scouting pizza in any city.
-- Pending: per-stop durations, photos, lounge report (busy? prebook?),
-  exact Starbucks, travelers roster
+- Sapphire LGA lounge: busy — pre-register/queue ahead (resolved)
+- Chill-spot Starbucks: Brookfield Place / Winter Garden (confirmed)
+- Pending: per-stop durations, photos, travelers roster

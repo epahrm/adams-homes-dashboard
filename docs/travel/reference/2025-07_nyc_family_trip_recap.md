@@ -43,8 +43,8 @@ straight from the hotel door.
 ## Chill spot
 Brookfield Place Winter Garden — the palm-filled glass atrium on the
 Hudson by the Battery Park City waterfront — with the multi-story
-Starbucks; went several times to relax. (Confirm exact Starbucks with
-Elizabeth.)
+Starbucks; went several times to relax. CONFIRMED by Elizabeth
+2026-07-08: it is the Brookfield Place / Winter Garden one.
 
 ## Neighborhood verdicts
 - Little Italy: fantastic — walking, dining, strolling.
@@ -79,6 +79,5 @@ smart to pre-register / join the queue before arriving. Logged in the
 journal (busy + prebook fields).
 
 ## Open items (ask one at a time)
-1. Which Starbucks exactly (Brookfield Place assumed).
+1. Confirm who traveled (kids = Seth + twin nieces?).
 2. Per-stop durations + highlights; photos; favorite lunch/dinner spots.
-3. Confirm who traveled (kids = Seth + twin nieces?).
