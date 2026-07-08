@@ -231,6 +231,37 @@ async function noHorizontalOverflow(page) {
       await page.locator('#oppsOffMarket').isVisible());
     check('on-market Sweep Now control present',
       await page.locator('#sweepNowBtn').isVisible());
+    // ---------- No auto-reject: Kevin decides (Offer / Nurture / GM Defer / Unsuitable) ----------
+    const cogan = page.locator('#oppsOffMarket .opp-row', { hasText: 'Cogan' });
+    check('opportunity row shows the four-way decision + confirm utilities',
+      (await cogan.locator('button', { hasText: 'Hold — Nurture' }).count()) === 1
+      && (await cogan.locator('button', { hasText: 'GM Defer' }).count()) === 1
+      && (await cogan.locator('.opp-uconf select').count()) === 1);
+    check('on-market opportunity row shows the MLS number',
+      /MLS\s/.test(await page.textContent('#oppsOnMarket')));
+    check('auto-rejected panel is gone', (await page.locator('#oppsRejected').count()) === 0);
+    // Per-box search filters that box.
+    await page.fill('#offMktSearch', 'Cogan');
+    await page.waitForTimeout(150);
+    check('off-market per-box search matches', (await page.textContent('#oppsOffMarket')).includes('Cogan'));
+    await page.fill('#offMktSearch', 'zzzznomatch');
+    await page.waitForTimeout(150);
+    check('off-market per-box search filters out non-matches',
+      !(await page.locator('#oppsOffMarket .opp-row', { hasText: 'Cogan' }).count()));
+    await page.fill('#offMktSearch', '');
+    await page.waitForTimeout(150);
+    // Unsuitable reveals reason chips; picking one dismisses with the reason.
+    await cogan.locator('button', { hasText: 'GM Defer' }).click();
+    await page.waitForTimeout(250);
+    check('GM Defer moves the lot into the Holds & GM Defer box',
+      await page.locator('#oppsHolds').isVisible()
+      && (await page.textContent('#oppsHolds')).includes('Cogan'));
+    check('held lot can go back to the worklist',
+      (await page.locator('#oppsHolds .opp-row', { hasText: 'Cogan' }).locator('button', { hasText: 'Back to Worklist' }).count()) === 1);
+    await page.locator('#oppsHolds .opp-row', { hasText: 'Cogan' }).locator('button', { hasText: 'Back to Worklist' }).click();
+    await page.waitForTimeout(250);
+    check('back-to-worklist returns the lot to off-market', (await page.textContent('#oppsOffMarket')).includes('Cogan'));
+
     // Off-market lots can be marked "Mailed" -> added to the CRM as a contact.
     check('off-market opportunity row has a Mailed -> CRM action',
       (await page.locator('#oppsOffMarket .opp-row', { hasText: 'Cogan' }).locator('button', { hasText: 'Mailed' }).count()) === 1);
