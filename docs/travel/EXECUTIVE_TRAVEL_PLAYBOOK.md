@@ -99,11 +99,12 @@ routing, excellent restaurant selections, strong photo opportunities,
 executive summaries, premium formatting, compact presentation, family-first
 planning, multiple contingency options.
 
-Reference material: a complete California Travel Journal and planning
-documents exist but are NOT yet in this repo (as of 2026-07-08 they were not
-found in Google Drive either — only "USA World Cup Trip Graphic.png"). When
-located (likely Apple Notes or a prior chat), add them under
-`docs/travel/reference/`.
+Reference material: the EP Travel Planner Reference Guide is captured in
+`EP_TRAVEL_PLANNER_REFERENCE_GUIDE.md` (read it — it is the newer source for
+family profile, food rules, and workflow). The California Travel Journal
+(`2026_California_Family_World_Cup_EP_Travel_Journal_v1.docx`) is still NOT
+in this repo or Google Drive (checked 2026-07-08); it lives in the other AI
+project. Add it under `docs/travel/reference/` when obtained.
 
 ## Overall standard
 
