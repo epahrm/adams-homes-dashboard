@@ -221,6 +221,21 @@ a{color:var(--accent)}
 .expitem .m{font-size:12.5px;color:var(--muted)}
 .expitem .amt{font-weight:750;font-variant-numeric:tabular-nums;font-size:15px}
 
+/* ---------- mission control ---------- */
+.mc-head{padding:16px;margin-top:14px}
+.mc-next{font-size:13.5px;color:var(--ink2);margin-top:8px}
+.mc-next b{color:var(--accent)}
+.mc-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid var(--line);width:100%;text-align:left}
+.mc-row:first-child{border-top:0}
+.stl{width:27px;height:27px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:13px;font-weight:800;border:2.5px solid var(--bad);color:var(--bad);background:transparent;cursor:pointer}
+.stl.y{border-color:#eda100;color:#9a6b00;background:color-mix(in srgb,#eda100 16%,transparent)}
+[data-theme="dark"] .stl.y{color:#fab219;border-color:#c98500}
+.stl.g{border-color:var(--good);background:var(--good);color:#fff}
+.mc-row .ic{font-size:17px;flex:none}
+.mc-row .nm{font-size:15px;font-weight:650}
+.mc-row .nt{font-size:12.5px;color:var(--muted)}
+.mc-row .due{color:var(--bad);font-weight:700}
+
 /* ---------- wallet ---------- */
 .wcard{padding:15px 16px;margin-top:12px}
 .wcard .k{display:flex;align-items:center;gap:12px}
@@ -338,6 +353,19 @@ const BUDGET_CATS = [
   { k:"shopping",  n:"Shopping",   e:"🛍️", c:"var(--c5)" },
   { k:"other",     n:"Other",      e:"💵", c:"var(--c6)" },
 ];
+/* Mission Control categories (EP Planning Standard v2 §3). */
+const MC_CATS = [
+  ["flights","✈️","Flights"],
+  ["hotel","🏨","Hotel"],
+  ["rental","🚗","Rental Car"],
+  ["tickets","🎟️","Tickets"],
+  ["resv","🍽️","Reservations"],
+  ["lounge","🛋️","Lounge Access"],
+  ["packing","🧳","Packing"],
+  ["weather","☀️","Weather"],
+  ["verify","🔍","Final Verification"],
+];
+const MC_STATES = { r:"Needed", y:"In progress", g:"Ready" };
 const PACK_TEMPLATES = {
   "Essentials ✅": ["IDs & passports","Phone chargers","Medications","Wallet","Sunglasses","Headphones","Water bottles","Snacks"],
   "Beach 🏖️": ["Swimsuits","Sunscreen","Beach towels","Flip flops","Sun hats","Beach bag","Goggles"],
@@ -353,10 +381,19 @@ let S = load();
 let R = loadR();   // route: {view:'home'|'trip'|'settings', trip, tab, packOwner}
 
 function blank(){ return { v:1, familyName:"", currency:"$", theme:"auto", family:[], trips:[] }; }
+function normalize(d){
+  const s = Object.assign(blank(), d);
+  for (const t of s.trips){
+    t.mission = t.mission || { purpose:"", cats:{} };
+    t.mission.cats = t.mission.cats || {};
+    for (const [k] of MC_CATS) t.mission.cats[k] = t.mission.cats[k] || { s:"r", note:"" };
+  }
+  return s;
+}
 function load(){
   try{
     const d = JSON.parse(localStorage.getItem(KEY));
-    if (d && d.v === 1 && Array.isArray(d.trips)) return Object.assign(blank(), d);
+    if (d && d.v === 1 && Array.isArray(d.trips)) return normalize(d);
   }catch(e){}
   return blank();
 }
@@ -541,8 +578,8 @@ function vTrip(){
     : st === "now" ? `🎉 Day ${daysBetween(t.start, today()) + 1} of ${days}`
     : st === "past" ? "📸 Memories" : "🗓️ Dates TBD";
 
-  const TABS = [["plan","🗓️","Plan"],["pack","🧳","Packing"],["budget","💵","Budget"],["wallet","🎫","Wallet"],["ideas","💡","Ideas"]];
-  const body = { plan:vPlan, pack:vPack, budget:vBudget, wallet:vWallet, ideas:vIdeas }[R.tab] || vPlan;
+  const TABS = [["mission","🎛️","Mission"],["plan","🗓️","Plan"],["pack","🧳","Packing"],["budget","💵","Budget"],["wallet","🎫","Wallet"],["ideas","💡","Ideas"]];
+  const body = { mission:vMission, plan:vPlan, pack:vPack, budget:vBudget, wallet:vWallet, ideas:vIdeas }[R.tab] || vPlan;
 
   return `
   <div class="topbar">
@@ -576,6 +613,64 @@ function vTrip(){
   </div>
 
   ${body(t)}`;
+}
+
+/* ---------- MISSION CONTROL ---------- */
+function mcStatus(t, k){
+  // Packing status is computed from the packing tab, never stored.
+  if (k === "packing"){
+    const n = t.packing.length, d = t.packing.filter(p => p.done).length;
+    if (!n) return { s:"r", note:"No list yet" };
+    return d === n ? { s:"g", note:"All " + n + " items packed" } : { s:"y", note: d + " of " + n + " packed" };
+  }
+  return t.mission.cats[k];
+}
+function verifyWindow(t){
+  if (!t.start) return null;
+  const s = pd(t.start);
+  const from = new Date(s); from.setDate(s.getDate() - 14);
+  const to = new Date(s); to.setDate(s.getDate() - 7);
+  return { from: iso(from), to: iso(to) };
+}
+function vMission(t){
+  const rows = MC_CATS.map(([k, e, n]) => ({ k, e, n, ...mcStatus(t, k) }));
+  const ready = rows.filter(r => r.s === "g").length;
+  const next = rows.find(r => r.s !== "g");
+  const vw = verifyWindow(t);
+  const verifyDue = vw && today() >= vw.from && t.mission.cats.verify.s !== "g";
+  // Wallet entries hint that a category is handled.
+  const inWallet = { flights:"flight", hotel:"stay", rental:"car", tickets:"ticket" };
+
+  return `
+  <div class="card mc-head">
+    <div class="rowline">
+      <b style="font-size:15px">Planning progress</b><span class="grow"></span>
+      <b class="mono" style="color:${ready === rows.length ? "var(--good-text)" : "var(--ink2)"}">${ready} of ${rows.length} ready</b>
+    </div>
+    <div class="progress" style="margin-top:9px"><i style="width:${Math.round(ready / rows.length * 100)}%"></i></div>
+    ${t.mission.purpose ? `<div class="mc-next">🎯 ${esc(t.mission.purpose)}</div>` : `<button class="btn subtle small" style="margin-top:6px;padding-left:0" data-a="mcPurpose">＋ Set trip purpose</button>`}
+    ${ready === rows.length
+      ? `<div class="mc-next">🎉 <b>Mission ready — everything is green.</b></div>`
+      : next ? `<div class="mc-next">Next step: <b>${next.e} ${esc(next.n)}</b></div>` : ""}
+    ${verifyDue ? `<div class="mc-next due" style="color:var(--bad)">⏰ Final verification window is open (${fmtD(vw.from)} – ${fmtD(vw.to)}): confirm hours, parking, reservations, bag policy, lounge access.</div>` : ""}
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    ${rows.map(r => {
+      const wk = inWallet[r.k];
+      const hasW = wk && t.wallet.some(w => w.kind === wk);
+      const sub = r.note ? esc(r.note) : MC_STATES[r.s] + (hasW ? " · in wallet ✓" : "");
+      return `<div class="mc-row">
+        <button class="stl ${r.s}" data-a="mcCycle" data-id="${r.k}" title="${MC_STATES[r.s]} — tap to change">${r.s === "g" ? "✓" : r.s === "y" ? "…" : "!"}</button>
+        <span class="ic">${r.e}</span>
+        <button class="grow" data-a="mcEdit" data-id="${r.k}" style="text-align:left">
+          <div class="nm">${esc(r.n)}</div>
+          <div class="nt ${r.k === "verify" && verifyDue ? "due" : ""}">${sub}</div>
+        </button>
+      </div>`;
+    }).join("")}
+  </div>
+  <p class="hint" style="margin:12px 6px">Tap the light to cycle <b>! needed → … in progress → ✓ ready</b>. Tap a row to add details (flight numbers, confirmation notes, forecast). Packing tracks itself from the Packing tab.</p>`;
 }
 
 /* ---------- PLAN (itinerary) ---------- */
@@ -887,7 +982,11 @@ function confetti(){
 const A = {
   home(){ go({ view:"home" }); },
   settings(){ go({ view:"settings" }); },
-  openTrip(el){ go({ view:"trip", trip: el.dataset.id, tab:"plan", packOwner:"all" }); },
+  openTrip(el){
+    const t = trip(el.dataset.id), st = t ? tripStatus(t) : "someday";
+    // Pre-trip you live in Mission Control; once traveling, the day plan leads.
+    go({ view:"trip", trip: el.dataset.id, tab: st === "now" || st === "past" ? "plan" : "mission", packOwner:"all" });
+  },
   tab(el){ go({ tab: el.dataset.id }); },
   packOwner(el){ go({ packOwner: el.dataset.id }); },
   print(){ window.print(); },
@@ -931,7 +1030,12 @@ const A = {
       ]},
       wallet:[ { id:uid(), kind:"stay", title:"Beach house — Vilano Beach", code:"HMB-4821", details:"Check-in 3pm · door code arrives by text the day before" } ],
       ideas:[ { id:uid(), text:"Sunset dolphin cruise", votes:fam.slice(0,2) }, { id:uid(), text:"Mini golf tournament — loser buys ice cream", votes:[...fam] } ],
+      mission:{ purpose:"Beach week + Sam’s first sandcastle contest", cats:Object.fromEntries(MC_CATS.map(([k]) => [k, { s:"r", note:"" }])) },
     });
+    const mc = S.trips[S.trips.length - 1].mission.cats;
+    mc.hotel = { s:"g", note:"Beach house booked · HMB-4821" };
+    mc.rental = { s:"y", note:"Driving our own car — confirm oil change" };
+    mc.weather = { s:"y", note:"Check forecast the week before" };
     save(); go({ view:"trip", trip:id, tab:"plan" });
     toast("Sample trip created ✨");
   },
@@ -946,6 +1050,36 @@ const A = {
       title:"Who’s going?",
       fields:[{ k:"tr", type:"members", label:"Travelers", value:t.travelers }],
       onSubmit(v){ t.travelers = v.tr; save(); render(); }
+    });
+  },
+
+  /* ----- mission control ----- */
+  mcCycle(el){
+    const t = trip(R.trip), k = el.dataset.id;
+    if (k === "packing"){ go({ tab:"pack" }); return; }
+    const c = t.mission.cats[k];
+    c.s = c.s === "r" ? "y" : c.s === "y" ? "g" : "r";
+    save(); render();
+  },
+  mcEdit(el){
+    const t = trip(R.trip), k = el.dataset.id;
+    if (k === "packing"){ go({ tab:"pack" }); return; }
+    const cat = MC_CATS.find(c => c[0] === k), cur = t.mission.cats[k];
+    openModal({
+      title: cat[1] + " " + cat[2],
+      fields:[
+        { k:"s", label:"Status", type:"select", value:cur.s, options:[["r","🔴 Needed"],["y","🟡 In progress"],["g","🟢 Ready"]] },
+        { k:"note", label:"Details", type:"textarea", value:cur.note, placeholder:"e.g. DL1132 · SJC 1:30 PM · conf ABC123" },
+      ],
+      onSubmit(v){ cur.s = v.s; cur.note = v.note; save(); render(); }
+    });
+  },
+  mcPurpose(){
+    const t = trip(R.trip);
+    openModal({
+      title:"Trip purpose",
+      fields:[{ k:"p", label:"Why this trip?", value:t.mission.purpose, placeholder:"e.g. Seth’s birthday + USA World Cup match" }],
+      onSubmit(v){ t.mission.purpose = v.p; save(); render(); }
     });
   },
 
@@ -1065,7 +1199,7 @@ const A = {
           const d = JSON.parse(rd.result);
           if (!d || d.v !== 1 || !Array.isArray(d.trips)) throw 0;
           if (!confirm("Replace everything on this device with the imported backup?")) return;
-          S = Object.assign(blank(), d);
+          S = normalize(d);
           save(); go({ view:"home" });
           toast("Backup imported ✨");
         }catch(e){ toast("That doesn’t look like a Wander backup"); }
@@ -1124,7 +1258,8 @@ function tripForm(t){
       if (isNew){
         const id = uid();
         S.trips.push({ id, name:v.name, dest:v.dest, emoji:v.emoji, start:a, end:b, notes:v.notes, travelers:v.travelers,
-          stops:[], packing:[], budget:{ total:0, expenses:[] }, wallet:[], ideas:[] });
+          stops:[], packing:[], budget:{ total:0, expenses:[] }, wallet:[], ideas:[],
+          mission:{ purpose:"", cats:Object.fromEntries(MC_CATS.map(([k]) => [k, { s:"r", note:"" }])) } });
         save(); go({ view:"trip", trip:id, tab:"plan" });
         toast("Adventure created 🎉");
       } else {
