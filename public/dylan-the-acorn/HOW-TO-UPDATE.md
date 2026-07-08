@@ -80,16 +80,28 @@ Right now the "Join the Newsletter" button opens the visitor's email app.
 For automatic signup collection, create a free form at https://formspree.io
 and follow the note marked `NEWSLETTER SETUP` inside `index.html`.
 
-## Publish the site
+## Publish the site at dylantheacorn.com
 
-The site is one folder with no build step, so it works on any free static
-host. Easiest options:
+The domain **dylantheacorn.com** (registered at Porkbun) is already wired up
+in this project's code: when that domain points at this Vercel project, the
+book site appears at the domain root automatically (the dashboard and other
+pages are not exposed on it). Two one-time steps remain:
 
-- **Netlify Drop** (https://app.netlify.com/drop): drag the `dylan-the-acorn`
-  folder onto the page — done, you get a live link instantly.
-- **Vercel / GitHub Pages**: point it at this folder.
-- You can later buy a domain like `dylantheacorn.com` and connect it in
-  your host's settings.
+1. **Vercel** → the `adams-homes-dashboard` project → Settings → Domains →
+   add `dylantheacorn.com` and `www.dylantheacorn.com`.
+2. **Porkbun** (porkbun.com → Domain Management → dylantheacorn.com → DNS):
+   - Delete Porkbun's default "parked" ALIAS/CNAME records if present.
+   - Add an `A` record: host blank (`@`), answer `76.76.21.21`.
+   - Add a `CNAME` record: host `www`, answer `cname.vercel-dns.com`.
+   (Vercel's Domains screen shows these same values and verifies them.)
+
+DNS usually takes a few minutes to a couple of hours. After that,
+https://dylantheacorn.com shows the site with free automatic HTTPS.
+
+Alternative: the folder also works on any static host (e.g. drag
+`dylan-the-acorn` onto https://app.netlify.com/drop) — but if you host it
+outside this project, change the image paths in `index.html` from
+`/dylan-the-acorn/images/...` back to `images/...`.
 
 ## Book links used on the site
 
