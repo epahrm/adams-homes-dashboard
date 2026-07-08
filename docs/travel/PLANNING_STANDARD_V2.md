@@ -134,6 +134,8 @@ Ask: what did you love · what would you skip · best restaurant · best
 dessert/gelato · best coffee/tea · best activity · best photo spot · hotel
 feedback. Save by city: restaurants, coffee/chill spots, bike trails, viral
 spots, farmers markets, hotel notes, activity winners/losers.
+Every journal also records LOGISTICS: airline, airport, hotel, and
+transportation used (rental car / Uber / transit / bicycles / walking).
 
 ## 20. Permanent travel profile
 Elizabeth prefers compact, executive-style itineraries with verified

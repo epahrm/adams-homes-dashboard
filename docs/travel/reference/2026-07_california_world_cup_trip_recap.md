@@ -3,6 +3,10 @@
 Residence Inn by Marriott San Jose North/Silicon Valley · FIFA World Cup 2026
 Overall Trip Score: ★★★★★ (9.7/10)
 
+Logistics: Airline TBD (pending Elizabeth's debrief) · Airport SJC (San José
+Mineta) · Hotel Residence Inn by Marriott San Jose North/Silicon Valley ·
+Transportation: rental car; walked to Levi's Stadium (1.3 mi) on match day.
+
 Philosophy that worked: avoided trying to "see everything"; focused on
 high-impact experiences. Balance of SF icons + Silicon Valley + World Cup.
 

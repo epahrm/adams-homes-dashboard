@@ -428,6 +428,12 @@ const JOURNALS = [{
   dates:"Jun 30 – Jul 2, 2026",
   score:"9.7",
   summary:"SF icons + Silicon Valley + the FIFA World Cup. We skipped “seeing everything” and chose high-impact experiences — the trip that set our standard.",
+  logistics:[
+    ["✈️","Airline","—"],
+    ["🛬","Airport","SJC — San José Mineta International"],
+    ["🏨","Hotel","Residence Inn by Marriott San Jose North/Silicon Valley"],
+    ["🚗","Transportation","Rental car for the trip · walked to Levi’s Stadium (1.3 mi) on match day"],
+  ],
   bestOf:[
     ["Best Photo","🌉 Battery Spencer"],
     ["Best Family Activity","🦭 Pier 39 Sea Lions"],
@@ -704,6 +710,10 @@ function vJournal(){
       <button class="btn ghost" data-a="print">🖨️ Print</button>
     </div>
   </div>
+
+  ${j.logistics ? `
+  <div class="section-title">Logistics</div>
+  <div class="card">${j.logistics.map(([e, l, v]) => `<div class="jl"><span class="je">${e}</span><span><b>${esc(l)}:</b> ${esc(v)}</span></div>`).join("")}</div>` : ""}
 
   <div class="section-title">Best of the trip</div>
   <div class="trophygrid">
