@@ -118,5 +118,8 @@ Full journal: `reference/2025-07_nyc_family_trip_recap.md`
 - Skip at night: Chinatown (felt sketchy after dark; fine by day)
 - Winner: Little Italy for walk/dine/stroll; Times Square at night for
   the kids; Central Park bikes (several hours)
-- Pending: Trump hotel/pizza story, per-stop durations, photos, lounge
-  report (busy? prebook?)
+- SETH BENCHMARK — best pizza EVER: brick-oven pizza in Trump Tower's
+  5th Ave atrium (resolved 2026-07-08). Use as Seth's pizza bar to beat
+  when scouting pizza in any city.
+- Pending: per-stop durations, photos, lounge report (busy? prebook?),
+  exact Starbucks, travelers roster

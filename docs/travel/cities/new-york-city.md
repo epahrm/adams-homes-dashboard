@@ -21,7 +21,11 @@ Status: journal #3 in progress — trip taken Jul 30 – Aug 2, 2025
   Elizabeth (garbled note also mentions "best pizza he's ever had").
 
 ## Restaurants (winners)
-_TBD — pending Elizabeth's notes. Open thread: the best-pizza-ever spot._
+- SETH'S BEST PIZZA EVER: brick-oven pizza inside Trump Tower's atrium
+  (725 5th Ave — trumptowerny.com; the atrium has Trump Café/Trump Pizza).
+  Confirmed by Elizabeth 2026-07-08 ("B — the pizza was at the Trump
+  hotel"; Seth is Elizabeth's son). Pairs with the Fifth Avenue stroll.
+- More winners TBD — pending Elizabeth's notes.
 
 ## Coffee, tea & chill spots
 - Brookfield Place Winter Garden — palm-filled glass atrium on the

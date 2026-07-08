@@ -61,12 +61,16 @@ Fed) · Oculus · Brookfield Place & Winter Garden · Statue of Liberty ·
 City Hall Park · Brooklyn Bridge · Manhattan Bridge · Battery Park City
 waterfront · Jersey City waterfront.
 
+## Best pizza ever (RESOLVED 2026-07-08)
+Seth (Elizabeth's son) had the best pizza he's ever had AT the Trump
+Tower visit — the brick-oven pizza in the 725 5th Ave atrium
+(trumptowerny.com; Trump Café / Trump Pizza). Logged in the journal on
+the Trump Tower & Fifth Avenue stop and in the city file as a
+restaurant winner.
+
 ## Open items (ask one at a time)
-1. Trump hotel visit + "best pizza he's ever had" — garbled dictation;
-   clarify what happened and where the pizza was. (Also: who is "he" —
-   Seth?)
-2. Lounge report: MCO out (The Club MCO, Priority Pass) / LGA back —
+1. Lounge report: MCO out (The Club MCO, Priority Pass) / LGA back —
    used one? busy? pre-booking needed? QR?
-3. Which Starbucks exactly (Brookfield Place assumed).
-4. Per-stop durations + highlights; photos; favorite lunch/dinner spots.
-5. Confirm who traveled (kids = Seth + twin nieces?).
+2. Which Starbucks exactly (Brookfield Place assumed).
+3. Per-stop durations + highlights; photos; favorite lunch/dinner spots.
+4. Confirm who traveled (kids = Seth + twin nieces?).
