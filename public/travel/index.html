@@ -446,13 +446,22 @@ const JOURNALS = [{
     ["Best Scenic Walk","⛴️ Ferry Building & Embarcadero"],
     ["Best Overall","🇺🇸 World Cup at Levi’s Stadium"],
   ],
+  /* Each stop: t=name, why=short reason, stay=how long to plan next time
+     (Elizabeth fills/edits via the landmark editor), tips=highlights for
+     friends & family considering the same trip. */
   doAgain:[
-    "Battery Spencer — best Golden Gate photos",
-    "Pier 39 sea lions",
-    "Ferry Building & Embarcadero walk",
-    "Apple Park Visitor Center",
-    "Santana Row evening",
-    "San Pedro Square Market",
+    { t:"Battery Spencer", why:"best Golden Gate photos", stay:"30 min",
+      tips:"THE postcard Golden Gate viewpoint — top photography location of the trip." },
+    { t:"Pier 39 sea lions", why:"", stay:"",
+      tips:"Sea lions + waterfront energy — no SF trip with a kid is complete without it." },
+    { t:"Ferry Building & Embarcadero walk", why:"", stay:"",
+      tips:"Local food, Bay Bridge views, waterfront stroll — the smart alternative to fighting downtown traffic." },
+    { t:"Apple Park Visitor Center", why:"", stay:"",
+      tips:"Rooftop view, exclusive merch, pure Silicon Valley — get the latte with the Apple drawn in the foam." },
+    { t:"Santana Row evening", why:"", stay:"",
+      tips:"Beautiful walking, great restaurants — the perfect pre-event evening." },
+    { t:"San Pedro Square Market", why:"", stay:"",
+      tips:"Food hall + giant screens + fan energy — hidden gem, especially during big events. Seth’s brown sugar lemonade lives here." },
   ],
   skip:[
     "Lombard Street — traffic not worth it on a short trip",
@@ -727,7 +736,13 @@ function vJournal(){
   </div>
 
   <div class="section-title">Do again ✔</div>
-  <div class="card">${j.doAgain.map(x => `<div class="jl"><span class="je">✅</span><span>${esc(x)}</span></div>`).join("")}</div>
+  <div class="card">${j.doAgain.map((x, i) => {
+    const ov = X.media[i] || {};
+    const stay = ov.stay || x.stay, tips = ov.tips || x.tips;
+    return `<div class="jl"><span class="je">✅</span><span><b>${esc(x.t)}</b>${x.why ? " — " + esc(x.why) : ""}
+      ${stay ? `<div class="hint" style="margin-top:2px">⏳ Plan ${esc(stay)}</div>` : ""}
+      ${tips ? `<div class="hint" style="margin-top:2px">💡 ${esc(tips)}</div>` : ""}</span></div>`;
+  }).join("")}</div>
 
   <div class="section-title">Skip next time</div>
   <div class="card">${j.skip.map(x => `<div class="jl"><span class="je">❌</span><span>${esc(x)}</span></div>`).join("")}</div>
@@ -735,14 +750,14 @@ function vJournal(){
   <div class="section-title">Landmark photos</div>
   <div class="gal">
     ${j.doAgain.map((x, i) => {
-      const name = x.split(" — ")[0];
+      const name = x.t;
       const m = X.media[i] || (j.media && j.media[i] ? { img:j.media[i], note:"" } : null);
       return m && m.img
         ? `<button class="galtile" data-a="jTile" data-id="${i}"><img src="${m.img}" alt=""><span class="gl">${esc(name)}${m.note ? " · 📝" : ""}</span></button>`
         : `<button class="galtile empty" data-a="jTile" data-id="${i}"><span class="ge">📷</span><span class="gl">${esc(name)}${m && m.note ? " · 📝" : ""}</span></button>`;
     }).join("")}
   </div>
-  <p class="hint" style="margin:10px 6px">Tap a landmark to add a photo from your camera roll and a note. Photos live on this device and ride along in backups.</p>
+  <p class="hint" style="margin:10px 6px">Tap a landmark to add a photo, your note, <b>how long to plan there next time</b>, and <b>highlights for friends & family</b>. Everything lives on this device and rides along in backups.</p>
 
   <div class="section-title">Trip notes</div>
   <div class="card">
@@ -1255,18 +1270,20 @@ const A = {
   },
   jTile(el){
     const j = journal(R.jid), X = jx(j.id), i = el.dataset.id;
-    const name = j.doAgain[i].split(" — ")[0];
-    const cur = X.media[i] || (j.media && j.media[i] ? { img:j.media[i], note:"" } : {});
+    const item = j.doAgain[i];
+    const cur = X.media[i] || (j.media && j.media[i] ? { img:j.media[i] } : {});
     openModal({
-      title:name,
+      title:item.t,
       fields:[
         { k:"img", type:"photo", label:"Photo from our visit", value:cur.img,
           hint:"Any size — compressed automatically (~150–300 KB stored)." },
-        { k:"note", type:"textarea", label:"Notes", value:cur.note, placeholder:"What we remember about this one…" },
+        { k:"stay", label:"How long should we plan here next time?", value:cur.stay ?? item.stay, placeholder:"e.g. 45–60 min" },
+        { k:"tips", type:"textarea", label:"Highlights for friends & family", value:cur.tips ?? item.tips, placeholder:"Why they’d want to visit…" },
+        { k:"note", type:"textarea", label:"Our private notes", value:cur.note, placeholder:"What we remember about this one…" },
       ],
-      onDelete: (cur.img || cur.note) ? () => { delete X.media[i]; save(); render(); } : null,
+      onDelete: (cur.img || cur.note || cur.stay || cur.tips) ? () => { delete X.media[i]; save(); render(); } : null,
       onSubmit(v){
-        if (v.img || v.note) X.media[i] = { img:v.img || null, note:v.note };
+        if (v.img || v.note || v.stay || v.tips) X.media[i] = { img:v.img || null, note:v.note, stay:v.stay, tips:v.tips };
         else delete X.media[i];
         save(); render();
       }
@@ -1547,7 +1564,7 @@ function tripWizard2(v1, j){
       let [a, b] = [v2.start, v2.end];
       if (a && b && b < a) [a, b] = [b, a];
       const id = uid();
-      const carried = j && v1.carry !== "no" ? j.doAgain.map(text => ({ id:uid(), text, votes:[] })) : [];
+      const carried = j && v1.carry !== "no" ? j.doAgain.map(x => ({ id:uid(), text: x.t + (x.why ? " — " + x.why : ""), votes:[] })) : [];
       S.trips.push({ id, name:v1.name, dest:v1.dest, emoji:v1.emoji, type:v1.type, start:a, end:b, notes:"", travelers:v1.travelers,
         stops:[], packing:[], budget:{ total:0, expenses:[] }, wallet:[], ideas:carried,
         mission:{ purpose:"", cats:Object.fromEntries(MC_CATS.map(([k]) => [k, { s:"r", note:"" }])) },

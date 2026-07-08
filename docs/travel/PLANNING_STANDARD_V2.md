@@ -136,6 +136,10 @@ feedback. Save by city: restaurants, coffee/chill spots, bike trails, viral
 spots, farmers markets, hotel notes, activity winners/losers.
 Every journal also records LOGISTICS: airline, airport, hotel, and
 transportation used (rental car / Uber / transit / bicycles / walking).
+When building out a journal, PROMPT Elizabeth for each stop's recommended
+duration ("how long should we plan here next time") and its HIGHLIGHTS —
+a friends-and-family blurb explaining why they'd want to visit. Journals
+double as recommendation guides when shared.
 
 ## 20. Permanent travel profile
 Elizabeth prefers compact, executive-style itineraries with verified

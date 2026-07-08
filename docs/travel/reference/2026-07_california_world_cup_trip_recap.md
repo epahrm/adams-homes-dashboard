@@ -54,6 +54,11 @@ the match if possible.
 - PayPal Park — no meaningful pregame festivities; San Pedro Square was
   the right call.
 
+## Stop durations & visitor highlights
+- Battery Spencer — plan 30 min. THE postcard Golden Gate viewpoint.
+- Other stops' durations: pending Elizabeth's input via the app's landmark
+  editor (visitor highlights drafted from her recap language, editable).
+
 ## Best of trip
 
 🏆 Best Restaurant: Hard Rock Cafe, Pier 39 (Seth's favorite)
