@@ -477,6 +477,18 @@ const JOURNALS = [{
   doAgainNote:"All are walk / stroll / dine stops with free entry.",
   /* Getting Around defaults — Elizabeth confirms/edits via the prompt */
   mobility:{ walk:"partly", bike:"", mode:"rental", notes:"Hotel was walking distance to Levi\u2019s Stadium \u2014 no rideshare needed on match day." },
+  hotel:{
+    name:"Residence Inn by Marriott San Jose North/Silicon Valley",
+    amen:[
+      "Free guest parking",
+      "Guest laundry",
+      "Huge restaurant",
+      "Outdoor fire pits",
+      "Big fitness center",
+      "Full in-room kitchen — we brought food in to prepare later",
+    ],
+    notes:"Left Seth a birthday gift when we mentioned his birthday. Walking distance to Levi\u2019s Stadium.",
+  },
   packSpecial:[
     "Tripod \u2014 family photos together (worked perfectly)",
     "Hoodies \u2014 SF mornings & evenings drop cold, even in summer",
@@ -777,6 +789,19 @@ function vJournal(){
       ${lg.name ? `<div class="jl"><span class="je">🛋️</span><span><b>${esc(lg.name)}</b></span></div>` : ""}
       ${lg.review ? `<div class="jl"><span class="je">⭐</span><span>${esc(lg.review)}</span></div>` : ""}
       ${lg.qr ? `<div style="padding:6px 16px 14px"><img src="${lg.qr}" alt="Lounge QR" style="width:150px;border-radius:12px;background:#fff;padding:6px"><div class="hint" style="margin-top:4px">Pre-registration QR — show at the desk next visit</div></div>` : ""}`}
+    </button>`;
+  })()}
+
+  <div class="section-title">Hotel report</div>
+  ${(() => {
+    const h = Object.assign({}, j.hotel, X.hotel || {});
+    const amen = (X.hotel && X.hotel.amen && X.hotel.amen.length ? X.hotel.amen : (j.hotel && j.hotel.amen) || []);
+    const unset = !h.name && !amen.length;
+    return `<button class="card" data-a="jHotel" style="display:block;width:100%;text-align:left">
+      ${unset ? `<div class="notesbody">🏨 <b>Tap to answer:</b> where did we stay, which amenities mattered, and what should friends know?</div>` : `
+      ${h.name ? `<div class="jl"><span class="je">🏨</span><span><b>${esc(h.name)}</b></span></div>` : ""}
+      ${amen.map(a => `<div class="jl"><span class="je">✔️</span><span>${esc(a)}</span></div>`).join("")}
+      ${h.notes ? `<div class="jl"><span class="je">📝</span><span>${esc(h.notes)}</span></div>` : ""}`}
     </button>`;
   })()}
 
@@ -1394,6 +1419,25 @@ const A = {
       onSubmit(v){
         if (v.name || v.review || v.qr) X.lounge = { name:v.name, review:v.review, qr:v.qr || null };
         else delete X.lounge;
+        save(); render();
+      }
+    });
+  },
+  jHotel(){
+    const j = journal(R.jid), X = jx(j.id);
+    const h = Object.assign({}, j.hotel, X.hotel || {});
+    const amen = (X.hotel && X.hotel.amen && X.hotel.amen.length ? X.hotel.amen : (j.hotel && j.hotel.amen) || []);
+    openModal({
+      title:"Hotel report",
+      fields:[
+        { k:"name", label:"Hotel", value:h.name, placeholder:"e.g. Residence Inn by Marriott …" },
+        { k:"amen", type:"textarea", label:"Amenities that mattered (one per line)", value:amen.join("\n"),
+          placeholder:"Free parking\nGuest laundry\nFull kitchen…" },
+        { k:"notes", type:"textarea", label:"Tips for friends & next time", value:h.notes,
+          placeholder:"What made this stay work…" },
+      ],
+      onSubmit(v){
+        X.hotel = { name:v.name, amen:v.amen.split("\n").map(t => t.trim()).filter(Boolean), notes:v.notes };
         save(); render();
       }
     });

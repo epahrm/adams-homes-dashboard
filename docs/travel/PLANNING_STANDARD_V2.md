@@ -150,6 +150,9 @@ Also PROMPT for: rental car pickup (on-site at the terminal vs bus/shuttle
 to the facility — budget extra time if shuttle), an OVERALL SAFETY rating
 of the places visited, and any FARMERS MARKETS or similar finds worth
 noting for the next visit.
+Also PROMPT for the HOTEL REPORT: which amenities actually mattered
+(parking, laundry, kitchen, fitness, restaurant, fire pits…) and tips for
+friends/next time — documented so hotel wins are shareable and repeatable.
 
 ## 20. Permanent travel profile
 Elizabeth prefers compact, executive-style itineraries with verified

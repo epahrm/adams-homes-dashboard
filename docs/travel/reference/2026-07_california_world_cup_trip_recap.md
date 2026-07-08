@@ -73,6 +73,12 @@ Main transportation: rental car (Avis from SJC). Walkability (Elizabeth,
 distance to Levi's Stadium — no rideshare needed on match day. Bikes:
 pending. Rental pickup on-site vs shuttle: pending.
 
+## Hotel report (Elizabeth, 2026-07-08)
+Residence Inn by Marriott San Jose North/Silicon Valley — amenities that
+mattered: free guest parking · guest laundry · huge restaurant · outdoor
+fire pits · big fitness center · full in-room kitchen (brought food in to
+prepare later). Left Seth a birthday gift; walking distance to Levi's.
+
 ## Special packing (Elizabeth, 2026-07-08)
 - Tripod — for family photos together; worked perfectly
 - Hoodies — SF mornings/evenings drop very low, even in summer

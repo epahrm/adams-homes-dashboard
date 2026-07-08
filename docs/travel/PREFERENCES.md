@@ -35,6 +35,12 @@ Full journal: `reference/2026-07_california_world_cup_trip_recap.md`
   LESSON: deliberately plan the coffee/tea stop with verified hours;
   Santana Row / Ferry Building were the backups that never happened.
 
+PERMANENT PLAY — Extended-stay style hotels for family trips: the CA
+Residence Inn's full in-room kitchen (bring food in to prepare), free
+parking, and guest laundry were exactly the winning amenity set. Weight
+these heavily in future hotel picks (pairs with the Whole Foods prepared-
+meals preference).
+
 PERMANENT PLAY — Tripod: pack a tripod on photo-oriented family trips —
 proved perfect for family-together shots in CA 2026. Add to packing lists
 whenever iconic photo spots are on the plan.
