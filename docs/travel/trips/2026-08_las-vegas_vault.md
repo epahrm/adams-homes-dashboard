@@ -17,8 +17,7 @@ VENUE VERIFIED: MGM Grand, Las Vegas — Aug 31–Sep 3, 2026
   ticket should be locked well before that. Forward the confirmation to
   Gmail when purchased.
 - 🟡 Reservations — none yet; dining Top-3s on request only.
-- 🔴 Rental car — likely unnecessary: Cosmopolitan → MGM Grand is ~0.8 mi
-  on the Strip (≈15–18 min walk or a 5-min rideshare). Preference pending.
+- 🟢 Rental car — NOT NEEDED (decided): walking both ways, ~0.8 mi each.
 - 🟡 Lounge — Priority Pass/CSR options at MCO + LAS once flights exist.
 - 🔴 Packing — conference wardrobe + Vegas heat; build 2 weeks out.
 - 🟢 Weather (historical, early Sep): ~99°F highs / ~76°F lows, dry;
@@ -29,9 +28,9 @@ VENUE VERIFIED: MGM Grand, Las Vegas — Aug 31–Sep 3, 2026
 
 ## Commute plan (hotel ↔ venue)
 Cosmopolitan → MGM Grand: ~0.8 mi south on Las Vegas Blvd.
-🚶 15–18 min (fine in the morning; expect ~90°F+ afternoons — rideshare
-back is reasonable). 🚕 5 min door-to-door. Skip a rental unless plans
-extend off-Strip.
+DECIDED (Elizabeth, 7/8): WALK BOTH WAYS — 15–18 min each direction.
+Heat note: ~99°F afternoons; carry water in the conference bag, sunglasses,
+and plan the return walk with a cold drink stop. No rental car.
 
 ## Solo-Elizabeth notes (from standing preferences)
 - Coffee order: sugar-free vanilla latte, almond milk. Starbucks locations
@@ -55,5 +54,4 @@ extend off-Strip.
 
 ## Open questions (one at a time)
 2. Flights — say the word if you want them tracked once booked
-3. Walk vs rideshare preference for the conference commute
 4. Any evening events/dinners tied to the conference?
