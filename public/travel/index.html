@@ -343,6 +343,9 @@ const TRIP_EMOJI = ["🏖️","🏔️","🎢","🗽","🏕️","🌴","⛷️",
 const MEMBER_EMOJI = ["😀","😎","🥳","🤠","😺","🦖","🦄","🐻","🌟","🌸","⚽","🎨"];
 const MEMBER_COLORS = ["#2a78d6","#1baf7a","#eda100","#4a3aa7","#e34948","#e87ba4","#eb6834","#008300"];
 const STOP_CATS = { food:"🍽️", activity:"🎟️", travel:"🚌", lodging:"🏨", beach:"🏖️", shopping:"🛍️", other:"📍" };
+const TRIP_TYPES = { vacation:"🏖️ Family vacation", soccer:"⚽ Soccer tournament", work:"💼 Work function", conference:"🎤 Conference" };
+/* Wallet kind → Mission Control category it confirms. */
+const KIND_TO_MC = { flight:"flights", stay:"hotel", car:"rental", ticket:"tickets" };
 const WALLET_KINDS = { flight:["✈️","Flight"], stay:["🏨","Stay"], car:["🚗","Rental car"], train:["🚆","Train"], ticket:["🎟️","Tickets"], doc:["📄","Document"] };
 /* Budget categories: fixed palette-slot order — colors follow the category, never its rank. */
 const BUDGET_CATS = [
@@ -387,6 +390,9 @@ function normalize(d){
     t.mission = t.mission || { purpose:"", cats:{} };
     t.mission.cats = t.mission.cats || {};
     for (const [k] of MC_CATS) t.mission.cats[k] = t.mission.cats[k] || { s:"r", note:"" };
+    t.type = t.type || "vacation";
+    // Trips from before the intake gate are grandfathered as complete.
+    t.intake = t.intake || { mode:"committed", fixed:"", complete:true };
   }
   return s;
 }
@@ -600,6 +606,8 @@ function vTrip(){
     <div class="datebar">
       <span class="pill">📅 ${fmtRange(t.start, t.end)}</span>
       <span class="pill countpill">${count}</span>
+      <span class="pill">${TRIP_TYPES[t.type] || TRIP_TYPES.vacation}</span>
+      ${t.intake.mode ? `<span class="pill">${t.intake.mode === "research" ? "🔎 Researching" : "🔒 Committed"}</span>` : ""}
     </div>
     <div class="travbar">
       ${t.travelers.map(id => { const m = member(id); return m ? `<span class="tdot" title="${esc(m.name)}" style="background:${esc(m.color)}">${esc(m.emoji)}</span>` : ""; }).join("")}
@@ -649,6 +657,8 @@ function vMission(t){
     </div>
     <div class="progress" style="margin-top:9px"><i style="width:${Math.round(ready / rows.length * 100)}%"></i></div>
     ${t.mission.purpose ? `<div class="mc-next">🎯 ${esc(t.mission.purpose)}</div>` : `<button class="btn subtle small" style="margin-top:6px;padding-left:0" data-a="mcPurpose">＋ Set trip purpose</button>`}
+    ${t.intake.fixed ? `<div class="mc-next">📌 Locked events: <b>${esc(t.intake.fixed)}</b></div>` : ""}
+    ${t.intake.complete ? "" : `<div class="mc-next due" style="color:var(--bad)">🔒 Intake unfinished — <b>log confirmed bookings</b> before planning. <button class="btn subtle small" style="padding:0 4px" data-a="resumeIntake">Finish now</button></div>`}
     ${ready === rows.length
       ? `<div class="mc-next">🎉 <b>Mission ready — everything is green.</b></div>`
       : next ? `<div class="mc-next">Next step: <b>${next.e} ${esc(next.n)}</b></div>` : ""}
@@ -675,6 +685,13 @@ function vMission(t){
 
 /* ---------- PLAN (itinerary) ---------- */
 function vPlan(t){
+  if (!t.intake.complete){
+    return `<div class="card empty" style="margin-top:14px">
+      <div class="big">🔒</div><h3>Intake first</h3>
+      <p>Per the playbook: log confirmed flights and accommodations before any planning. It takes a minute.</p>
+      <button class="btn" data-a="resumeIntake">Finish intake</button>
+    </div>`;
+  }
   const days = tripDays(t);
   if (!days.length){
     return `<div class="card empty" style="margin-top:14px">
@@ -997,8 +1014,9 @@ const A = {
   },
 
   /* ----- trips ----- */
-  addTrip(){ tripForm(null); },
+  addTrip(){ tripWizard(); },
   editTrip(){ tripForm(trip(R.trip)); },
+  resumeIntake(){ tripWizard3(trip(R.trip)); },
   sample(){
     const id = uid();
     const base = new Date(); base.setDate(base.getDate() + 45);
@@ -1031,6 +1049,8 @@ const A = {
       wallet:[ { id:uid(), kind:"stay", title:"Beach house — Vilano Beach", code:"HMB-4821", details:"Check-in 3pm · door code arrives by text the day before" } ],
       ideas:[ { id:uid(), text:"Sunset dolphin cruise", votes:fam.slice(0,2) }, { id:uid(), text:"Mini golf tournament — loser buys ice cream", votes:[...fam] } ],
       mission:{ purpose:"Beach week + Sam’s first sandcastle contest", cats:Object.fromEntries(MC_CATS.map(([k]) => [k, { s:"r", note:"" }])) },
+      type:"vacation",
+      intake:{ mode:"committed", fixed:"Beach house check-in 3 PM day one", complete:true },
     });
     const mc = S.trips[S.trips.length - 1].mission.cats;
     mc.hotel = { s:"g", note:"Beach house booked · HMB-4821" };
@@ -1231,21 +1251,91 @@ const C = {
 };
 
 /* ---------- forms ---------- */
-function tripForm(t){
-  const isNew = !t;
+/* Intake wizard (Planning Standard v2 §0): who/type → dates/commitment →
+   confirmed bookings. No day planning until intake completes. */
+function tripWizard(){
   openModal({
-    title: isNew ? "Plan a trip" : "Edit trip",
-    submit: isNew ? "Create trip" : "Save",
+    title:"New trip · 1 of 3 — Who & what",
+    submit:"Next",
     fields:[
-      { k:"name", label:"Trip name", value:t?.name, required:true, placeholder:"e.g. Spring Break 2027" },
-      { k:"dest", label:"Destination", value:t?.dest, placeholder:"e.g. Yellowstone" },
-      { k:"emoji", label:"Vibe", type:"emoji", options:TRIP_EMOJI, value:t?.emoji || "🏖️" },
-      { k:"start", label:"First day", type:"date", value:t?.start, half:true },
-      { k:"end", label:"Last day", type:"date", value:t?.end, half:true },
-      { k:"travelers", label:"Who’s going?", type:"members", value:t?.travelers || S.family.map(m => m.id) },
-      { k:"notes", label:"Notes", type:"textarea", value:t?.notes, placeholder:"Anything the family should know…" },
+      { k:"travelers", label:"Who’s going?", type:"members", value:S.family.map(m => m.id) },
+      { k:"type", label:"What kind of trip?", type:"select", value:"vacation", options:Object.entries(TRIP_TYPES) },
+      { k:"name", label:"Trip name", required:true, placeholder:"e.g. Savannah Long Weekend" },
+      { k:"dest", label:"Destination", placeholder:"e.g. Savannah, GA" },
+      { k:"emoji", label:"Vibe", type:"emoji", options:TRIP_EMOJI, value:"🏖️" },
     ],
-    onDelete: isNew ? null : () => {
+    onSubmit(v1){ if (v1.name) tripWizard2(v1); }
+  });
+}
+function tripWizard2(v1){
+  openModal({
+    title:"New trip · 2 of 3 — Dates & commitment",
+    submit:"Next",
+    fields:[
+      { k:"mode", label:"Researching or committed?", type:"select", value:"research",
+        options:[["research","🔎 Just researching — nothing locked"],["committed","🔒 Committed — dates & events locked"]] },
+      { k:"start", label:"First day", type:"date", half:true },
+      { k:"end", label:"Last day", type:"date", half:true },
+      { k:"fixed", label:"Obligated events to schedule around", type:"textarea", placeholder:"e.g. USA match July 1 · 5 PM — tickets locked" },
+    ],
+    onSubmit(v2){
+      let [a, b] = [v2.start, v2.end];
+      if (a && b && b < a) [a, b] = [b, a];
+      const id = uid();
+      S.trips.push({ id, name:v1.name, dest:v1.dest, emoji:v1.emoji, type:v1.type, start:a, end:b, notes:"", travelers:v1.travelers,
+        stops:[], packing:[], budget:{ total:0, expenses:[] }, wallet:[], ideas:[],
+        mission:{ purpose:"", cats:Object.fromEntries(MC_CATS.map(([k]) => [k, { s:"r", note:"" }])) },
+        intake:{ mode:v2.mode, fixed:v2.fixed, complete:false } });
+      save(); go({ view:"trip", trip:id, tab:"mission" });
+      tripWizard3(trip(id));
+    }
+  });
+}
+function tripWizard3(t){
+  openModal({
+    title:"New trip · 3 of 3 — Confirmed bookings",
+    submit:"Add",
+    fields:[
+      { k:"kind", label:"Anything already confirmed?", type:"select", value:"flight",
+        options:[...Object.entries(WALLET_KINDS).map(([k, [e, n]]) => [k, e + "  " + n]), ["done","✅ Nothing more — finish intake"]] },
+      { k:"title", label:"Name", placeholder:"e.g. Delta 1132 · MCO → SJC" },
+      { k:"code", label:"Confirmation #", placeholder:"e.g. ABC123" },
+      { k:"details", label:"Details", type:"textarea", placeholder:"Times, addresses, check-in notes…" },
+    ],
+    onSubmit(v){
+      if (v.kind === "done" || !v.title){
+        t.intake.complete = true;
+        save(); render();
+        toast("Intake complete — plan away ✔");
+        return;
+      }
+      t.wallet.push({ id:uid(), kind:v.kind, title:v.title, code:v.code, details:v.details });
+      const mk = KIND_TO_MC[v.kind];
+      if (mk) t.mission.cats[mk] = { s:"g", note:v.title + (v.code ? " · " + v.code : "") };
+      save(); render();
+      tripWizard3(t);   // keep asking until she says done
+    }
+  });
+}
+
+function tripForm(t){
+  openModal({
+    title:"Edit trip",
+    submit:"Save",
+    fields:[
+      { k:"name", label:"Trip name", value:t.name, required:true },
+      { k:"dest", label:"Destination", value:t.dest, placeholder:"e.g. Yellowstone" },
+      { k:"type", label:"Trip type", type:"select", value:t.type || "vacation", options:Object.entries(TRIP_TYPES) },
+      { k:"emoji", label:"Vibe", type:"emoji", options:TRIP_EMOJI, value:t.emoji || "🏖️" },
+      { k:"start", label:"First day", type:"date", value:t.start, half:true },
+      { k:"end", label:"Last day", type:"date", value:t.end, half:true },
+      { k:"mode", label:"Researching or committed?", type:"select", value:t.intake.mode || "research",
+        options:[["research","🔎 Just researching"],["committed","🔒 Committed — dates & events locked"]] },
+      { k:"fixed", label:"Obligated events", type:"textarea", value:t.intake.fixed },
+      { k:"travelers", label:"Who’s going?", type:"members", value:t.travelers },
+      { k:"notes", label:"Notes", type:"textarea", value:t.notes, placeholder:"Anything the family should know…" },
+    ],
+    onDelete: () => {
       if (!confirm(`Delete “${t.name}” and everything in it?`)) return;
       S.trips = S.trips.filter(x => x.id !== t.id);
       save(); go({ view:"home" });
@@ -1255,17 +1345,9 @@ function tripForm(t){
       if (!v.name) return;
       let [a, b] = [v.start, v.end];
       if (a && b && b < a) [a, b] = [b, a];
-      if (isNew){
-        const id = uid();
-        S.trips.push({ id, name:v.name, dest:v.dest, emoji:v.emoji, start:a, end:b, notes:v.notes, travelers:v.travelers,
-          stops:[], packing:[], budget:{ total:0, expenses:[] }, wallet:[], ideas:[],
-          mission:{ purpose:"", cats:Object.fromEntries(MC_CATS.map(([k]) => [k, { s:"r", note:"" }])) } });
-        save(); go({ view:"trip", trip:id, tab:"plan" });
-        toast("Adventure created 🎉");
-      } else {
-        Object.assign(t, { name:v.name, dest:v.dest, emoji:v.emoji, start:a, end:b, notes:v.notes, travelers:v.travelers });
-        save(); render();
-      }
+      Object.assign(t, { name:v.name, dest:v.dest, emoji:v.emoji, type:v.type, start:a, end:b, notes:v.notes, travelers:v.travelers });
+      t.intake.mode = v.mode; t.intake.fixed = v.fixed;
+      save(); render();
     }
   });
 }

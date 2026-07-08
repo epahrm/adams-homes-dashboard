@@ -4,6 +4,17 @@ The most detailed and current planning standard — where it overlaps the
 playbook or reference guide, THIS file wins. The sample itinerary at the
 bottom is the canonical output format: emulate it exactly.
 
+## 0. Intake gate (added 2026-07-08 — Elizabeth's correction; do not skip)
+NO planning happens until intake is complete, in this exact order:
+1. FIRST question: who's going, and is this a family vacation, a soccer
+   tournament, a work function, or a conference?
+2. IMMEDIATELY ask for confirmed flights and accommodations. Search her
+   connected email for confirmations to verify them, or ask her to
+   upload/paste them. Log each one and mark it confirmed.
+3. Ask whether this is just research or committed — if committed, capture
+   the obligated dates/events everything else must schedule around.
+Only after all three: begin planning the gaps.
+
 ## 1. Clarifying questions
 One at a time, A/B/C/D choices. When relevant, ask whether something is a
 REQUIREMENT or PREFERENCE.
