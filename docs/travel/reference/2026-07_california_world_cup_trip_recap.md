@@ -73,11 +73,20 @@ Main transportation: rental car (Avis from SJC). Walkability (Elizabeth,
 distance to Levi's Stadium — no rideshare needed on match day. Bikes:
 pending. Rental pickup on-site vs shuttle: pending.
 
+## Favorites by meal (Elizabeth, 2026-07-08)
+- Breakfast: Residence Inn hotel breakfast — excellent, huge hot & cold
+  spread; never needed breakfast outside the hotel
+- Lunch: deli at San Pedro Square Market — chicken Caesar salad (Elizabeth,
+  great), chicken tenders (Seth) · restaurant name TBD (Elizabeth resending)
+- Dinner: Hard Rock Cafe, Pier 39 — fast casual done right
+- Coffee: Apple Park Visitor Center latte — pair with the visit
+
 ## Hotel report (Elizabeth, 2026-07-08)
 Residence Inn by Marriott San Jose North/Silicon Valley — amenities that
 mattered: free guest parking · guest laundry · huge restaurant · outdoor
 fire pits · big fitness center · full in-room kitchen (brought food in to
-prepare later). Left Seth a birthday gift; walking distance to Levi's.
+prepare later) · excellent free breakfast, huge hot & cold selections (never
+ate breakfast out). Left Seth a birthday gift; walking distance to Levi's.
 
 ## Special packing (Elizabeth, 2026-07-08)
 - Tripod — for family photos together; worked perfectly

@@ -35,6 +35,10 @@ Full journal: `reference/2026-07_california_world_cup_trip_recap.md`
   LESSON: deliberately plan the coffee/tea stop with verified hours;
   Santana Row / Ferry Building were the backups that never happened.
 
+PERMANENT PLAY — Hotel breakfast quality matters: the Residence Inn's huge
+hot & cold breakfast meant zero breakfast stops all trip (time + money
+saved). Verify breakfast quality, not just "free breakfast," when picking.
+
 PERMANENT PLAY — Extended-stay style hotels for family trips: the CA
 Residence Inn's full in-room kitchen (bring food in to prepare), free
 parking, and guest laundry were exactly the winning amenity set. Weight
