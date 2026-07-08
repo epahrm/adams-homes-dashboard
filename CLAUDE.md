@@ -9,6 +9,13 @@
 - Prefer inlining assets (data URIs) in public/travel — the app must have
   no external subresources so protection/caching can't break it.
 
+## Deploys
+- Vercel Hobby caps ~100 deployments/day and each push triggers a build.
+  BATCH commits during rapid iteration — do not push after every small
+  change. If rate-limited, keep committing+pushing (work stays safe in
+  git); the newest commit deploys when the quota resets (~24 h). Always
+  tell Elizabeth when the live preview is behind the repo.
+
 ## Communication
 - Whenever you report a delivery/deployment update in chat, ALWAYS include
   the relevant live link(s) in that same message — preview URL and PR link —
