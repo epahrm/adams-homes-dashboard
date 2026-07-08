@@ -608,14 +608,19 @@ const JOURNALS = [{
   emoji:"\ud83d\uddfd",
   cover:COVER_NYC,
   title:"New York City",
-  purpose:"",
-  badge:"\ud83d\uddfd Summer 2025",
+  purpose:"Family summer vacation \u2014 Manhattan end to end with the kids",
+  badge:"\ud83d\uddfd Family vacation",
   city:"New York City, NY",
   dest:"New York, NY",
-  dates:"Jul\u2013Aug 2025 \u00b7 exact dates TBD",
+  dates:"Jul 30 \u2013 Aug 2, 2025",
   score:"",
-  summary:"Manhattan end to end \u2014 Hudson Yards and The Edge down to the Battery and the harbor, with the Chelsea corridor, Midtown icons, and both East River bridges in between. Skeleton raised from Elizabeth\u2019s stop list \u2014 her notes, durations, and photos are coming.",
-  /* Skeleton: stay/tips left blank for Elizabeth\u2019s notes; costs prefilled
+  summary:"Hudson Yards to the harbor with the kids and the twin nieces \u2014 subway + walking all week from a corner King Studio above the Financial District, a ~4-mile Two Bridges run every morning, and the boat out to the Statue of Liberty. Elizabeth\u2019s per-stop notes and photos still coming.",
+  logistics:[
+    ["\u2708\ufe0f","Airline","Delta \u00b7 conf GH6BOL \u00b7 out DL1953 (MCO 10:45 AM \u2192 LGA 1:26 PM, Jul 30) \u00b7 home DL2520 (LGA 3:39 PM \u2192 MCO 6:54 PM, Aug 2) \u00b7 Delta Comfort+"],
+    ["\ud83c\udfe8","Hotel","Residence Inn New York Downtown Manhattan/World Trade Center Area \u00b7 170 Broadway \u00b7 conf #91549485 \u00b7 corner King Studio"],
+    ["\ud83d\ude95","Transportation","Rideshare LGA \u2194 hotel \u00b7 subway + walking everywhere in the city (the hotel even sent $10/day Lyft ride credits)"],
+  ],
+  /* stay/tips still open for Elizabeth\u2019s per-stop notes; costs prefilled
      only where they\u2019re unambiguous facts. */
   doAgain:[
     { t:"The Edge at Hudson Yards", why:"", stay:"", cost:"Paid \u2014 timed-entry ticket",
@@ -629,9 +634,15 @@ const JOURNALS = [{
     { t:"Radio City Music Hall", why:"on the list twice \u2014 two visits", stay:"", cost:"Free outside \u00b7 Stage Door Tour is paid",
       url:"https://www.msg.com/radio-city-music-hall", tips:"" },
     { t:"Times Square & the Theater District", why:"", stay:"", cost:"Free",
-      url:"https://www.timessquarenyc.org/", tips:"" },
+      url:"https://www.timessquarenyc.org/",
+      tips:"Go at night \u2014 the lights are the whole show; the twin nieces loved it after dark." },
     { t:"St. Patrick\u2019s Cathedral", why:"", stay:"", cost:"Free entry",
       url:"https://saintpatrickscathedral.org/", tips:"" },
+    { t:"Central Park & bike rental", why:"", stay:"Several hours \u2014 easily", cost:"Park free \u00b7 bike rental paid",
+      url:"https://www.centralparknyc.org/",
+      tips:"You could spend several hours here \u2014 we rented bikes and rode the park, and it was a highlight." },
+    { t:"Double-decker tourist bus", why:"", stay:"", cost:"Paid \u2014 hop-on hop-off ticket",
+      tips:"Rode it all through the city \u2014 a great overview with the kids." },
     { t:"Chelsea Market", why:"", stay:"", cost:"Free entry",
       url:"https://www.chelseamarket.com/", tips:"" },
     { t:"The High Line", why:"", stay:"", cost:"Free",
@@ -639,25 +650,52 @@ const JOURNALS = [{
     { t:"Chelsea Gallery District", why:"", stay:"", cost:"Free", tips:"" },
     { t:"Chelsea Piers", why:"", stay:"", cost:"Paid per activity",
       url:"https://www.chelseapiers.com/", tips:"" },
-    { t:"Little Italy & Chinatown (Canal St)", why:"", stay:"", cost:"Free", tips:"" },
+    { t:"Little Italy", why:"", stay:"", cost:"Free",
+      tips:"Fantastic for walking, dining, and strolling \u2014 go hungry." },
+    { t:"Chinatown & Canal St", why:"", stay:"", cost:"Free",
+      tips:"Do it in daylight \u2014 it felt a little sketchy at night, so we didn\u2019t go back after dark." },
     { t:"Trump Tower & Fifth Avenue", why:"", stay:"", cost:"Free", tips:"" },
     { t:"Wall Street \u2014 NYSE & the Federal Reserve", why:"", stay:"", cost:"Free",
       url:"https://www.nyse.com/", tips:"" },
     { t:"Oculus at the World Trade Center", why:"", stay:"", cost:"Free",
       url:"https://www.wtc.com/", tips:"" },
-    { t:"Brookfield Place", why:"", stay:"", cost:"Free",
-      url:"https://bfplny.com/", tips:"" },
+    { t:"Brookfield Place & the Winter Garden", why:"", stay:"", cost:"Free",
+      url:"https://bfplny.com/",
+      tips:"The palm-filled glass Winter Garden atrium right on the Hudson \u2014 with the multi-story Starbucks \u2014 became our chill spot; we went back several times." },
     { t:"Statue of Liberty", why:"", stay:"", cost:"Paid ferry (Statue City Cruises)",
-      url:"https://www.nps.gov/stli/", tips:"" },
+      url:"https://www.nps.gov/stli/",
+      tips:"The boat ride out was the kids\u2019 favorite." },
     { t:"City Hall Park", why:"", stay:"", cost:"Free",
       url:"https://www.nycgovparks.org/parks/city-hall-park", tips:"" },
-    { t:"Brooklyn Bridge walk", why:"", stay:"", cost:"Free", tips:"" },
-    { t:"Manhattan Bridge", why:"", stay:"", cost:"Free", tips:"" },
-    { t:"Battery Park City", why:"", stay:"", cost:"Free",
-      url:"https://bpca.ny.gov/", tips:"" },
+    { t:"Brooklyn Bridge walk", why:"", stay:"", cost:"Free",
+      tips:"Elizabeth\u2019s morning run \u2014 the ~4-mile Two Bridges loop over the Brooklyn & Manhattan Bridges, straight from the hotel every day." },
+    { t:"Manhattan Bridge", why:"the other half of the Two Bridges loop", stay:"", cost:"Free",
+      tips:"Pairs with the Brooklyn Bridge for the ~4-mile running loop; drops into Manhattan right at Chinatown." },
+    { t:"Battery Park City & the waterfront", why:"", stay:"", cost:"Free",
+      url:"https://bpca.ny.gov/",
+      tips:"Walked down by the water \u2014 the Hudson esplanade is the calm end of downtown." },
     { t:"Jersey City waterfront", why:"", stay:"", cost:"Free", tips:"" },
   ],
-  doAgainNote:"Most of Manhattan is free on foot \u2014 The Edge, the tramway, the Statue of Liberty ferry, and Chelsea Piers activities are the tickets.",
+  doAgainNote:"Most of Manhattan is free on foot \u2014 The Edge, the tramway, the Liberty ferry, the bus tour, Central Park bikes, and Chelsea Piers activities are the tickets.",
+  mobility:{ walk:"yes", bike:"some", mode:"mix", safety:"day",
+    notes:"Subway + walking was the winning combo \u2014 rideshare only for the airport runs. Bikes: rented in Central Park, a highlight. Chinatown felt a little sketchy after dark; everywhere else felt great, and the twin nieces loved Times Square at night." },
+  meals:{
+    breakfast:"Residence Inn hotel breakfast \u2014 excellent, lots of hot & cold food; no need to eat anywhere else",
+    lunch:"",
+    dinner:"",
+  },
+  hotel:{
+    name:"Residence Inn New York Downtown Manhattan/World Trade Center Area \u2014 170 Broadway",
+    amen:[
+      "Excellent free breakfast \u2014 big hot & cold spread; never ate breakfast out",
+      "Guest laundry",
+      "Corner King Studio with a great view \u2014 request the corner room again",
+      "Whole Foods (One Wall Street, 66 Broadway) two blocks away \u2014 used it several times",
+      "$10/day Lyft ride credits from the hotel",
+    ],
+    notes:"Perfect downtown base \u2014 steps from the Oculus and the Fulton St subway hub, and the Two Bridges morning run starts right outside the door.",
+  },
+  markets:"Whole Foods at One Wall Street (66 Broadway) \u2014 two blocks from the hotel; groceries + grab-and-go covered us all trip.",
 }];
 
 
@@ -946,11 +984,13 @@ function vJournal(){
   <div class="section-title">Airport lounge</div>
   ${(() => {
     const lg = X.lounge || {};
-    const unset = !lg.name && !lg.review && !lg.qr;
+    const unset = !lg.name && !lg.review && !lg.qr && !lg.busy && !lg.prebook;
     return `<button class="card" data-a="jLounge" style="display:block;width:100%;text-align:left">
-      ${unset ? `<div class="notesbody">🛋️ <b>Tap to answer:</b> which lounge did we use, how was it, and do you have a QR code to pre-register for next time?</div>` : `
+      ${unset ? `<div class="notesbody">🛋️ <b>Tap to answer:</b> which lounge did we use, how was it, was it busy, did it need pre-booking \u2014 and do you have a QR code to pre-register for next time?</div>` : `
       ${lg.name ? `<div class="jl"><span class="je">🛋️</span><span><b>${esc(lg.name)}</b></span></div>` : ""}
       ${lg.review ? `<div class="jl"><span class="je">⭐</span><span>${esc(lg.review)}</span></div>` : ""}
+      ${lg.busy ? `<div class="jl"><span class="je">\ud83d\udc65</span><span><b>Busy?</b> ${({quiet:"Quiet \u2014 walked right in",moderate:"Comfortable \u2014 some crowd",packed:"Packed \u2014 hard to find a seat"})[lg.busy] || esc(lg.busy)}</span></div>` : ""}
+      ${lg.prebook ? `<div class="jl"><span class="je">\ud83d\udcf2</span><span><b>Pre-booking:</b> ${({no:"Not needed \u2014 walk-in was fine",smart:"Smart to pre-register / queue ahead",required:"Required \u2014 book before you go"})[lg.prebook] || esc(lg.prebook)}</span></div>` : ""}
       ${lg.qr ? `<div style="padding:6px 16px 14px"><img src="${lg.qr}" alt="Lounge QR" style="width:150px;border-radius:12px;background:#fff;padding:6px"><div class="hint" style="margin-top:4px">Pre-registration QR — show at the desk next visit</div></div>` : ""}`}
     </button>`;
   })()}
@@ -1591,13 +1631,17 @@ const A = {
       title:"Airport lounge",
       fields:[
         { k:"name", label:"Which lounge (and airport)?", value:lg.name, placeholder:"e.g. The Club MCO — Terminal B (Priority Pass)" },
-        { k:"review", label:"How was it?", type:"textarea", value:lg.review, placeholder:"Worth the stop? Crowded? Food? Would we go again?" },
+        { k:"review", label:"How was it?", type:"textarea", value:lg.review, placeholder:"Worth the stop? Food? Would we go again?" },
+        { k:"busy", label:"Was it busy?", type:"select", value:lg.busy || "",
+          options:[["","\u2014 pick one \u2014"],["quiet","\ud83d\ude0c Quiet \u2014 walked right in"],["moderate","\ud83d\udc4d Comfortable \u2014 some crowd"],["packed","\ud83d\ude05 Packed \u2014 hard to find a seat"]] },
+        { k:"prebook", label:"Was pre-booking needed?", type:"select", value:lg.prebook || "",
+          options:[["","\u2014 pick one \u2014"],["no","\ud83d\udeb6 No \u2014 walk-in was fine"],["smart","\ud83d\udcf2 Smart to pre-register / join the queue ahead"],["required","\ud83c\udfab Required \u2014 book before you go"]] },
         { k:"qr", type:"photo", label:"Pre-registration QR code (screenshot)", value:lg.qr,
           hint:"Screenshot the lounge’s pre-register/walk-in QR — it’ll be saved here for next visit." },
       ],
       onDelete:(lg.name || lg.review || lg.qr) ? () => { delete X.lounge; save(); render(); } : null,
       onSubmit(v){
-        if (v.name || v.review || v.qr) X.lounge = { name:v.name, review:v.review, qr:v.qr || null };
+        if (v.name || v.review || v.qr || v.busy || v.prebook) X.lounge = { name:v.name, review:v.review, busy:v.busy, prebook:v.prebook, qr:v.qr || null };
         else delete X.lounge;
         save(); render();
       }

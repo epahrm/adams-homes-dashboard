@@ -80,9 +80,43 @@ this into every pre-arrival email and reservation note when applicable.
   activity with FREE ENTRY — favor these when composing future days
   (durations: 1–3 hrs each; see the recap for per-stop times)
 
+PERMANENT PLAY — Lounge auto-check (Elizabeth 2026-07-08): for every trip,
+automatically check the departure airports (both directions) for Priority
+Pass / Chase Sapphire-accessible lounges and bake the result into the plan
+and the journal. Journal debrief asks: was it busy, and was pre-booking
+needed?
+
+PERMANENT PLAY — Corner room with a view (NYC 2025): the corner King
+Studio at the Residence Inn WTC had a great view and Elizabeth would
+"definitely want that again" — request a corner/high-floor room with a
+view in every hotel pre-arrival email.
+
+PERMANENT PLAY — Iconic morning running route from the front door (NYC
+2025): Elizabeth ran ~4 miles every morning — the Two Bridges loop
+(Brooklyn Bridge + Manhattan Bridge) straight from the hotel. When
+picking hotels, look for a safe 4–5 mile signature running route from
+the door and name it in the plan.
+
+PERMANENT PLAY — Transit + walking wins in dense cities (NYC 2025):
+rideshare only for the airport transfers; in-city moves by subway + foot
+were "great." Plan transit-first in transit-rich cities.
+
 ## Savannah — Father's Day Weekend — Jun 12–15, 2025 (journal #2)
 Full journal: `reference/2025-06_savannah_fathers_day_recap.md`
 - Best farmers market EVER: Forsyth Farmers' Market (Sat 9–1)
 - Hotel winner: The Ann Savannah (loft + kitchen + Little James)
 - Bring-the-bikes play: downtown Savannah is perfect riding
 - Pending: dinner favorites, safety, photos
+
+## New York City — Jul 30–Aug 2, 2025 (journal #3, in progress)
+Full journal: `reference/2025-07_nyc_family_trip_recap.md`
+- Hotel winner: Residence Inn Downtown Manhattan/WTC (170 Broadway) —
+  excellent breakfast, guest laundry, corner King Studio w/ view,
+  Whole Foods (One Wall St) 2 blocks, $10/day Lyft credits from hotel
+- Chill-spot pattern: Brookfield Place Winter Garden (palm atrium on the
+  Hudson) + the multi-story Starbucks — repeat visits
+- Skip at night: Chinatown (felt sketchy after dark; fine by day)
+- Winner: Little Italy for walk/dine/stroll; Times Square at night for
+  the kids; Central Park bikes (several hours)
+- Pending: Trump hotel/pizza story, per-stop durations, photos, lounge
+  report (busy? prebook?)

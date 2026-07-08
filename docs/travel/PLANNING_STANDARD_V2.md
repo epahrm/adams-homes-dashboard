@@ -58,6 +58,13 @@ No seafood · safe walkable hotel area · good walking/running area · verify
 hours/current status · check CSR/Priority Pass lounge options · check Avis
 Preferred details · include Whole Foods, Starbucks, Chick-fil-A near hotel ·
 include addresses and hours · keep itinerary tight.
+LOUNGE AUTO-CHECK (Elizabeth 2026-07-08): for EVERY trip, automatically
+check the DEPARTURE airport (both directions) for lounges accessible via
+Priority Pass or Chase Sapphire access, and put the result in the plan
+(Mission Control lounge line) AND in the journal. Known: MCO = The Club
+MCO ×2 (Terminal A Airside 1 gates 1–29 · Terminal B Airside 4 gates
+70–99, the busier one, has showers) — both Priority Pass; CSR includes
+Priority Pass Select, entry up to 3 h before departure, 2 guests.
 
 ## 7. Preferences (soft)
 Marriott first, IHG if better · free breakfast preferred but hotel quality
@@ -144,8 +151,9 @@ Also PROMPT for the city's GETTING AROUND assessment: is it OK to walk?
 Are bicycles OK? Is the main transportation public transit, rental car, or
 rideshare? Plus free-form notes (parking, traffic, transit tips).
 Also PROMPT for the AIRPORT LOUNGE report: which lounge was used, how it
-was, and whether Elizabeth has a QR/pre-registration code to save for the
-next visit (stored in the journal).
+was, WHETHER IT WAS BUSY, WHETHER PRE-BOOKING/PRE-REGISTRATION WAS NEEDED,
+and whether Elizabeth has a QR/pre-registration code to save for the next
+visit (stored in the journal).
 Also PROMPT for: rental car pickup (on-site at the terminal vs bus/shuttle
 to the facility — budget extra time if shuttle), an OVERALL SAFETY rating
 of the places visited, and any FARMERS MARKETS or similar finds worth

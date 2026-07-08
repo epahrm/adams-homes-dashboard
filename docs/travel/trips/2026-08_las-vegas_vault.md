@@ -18,7 +18,13 @@ VENUE VERIFIED: MGM Grand, Las Vegas — Aug 31–Sep 3, 2026
   Gmail when purchased.
 - 🟡 Reservations — none yet; dining Top-3s on request only.
 - 🟢 Rental car — NOT NEEDED (decided): walking both ways, ~0.8 mi each.
-- 🟡 Lounge — Priority Pass/CSR options at MCO + LAS once flights exist.
+- 🟡 Lounge — MCO departure CHECKED (2026-07-08, per new lounge
+  auto-check rule): The Club MCO ×2 in the Priority Pass network —
+  Terminal A / Airside 1 (gates 1–29) and Terminal B / Airside 4 (gates
+  70–99; busier, has showers). CSR's Priority Pass Select gets Elizabeth
+  + 2 guests in; entry up to 3 h before departure, ~3 h max stay. Which
+  location applies depends on the airline/terminal — pin it once flights
+  are booked, and check LAS lounges for the return leg then too.
 - 🔴 Packing — conference wardrobe + Vegas heat; build 2 weeks out.
 - 🟢 Weather (historical, early Sep): ~99°F highs / ~76°F lows, dry;
   mornings pleasant — early runs, indoor afternoons. Verify forecast at

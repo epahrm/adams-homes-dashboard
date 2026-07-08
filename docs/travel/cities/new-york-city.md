@@ -1,63 +1,62 @@
 # New York City
 
-Status: journal in progress — trip taken Jul/Aug 2025 (exact dates TBD).
-Skeleton journal is live in the app (`nyc-2025`); Elizabeth's notes,
-durations, costs-confirmed, and photos are coming.
+Status: journal #3 in progress — trip taken Jul 30 – Aug 2, 2025
+(verified from Gmail 2026-07-08). Full recap:
+`../reference/2025-07_nyc_family_trip_recap.md`
 
 ## Trips taken
-- Jul/Aug 2025 — Manhattan end to end (25-stop list from Elizabeth,
-  2026-07-08). Hotel unknown: Gmail/TripIt search found NO NYC
-  reservations in that window — only Florida work stays. Open lead:
-  Elizabeth is a Trump Hotels Privileges member (#TC2017653), and Trump
-  Tower/5th Ave is on the stop list; Trump International is a hypothesis
-  to confirm with her, not a fact.
-
-## Stop list (Elizabeth, 2026-07-08) — grouped into the journal
-The Edge at Hudson Yards · Roosevelt Island Tramway · Grand Central ·
-Rockefeller Center · Radio City (listed twice — two visits) · Times
-Square & Theater District · St. Patrick's Cathedral · Chelsea Market ·
-The High Line · Chelsea Gallery District · Chelsea Piers ("girls") ·
-Little Italy & Chinatown (Canal St) · Trump Tower/5th Ave · Wall Street
-(NYSE & Federal Reserve) · Oculus at WTC · Brookfield Place · Statue of
-Liberty · City Hall Park · Brooklyn Bridge · Manhattan Bridge · Battery
-Park City · Jersey City waterfront.
-
-Costs prefilled in the journal only where unambiguous (Edge/tramway/
-Liberty ferry/Chelsea Piers paid; parks, terminals, bridges, districts
-free). All landmark URLs curl-verified 2026-07-08
-(rockefellercenter.com and saintpatrickscathedral.org bot-block curl
-with 403 but are the official domains).
+- Jul 30 – Aug 2, 2025 — family summer vacation, Manhattan end to end
+  with the kids + twin nieces. Delta GH6BOL (DL1953 MCO→LGA out, DL2520
+  LGA→MCO home, Comfort+). Rideshare to/from LGA; subway + walking in
+  the city.
 
 ## Hotel notes
-_(Marriott first; verify parking, fees, early check-in/late checkout, laundry, walkability, running route.)_
-- 2025 trip hotel: UNKNOWN — ask Elizabeth (see Trips taken).
+- WINNER: Residence Inn New York Downtown Manhattan/World Trade Center
+  Area, 170 Broadway (conf #91549485) — corner King Studio with a great
+  view ("definitely want that again"), excellent hot & cold breakfast
+  (never ate out), guest laundry, Whole Foods 2 blocks, $10/day Lyft
+  credits from the hotel, steps from the Oculus/Fulton St subway hub,
+  and the Two Bridges run starts at the door.
+- Open: Trump hotel visit during this trip — story to clarify with
+  Elizabeth (garbled note also mentions "best pizza he's ever had").
 
 ## Restaurants (winners)
-_TBD — no seafood; deli sandwiches are a natural fit here._
+_TBD — pending Elizabeth's notes. Open thread: the best-pizza-ever spot._
 
 ## Coffee, tea & chill spots
-_TBD — London Fog/chai for Elizabeth, coffee for Simon._
+- Brookfield Place Winter Garden — palm-filled glass atrium on the
+  Hudson — with the multi-story Starbucks; the family's repeat chill
+  spot (several visits). (Exact Starbucks location to confirm.)
 
 ## Desserts & bakeries
 _TBD — cookies for Seth._
 
 ## Activities — winners
-_TBD — pending Elizabeth's notes on the 2025 stop list._
+- Central Park + bike rental — easily several hours; a highlight
+- Statue of Liberty boat ride — the kids' favorite
+- Double-decker hop-on/hop-off bus — great all-city overview
+- Times Square at night — the twin nieces loved it
+- Little Italy — fantastic walking, dining, strolling
 
 ## Seth list (pools, courts, bikes, soccer, USA/patriotic, cars)
-_TBD — candidates to vet: Central Park bikes, basketball courts, Chelsea Piers._
+- Central Park bikes ✔ (done, hit)
+- Chelsea Piers (nieces' stop this trip — vet for Seth next time)
 
 ## Photo & viral spots
-_TBD — best times/angles once tested._
+_TBD — best times/angles once photos land in the journal._
 
 ## Running routes (4–5 mi, safe)
-_TBD._
+- PROVEN: Two Bridges loop (~4 mi) — Brooklyn Bridge over, Manhattan
+  Bridge back (lands at Chinatown) — from the Residence Inn WTC door;
+  Elizabeth ran it every morning. Sunrise beats the crowds.
 
 ## Markets & shopping
-_TBD._
+- Whole Foods at One Wall Street (66 Broadway) — 2 blocks from the
+  Residence Inn WTC; groceries + grab-and-go covered the trip.
+- Fifth Avenue stroll (incl. Trump Tower stop).
 
 ## Skip next time
-_TBD._
+- Chinatown after dark — felt a little sketchy; daylight only.
 
 ## Banked for future trips
 _TBD._
