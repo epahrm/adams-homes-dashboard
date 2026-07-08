@@ -749,6 +749,18 @@ function vJournal(){
     </button>`;
   })()}
 
+  <div class="section-title">Airport lounge</div>
+  ${(() => {
+    const lg = X.lounge || {};
+    const unset = !lg.name && !lg.review && !lg.qr;
+    return `<button class="card" data-a="jLounge" style="display:block;width:100%;text-align:left">
+      ${unset ? `<div class="notesbody">🛋️ <b>Tap to answer:</b> which lounge did we use, how was it, and do you have a QR code to pre-register for next time?</div>` : `
+      ${lg.name ? `<div class="jl"><span class="je">🛋️</span><span><b>${esc(lg.name)}</b></span></div>` : ""}
+      ${lg.review ? `<div class="jl"><span class="je">⭐</span><span>${esc(lg.review)}</span></div>` : ""}
+      ${lg.qr ? `<div style="padding:6px 16px 14px"><img src="${lg.qr}" alt="Lounge QR" style="width:150px;border-radius:12px;background:#fff;padding:6px"><div class="hint" style="margin-top:4px">Pre-registration QR — show at the desk next visit</div></div>` : ""}`}
+    </button>`;
+  })()}
+
   <div class="section-title">Best of the trip</div>
   <div class="trophygrid">
     ${j.bestOf.map(([l, v]) => `<div class="troph card" style="box-shadow:none"><div class="tl">🏆 ${esc(l)}</div><div class="tv">${esc(v)}</div></div>`).join("")}
@@ -1324,6 +1336,25 @@ const A = {
         { k:"notes", label:"Notes for next time / friends", type:"textarea", value:mv.notes, placeholder:"Parking, traffic, transit tips…" },
       ],
       onSubmit(v){ X.mobility = { walk:v.walk, bike:v.bike, mode:v.mode, notes:v.notes }; save(); render(); }
+    });
+  },
+  jLounge(){
+    const j = journal(R.jid), X = jx(j.id);
+    const lg = X.lounge || {};
+    openModal({
+      title:"Airport lounge",
+      fields:[
+        { k:"name", label:"Which lounge (and airport)?", value:lg.name, placeholder:"e.g. The Club MCO — Terminal B (Priority Pass)" },
+        { k:"review", label:"How was it?", type:"textarea", value:lg.review, placeholder:"Worth the stop? Crowded? Food? Would we go again?" },
+        { k:"qr", type:"photo", label:"Pre-registration QR code (screenshot)", value:lg.qr,
+          hint:"Screenshot the lounge’s pre-register/walk-in QR — it’ll be saved here for next visit." },
+      ],
+      onDelete:(lg.name || lg.review || lg.qr) ? () => { delete X.lounge; save(); render(); } : null,
+      onSubmit(v){
+        if (v.name || v.review || v.qr) X.lounge = { name:v.name, review:v.review, qr:v.qr || null };
+        else delete X.lounge;
+        save(); render();
+      }
     });
   },
   jNotes(){

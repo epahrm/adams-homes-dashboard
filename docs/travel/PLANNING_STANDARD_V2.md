@@ -143,6 +143,9 @@ double as recommendation guides when shared.
 Also PROMPT for the city's GETTING AROUND assessment: is it OK to walk?
 Are bicycles OK? Is the main transportation public transit, rental car, or
 rideshare? Plus free-form notes (parking, traffic, transit tips).
+Also PROMPT for the AIRPORT LOUNGE report: which lounge was used, how it
+was, and whether Elizabeth has a QR/pre-registration code to save for the
+next visit (stored in the journal).
 
 ## 20. Permanent travel profile
 Elizabeth prefers compact, executive-style itineraries with verified
