@@ -478,7 +478,6 @@ const JOURNALS = [{
   /* Getting Around defaults — Elizabeth confirms/edits via the prompt */
   mobility:{ walk:"partly", bike:"", mode:"rental", notes:"Hotel was walking distance to Levi\u2019s Stadium \u2014 no rideshare needed on match day." },
   scorecard:[
-    ["Food", null],
     ["Family Fun", null],
     ["Hotel", null],
     ["Walkability", null],
@@ -487,6 +486,7 @@ const JOURNALS = [{
     ["Overall Experience", 9.7],
   ],
   planDiff:"",
+  meals:{ breakfast:"", lunch:"", dinner:"" },
   hotel:{
     name:"Residence Inn by Marriott San Jose North/Silicon Valley",
     amen:[
@@ -799,6 +799,18 @@ function vJournal(){
       ${lg.name ? `<div class="jl"><span class="je">🛋️</span><span><b>${esc(lg.name)}</b></span></div>` : ""}
       ${lg.review ? `<div class="jl"><span class="je">⭐</span><span>${esc(lg.review)}</span></div>` : ""}
       ${lg.qr ? `<div style="padding:6px 16px 14px"><img src="${lg.qr}" alt="Lounge QR" style="width:150px;border-radius:12px;background:#fff;padding:6px"><div class="hint" style="margin-top:4px">Pre-registration QR — show at the desk next visit</div></div>` : ""}`}
+    </button>`;
+  })()}
+
+  <div class="section-title">Favorites by meal</div>
+  ${(() => {
+    const m = Object.assign({}, j.meals, X.meals || {});
+    const unset = !m.breakfast && !m.lunch && !m.dinner;
+    return `<button class="card" data-a="jMeals" style="display:block;width:100%;text-align:left">
+      ${unset ? `<div class="notesbody">🍽️ <b>Tap to answer:</b> favorite breakfast, lunch, and dinner spots of the trip.</div>` : `
+      ${m.breakfast ? `<div class="jl"><span class="je">🍳</span><span><b>Breakfast:</b> ${esc(m.breakfast)}</span></div>` : ""}
+      ${m.lunch ? `<div class="jl"><span class="je">🥪</span><span><b>Lunch:</b> ${esc(m.lunch)}</span></div>` : ""}
+      ${m.dinner ? `<div class="jl"><span class="je">🍽️</span><span><b>Dinner:</b> ${esc(m.dinner)}</span></div>` : ""}`}
     </button>`;
   })()}
 
@@ -1443,6 +1455,19 @@ const A = {
         else delete X.lounge;
         save(); render();
       }
+    });
+  },
+  jMeals(){
+    const j = journal(R.jid), X = jx(j.id);
+    const m = Object.assign({}, j.meals, X.meals || {});
+    openModal({
+      title:"Favorites by meal",
+      fields:[
+        { k:"breakfast", label:"🍳 Favorite breakfast", value:m.breakfast, placeholder:"Where + what made it good" },
+        { k:"lunch", label:"🥪 Favorite lunch", value:m.lunch, placeholder:"" },
+        { k:"dinner", label:"🍽️ Favorite dinner", value:m.dinner, placeholder:"" },
+      ],
+      onSubmit(v){ X.meals = { breakfast:v.breakfast, lunch:v.lunch, dinner:v.dinner }; save(); render(); }
     });
   },
   jHotel(){
