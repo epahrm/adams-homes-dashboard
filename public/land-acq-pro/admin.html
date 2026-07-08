@@ -20,11 +20,14 @@
     .content { padding: 24px 22px 48px; }
     .content > h2 { color: #003d66; font-size: 32px; margin: 6px 0 22px; }
 
-    /* KPI cards */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .kpi { border-radius: 10px; border: 2px solid; text-align: center; padding: 22px 10px; }
-    .kpi .lbl { font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: #444; margin-bottom: 10px; }
-    .kpi .num { font-size: 40px; font-weight: 800; color: #003d66; }
+    /* KPI cards — compact stat tiles. Sized to stay on one row (7 tiles) on
+       any normal desktop width instead of wrapping to a second row; this is
+       the standard "small stat tile" format reused wherever a status count
+       needs to be scanned at a glance. */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 8px; margin-bottom: 20px; }
+    .kpi { border-radius: 8px; border: 2px solid; text-align: center; padding: 10px 6px; }
+    .kpi .lbl { font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; color: #444; margin-bottom: 4px; line-height: 1.2; }
+    .kpi .num { font-size: 24px; font-weight: 800; color: #003d66; }
     .kpi.green { border-color: #1a5a3a; background: linear-gradient(180deg, #f2f9f3, #e2f1e4); }
     .kpi.orange { border-color: #e8963c; background: linear-gradient(180deg, #fdf3e4, #fbe4c2); }
     .kpi.deepgreen { border-color: #1a5a3a; background: linear-gradient(180deg, #e4f3e6, #cfe9d3); }
@@ -57,11 +60,12 @@
     .stipend-updated { font-size: 12px; color: #778; margin-top: 8px; }
     .stipend-updated b { color: #445; font-weight: 600; }
 
-    /* Metrics grid (compact) */
-    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-    .mtile { background: white; border-left: 4px solid #1a5a3a; border-radius: 8px; padding: 12px 14px; }
-    .mtile .m-lbl { font-size: 12px; color: #556; margin-bottom: 4px; letter-spacing: 0.3px; }
-    .mtile .m-val { font-size: 22px; font-weight: 800; color: #003d66; font-variant-numeric: tabular-nums; }
+    /* Metrics grid (compact) — same small-stat-tile format as .kpi-grid, sized
+       so all tiles stay on one row instead of wrapping. */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; }
+    .mtile { background: white; border-left: 4px solid #1a5a3a; border-radius: 8px; padding: 9px 10px; }
+    .mtile .m-lbl { font-size: 10.5px; color: #556; margin-bottom: 3px; letter-spacing: 0.3px; }
+    .mtile .m-val { font-size: 18px; font-weight: 800; color: #003d66; font-variant-numeric: tabular-nums; }
 
     /* New leads inbox */
     .newleads { border: 2px solid #e8963c; border-radius: 12px; background: #fff8ef; padding: 14px 16px; margin-bottom: 24px; max-width: 760px; }
@@ -91,6 +95,15 @@
 
     /* New Opportunities — buy-box scan with green/yellow/red triage */
     .opps { border: 2px solid #1a5ba5; border-radius: 12px; background: #f2f7fc; padding: 14px 16px; margin-bottom: 24px; }
+    /* Two boxes side by side instead of full-width stacks — less scrolling.
+       Each half keeps its own margin-bottom:0 (the row supplies the gap);
+       a hidden sibling collapses cleanly since flex items don't reserve space. */
+    .row2 { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; align-items: flex-start; }
+    /* .page caps out at 900px (≈856px content), so two columns have ~420px
+       each to share — basis stays comfortably under half so they never trip
+       into a wrap. flex-grow fills whatever room is actually available. */
+    .row2 > .opps, .row2 > .metrics { flex: 1 1 380px; min-width: 0; margin-bottom: 0; }
+    @media (max-width: 720px) { .row2 { flex-direction: column; } }
     .opps h3 { color: #123a63; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
     .opps h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: #4a6b8f; font-size: 13px; }
     .opps .opps-sub { font-size: 12px; color: #5a7290; margin-bottom: 12px; }
@@ -343,11 +356,12 @@
     .ops-panel summary:hover { background: #156637; }
     .comm-panel summary { background: #6d4aa7; }
     .comm-panel summary:hover { background: #5c3f8f; }
-    .ops-roi { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 6px 0 18px; }
-    .ops-roi .roi-tile { background: #f4f8fc; border: 1px solid #e0e8f1; border-radius: 10px; padding: 12px 14px; }
-    .ops-roi .roi-val { font-size: 22px; font-weight: 800; color: #003d66; }
-    .ops-roi .roi-lbl { font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; color: #778; margin-top: 2px; }
-    .ops-roi .roi-sub { font-size: 12px; color: #667; margin-top: 3px; }
+    /* Same compact stat-tile format as .kpi-grid / .metrics-grid, kept to one row. */
+    .ops-roi { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin: 6px 0 18px; }
+    .ops-roi .roi-tile { background: #f4f8fc; border: 1px solid #e0e8f1; border-radius: 8px; padding: 9px 10px; }
+    .ops-roi .roi-val { font-size: 18px; font-weight: 800; color: #003d66; }
+    .ops-roi .roi-lbl { font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; color: #778; margin-top: 2px; }
+    .ops-roi .roi-sub { font-size: 11px; color: #667; margin-top: 3px; }
     .ops-block { margin-bottom: 20px; }
     .ops-block-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
     .ops-block-head h4 { color: #123a63; font-size: 15px; margin: 0; }
@@ -437,6 +451,17 @@
         </div>
       </div>
 
+      <!-- Awaiting seller response: offer sent but not moving toward Elizabeth's
+           signature within 3 days. Kept near the top — this is a live deal
+           stalling, not a routine metric. Reminder stays visible (and its
+           "Xd overdue" count keeps climbing) every 3 days Kevin hasn't logged
+           a follow-up touch. -->
+      <div class="opps" id="offerFollowBlock" style="display:none; border-color:#c0392b; background:#fdf3f1;">
+        <h3 style="color:#c0392b;">Awaiting Seller Response <span>&mdash; offer sent, not moving toward signature</span></h3>
+        <div class="opps-sub" id="offerFollowSub"></div>
+        <div id="offerFollowList"></div>
+      </div>
+
       <!-- Compact stipend panel -->
       <div class="stipend-panel">
         <div class="stipend-head">
@@ -467,31 +492,45 @@
         <div class="bb-where" id="buyBoxWhere"></div>
       </details>
 
-      <!-- Buy-box opportunities: respond to every one (Send Offer or Unsuitable) -->
-      <!-- ON-MARKET box: listed lots within stipend + $10k -->
-      <div class="opps" id="oppsOnMarket" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
-        <div class="opps-head">
-          <h3 style="color:#0a4f8e;">On-Market Opportunities <span>&mdash; listed lots in the buy box · respond to each</span></h3>
-          <button type="button" class="btn-outline sweep-btn" id="sweepNowBtn">Sweep Now</button>
+      <!-- Buy-box opportunities: respond to every one (Send Offer or Unsuitable).
+           On-Market / Off-Market side by side, then Holds/GM Defer next to
+           Follow-Ups Due — two columns per row instead of full-width stacks,
+           so Kevin sees more without scrolling. -->
+      <div class="row2">
+        <!-- ON-MARKET box: listed lots within stipend + $10k -->
+        <div class="opps" id="oppsOnMarket" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
+          <div class="opps-head">
+            <h3 style="color:#0a4f8e;">On-Market Opportunities <span>&mdash; listed lots in the buy box · respond to each</span></h3>
+            <button type="button" class="btn-outline sweep-btn" id="sweepNowBtn">Sweep Now</button>
+          </div>
+          <div class="sweep-msg" id="sweepMsg" style="display:none;"></div>
+          <input type="search" class="opp-search" id="onMktSearch" placeholder="Search on-market — address, owner, MLS, agent…">
+          <div class="opps-sub" id="onMktSub"></div>
+          <div id="onMktList"></div>
         </div>
-        <div class="sweep-msg" id="sweepMsg" style="display:none;"></div>
-        <input type="search" class="opp-search" id="onMktSearch" placeholder="Search on-market — address, owner, MLS, agent…">
-        <div class="opps-sub" id="onMktSub"></div>
-        <div id="onMktList"></div>
+        <!-- OFF-MARKET box: county-sweep lots within the buy box -->
+        <div class="opps" id="oppsOffMarket" style="display:none;">
+          <h3>Off-Market Opportunities <span>&mdash; county-sweep lots in the buy box · respond to each</span></h3>
+          <input type="search" class="opp-search" id="offMktSearch" placeholder="Search off-market — address, owner, parcel…">
+          <div class="opps-sub" id="offMktSub"></div>
+          <div id="offMktList"></div>
+        </div>
       </div>
-      <!-- OFF-MARKET box: county-sweep lots within the buy box -->
-      <div class="opps" id="oppsOffMarket" style="display:none;">
-        <h3>Off-Market Opportunities <span>&mdash; county-sweep lots in the buy box · respond to each</span></h3>
-        <input type="search" class="opp-search" id="offMktSearch" placeholder="Search off-market — address, owner, parcel…">
-        <div class="opps-sub" id="offMktSub"></div>
-        <div id="offMktList"></div>
-      </div>
-      <!-- HOLDS & GM DEFER: lots Kevin held for nurturing or deferred for GM review -->
-      <div class="opps" id="oppsHolds" style="display:none; border-color:#8a5200; background:#fdf8f0;">
-        <h3 style="color:#8a5200;">Holds &amp; GM Defer <span>&mdash; nurturing or awaiting GM review</span></h3>
-        <input type="search" class="opp-search" id="holdsSearch" placeholder="Search holds — address, owner, MLS…">
-        <div class="opps-sub" id="holdsSub"></div>
-        <div id="holdsList"></div>
+
+      <div class="row2">
+        <!-- HOLDS & GM DEFER: lots Kevin held for nurturing or deferred for GM review -->
+        <div class="opps" id="oppsHolds" style="display:none; border-color:#8a5200; background:#fdf8f0;">
+          <h3 style="color:#8a5200;">Holds &amp; GM Defer <span>&mdash; nurturing or awaiting GM review</span></h3>
+          <input type="search" class="opp-search" id="holdsSearch" placeholder="Search holds — address, owner, MLS…">
+          <div class="opps-sub" id="holdsSub"></div>
+          <div id="holdsList"></div>
+        </div>
+        <!-- Follow-Up Cadence: keeps every seller lead on a multi-touch sequence -->
+        <div class="opps" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
+          <h3 style="color:#0a4f8e;">Follow-Ups Due <span>&mdash; keep every lead on the cadence</span></h3>
+          <div class="opps-sub" id="followupSub"></div>
+          <div id="followupList"></div>
+        </div>
       </div>
 
       <div class="kpi-grid">
@@ -548,32 +587,20 @@
         <div class="cal-grid" id="calGrid"></div>
       </div>
 
-      <!-- Offer sent but not moving toward Elizabeth's signature within 3 days -->
-      <div class="opps" id="offerFollowBlock" style="display:none; border-color:#c0392b; background:#fdf3f1;">
-        <h3 style="color:#c0392b;">Offer Follow-Up Due <span>&mdash; sent but not moving toward signature</span></h3>
-        <div class="opps-sub" id="offerFollowSub"></div>
-        <div id="offerFollowList"></div>
-      </div>
-
-      <!-- Seller declined an offer: prompt Kevin to re-offer every 30 days -->
-      <div class="opps" id="reofferBlock" style="display:none; border-color:#8a5200; background:#fff8ef;">
-        <h3 style="color:#8a5200;">Re-offer Due <span>&mdash; seller declined, 30-day follow-up</span></h3>
-        <div class="opps-sub" id="reofferSub"></div>
-        <div id="reofferList"></div>
-      </div>
-
-      <!-- Follow-Up Cadence: keeps every seller lead on a multi-touch sequence -->
-      <div class="opps" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
-        <h3 style="color:#0a4f8e;">Follow-Ups Due <span>&mdash; keep every lead on the cadence</span></h3>
-        <div class="opps-sub" id="followupSub"></div>
-        <div id="followupList"></div>
-      </div>
-
-      <!-- Thank-you (stork) letter: prompt Kevin one week after each closing -->
-      <div class="opps" id="thankYouBlock" style="display:none; border-color:#1a7a44; background:#eef7f0;">
-        <h3 style="color:#1a7a44;">Thank-You Letter Due <span>&mdash; send the stork card one week after closing</span></h3>
-        <div class="opps-sub" id="thankYouSub"></div>
-        <div id="thankYouList"></div>
+      <!-- Seller declined an offer (30-day re-offer) next to the post-closing
+           stork letter — both are periodic reminders, paired to save scrolling. -->
+      <div class="row2">
+        <div class="opps" id="reofferBlock" style="display:none; border-color:#8a5200; background:#fff8ef;">
+          <h3 style="color:#8a5200;">Re-offer Due <span>&mdash; seller declined, 30-day follow-up</span></h3>
+          <div class="opps-sub" id="reofferSub"></div>
+          <div id="reofferList"></div>
+        </div>
+        <!-- Thank-you (stork) letter: prompt Kevin one week after each closing -->
+        <div class="opps" id="thankYouBlock" style="display:none; border-color:#1a7a44; background:#eef7f0;">
+          <h3 style="color:#1a7a44;">Thank-You Letter Due <span>&mdash; send the stork card one week after closing</span></h3>
+          <div class="opps-sub" id="thankYouSub"></div>
+          <div id="thankYouList"></div>
+        </div>
       </div>
 
       <div class="filters">
@@ -1416,6 +1443,9 @@
       return row;
     }
 
+    // Cap the rendered rows at FOLLOWUP_CAP (10) so the box stays short; the
+    // count badge always shows the true total, and as Kevin clears one out the
+    // next lead automatically backfills into the visible 10 on the next render.
     function renderLeadGroup(groupId, listId, countId, leads, showSource) {
       const group = document.getElementById(groupId);
       const list = document.getElementById(listId);
@@ -1423,7 +1453,13 @@
       if (!leads.length) { group.style.display = 'none'; return; }
       group.style.display = 'block';
       document.getElementById(countId).textContent = leads.length;
-      leads.forEach(l => list.appendChild(buildLeadRow(l, showSource)));
+      leads.slice(0, FOLLOWUP_CAP).forEach(l => list.appendChild(buildLeadRow(l, showSource)));
+      if (leads.length > FOLLOWUP_CAP) {
+        const note = document.createElement('div');
+        note.className = 'opp-showing';
+        note.textContent = 'Showing ' + FOLLOWUP_CAP + ' of ' + leads.length + '.';
+        list.appendChild(note);
+      }
     }
 
     // Link to the online listing Kevin can click straight through to. If the
