@@ -375,6 +375,9 @@
                 <input type="email" id="ccEmail" placeholder="Email *" autocomplete="email">
                 <div class="field-error" id="ccEmailError">Please enter a valid email.</div>
               </div>
+              <div class="rf-group">
+                <textarea id="ccNote" rows="3" placeholder="Anything you'd like us to know or any questions? (optional)"></textarea>
+              </div>
               <div class="rf-group cc-pref">
                 <span class="cc-pref-lbl">Best way to reach you</span>
                 <label><input type="radio" name="ccPref" value="Phone" checked> Phone</label>
@@ -684,6 +687,7 @@
       const phone = document.getElementById('ccPhone').value.trim();
       const email = document.getElementById('ccEmail').value.trim();
       const pref = (document.querySelector('input[name="ccPref"]:checked') || {}).value || 'Phone';
+      const sellerNote = document.getElementById('ccNote').value.trim();
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       showError('ccNameError', !name);
       showError('ccPhoneError', !phone);
@@ -697,6 +701,7 @@
         firstName: name.split(' ')[0],
         lastName: name.split(' ').slice(1).join(' '),
         sellerName: name, email, phone, preferredContact: pref,
+        sellerNote: sellerNote || undefined,
         parcel: rec.parcel, owner: rec.owner,
         ownerContact: [name, phone, email].filter(Boolean).join(' | ') + ' | prefers ' + pref,
         lotSize: rec.lotSize, zoning: rec.zoning, utilities: rec.utilities,

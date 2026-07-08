@@ -333,6 +333,9 @@
       <div class="card">
         <h3>Notes to Elizabeth</h3>
         <textarea id="kevinNotes" rows="3" placeholder="Anything Elizabeth should know before signing…"></textarea>
+        <button type="button" class="btn btn-outline" id="saveNotesBtn" style="margin-top:12px; width:auto;">Save Notes</button>
+        <span class="agent-saved" id="notesSaved" style="display:none; margin-left:12px; color:#1a7a44; font-weight:600; font-size:14px;">✓ Saved</span>
+        <div class="hint">Saved with the deal in the CRM and shown to Elizabeth when the contract comes to her to sign.</div>
       </div>
 
       <!-- Timeline -->
@@ -1270,6 +1273,15 @@
     document.getElementById('leadSource').addEventListener('change', toggleWholesaler);
     document.getElementById('saveAgentBtn').addEventListener('click', saveAgentDetails);
     document.getElementById('saveWsBtn').addEventListener('click', saveWholesalerDetails);
+    document.getElementById('saveNotesBtn').addEventListener('click', async function() {
+      this.disabled = true;
+      try {
+        await saveLot({ kevinNotes: document.getElementById('kevinNotes').value.trim() });
+        const s = document.getElementById('notesSaved'); s.style.display = 'inline';
+        setTimeout(() => { s.style.display = 'none'; }, 2500);
+      } catch (e) { msg('Could not save the notes — please try again.', false); }
+      this.disabled = false;
+    });
     document.getElementById('wsPaid').addEventListener('input', updateWsSpread);
     document.getElementById('wsSold').addEventListener('input', updateWsSpread);
     document.querySelectorAll('input[name=hasPremium]').forEach(r => r.addEventListener('change', function() {

@@ -109,8 +109,13 @@ export async function GET(req: NextRequest) {
   const p1 = pages[0]
   // Seat the Seller name on the "Sale and Purchase" blank: baseline y=686 rests
   // it on the underline (matching the pre-filled Buyer line just below), and
-  // x=308 left-aligns it just after the colon instead of floating mid-blank.
-  put(p1, seller, 308, 686, 11)
+  // x=308 left-aligns it just after the colon. Auto-shrink the font so long
+  // entity names (e.g. "Adams Homes of Northwest Florida, Inc.") stay inside the
+  // blank instead of running into the ("Seller") label — that overflow was the
+  // "crooked" look on real owner names.
+  let sellerSize = 11
+  while (sellerSize > 8 && font.widthOfTextAtSize(seller, sellerSize) > 208) sellerSize -= 0.5
+  put(p1, seller, 308, 686, sellerSize)
   if (offer) put(p1, Number(offer).toLocaleString('en-US'), 505, 549, 11)
   const p11 = pages[10]
   if (p11) {
@@ -142,30 +147,17 @@ export async function GET(req: NextRequest) {
   rowKV('Zoning / Use', useDesc)
   rowKV('Assessed Value', assessed)
 
-  y -= 6
-  if (review.length) {
-    const wrapped = review.map((r) => wrap('- ' + r, 82))
-    const totalLines = wrapped.reduce((n, a) => n + a.length, 0)
-    const boxH = totalLines * 12 + wrapped.length * 3 + 30
-    ex.drawRectangle({ x: 52, y: y - boxH, width: 508, height: boxH, color: rgb(0.99, 0.95, 0.86), borderColor: rgb(0.8, 0.55, 0.2), borderWidth: 1 })
-    ex.drawText('KEVIN TO VERIFY BEFORE SENDING', { x: 62, y: y - 14, size: 10, font: fontB, color: rgb(0.6, 0.35, 0.05) })
-    let ry = y - 30
-    wrapped.forEach((lines) => { lines.forEach((ln, i) => ex.drawText(ln, { x: 62, y: ry - i * 12, size: 9, font, color: rgb(0.45, 0.3, 0.1) })); ry -= lines.length * 12 + 3 })
-    y = y - boxH - 8
-  } else {
-    ex.drawText('All fields verified against the county property record.', { x: 56, y: y - 4, size: 9, font, color: rgb(0.15, 0.45, 0.2) })
-    y -= 20
-  }
+  // NOTE: any unverified fields are reported to Kevin via the X-Review-Flags
+  // response header only — never printed on the customer-facing Exhibit "A".
 
-  y -= 20
-  ex.drawText('By initialing below, Seller and Buyer acknowledge this Exhibit "A" as the property described in the Contract.', { x: 56, y, size: 9, font, color: rgb(0.4, 0.45, 0.5) })
-  y -= 46
-  ex.drawLine({ start: { x: 56, y }, end: { x: 300, y }, thickness: 1, color: rgb(0.2, 0.2, 0.2) })
-  ex.drawText('Seller initials     ·     Date', { x: 56, y: y - 12, size: 9, font, color: rgb(0.3, 0.36, 0.44) })
-  y -= 50
-  ex.drawLine({ start: { x: 56, y }, end: { x: 300, y }, thickness: 1, color: rgb(0.2, 0.2, 0.2) })
-  ex.drawText('Buyer initials     ·     Date', { x: 56, y: y - 12, size: 9, font, color: rgb(0.3, 0.36, 0.44) })
-  ex.drawText('Buyer ______        Seller ______', { x: 360, y: 40, size: 9, font, color: rgb(0.3, 0.36, 0.44) })
+  // Initials footer — two Seller initial lines + one Buyer initial line, no
+  // signature lines and no date fields (per the contract's initial blocks).
+  y -= 26
+  ex.drawText('Seller and Buyer initial below to acknowledge this Exhibit "A" as the property described in the Contract.', { x: 56, y, size: 9, font, color: rgb(0.4, 0.45, 0.5) })
+  y -= 44
+  ex.drawText('Seller  ____________', { x: 56, y, size: 11, font, color: INK })
+  ex.drawText('Seller  ____________', { x: 236, y, size: 11, font, color: INK })
+  ex.drawText('Buyer  ____________', { x: 416, y, size: 11, font, color: INK })
 
   const bytes = await pdf.save()
   const fname = 'Adams-Homes-Offer-' + (address.split(',')[0] || 'lot').replace(/[^A-Za-z0-9]+/g, '-') + '.pdf'

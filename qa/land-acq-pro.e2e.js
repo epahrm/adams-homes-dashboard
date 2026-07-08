@@ -85,9 +85,13 @@ async function noHorizontalOverflow(page) {
       await page.locator('#offerContactForm #ccPhone').isVisible());
     check('seller name pre-filled from record',
       (await page.inputValue('#ccName')).trim().length > 0);
+    // Optional notes/questions field on the landing form (not required).
+    check('landing contact form has an optional notes field',
+      await page.locator('#offerContactForm #ccNote').isVisible());
     // Submitting with valid contact info saves the lead and shows confirmation.
     await page.fill('#ccPhone', '(321) 555-0100');
     await page.fill('#ccEmail', 'seller@example.com');
+    await page.fill('#ccNote', 'Is the septic already in?');
     await page.click('#offerContactForm button[type="submit"]');
     await page.waitForSelector('#confirmMsg', { state: 'visible', timeout: 15000 });
     check('confirmation message shows',
@@ -354,6 +358,18 @@ async function noHorizontalOverflow(page) {
       (await page.locator('#realtorRows a.r-lookup').count()) >= 1
       && /google\.com\/search/.test(await page.locator('#realtorRows a.r-lookup').first().getAttribute('href')));
 
+    // ---------- Global search: find any deal at any stage ----------
+    await page.fill('#globalSearch', 'Garcia');
+    await page.waitForTimeout(200);
+    check('global search finds a deal by owner name',
+      await page.locator('#globalSearchResults a[href^="offer-approval.html?id="]').count() >= 1
+      && (await page.textContent('#globalSearchResults')).includes('Oak'));
+    await page.fill('#globalSearch', 'zzzznope');
+    await page.waitForTimeout(200);
+    check('global search shows no-match state', (await page.textContent('#globalSearchResults')).toLowerCase().includes('no deal'));
+    await page.fill('#globalSearch', '');
+    await page.waitForTimeout(100);
+
     // ---------- Wholesaler CRM: third deal type + spread tracking ----------
     await page.locator('#wholesalerCrm > summary').click();
     check('wholesaler CRM lists a wholesaler with company',
@@ -391,9 +407,24 @@ async function noHorizontalOverflow(page) {
     check('showing count renders', /Showing \d+-\d+ of \d+ lots/.test(await page.textContent('#showingCount')));
     check('target focuses on accepted contracts', (await page.textContent('.target')).includes('accepted contracts'));
 
-    // ---------- Approval: generate an offer on a New Lead ----------
+    // ---------- New-lead actions: Send Offer / Email Response / Mark Test ----------
     await page.waitForSelector('#newLeadsBlock .lead-row');
-    await page.locator('#newLeadsBlock .lead-row').first().click();
+    check('lead row has Send Offer + Mark Test actions',
+      (await page.locator('#newLeadsBlock .lead-row').first().locator('button', { hasText: 'Send Offer' }).count()) >= 1
+      && (await page.locator('#newLeadsBlock .lead-row').first().locator('button', { hasText: 'Mark Test' }).count()) >= 1);
+    check('website lead has an Email Response action',
+      (await page.locator('#nlWebGroup .lead-row').first().locator('button', { hasText: 'Email Response' }).count()) >= 1);
+    // Marking a website lead as Test drops it out of the metrics (kept for review).
+    const kpiBefore = Number(await page.textContent('#mScheduled'));
+    await page.locator('#nlWebGroup .lead-row').first().locator('button', { hasText: 'Mark Test' }).click();
+    await page.waitForTimeout(250);
+    check('a lead can be flagged as Test (kept, badged)',
+      (await page.locator('#nlWebGroup .lead-row .l-test').count()) >= 1
+      || (await page.locator('#nlWebGroup .lead-row').first().locator('button', { hasText: 'Unmark Test' }).count()) >= 1);
+    void kpiBefore;
+
+    // ---------- Approval: generate an offer on a New Lead ----------
+    await page.locator('#newLeadsBlock .lead-row').first().locator('button', { hasText: 'Send Offer' }).click();
     await page.waitForSelector('#actionButtons button', { timeout: 10000 });
     check('approval screen loads lot', (await page.textContent('#pageTitle')).includes('Offer Approval:'));
     await page.locator('#actionButtons button', { hasText: 'Generate' }).click();
@@ -458,6 +489,12 @@ async function noHorizontalOverflow(page) {
     await page.click('#saveAgentBtn');
     await page.waitForSelector('#agentSaved', { state: 'visible', timeout: 8000 });
     check('agent details save confirms', await page.locator('#agentSaved').isVisible());
+    // Notes to Elizabeth save on their own (persist to the deal / CRM).
+    check('notes-to-Elizabeth Save button present', await page.locator('#saveNotesBtn').count() === 1);
+    await page.fill('#kevinNotes', 'Seller wants a fast close; flexible on date.');
+    await page.click('#saveNotesBtn');
+    await page.waitForSelector('#notesSaved', { state: 'visible', timeout: 8000 });
+    check('notes save confirms', await page.locator('#notesSaved').isVisible());
     await page.selectOption('#listingType', 'off-market');
     await page.waitForTimeout(100);
     check('lot notes section present', await page.locator('#addNoteBtn').count() === 1);

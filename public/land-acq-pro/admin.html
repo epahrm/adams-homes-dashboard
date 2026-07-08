@@ -73,15 +73,21 @@
     #nlWebGroup h3 { color: #b3400a; }
     #nlWebGroup h3 .nl-count { background: #c0392b; }
     .nl-urgent-note { font-size: 12px; color: #b3400a; margin-bottom: 8px; font-weight: 600; }
-    .lead-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer; }
+    .lead-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
     #nlWebGroup .lead-row { border-color: #f2c6ba; }
     .lead-row:last-child { margin-bottom: 0; }
-    .lead-row:hover { background: #fdf3e6; }
     .lead-row .l-main { min-width: 0; flex: 1; }
     .lead-row .l-addr { font-weight: 600; color: #003d66; font-size: 15px; }
     .lead-row .l-meta { font-size: 13px; color: #667; margin-top: 2px; }
+    .lead-row .l-when { font-size: 11.5px; color: #8a94a0; margin-top: 2px; }
+    .lead-row .l-note { font-size: 13px; color: #445; font-style: italic; margin-top: 4px; }
+    .lead-row .l-test { display: inline-block; background: #6b7280; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 0.6px; padding: 2px 7px; border-radius: 4px; margin-top: 4px; }
     .lead-row .l-src { display: inline-block; background: #eef4fb; color: #1a5ba5; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; padding: 2px 7px; border-radius: 4px; margin-top: 4px; }
-    .lead-row .l-cta { flex-shrink: 0; font-size: 13px; font-weight: 700; color: #8a5200; white-space: nowrap; }
+    .lead-row .l-cta { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
+    .lead-row .l-cta button { font-family: inherit; font-size: 12.5px; font-weight: 700; min-height: 34px; padding: 6px 12px; border-radius: 6px; cursor: pointer; white-space: nowrap; border: 1px solid transparent; }
+    .l-btn-offer { background: #0a4f8e; color: #fff; }
+    .l-btn-email { background: #fff; color: #0a4f8e; border-color: #0a4f8e !important; }
+    .l-btn-test { background: #fff; color: #6b7280; border-color: #cdd6e0 !important; }
 
     /* New Opportunities — buy-box scan with green/yellow/red triage */
     .opps { border: 2px solid #1a5ba5; border-radius: 12px; background: #f2f7fc; padding: 14px 16px; margin-bottom: 24px; }
@@ -112,6 +118,16 @@
     .opp-uconf select { font-family: inherit; font-size: 12.5px; padding: 4px 6px; border: 1px solid #cdd6e0; border-radius: 6px; }
     .opp-reason-q { font-size: 12.5px; font-weight: 700; color: #b02a1a; align-self: center; margin-right: 2px; }
     .opp-search { width: 100%; box-sizing: border-box; margin: 4px 0 10px; padding: 9px 12px; border: 1px solid #cdd6e0; border-radius: 8px; font-family: inherit; font-size: 14px; }
+    .global-search { position: relative; margin-bottom: 16px; }
+    .global-search input { width: 100%; box-sizing: border-box; padding: 12px 14px; border: 2px solid #cdd6e0; border-radius: 10px; font-family: inherit; font-size: 15px; }
+    .global-search input:focus { outline: none; border-color: #0a4f8e; }
+    #globalSearchResults { position: absolute; z-index: 40; left: 0; right: 0; background: #fff; border: 1px solid #cdd6e0; border-radius: 10px; margin-top: 6px; box-shadow: 0 8px 26px rgba(16,32,46,.14); overflow: hidden; }
+    #globalSearchResults a { display: block; padding: 11px 14px; border-bottom: 1px solid #eef2f7; text-decoration: none; color: #16202e; font-size: 14px; }
+    #globalSearchResults a:last-child { border-bottom: none; }
+    #globalSearchResults a:hover { background: #f2f8ff; }
+    #globalSearchResults .gs-addr { font-weight: 700; color: #003d66; }
+    #globalSearchResults .gs-meta { font-size: 12.5px; color: #667; margin-top: 1px; }
+    #globalSearchResults .gs-empty { padding: 12px 14px; color: #667; font-size: 14px; }
     .opp-row.green .opp-reason { color: #1a7a44; }
     .opp-row.yellow .opp-reason { color: #a5651a; }
     .light { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
@@ -385,6 +401,11 @@
 
     <div class="content">
       <div class="mode-banner" id="modeBanner">Offline demo mode &mdash; showing this browser's local data only. Live sync resumes when the server is reachable.</div>
+      <!-- Global search: find any deal by owner, address, or realtor — at any stage -->
+      <div class="global-search">
+        <input type="search" id="globalSearch" placeholder="🔍 Find any deal — owner/seller name, address, realtor, MLS, parcel…" autocomplete="off">
+        <div id="globalSearchResults"></div>
+      </div>
       <div class="pipeline-head">
         <h2>Palm Bay Lot Pipeline</h2>
         <div class="pipeline-tools">
@@ -1354,9 +1375,44 @@
         tag.textContent = (l.source || 'QR Landing Page') + (l.preferredContact ? ' · prefers ' + l.preferredContact : '');
       }
       main.appendChild(addr); main.appendChild(meta); main.appendChild(tag);
-      const cta = document.createElement('div'); cta.className = 'l-cta'; cta.innerHTML = 'Make Offer &rarr;';
+      // Received timestamp — when the inquiry came in.
+      if (l.createdAt) {
+        const when = document.createElement('div'); when.className = 'l-when';
+        when.textContent = 'Received ' + new Date(l.createdAt).toLocaleString();
+        main.appendChild(when);
+      }
+      // The seller's optional note/questions from the landing page.
+      if (l.sellerNote) {
+        const note = document.createElement('div'); note.className = 'l-note';
+        note.textContent = '“' + l.sellerNote + '”';
+        main.appendChild(note);
+      }
+      if (l.isTest) { const b = document.createElement('span'); b.className = 'l-test'; b.textContent = 'TEST'; main.appendChild(b); }
+
+      const cta = document.createElement('div'); cta.className = 'l-cta';
+      const stop = fn => e => { e.stopPropagation(); fn(); };
+      const offerBtn = document.createElement('button'); offerBtn.className = 'l-btn-offer'; offerBtn.textContent = 'Send Offer';
+      offerBtn.addEventListener('click', stop(() => { window.location.href = 'offer-approval.html?id=' + l.id; }));
+      cta.appendChild(offerBtn);
+      // Website/QR leads: email the seller to learn what they have questions on.
+      if (!showSource) {
+        const email = (l.email || (l.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@')) || '').trim();
+        const emailBtn = document.createElement('button'); emailBtn.className = 'l-btn-email'; emailBtn.textContent = 'Email Response';
+        emailBtn.title = email ? 'Reply to ' + email : 'No email on file';
+        emailBtn.addEventListener('click', stop(() => {
+          const to = email || '';
+          const subj = encodeURIComponent('Your Palm Bay property — Adams Homes');
+          const body = encodeURIComponent('Hi ' + (l.owner || 'there') + ',\n\nThanks for reaching out about ' + (l.address || 'your property') + '. I’d love to answer any questions and put together a cash offer for you. What would you like to know, and is there anything specific I can address?\n\nBest,\nKevin Nelson\nAdams Homes — Regional Land Acquisitions\n(407) 523-0908');
+          window.location.href = 'mailto:' + to + '?subject=' + subj + '&body=' + body;
+        }));
+        cta.appendChild(emailBtn);
+      }
+      // Mark test inquiries so they don't clog the metrics (kept for review).
+      const testBtn = document.createElement('button'); testBtn.className = 'l-btn-test'; testBtn.textContent = l.isTest ? 'Unmark Test' : 'Mark Test';
+      testBtn.addEventListener('click', stop(() => patchLot(l.id, { isTest: !l.isTest })));
+      cta.appendChild(testBtn);
+
       row.appendChild(main); row.appendChild(cta);
-      row.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
       return row;
     }
 
@@ -2334,19 +2390,22 @@
       renderWholesalers(lots);
       loadAllOps();
 
+      // Test inquiries are kept for review but excluded from every metric so
+      // they don't clog the numbers.
+      const metricsLots = lots.filter(l => !l.isTest);
       // KPIs (live pipeline stages; Closed shows this-month only)
-      const count = st => lots.filter(l => l.displayStatus === st).length;
+      const count = st => metricsLots.filter(l => l.displayStatus === st).length;
       document.getElementById('kpiEpSig').textContent = count('pending-ep-sig');
       document.getElementById('kpiIp').textContent = count('ip');
       document.getElementById('kpiManager').textContent = count('manager-driven');
       document.getElementById('kpiSurvey').textContent = count('survey-rcvd');
       document.getElementById('kpiCd').textContent = count('cd-approved');
       document.getElementById('kpiCtc').textContent = count('ctc');
-      const closedThisMonth = lots.filter(l => l.displayStatus === 'closed' && inMonth(closedDate(l), 0));
+      const closedThisMonth = metricsLots.filter(l => l.displayStatus === 'closed' && inMonth(closedDate(l), 0));
       document.getElementById('kpiClosed').textContent = closedThisMonth.length;
 
       // Target: accepted contracts this month
-      const acceptedThisMonth = lots.filter(l => ACCEPTED.includes(l.displayStatus) && inMonth(acceptedDate(l), 0)).length;
+      const acceptedThisMonth = metricsLots.filter(l => ACCEPTED.includes(l.displayStatus) && inMonth(acceptedDate(l), 0)).length;
       document.getElementById('targetCurrent').textContent = acceptedThisMonth;
       document.getElementById('targetCheck').textContent = acceptedThisMonth >= 50 ? '✓' : '';
 
@@ -2365,9 +2424,9 @@
       };
       const statsBy = {};
       [['M', 'month'], ['Q', 'quarter'], ['Y', 'ytd']].forEach(([sfx, kind]) => {
-        const acc = lots.filter(l => ACCEPTED.includes(l.displayStatus) && inPeriod(acceptedDate(l), kind)).length;
-        const cls = lots.filter(l => l.displayStatus === 'closed' && inPeriod(closedDate(l), kind)).length;
-        const com = lots.filter(l => (ACCEPTED.includes(l.displayStatus) || l.displayStatus === 'closed') && inPeriod(acceptedDate(l), kind))
+        const acc = metricsLots.filter(l => ACCEPTED.includes(l.displayStatus) && inPeriod(acceptedDate(l), kind)).length;
+        const cls = metricsLots.filter(l => l.displayStatus === 'closed' && inPeriod(closedDate(l), kind)).length;
+        const com = metricsLots.filter(l => (ACCEPTED.includes(l.displayStatus) || l.displayStatus === 'closed') && inPeriod(acceptedDate(l), kind))
           .reduce((a, l) => a + commissionOf(l), 0);
         const can = cancels.filter(c => inPeriod(c.date, kind)).length;
         document.getElementById('csAcc' + sfx).textContent = acc;
@@ -2382,14 +2441,14 @@
 
       // Quick metrics
       document.getElementById('mClosedMonth').textContent = closedThisMonth.length;
-      const pendingClose = lots.filter(l => PENDING_CLOSE.includes(l.displayStatus)).length;
+      const pendingClose = metricsLots.filter(l => PENDING_CLOSE.includes(l.displayStatus)).length;
       document.getElementById('mPendingClose').textContent = pendingClose;
-      const scheduled = lots.filter(l => l.scheduledClose && new Date(l.scheduledClose) >= new Date(new Date().toDateString()) && l.displayStatus !== 'closed').length;
+      const scheduled = metricsLots.filter(l => l.scheduledClose && new Date(l.scheduledClose) >= new Date(new Date().toDateString()) && l.displayStatus !== 'closed').length;
       document.getElementById('mScheduled').textContent = scheduled;
-      const offersOut = lots.filter(l => ['offer-sent'].includes(l.displayStatus) || ACCEPTED.includes(l.displayStatus)).length;
-      const acceptedAll = lots.filter(l => ACCEPTED.includes(l.displayStatus)).length;
+      const offersOut = metricsLots.filter(l => ['offer-sent'].includes(l.displayStatus) || ACCEPTED.includes(l.displayStatus)).length;
+      const acceptedAll = metricsLots.filter(l => ACCEPTED.includes(l.displayStatus)).length;
       document.getElementById('mAcceptance').textContent = offersOut ? (acceptedAll / offersOut * 100).toFixed(1) + '%' : '—';
-      const closedAll = lots.filter(l => l.displayStatus === 'closed');
+      const closedAll = metricsLots.filter(l => l.displayStatus === 'closed');
       document.getElementById('mDays').textContent = closedAll.length
         ? Math.round(closedAll.reduce((a, l) => a + Math.max(1, (new Date(closedDate(l)) - new Date(l.createdAt)) / 86400000), 0) / closedAll.length) + ' days'
         : '—';
@@ -2480,6 +2539,34 @@
 
       document.getElementById('footnote').style.display = 'none';
     }
+
+    // Global search — find any deal at any stage by owner, address, or realtor.
+    (function () {
+      const input = document.getElementById('globalSearch');
+      const box = document.getElementById('globalSearchResults');
+      if (!input) return;
+      box.style.display = 'none';
+      const run = () => {
+        const q = input.value.trim().toLowerCase();
+        if (!q) { box.style.display = 'none'; box.innerHTML = ''; return; }
+        const hits = lastLots.filter(l =>
+          [l.address, l.owner, l.ownerContact, l.sellerName, l.agentName, l.agentBrokerage, l.wholesalerName, l.mls, l.parcel]
+            .some(v => String(v || '').toLowerCase().includes(q))).slice(0, 12);
+        box.innerHTML = '';
+        if (!hits.length) { const e = document.createElement('div'); e.className = 'gs-empty'; e.textContent = 'No deal matches “' + input.value.trim() + '”.'; box.appendChild(e); }
+        hits.forEach(l => {
+          const a = document.createElement('a'); a.href = 'offer-approval.html?id=' + l.id;
+          const ad = document.createElement('div'); ad.className = 'gs-addr'; ad.textContent = l.address || '(no address)';
+          const m = document.createElement('div'); m.className = 'gs-meta';
+          m.textContent = [STAGE_LABELS[l.status] || l.status, l.owner || l.sellerName, l.agentName || l.agentBrokerage, l.mls ? 'MLS ' + l.mls : null].filter(Boolean).join(' · ');
+          a.appendChild(ad); a.appendChild(m); box.appendChild(a);
+        });
+        box.style.display = 'block';
+      };
+      input.addEventListener('input', run);
+      input.addEventListener('focus', run);
+      document.addEventListener('click', e => { if (!e.target.closest('.global-search')) box.style.display = 'none'; });
+    })();
 
     // Export to CSV
     document.getElementById('exportCsv').addEventListener('click', () => {
