@@ -61,8 +61,12 @@ the match if possible.
   the right call.
 
 ## Stop durations & visitor highlights (Elizabeth, 2026-07-08)
-- Battery Spencer — plan 30 min. THE postcard Golden Gate viewpoint.
-- Pier 39 sea lions — plan 2 hrs.
+- Alexander Avenue Vista (north tower) — first Golden Gate photo right off
+  the Robin Williams Tunnel; free lot, less crowded than Vista Point,
+  walkway under the bridge. Excellent (Elizabeth). goldengate.org
+- Battery Spencer — plan 1 hr realistically (with parking). THE postcard
+  Golden Gate viewpoint. presidio.gov/explore/attractions/battery-spencer
+- Pier 39 sea lions — plan 2–3 hrs; walk down ALL the piers. pier39.com
 - Ferry Building & Embarcadero walk — plan 1 hr.
 - Apple Park Visitor Center — plan 2 hrs.
 - Santana Row evening — plan 3 hrs.
@@ -116,6 +120,10 @@ ate breakfast out). Left Seth a birthday gift; walking distance to Levi's.
 🏆 Best Scenic Walk: Ferry Building & Embarcadero
 🏆 Best Overall Experience: FIFA World Cup at Levi's Stadium
 
-## Executive scorecard (in progress)
-- Family Fun: 10/10
-- Hotel: 10/10
+## Ideal order — Golden Gate day (Elizabeth, 2026-07-08)
+1. Alexander Avenue Vista — first Golden Gate photo, right off the tunnel
+2. Battery Spencer — the postcard shot (1 hr)
+3. Back in the car to Pier 39 — several hours walking all the piers
+
+(Executive scorecard removed at Elizabeth's request — journals track
+favorites and reports instead of numeric ratings, except the overall ★.)
