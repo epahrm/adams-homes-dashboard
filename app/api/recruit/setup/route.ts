@@ -5,6 +5,7 @@ import { ensureTables, seedContent, tablesExist, realAdvisorCount } from '@/lib/
 import { createToken, sessionCookie } from '@/lib/recruit/session'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 export async function GET() {
   try {

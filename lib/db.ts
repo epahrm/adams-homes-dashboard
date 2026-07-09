@@ -17,6 +17,12 @@ if (!databaseUrl.includes('sslmode=')) {
   databaseUrl = databaseUrl + (databaseUrl.includes('?') ? '&' : '?') + 'sslmode=prefer'
 }
 
+// Supabase's transaction pooler (port 6543) doesn't support prepared
+// statements; Prisma needs pgbouncer=true to disable them there.
+if (databaseUrl.includes(':6543') && !databaseUrl.includes('pgbouncer=')) {
+  databaseUrl = databaseUrl + '&pgbouncer=true'
+}
+
 console.log('[DB] Final URL host:', databaseUrl.split('@')[1]?.split(':')[0])
 console.log('[DB] Final URL port:', databaseUrl.match(/:(\d+)(?:[/?]|$)/)?.[1])
 

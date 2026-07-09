@@ -6,6 +6,7 @@ import { createToken, sessionCookie } from '@/lib/recruit/session'
 import { randomBytes } from 'crypto'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60
 
 // Tour mode: signs the visitor into a pre-filled demo account so they can
 // explore every screen without registering. Demo accounts are shared,
@@ -20,7 +21,8 @@ async function demoPassword() {
 }
 
 async function ensureDemoData() {
-  await ensureTables()
+  const { tablesExist } = await import('@/lib/recruit/bootstrap')
+  if (!(await tablesExist())) await ensureTables()
   await seedContent()
 
   let advisor = await prisma.recUser.findUnique({ where: { email: ADVISOR_EMAIL } })
@@ -195,6 +197,11 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     console.error('[recruit/demo]', msg)
-    return NextResponse.json({ error: 'Could not start the demo. Please try again.' }, { status: 500 })
+    // Surfacing the underlying error while the platform is pre-launch;
+    // swap back to a generic message before real families use this page.
+    return NextResponse.json(
+      { error: `Could not start the demo — ${msg.slice(0, 300)}` },
+      { status: 500 }
+    )
   }
 }
