@@ -727,20 +727,6 @@
 
       </details>
 
-      <!-- Commissions to Adams Homes — its own section (not part of ROI) -->
-      <details class="ops-panel comm-panel" id="commPanel" style="margin-bottom:20px;">
-        <summary id="commSummary">Commissions to Adams Homes</summary>
-        <div class="ops-block" style="margin-top:8px;">
-          <div class="ops-note">Buyer-side commission on <b>on-market (listed) deals only</b> — credited to Adams and deducted from cash to close. Off-market deals are $0.</div>
-          <div class="table-wrap">
-            <table class="ops-table" id="commTable">
-              <thead><tr><th>Property</th><th>Contract</th><th>Rate</th><th>Commission</th><th>Confirmed</th><th>Hold</th></tr></thead>
-              <tbody id="commRows"></tbody>
-            </table>
-          </div>
-        </div>
-      </details>
-
       <div class="footnote" id="footnote">* Re-outreach scheduled in 87 days</div>
 
       <div class="actions">
@@ -1492,21 +1478,13 @@
       meta.textContent = [l.source || 'Market Scan',
         l.mls ? 'MLS ' + l.mls : null,
         typeof l.listPrice === 'number' ? 'Listed ' + money(l.listPrice) : null,
+        l.daysOnMarket ? l.daysOnMarket + ' DOM' : null,
         acresOf(l) != null ? acresOf(l) + ' ac' : null,
-        util ? STIPEND_LABELS[util] + (l.utilitiesConfirmed ? ' ✓' : '') : null].filter(Boolean).join(' · ');
+        util ? STIPEND_LABELS[util] + (l.utilitiesConfirmed ? ' ✓' : '') : null,
+        l.createdAt ? 'Added ' + new Date(l.createdAt).toLocaleDateString() : null].filter(Boolean).join(' · ');
       const reason = document.createElement('div'); reason.className = 'opp-reason';
       reason.textContent = (ev.light === 'green' ? '✓ ' : '⚠ ') + ev.reasons.join(' · ');
       main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
-      // Confirm utilities first — this sets the correct stipend before Kevin decides.
-      const uconf = document.createElement('div'); uconf.className = 'opp-uconf';
-      const ulbl = document.createElement('span'); ulbl.textContent = l.utilitiesConfirmed ? 'Utilities confirmed:' : 'Confirm utilities:';
-      const usel = document.createElement('select');
-      [['well-septic','Well / Septic'],['water-septic','Water / Septic'],['water-sewer','Water / Sewer']].forEach(([v,t]) => {
-        const o = document.createElement('option'); o.value = v; o.textContent = t; if (v === util) o.selected = true; usel.appendChild(o);
-      });
-      usel.addEventListener('change', () => patchLot(l.id, { utilityType: usel.value, utilitiesConfirmed: true, lotStipend: stipendState.defaults[usel.value] }));
-      uconf.appendChild(ulbl); uconf.appendChild(usel);
-      main.appendChild(uconf);
       // On-market lots link straight to the listing Kevin found online.
       if (isListedLot(l)) {
         const url = listingUrl(l);
@@ -2178,37 +2156,6 @@
         });
       }
       document.getElementById('cancelHint').textContent = cancels.length ? (cancels.length + ' logged') : '';
-
-      // --- Commissions to Adams Homes (on-market deals UNDER CONTRACT) ---
-      // Closed deals drop out of this folder and live only in the database /
-      // metrics for recordkeeping — this list is the active under-contract set.
-      const COMM_STAGES = ['offer-sent', 'seller-signed', 'pending-ep-sig', 'ip', 'manager-driven', 'survey-rcvd', 'cd-approved', 'ctc'];
-      const isListedDeal = l => l.listingType === 'listed' ||
-        (l.listingType !== 'off-market' && (!!l.agentBrokerage || !!l.agentName || typeof l.listPrice === 'number' || /listing|active|auction/i.test(l.listStatus || '')));
-      const commDeals = lastLots.filter(l => COMM_STAGES.includes(l.displayStatus || l.status) && isListedDeal(l));
-      const commRows = document.getElementById('commRows'); commRows.textContent = '';
-      let commTotal = 0, pctSum = 0, fullCount = 0, reducedCount = 0;
-      if (!commDeals.length) emptyRow(commRows, 6, 'No on-market deals in progress yet — commissions show here once listed deals enter the pipeline.');
-      commDeals.forEach(l => {
-        const contract = parseMoney(l.offer) || Number(l.listPrice) || Number(l.offerSuggested) || 0;
-        const pct = typeof l.commissionPct === 'number' ? l.commissionPct : 3;
-        const amt = (typeof l.commissionAmt === 'number' && l.commissionAmt) ? l.commissionAmt : Math.round(contract * pct / 100);
-        commTotal += amt; pctSum += pct;
-        const hold = pct >= 3 ? ['ok', 'Full 3%'] : pct > 0 ? ['soon', 'Reduced'] : ['due', 'Waived'];
-        if (pct >= 3) fullCount++; else reducedCount++;
-        const tr = document.createElement('tr');
-        tr.appendChild(cell(l.address || '—', 'o-svc'));
-        tr.appendChild(cell(contract ? money(contract) : '—'));
-        tr.appendChild(cell(pct + '%'));
-        tr.appendChild(cell(amt ? money(amt) : '—'));
-        tr.appendChild(badgeCell(l.commissionConfirmed ? 'Confirmed' : 'Pending', l.commissionConfirmed ? 'ok' : 'gray'));
-        tr.appendChild(badgeCell(hold[1], hold[0]));
-        commRows.appendChild(tr);
-      });
-      const avgPct = commDeals.length ? (pctSum / commDeals.length).toFixed(1) : '0';
-      document.getElementById('commSummary').textContent = 'Commissions to Adams Homes' + (commDeals.length
-        ? ' — ' + money(commTotal) + ' retained · avg ' + avgPct + '% · ' + fullCount + ' full 3% · ' + reducedCount + ' reduced/waived'
-        : '');
 
       // --- Lead source performance (conversion by source) ---
       const srcRows = document.getElementById('srcRows'); srcRows.textContent = '';
