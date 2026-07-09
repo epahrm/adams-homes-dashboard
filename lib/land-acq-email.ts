@@ -17,6 +17,11 @@ export type ParsedListing = {
   source: string
   mls?: string | null
   brokerage?: string | null
+  agentName?: string | null
+  agentPhone?: string | null
+  agentEmail?: string | null
+  agentLicense?: string | null
+  daysOnMarket?: number | null
   // true when the email had no street address (link-only alert, e.g. Crexi):
   // the lead still lands, flagged for Kevin to open the listing and confirm.
   needsAddress?: boolean
@@ -47,6 +52,76 @@ export function htmlToText(html: string): string {
     .replace(/&#\d+;/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+// Extract agent details from email body (name, phone, email, license).
+// Looks for patterns like "Listing Agent: Name", phone numbers, emails, and license #.
+function extractAgentDetails(body: string): {
+  agentName?: string
+  agentPhone?: string
+  agentEmail?: string
+  agentLicense?: string
+} {
+  const result: Record<string, string> = {}
+
+  // Agent name: look for "Listed by:", "Listing Agent:", or "Agent:" followed by name.
+  // "Listed by: Eddy Desir 954-272-8123" is the standard Zillow format.
+  let m = body.match(/(?:Listed\s+by|Listing\s+Agent|Agent)\s*:?\s*([A-Z][A-Za-z\s.'-]{2,45}?)(?:\s+\d|\n|,|$)/i)
+  if (m) {
+    let name = m[1].trim()
+    // Remove trailing "Phone", "Email", etc. if accidentally included
+    name = name.replace(/\s+(Phone|Email|License|Mobile|Tel|Brokerage).*$/i, '')
+    if (name.length > 2) result.agentName = name
+  }
+
+  // Phone: look for (XXX) XXX-XXXX or XXX-XXX-XXXX or similar patterns
+  // Match phone labels + the phone number up to a newline
+  m = body.match(/(?:Phone|Mobile|Tel)\s*:?\s*([\d\s\-().+]+?)(?:\n|$)/i)
+  if (m) {
+    const phone = m[1].trim()
+    // Only keep if it looks like a valid phone (has at least 10 digits)
+    if (/\d{10,}/.test(phone.replace(/\D/g, ''))) {
+      result.agentPhone = phone
+    }
+  }
+
+  // Email: look for email addresses (standard format)
+  m = body.match(/(?:Email|Contact)\s*:?\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i)
+  if (m) result.agentEmail = m[1].trim()
+
+  // License: look for license # patterns like "License #" or "License:" or "Lic #"
+  // Typically FL licenses are 2 uppercase letters + digits, or just a number
+  m = body.match(/(?:License|Lic\.?)\s*#?\s*:?\s*([A-Z0-9]{4,20}?)(?:\n|$)/i)
+  if (m) result.agentLicense = m[1].trim()
+
+  return result
+}
+
+// Extract days on market (DOM) from email body.
+// Looks for patterns like "1 day on Zillow" or "5 days on Market".
+// Falls back to calculating DOM from listing date if explicit DOM not found.
+function extractDaysOnMarket(body: string): number | null {
+  // First try explicit "X days on market" pattern
+  let m = body.match(/(\d+)\s+days?\s+on\s+(?:zillow|market|site)/i)
+  if (m) return parseInt(m[1], 10)
+
+  // Fallback: look for listing date (common patterns: "Listed", "List Date", "Date Listed", etc.)
+  // Match dates like "2026-07-08", "July 8", "7/8/2026", "07/08/2026"
+  m = body.match(/(?:listed|list\s+date|date\s+listed|on\s+market)\s*:?\s*([A-Za-z]+ \d{1,2}(?:,? \d{4})?|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2})/i)
+  if (m) {
+    try {
+      const listDate = new Date(m[1])
+      if (!isNaN(listDate.getTime())) {
+        const today = new Date()
+        const dom = Math.floor((today.getTime() - listDate.getTime()) / (1000 * 60 * 60 * 24))
+        return dom >= 0 ? dom : null
+      }
+    } catch (e) {
+      // Date parsing failed, return null
+    }
+  }
+
+  return null
 }
 
 const PALM_BAY = /\bPalm\s*Bay\b/i
@@ -101,6 +176,8 @@ export function parseListingEmail(input: {
       : htmlToText(rawHtml || input.text || '')
   if (!PALM_BAY.test(body)) return []
   const urls = extractUrls(rawHtml)
+  const agentDetails = extractAgentDetails(body)
+  const daysOnMarket = extractDaysOnMarket(body)
 
   const matches: Array<{ addr: string; num: string; idx: number; end: number }> = []
   let m: RegExpExecArray | null
@@ -151,13 +228,18 @@ export function parseListingEmail(input: {
       source,
       mls: mlsM ? mlsM[1] : null,
       brokerage: brokM ? brokM[1].trim() : null,
+      agentName: agentDetails.agentName,
+      agentPhone: agentDetails.agentPhone,
+      agentEmail: agentDetails.agentEmail,
+      agentLicense: agentDetails.agentLicense,
+      daysOnMarket,
     })
   }
 
   // Fallback for link-only alerts (Crexi et al.) that carry no street address —
   // capture the listing title, city, acreage, and the "View Property" link so
   // the lead still reaches Kevin, flagged to open and confirm.
-  if (out.length === 0) out.push(...parseCardAlerts(rawHtml, body, source))
+  if (out.length === 0) out.push(...parseCardAlerts(rawHtml, body, source, agentDetails, daysOnMarket))
   return out
 }
 
@@ -166,7 +248,7 @@ export function parseListingEmail(input: {
 const CARD_RE =
   /([A-Z0-9][A-Za-z0-9 '&/-]{2,48}?)\s+(Palm\s*Bay)\s*,?\s*FL\s+Land\s*[|·\-–]\s*([\d.]+)\s*acres?/gi
 
-function parseCardAlerts(rawHtml: string, body: string, source: string): ParsedListing[] {
+function parseCardAlerts(rawHtml: string, body: string, source: string, agentDetails: ReturnType<typeof extractAgentDetails>, daysOnMarket: number | null): ParsedListing[] {
   const out: ParsedListing[] = []
   const seen = new Set<string>()
   // "View Property" links point at each listing (portal tracking URLs).
@@ -190,6 +272,11 @@ function parseCardAlerts(rawHtml: string, body: string, source: string): ParsedL
       acres: Number.isFinite(acres) ? acres : null,
       url: propUrls[n] || propUrls[0] || null,
       source,
+      agentName: agentDetails.agentName,
+      agentPhone: agentDetails.agentPhone,
+      agentEmail: agentDetails.agentEmail,
+      agentLicense: agentDetails.agentLicense,
+      daysOnMarket,
       needsAddress: true,
     })
     n++

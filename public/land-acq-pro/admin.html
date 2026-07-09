@@ -24,10 +24,10 @@
        any normal desktop width instead of wrapping to a second row; this is
        the standard "small stat tile" format reused wherever a status count
        needs to be scanned at a glance. */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 8px; margin-bottom: 20px; }
-    .kpi { border-radius: 8px; border: 2px solid; text-align: center; padding: 10px 6px; }
-    .kpi .lbl { font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; color: #444; margin-bottom: 4px; line-height: 1.2; }
-    .kpi .num { font-size: 24px; font-weight: 800; color: #003d66; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: 6px; margin-bottom: 20px; }
+    .kpi { border-radius: 6px; border: 2px solid; text-align: center; padding: 6px 5px; }
+    .kpi .lbl { font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; color: #444; margin-bottom: 2px; line-height: 1.2; }
+    .kpi .num { font-size: 18px; font-weight: 800; color: #003d66; }
     .kpi.green { border-color: #1a5a3a; background: linear-gradient(180deg, #f2f9f3, #e2f1e4); }
     .kpi.orange { border-color: #e8963c; background: linear-gradient(180deg, #fdf3e4, #fbe4c2); }
     .kpi.deepgreen { border-color: #1a5a3a; background: linear-gradient(180deg, #e4f3e6, #cfe9d3); }
@@ -62,10 +62,21 @@
 
     /* Metrics grid (compact) — same small-stat-tile format as .kpi-grid, sized
        so all tiles stay on one row instead of wrapping. */
-    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; }
-    .mtile { background: white; border-left: 4px solid #1a5a3a; border-radius: 8px; padding: 9px 10px; }
-    .mtile .m-lbl { font-size: 10.5px; color: #556; margin-bottom: 3px; letter-spacing: 0.3px; }
-    .mtile .m-val { font-size: 18px; font-weight: 800; color: #003d66; font-variant-numeric: tabular-nums; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 7px; }
+    .metrics-grid.mg-2col { grid-template-columns: 1fr 1fr; }
+    .mtile { background: white; border-left: 4px solid #1a5a3a; border-radius: 6px; padding: 6px 8px; }
+    .mtile .m-lbl { font-size: 10px; color: #556; margin-bottom: 2px; letter-spacing: 0.3px; }
+    .mtile .m-val { font-size: 15px; font-weight: 800; color: #003d66; font-variant-numeric: tabular-nums; }
+    .goal-badge { font-size: 11px; font-weight: 600; color: #1a5a3a; background: #e6f2ea; border-radius: 10px; padding: 2px 8px; letter-spacing: 0.3px; text-transform: none; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
+    /* Property Appraiser GIS quick-lookup box (right column, under metrics) */
+    .gis-box { border: 2px solid #003d66; border-radius: 12px; background: #eaf2fb; padding: 14px 14px; }
+    .gis-box h3 { color: #003d66; font-size: 15px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+    .gis-box h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: #4a6b8f; font-size: 12px; }
+    .gis-row { display: flex; gap: 8px; }
+    .gis-row input { flex: 1; min-width: 0; padding: 9px 11px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .gis-row input:focus { outline: none; border-color: #1a5ba5; box-shadow: 0 0 0 3px rgba(26,91,165,0.12); }
+    .gis-row .btn-navy { white-space: nowrap; }
+    .gis-note { font-size: 11px; color: #667; margin-top: 6px; }
 
     /* New leads inbox */
     .newleads { border: 2px solid #e8963c; border-radius: 12px; background: #fff8ef; padding: 14px 16px; margin-bottom: 24px; max-width: 760px; }
@@ -102,8 +113,13 @@
     /* .page caps out at 900px (≈856px content), so two columns have ~420px
        each to share — basis stays comfortably under half so they never trip
        into a wrap. flex-grow fills whatever room is actually available. */
-    .row2 > .opps, .row2 > .metrics { flex: 1 1 380px; min-width: 0; margin-bottom: 0; }
+    .row2 > .opps, .row2 > .metrics, .row2 > .stack-col { flex: 1 1 380px; min-width: 0; margin-bottom: 0; }
+    .stack-col { display: flex; flex-direction: column; gap: 14px; }
     @media (max-width: 720px) { .row2 { flex-direction: column; } }
+    /* Compact offers sent at top */
+    .row-compact { margin-bottom: 16px; }
+    .opps-compact { border: 2px solid #0a4f8e; border-radius: 8px; background: #f2f8ff; padding: 10px 12px; }
+    .opps-compact .opp-row { padding: 8px 10px; margin-bottom: 6px; }
     .opps h3 { color: #123a63; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
     .opps h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: #4a6b8f; font-size: 13px; }
     .opps .opps-sub { font-size: 12px; color: #5a7290; margin-bottom: 12px; }
@@ -212,8 +228,8 @@
     .filter-row select { padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-family: inherit; background: white; }
 
     /* Quick metrics */
-    .metrics { border: 2px solid #003d66; border-radius: 12px; background: #eaf2fb; padding: 20px 18px; margin-bottom: 26px; }
-    .metrics h3 { color: #003d66; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+    .metrics { border: 2px solid #003d66; border-radius: 12px; background: #eaf2fb; padding: 14px 14px; margin-bottom: 26px; }
+    .metrics h3 { color: #003d66; font-size: 15px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
     .stats-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
     .stats-head h3 { margin-bottom: 0; }
     .stats-review { padding: 8px 14px; font-size: 13px; font-weight: 600; min-height: 40px; }
@@ -427,8 +443,8 @@
           <button class="btn-navy" id="contractBtn">Upload Contract (PDF/JPEG)</button>
           <button class="btn-green" id="importBtn">Import Contacts (CSV)</button>
           <button class="btn-navy" id="sweepBtn">Off-Market Sweep</button>
-          <button class="btn-outline" id="postcardBtn">Postcards / QR</button>
           <button class="btn-navy" id="ingestEmailBtn">📧 Ingest Zillow Emails</button>
+          <button class="btn-outline" id="postcardBtn">Postcards / QR</button>
           <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none">
           <input type="file" id="contractFile" accept="application/pdf,.pdf,image/jpeg,.jpg,.jpeg" style="display:none">
         </div>
@@ -457,32 +473,73 @@
            stalling, not a routine metric. Reminder stays visible (and its
            "Xd overdue" count keeps climbing) every 3 days Kevin hasn't logged
            a follow-up touch. -->
-      <div class="opps" id="offerFollowBlock" style="display:none; border-color:#c0392b; background:#fdf3f1;">
-        <h3 style="color:#c0392b;">Awaiting Seller Response <span>&mdash; offer sent, not moving toward signature</span></h3>
-        <div class="opps-sub" id="offerFollowSub"></div>
-        <div id="offerFollowList"></div>
+      <!-- OFFERS SENT — top of dashboard, compact -->
+      <div class="row-compact">
+        <div class="opps-compact" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
+          <h3 style="color:#0a4f8e; margin:0 0 8px 0;">Offers Sent</h3>
+          <div class="opps-sub" id="followupSub" style="font-size:12px; margin-bottom:8px;"></div>
+          <div id="followupList"></div>
+        </div>
       </div>
 
-      <!-- Compact stipend panel -->
-      <div class="stipend-panel">
-        <div class="stipend-head">
-          <h3>Approved Lot Stipend: Palm Bay</h3>
-          <button type="button" class="stipend-edit" id="stipendEditBtn">Update Stipend</button>
-        </div>
-        <div class="stipend-grid" id="stipendGrid"></div>
-        <div class="stipend-updated" id="stipendUpdated"></div>
-        <form class="stipend-form" id="stipendForm" style="display:none;">
-          <div class="stipend-fields" id="stipendFields"></div>
-          <div class="stipend-form-actions">
-            <button type="submit" class="btn-green">Save Stipend</button>
-            <button type="button" class="btn-outline" id="stipendCancel">Cancel</button>
+      <div class="row2">
+        <!-- Left column: stipend box with the pipeline status counts below it,
+             so this column sits even with Quick Metrics on the right. -->
+        <div class="stack-col">
+          <div class="stipend-panel" style="margin-bottom:0;">
+            <div class="stipend-head">
+              <h3>Approved Lot Stipend: Palm Bay</h3>
+              <button type="button" class="stipend-edit" id="stipendEditBtn">Update Stipend</button>
+            </div>
+            <div class="stipend-grid" id="stipendGrid"></div>
+            <div class="stipend-updated" id="stipendUpdated"></div>
+            <form class="stipend-form" id="stipendForm" style="display:none;">
+              <div class="stipend-fields" id="stipendFields"></div>
+              <div class="stipend-form-actions">
+                <button type="submit" class="btn-green">Save Stipend</button>
+                <button type="button" class="btn-outline" id="stipendCancel">Cancel</button>
+              </div>
+            </form>
+            <div class="stipend-msg" id="stipendMsg"></div>
+            <details class="stipend-audit" style="margin-top:8px;">
+              <summary style="font-size:12px;">Change history</summary>
+              <ul id="stipendAuditList" style="font-size:11px;"><li class="empty">No changes recorded yet.</li></ul>
+            </details>
           </div>
-        </form>
-        <div class="stipend-msg" id="stipendMsg"></div>
-        <details class="stipend-audit">
-          <summary>Change history</summary>
-          <ul id="stipendAuditList"><li class="empty">No changes recorded yet.</li></ul>
-        </details>
+          <!-- Pipeline status counts (moved under the stipend box) -->
+          <div class="kpi-grid" style="margin-bottom:0;">
+            <div class="kpi orange"><div class="lbl">Pending EP Sig</div><div class="num" id="kpiEpSig">0</div></div>
+            <div class="kpi green"><div class="lbl">Inspection Period</div><div class="num" id="kpiIp">0</div></div>
+            <div class="kpi green"><div class="lbl">Manager Driven</div><div class="num" id="kpiManager">0</div></div>
+            <div class="kpi green"><div class="lbl">Survey Rcv'd</div><div class="num" id="kpiSurvey">0</div></div>
+            <div class="kpi green"><div class="lbl">CD Approved</div><div class="num" id="kpiCd">0</div></div>
+            <div class="kpi green"><div class="lbl">Clear to Close</div><div class="num" id="kpiCtc">0</div></div>
+            <div class="kpi deepgreen"><div class="lbl">Closed (MTD)</div><div class="num" id="kpiClosed">0</div></div>
+          </div>
+        </div>
+        <!-- Right column: Quick Metrics + a quick Property Appraiser GIS lookup,
+             stacked so the column stays even with the stipend/status column. -->
+        <div class="stack-col">
+          <div class="metrics" style="margin-bottom:0;">
+            <h3 style="margin-top:0;">Quick Metrics <span class="goal-badge" id="goalBadge">Goal 50 &middot; <span id="goalPct">0%</span> of month</span></h3>
+            <div class="metrics-grid mg-2col">
+              <div class="mtile"><div class="m-lbl">Closed This Month</div><div class="m-val" id="mClosedMonth">0</div></div>
+              <div class="mtile"><div class="m-lbl">Pending Closings</div><div class="m-val" id="mPendingClose">0</div></div>
+              <div class="mtile"><div class="m-lbl">Scheduled to Close</div><div class="m-val" id="mScheduled">0</div></div>
+              <div class="mtile"><div class="m-lbl">Offer Acceptance</div><div class="m-val" id="mAcceptance">&ndash;</div></div>
+              <div class="mtile"><div class="m-lbl">Avg Days to Close</div><div class="m-val" id="mDays">&ndash;</div></div>
+            </div>
+          </div>
+          <!-- Property Appraiser GIS: quick lookup of an incoming lead's parcel -->
+          <div class="gis-box">
+            <h3>Property Appraiser GIS <span>&mdash; look up a lead's parcel</span></h3>
+            <div class="gis-row">
+              <input type="search" id="gisSearch" placeholder="Address or parcel ID&hellip;" aria-label="Property Appraiser GIS search">
+              <button type="button" class="btn-navy" id="gisSearchBtn">Search &#8599;</button>
+            </div>
+            <div class="gis-note">Opens the Brevard County Property Appraiser (BCPAO) in a new tab.</div>
+          </div>
+        </div>
       </div>
 
       <!-- Buy Box reference — the rules the triage runs on, kept in sync with
@@ -526,37 +583,9 @@
           <div class="opps-sub" id="holdsSub"></div>
           <div id="holdsList"></div>
         </div>
-        <!-- Follow-Up Cadence: keeps every seller lead on a multi-touch sequence -->
-        <div class="opps" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
-          <h3 style="color:#0a4f8e;">Follow-Ups Due <span>&mdash; keep every lead on the cadence</span></h3>
-          <div class="opps-sub" id="followupSub"></div>
-          <div id="followupList"></div>
-        </div>
-      </div>
-
-      <div class="kpi-grid">
-        <div class="kpi orange"><div class="lbl">Pending EP Sig</div><div class="num" id="kpiEpSig">0</div></div>
-        <div class="kpi green"><div class="lbl">Inspection Period</div><div class="num" id="kpiIp">0</div></div>
-        <div class="kpi green"><div class="lbl">Manager Driven</div><div class="num" id="kpiManager">0</div></div>
-        <div class="kpi green"><div class="lbl">Survey Rcv'd</div><div class="num" id="kpiSurvey">0</div></div>
-        <div class="kpi green"><div class="lbl">CD Approved</div><div class="num" id="kpiCd">0</div></div>
-        <div class="kpi green"><div class="lbl">Clear to Close</div><div class="num" id="kpiCtc">0</div></div>
-        <div class="kpi deepgreen"><div class="lbl">Closed (MTD)</div><div class="num" id="kpiClosed">0</div></div>
       </div>
 
       <div class="target"><b>Target:</b> 50 accepted contracts/month | <b>Accepted this month:</b> <span id="targetCurrent">0</span> <span id="targetCheck"></span></div>
-
-      <!-- Quick metrics (compact) -->
-      <div class="metrics">
-        <h3>Quick Metrics</h3>
-        <div class="metrics-grid">
-          <div class="mtile"><div class="m-lbl">Closed This Month</div><div class="m-val" id="mClosedMonth">0</div></div>
-          <div class="mtile"><div class="m-lbl">Pending Closings</div><div class="m-val" id="mPendingClose">0</div></div>
-          <div class="mtile"><div class="m-lbl">Scheduled to Close</div><div class="m-val" id="mScheduled">0</div></div>
-          <div class="mtile"><div class="m-lbl">Offer Acceptance</div><div class="m-val" id="mAcceptance">&ndash;</div></div>
-          <div class="mtile"><div class="m-lbl">Avg Days to Close</div><div class="m-val" id="mDays">&ndash;</div></div>
-        </div>
-      </div>
 
       <!-- Contract stats over time: month / quarter / year-to-date -->
       <div class="metrics">
@@ -727,20 +756,6 @@
 
       </details>
 
-      <!-- Commissions to Adams Homes — its own section (not part of ROI) -->
-      <details class="ops-panel comm-panel" id="commPanel" style="margin-bottom:20px;">
-        <summary id="commSummary">Commissions to Adams Homes</summary>
-        <div class="ops-block" style="margin-top:8px;">
-          <div class="ops-note">Buyer-side commission on <b>on-market (listed) deals only</b> — credited to Adams and deducted from cash to close. Off-market deals are $0.</div>
-          <div class="table-wrap">
-            <table class="ops-table" id="commTable">
-              <thead><tr><th>Property</th><th>Contract</th><th>Rate</th><th>Commission</th><th>Confirmed</th><th>Hold</th></tr></thead>
-              <tbody id="commRows"></tbody>
-            </table>
-          </div>
-        </div>
-      </details>
-
       <div class="footnote" id="footnote">* Re-outreach scheduled in 87 days</div>
 
       <div class="actions">
@@ -856,12 +871,12 @@
           <div><label for="dSource">Lead Source</label>
             <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Wholesaler</option><option>Referral</option><option>Other</option></select>
           </div>
+          <div><label for="dDaysOnMarket">Days on Market</label><input type="number" id="dDaysOnMarket" placeholder="0" min="0"></div>
           <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
           <div><label for="dAgentPhone">Agent Phone</label><input type="tel" id="dAgentPhone" placeholder="(321) 555-0000"></div>
           <div><label for="dAgentEmail">Agent Email</label><input type="email" id="dAgentEmail" placeholder="agent@example.com"></div>
           <div><label for="dAgentBrokerage">Brokerage</label><input type="text" id="dAgentBrokerage" placeholder="Brokerage"></div>
           <div><label for="dAgentLicense">Agent License</label><input type="text" id="dAgentLicense" placeholder="License number"></div>
-          <div><label for="dDaysOnMarket">Days on Market</label><input type="number" id="dDaysOnMarket" min="0" placeholder="0"></div>
           <div><label for="dWholesaler">Wholesaler (if wholesaler deal)</label><input type="text" id="dWholesaler" placeholder="Wholesaler name / company"></div>
           <div><label for="dAccepted">Accepted Date</label><input type="date" id="dAccepted"></div>
           <div><label for="dClose">Scheduled Close</label><input type="date" id="dClose"></div>
@@ -1489,24 +1504,17 @@
       const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
       const meta = document.createElement('div'); meta.className = 'opp-meta';
       const util = inferUtilityType(l);
-      meta.textContent = [l.source || 'Market Scan',
+      const metaParts = [l.source || 'Market Scan',
         l.mls ? 'MLS ' + l.mls : null,
-        typeof l.listPrice === 'number' ? 'Listed ' + money(l.listPrice) : null,
+        typeof l.listPrice === 'number' ? '<b>Listed ' + money(l.listPrice) + '</b>' : null,
+        l.daysOnMarket ? l.daysOnMarket + ' DOM' : null,
         acresOf(l) != null ? acresOf(l) + ' ac' : null,
-        util ? STIPEND_LABELS[util] + (l.utilitiesConfirmed ? ' ✓' : '') : null].filter(Boolean).join(' · ');
+        util ? STIPEND_LABELS[util] + (l.utilitiesConfirmed ? ' ✓' : '') : null,
+        l.createdAt ? '<b>Added ' + new Date(l.createdAt).toLocaleDateString() + '</b>' : null].filter(Boolean).join(' · ');
+      meta.innerHTML = metaParts;
       const reason = document.createElement('div'); reason.className = 'opp-reason';
       reason.textContent = (ev.light === 'green' ? '✓ ' : '⚠ ') + ev.reasons.join(' · ');
       main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
-      // Confirm utilities first — this sets the correct stipend before Kevin decides.
-      const uconf = document.createElement('div'); uconf.className = 'opp-uconf';
-      const ulbl = document.createElement('span'); ulbl.textContent = l.utilitiesConfirmed ? 'Utilities confirmed:' : 'Confirm utilities:';
-      const usel = document.createElement('select');
-      [['well-septic','Well / Septic'],['water-septic','Water / Septic'],['water-sewer','Water / Sewer']].forEach(([v,t]) => {
-        const o = document.createElement('option'); o.value = v; o.textContent = t; if (v === util) o.selected = true; usel.appendChild(o);
-      });
-      usel.addEventListener('change', () => patchLot(l.id, { utilityType: usel.value, utilitiesConfirmed: true, lotStipend: stipendState.defaults[usel.value] }));
-      uconf.appendChild(ulbl); uconf.appendChild(usel);
-      main.appendChild(uconf);
       // On-market lots link straight to the listing Kevin found online.
       if (isListedLot(l)) {
         const url = listingUrl(l);
@@ -1874,45 +1882,32 @@
     function renderFollowups(lots) {
       const block = document.getElementById('followupBlock');
       const list = document.getElementById('followupList');
-      const now = Date.now();
-      const due = lots
-        .filter(l => CADENCE_STAGES.includes(l.displayStatus || l.status))
-        .map(l => ({ l, cs: cadenceState(l) }))
-        .filter(x => !x.cs.done && new Date(x.cs.dueAt).getTime() <= now)
-        .sort((a, b) => new Date(a.cs.dueAt) - new Date(b.cs.dueAt));
-      if (!due.length) { block.style.display = 'none'; return; }
+      // Every deal at the Offer Sent stage appears here, dated by the best
+      // available timestamp (confirmed-sent > generated > sent > accepted >
+      // created) so manually-added and contract-matched offers still show.
+      const sentStamp = l => l.offerConfirmedSentAt || l.generatedAt || l.offerSentAt || l.acceptedAt || l.createdAt || null;
+      const offersSent = lots
+        .filter(l => l.status === 'offer-sent')
+        .map(l => ({ l, sentAt: sentStamp(l) ? new Date(sentStamp(l)).getTime() : 0 }))
+        .sort((a, b) => b.sentAt - a.sentAt);
+      if (!offersSent.length) { block.style.display = 'none'; return; }
       block.style.display = 'block';
-      const overdue = due.filter(x => (now - new Date(x.cs.dueAt).getTime()) > 86400000).length;
       document.getElementById('followupSub').textContent =
-        due.length + ' follow-up' + (due.length === 1 ? '' : 's') + ' due' + (overdue ? ' · ' + overdue + ' overdue' : '') + ' — log each touch to advance the cadence.' + capNote(due.length);
+        offersSent.length + ' offer' + (offersSent.length === 1 ? '' : 's') + ' sent — check status' + capNote(offersSent.length);
       list.innerHTML = '';
-      due.slice(0, FOLLOWUP_CAP).forEach(({ l, cs }) => {
+      offersSent.slice(0, FOLLOWUP_CAP).forEach(({ l, sentAt }) => {
         const row = document.createElement('div'); row.className = 'opp-row blue';
         const main = document.createElement('div'); main.className = 'opp-main';
         const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
-        const daysOver = Math.floor((now - new Date(cs.dueAt).getTime()) / 86400000);
-        const touches = Array.isArray(l.cadenceLog) ? l.cadenceLog.length : 0;
         const meta = document.createElement('div'); meta.className = 'opp-meta';
-        meta.textContent = 'Step ' + (cs.step + 1) + ' of ' + CADENCE.length + ' · ' + cs.action.channel +
-          (daysOver > 0 ? ' · ' + daysOver + 'd overdue' : ' · due today') +
-          (touches ? ' · ' + touches + ' touch' + (touches === 1 ? '' : 'es') + ' logged' : '');
-        // Last activity taken, so Kevin sees what was already done and what's next.
-        const lastTouch = (Array.isArray(l.cadenceLog) && l.cadenceLog[0]) ? l.cadenceLog[0] : null;
-        const last = document.createElement('div'); last.className = 'opp-last';
-        last.textContent = lastTouch
-          ? 'Last activity: ' + lastTouch.channel + ' on ' + new Date(lastTouch.at).toLocaleDateString() + (lastTouch.by ? ' · ' + lastTouch.by : '')
-          : 'Last activity: none yet — first touch';
-        const reason = document.createElement('div'); reason.className = 'opp-reason';
-        reason.textContent = '➡ Next: ' + cs.action.label;
-        main.appendChild(addr); main.appendChild(meta); main.appendChild(last); main.appendChild(reason);
+        meta.textContent = sentAt
+          ? 'Contract sent ' + new Date(sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }).replace(',', '')
+          : 'Offer sent';
+        main.appendChild(addr); main.appendChild(meta);
         const actions = document.createElement('div'); actions.className = 'opp-actions';
-        const done = document.createElement('button'); done.className = 'opp-btn-add'; done.textContent = 'Log Touch ✓';
-        done.addEventListener('click', () => logTouch(l));
-        const snooze = document.createElement('button'); snooze.className = 'opp-btn-hold'; snooze.textContent = 'Snooze 3d';
-        snooze.addEventListener('click', () => patchLot(l.id, { cadenceNextAt: new Date(now + 3 * 86400000).toISOString() }));
-        const open = document.createElement('button'); open.className = 'opp-btn-skip'; open.textContent = 'Open';
+        const open = document.createElement('button'); open.className = 'opp-btn-add'; open.textContent = 'View Deal';
         open.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
-        actions.appendChild(done); actions.appendChild(snooze); actions.appendChild(open);
+        actions.appendChild(open);
         row.appendChild(main); row.appendChild(actions);
         list.appendChild(row);
       });
@@ -2179,37 +2174,6 @@
       }
       document.getElementById('cancelHint').textContent = cancels.length ? (cancels.length + ' logged') : '';
 
-      // --- Commissions to Adams Homes (on-market deals UNDER CONTRACT) ---
-      // Closed deals drop out of this folder and live only in the database /
-      // metrics for recordkeeping — this list is the active under-contract set.
-      const COMM_STAGES = ['offer-sent', 'seller-signed', 'pending-ep-sig', 'ip', 'manager-driven', 'survey-rcvd', 'cd-approved', 'ctc'];
-      const isListedDeal = l => l.listingType === 'listed' ||
-        (l.listingType !== 'off-market' && (!!l.agentBrokerage || !!l.agentName || typeof l.listPrice === 'number' || /listing|active|auction/i.test(l.listStatus || '')));
-      const commDeals = lastLots.filter(l => COMM_STAGES.includes(l.displayStatus || l.status) && isListedDeal(l));
-      const commRows = document.getElementById('commRows'); commRows.textContent = '';
-      let commTotal = 0, pctSum = 0, fullCount = 0, reducedCount = 0;
-      if (!commDeals.length) emptyRow(commRows, 6, 'No on-market deals in progress yet — commissions show here once listed deals enter the pipeline.');
-      commDeals.forEach(l => {
-        const contract = parseMoney(l.offer) || Number(l.listPrice) || Number(l.offerSuggested) || 0;
-        const pct = typeof l.commissionPct === 'number' ? l.commissionPct : 3;
-        const amt = (typeof l.commissionAmt === 'number' && l.commissionAmt) ? l.commissionAmt : Math.round(contract * pct / 100);
-        commTotal += amt; pctSum += pct;
-        const hold = pct >= 3 ? ['ok', 'Full 3%'] : pct > 0 ? ['soon', 'Reduced'] : ['due', 'Waived'];
-        if (pct >= 3) fullCount++; else reducedCount++;
-        const tr = document.createElement('tr');
-        tr.appendChild(cell(l.address || '—', 'o-svc'));
-        tr.appendChild(cell(contract ? money(contract) : '—'));
-        tr.appendChild(cell(pct + '%'));
-        tr.appendChild(cell(amt ? money(amt) : '—'));
-        tr.appendChild(badgeCell(l.commissionConfirmed ? 'Confirmed' : 'Pending', l.commissionConfirmed ? 'ok' : 'gray'));
-        tr.appendChild(badgeCell(hold[1], hold[0]));
-        commRows.appendChild(tr);
-      });
-      const avgPct = commDeals.length ? (pctSum / commDeals.length).toFixed(1) : '0';
-      document.getElementById('commSummary').textContent = 'Commissions to Adams Homes' + (commDeals.length
-        ? ' — ' + money(commTotal) + ' retained · avg ' + avgPct + '% · ' + fullCount + ' full 3% · ' + reducedCount + ' reduced/waived'
-        : '');
-
       // --- Lead source performance (conversion by source) ---
       const srcRows = document.getElementById('srcRows'); srcRows.textContent = '';
       const srcMap = new Map();
@@ -2429,6 +2393,9 @@
       renderThankYou(lots);
       renderRealtors(lots);
       renderWholesalers(lots);
+      // Closing calendar (this month + next) — render early and defensively so
+      // a later metrics error can never suppress it. It always shows both months.
+      try { renderCalendar(lots); } catch (e) { console.error('[calendar] render failed:', e); }
       loadAllOps();
 
       // Test inquiries are kept for review but excluded from every metric so
@@ -2446,9 +2413,18 @@
       document.getElementById('kpiClosed').textContent = closedThisMonth.length;
 
       // Target: accepted contracts this month
+      const MONTHLY_GOAL = 50;
       const acceptedThisMonth = metricsLots.filter(l => ACCEPTED.includes(l.displayStatus) && inMonth(acceptedDate(l), 0)).length;
       document.getElementById('targetCurrent').textContent = acceptedThisMonth;
-      document.getElementById('targetCheck').textContent = acceptedThisMonth >= 50 ? '✓' : '';
+      document.getElementById('targetCheck').textContent = acceptedThisMonth >= MONTHLY_GOAL ? '✓' : '';
+      // Quick Metrics header badge: goal + progress toward it this month.
+      const goalPctEl = document.getElementById('goalPct');
+      if (goalPctEl) {
+        const pct = Math.round((acceptedThisMonth / MONTHLY_GOAL) * 100);
+        goalPctEl.textContent = pct + '%';
+        const badge = document.getElementById('goalBadge');
+        if (badge) badge.innerHTML = 'Goal ' + MONTHLY_GOAL + ' &middot; ' + acceptedThisMonth + '/' + MONTHLY_GOAL + ' (' + pct + '%)';
+      }
 
       // Contract stats over time (month / quarter / year-to-date)
       const cancels = (opsData && opsData.cancellations) || [];
@@ -2505,9 +2481,6 @@
       renderLeadGroup('nlWebGroup', 'nlWebList', 'nlWebCount', webLeads, false);
       renderLeadGroup('nlMktGroup', 'nlMktList', 'nlMktCount', mktLeads, true);
       document.getElementById('newLeadsBlock').style.display = (webLeads.length || mktLeads.length) ? 'block' : 'none';
-
-      // Closing calendar (this month + next)
-      renderCalendar(lots);
 
       // Table — active contract lots only (drops off once closed/declined/pre-offer).
       // Grouped by pipeline phase so each block carries a plain-English title.
@@ -2887,6 +2860,23 @@
       btn.textContent = label;
     });
 
+    // Property Appraiser GIS quick lookup — open BCPAO search for the typed
+    // address/parcel in a new tab so Kevin can vet an incoming lead's parcel.
+    (function () {
+      const input = document.getElementById('gisSearch');
+      const btn = document.getElementById('gisSearchBtn');
+      if (!input || !btn) return;
+      const openGis = () => {
+        const q = (input.value || '').trim();
+        const url = q
+          ? 'https://www.bcpao.us/PropertySearch/#/nav/Search?searchText=' + encodeURIComponent(q)
+          : 'https://www.bcpao.us/PropertySearch/';
+        window.open(url, '_blank', 'noopener');
+      };
+      btn.addEventListener('click', openGis);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); openGis(); } });
+    })();
+
     // ---------- Upload Contract (PDF) -> read -> pre-fill Add Deal for review ----------
     document.getElementById('contractBtn').addEventListener('click', () => document.getElementById('contractFile').click());
     document.getElementById('contractFile').addEventListener('change', async function() {
@@ -2951,10 +2941,14 @@
         if (f.legal) document.getElementById('dOwnerContact').value = 'Legal: ' + f.legal;
         if (f.utilityType) document.getElementById('dUtility').value = f.utilityType;
         if (f.acceptedDate) document.getElementById('dAccepted').value = f.acceptedDate;
-        if (f.agentName || f.agentBrokerage) {
+        if (f.daysOnMarket) document.getElementById('dDaysOnMarket').value = f.daysOnMarket;
+        if (f.agentName || f.agentBrokerage || f.agentPhone || f.agentEmail || f.agentLicense) {
           document.getElementById('dListing').value = 'listed';
           if (f.agentName) document.getElementById('dAgentName').value = f.agentName;
+          if (f.agentPhone) document.getElementById('dAgentPhone').value = f.agentPhone;
+          if (f.agentEmail) document.getElementById('dAgentEmail').value = f.agentEmail;
           if (f.agentBrokerage) document.getElementById('dAgentBrokerage').value = f.agentBrokerage;
+          if (f.agentLicense) document.getElementById('dAgentLicense').value = f.agentLicense;
         }
         // Commission has no Add-Deal field; stash it so it shows on the offer screen.
         pendingContractExtras = f.commission ? { commission: f.commission } : null;
@@ -2985,12 +2979,12 @@
         utilityType: val('dUtility') || undefined,
         listingType: val('dListing'),
         source: isWholesaler ? 'Wholesaler' : (val('dSource') || 'Direct Mail'),
+        daysOnMarket: val('dDaysOnMarket') ? parseInt(val('dDaysOnMarket'), 10) : undefined,
         agentName: listed ? (val('dAgentName') || undefined) : undefined,
         agentPhone: listed ? (val('dAgentPhone') || undefined) : undefined,
         agentEmail: listed ? (val('dAgentEmail') || undefined) : undefined,
         agentBrokerage: listed ? (val('dAgentBrokerage') || undefined) : undefined,
         agentLicense: listed ? (val('dAgentLicense') || undefined) : undefined,
-        daysOnMarket: val('dDaysOnMarket') ? parseInt(val('dDaysOnMarket'), 10) : undefined,
         wholesalerName: isWholesaler ? (val('dWholesaler') || undefined) : undefined,
         acceptedAt: iso(val('dAccepted')),
         scheduledClose: iso(val('dClose'))
