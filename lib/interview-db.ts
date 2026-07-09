@@ -126,14 +126,6 @@ export const DIVISIONS = [
   },
 ] as const
 
-// Sales managers by location (hiring contacts for candidate communication)
-export const MANAGERS = {
-  JAX: { name: 'Fernando Arruda', email: 'farruda@adamshomes.com' },
-  ORL: { name: 'Liza Carrasquillo', email: 'lcarrasquillo@adamshomes.com' },
-  DAY: { name: 'Eric Landrum', email: 'elandrum@adamshomes.com' },
-  MEL: { name: 'Kristi Worley', email: 'kworley@adamshomes.com' },
-  PSL: { name: 'Bob Frein', email: 'bfrein@adamshomes.com' },
-} as const
 
 // Round 1 competency framework (from HANDOFF Round 1 Interview Guide):
 // 4 competencies, 1-5 scale, straight average. 3.0+ advances.
@@ -220,12 +212,12 @@ export const REFERRAL_SOURCES = [
 // Photos live at public/sales-interview/img/managers/<img>; the UI shows
 // initials until a photo file exists.
 export const MANAGERS = [
-  { name: 'Elizabeth Porter', title: 'Regional Manager', division: null, img: 'elizabeth-porter.jpg' },
-  { name: 'Kristi Worley', title: 'Melbourne', division: 'MEL', img: 'kristi-worley.jpg' },
-  { name: 'Scott Harris', title: 'Jacksonville', division: 'JAX', img: 'scott-harris.jpg' },
-  { name: 'Eric Landrum', title: 'Daytona Beach', division: 'DAY', img: 'eric-landrum.jpg' },
-  { name: 'Liza Carrasquillo', title: 'Orlando', division: 'ORL', img: 'liza-carrasquillo.jpg' },
-  { name: 'Bob Frein', title: 'Port St. Lucie', division: 'PSL', img: 'bob-frein.jpg' },
+  { name: 'Elizabeth Porter', title: 'Regional Manager', division: null, email: 'eporter@adamshomes.com', img: 'elizabeth-porter.jpg' },
+  { name: 'Kristi Worley', title: 'Melbourne', division: 'MEL', email: 'kworley@adamshomes.com', img: 'kristi-worley.jpg' },
+  { name: 'Scott Harris', title: 'Jacksonville', division: 'JAX', email: 'sharris@adamshomes.com', img: 'scott-harris.jpg' },
+  { name: 'Eric Landrum', title: 'Daytona Beach', division: 'DAY', email: 'elandrum@adamshomes.com', img: 'eric-landrum.jpg' },
+  { name: 'Liza Carrasquillo', title: 'Orlando', division: 'ORL', email: 'lcarrasquillo@adamshomes.com', img: 'liza-carrasquillo.jpg' },
+  { name: 'Bob Frein', title: 'Port St. Lucie', division: 'PSL', email: 'bfrein@adamshomes.com', img: 'bob-frein.jpg' },
 ] as const
 
 // The finalized 20 application questions (from the 07/07/2026 landing page

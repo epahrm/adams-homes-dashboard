@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
         const sessionDate = `${s.session_date.getFullYear()}-${String(s.session_date.getMonth() + 1).padStart(2, '0')}-${String(s.session_date.getDate()).padStart(2, '0')}`
         const divisionInfo = DIVISIONS.find((d) => d.code === c.division)
         const divisionName = divisionInfo?.name || c.division
-        const manager = MANAGERS[c.division as keyof typeof MANAGERS]
+        const manager = MANAGERS.find((m) => m.division === c.division)
         const n = defaultNotification('scheduled', c.name, divisionName, {
           sessionDate,
           teamsUrl: s.teams_url || undefined,
