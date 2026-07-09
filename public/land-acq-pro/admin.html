@@ -92,10 +92,10 @@
     #nlWebGroup h3 { color: #b3400a; }
     #nlWebGroup h3 .nl-count { background: #c0392b; }
     .nl-urgent-note { font-size: 12px; color: #b3400a; margin-bottom: 8px; font-weight: 600; }
-    #nlWebList, #nlMktList { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 6px; }
-    @media (max-width: 1200px) { #nlWebList, #nlMktList { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 640px) { #nlWebList, #nlMktList { grid-template-columns: 1fr; } }
-    .lead-row { display: flex; flex-direction: column; gap: 12px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 12px; }
+    #nlWebList, #nlMktList { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 6px; }
+    .lead-row { display: flex; flex-direction: column; gap: 12px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 12px; flex: 0 1 calc(33.333% - 8px); min-width: 300px; }
+    @media (max-width: 1200px) { .lead-row { flex: 0 1 calc(50% - 6px); } }
+    @media (max-width: 640px) { .lead-row { flex: 0 1 100%; } }
     #nlWebGroup .lead-row { border-color: #f2c6ba; }
     .lead-row:last-child { margin-bottom: 0; }
     .lead-row .l-main { flex: 1; }
