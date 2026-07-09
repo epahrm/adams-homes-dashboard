@@ -28,6 +28,8 @@
     .kpi { border-radius: 6px; border: 2px solid; text-align: center; padding: 6px 5px; }
     .kpi .lbl { font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; color: #444; margin-bottom: 2px; line-height: 1.2; }
     .kpi .num { font-size: 18px; font-weight: 800; color: #003d66; }
+    .kpi[data-status] { cursor: pointer; transition: box-shadow .12s, transform .12s; }
+    .kpi[data-status]:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.14); transform: translateY(-1px); }
     .kpi.green { border-color: #1a5a3a; background: linear-gradient(180deg, #f2f9f3, #e2f1e4); }
     .kpi.orange { border-color: #e8963c; background: linear-gradient(180deg, #fdf3e4, #fbe4c2); }
     .kpi.deepgreen { border-color: #1a5a3a; background: linear-gradient(180deg, #e4f3e6, #cfe9d3); }
@@ -480,7 +482,8 @@
       <div class="row-compact">
         <div class="opps-compact" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
           <h3 style="color:#0a4f8e; margin:0 0 8px 0;">Offers Sent</h3>
-          <div class="opps-sub" id="followupSub" style="font-size:12px; margin-bottom:8px;"></div>
+          <input type="search" class="opp-search" id="offerSentSearch" placeholder="Search offers sent — address, owner, MLS, agent…">
+          <div class="opps-sub" id="followupSub" style="font-size:12px; margin:8px 0;"></div>
           <div id="followupList"></div>
         </div>
       </div>
@@ -511,13 +514,13 @@
           </div>
           <!-- Pipeline status counts (moved under the stipend box) -->
           <div class="kpi-grid" style="margin-bottom:0;">
-            <div class="kpi orange"><div class="lbl">Pending EP Sig</div><div class="num" id="kpiEpSig">0</div></div>
-            <div class="kpi green"><div class="lbl">Inspection Period</div><div class="num" id="kpiIp">0</div></div>
-            <div class="kpi green"><div class="lbl">Manager Driven</div><div class="num" id="kpiManager">0</div></div>
-            <div class="kpi green"><div class="lbl">Survey Rcv'd</div><div class="num" id="kpiSurvey">0</div></div>
-            <div class="kpi green"><div class="lbl">CD Approved</div><div class="num" id="kpiCd">0</div></div>
-            <div class="kpi green"><div class="lbl">Clear to Close</div><div class="num" id="kpiCtc">0</div></div>
-            <div class="kpi deepgreen"><div class="lbl">Closed (MTD)</div><div class="num" id="kpiClosed">0</div></div>
+            <div class="kpi orange" data-status="pending-ep-sig" title="View these deals"><div class="lbl">Pending EP Sig</div><div class="num" id="kpiEpSig">0</div></div>
+            <div class="kpi green" data-status="ip" title="View these deals"><div class="lbl">Inspection Period</div><div class="num" id="kpiIp">0</div></div>
+            <div class="kpi green" data-status="manager-driven" title="View these deals"><div class="lbl">Manager Driven</div><div class="num" id="kpiManager">0</div></div>
+            <div class="kpi green" data-status="survey-rcvd" title="View these deals"><div class="lbl">Survey Rcv'd</div><div class="num" id="kpiSurvey">0</div></div>
+            <div class="kpi green" data-status="cd-approved" title="View these deals"><div class="lbl">CD Approved</div><div class="num" id="kpiCd">0</div></div>
+            <div class="kpi green" data-status="ctc" title="View these deals"><div class="lbl">Clear to Close</div><div class="num" id="kpiCtc">0</div></div>
+            <div class="kpi deepgreen" data-status="closed" title="View these deals"><div class="lbl">Closed (MTD)</div><div class="num" id="kpiClosed">0</div></div>
           </div>
         </div>
         <!-- Right column: Quick Metrics + a quick Property Appraiser GIS lookup,
@@ -648,6 +651,7 @@
             <option value="survey-rcvd">Survey Rcv'd</option>
             <option value="cd-approved">CD Approved</option>
             <option value="ctc">Clear to Close</option>
+            <option value="closed">Closed</option>
             <option value="do-not-call">Do Not Call (parked)</option>
           </select>
         </div>
@@ -1906,15 +1910,24 @@
       // available timestamp (confirmed-sent > generated > sent > accepted >
       // created) so manually-added and contract-matched offers still show.
       const sentStamp = l => l.offerConfirmedSentAt || l.generatedAt || l.offerSentAt || l.acceptedAt || l.createdAt || null;
-      const offersSent = lots
-        .filter(l => l.status === 'offer-sent' && !l.doNotContact)
+      // Wire the search box once; typing re-renders this section.
+      const searchEl = document.getElementById('offerSentSearch');
+      if (searchEl && !searchEl.dataset.wired) { searchEl.dataset.wired = '1'; searchEl.addEventListener('input', () => renderFollowups(lastLots)); }
+      const q = ((searchEl && searchEl.value) || '').trim();
+      const allOffers = lots.filter(l => l.status === 'offer-sent' && !l.doNotContact);
+      // Hide the whole block only when there are no offers at all; keep it (and
+      // the search box) visible when a search simply matches none.
+      if (!allOffers.length) { block.style.display = 'none'; return; }
+      block.style.display = 'block';
+      const offersSent = allOffers
+        .filter(l => oppMatch(l, q))
         .map(l => ({ l, sentAt: sentStamp(l) ? new Date(sentStamp(l)).getTime() : 0 }))
         .sort((a, b) => b.sentAt - a.sentAt);
-      if (!offersSent.length) { block.style.display = 'none'; return; }
-      block.style.display = 'block';
-      document.getElementById('followupSub').textContent =
-        offersSent.length + ' offer' + (offersSent.length === 1 ? '' : 's') + ' sent — check status' + capNote(offersSent.length);
+      document.getElementById('followupSub').textContent = q
+        ? offersSent.length + ' of ' + allOffers.length + ' offers match “' + q + '”'
+        : allOffers.length + ' offer' + (allOffers.length === 1 ? '' : 's') + ' sent — check status' + capNote(allOffers.length);
       list.innerHTML = '';
+      if (!offersSent.length) { const e = document.createElement('div'); e.className = 'opp-empty'; e.textContent = 'No offers match “' + q + '”.'; list.appendChild(e); }
       offersSent.slice(0, FOLLOWUP_CAP).forEach(({ l, sentAt }) => {
         const row = document.createElement('div'); row.className = 'opp-row blue';
         const main = document.createElement('div'); main.className = 'opp-main';
@@ -2504,8 +2517,11 @@
 
       // Table — active contract lots only (drops off once closed/declined/pre-offer).
       // Grouped by pipeline phase so each block carries a plain-English title.
-      const dncView = document.getElementById('fStatus').value === 'do-not-call';
-      const filtered = (dncView ? applyFilters(lots) : applyFilters(lots).filter(l => ACTIVE.includes(l.displayStatus)))
+      // "All Active" shows the active pipeline; picking a specific stage (incl.
+      // Closed or Do Not Call, e.g. by clicking a milestone box) shows exactly
+      // that category.
+      const statusVal = document.getElementById('fStatus').value;
+      const filtered = (statusVal === 'all' ? applyFilters(lots).filter(l => ACTIVE.includes(l.displayStatus)) : applyFilters(lots))
         .sort((a, b) => (PHASE_ORDER[pipelinePhase(a)] - PHASE_ORDER[pipelinePhase(b)])
           || (new Date(b.createdAt) - new Date(a.createdAt)));
       const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -3292,6 +3308,19 @@
     ['fStatus','fDays','fSource'].forEach(id =>
       document.getElementById(id).addEventListener('change', () => { currentPage = 1; render(); })
     );
+    // Click a milestone box to open that category — set the Status filter to that
+    // stage, reset other filters, re-render, and scroll to the deals table.
+    document.querySelectorAll('.kpi[data-status]').forEach(box => {
+      box.addEventListener('click', () => {
+        document.getElementById('fStatus').value = box.dataset.status;
+        document.getElementById('fDays').value = 'all';
+        document.getElementById('fSource').value = 'all';
+        currentPage = 1;
+        render();
+        const anchor = document.querySelector('.filters');
+        if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
 
     function applyUser() {
       const name = currentUser();
