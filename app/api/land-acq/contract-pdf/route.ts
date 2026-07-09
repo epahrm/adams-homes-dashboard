@@ -68,9 +68,6 @@ export async function GET(req: NextRequest) {
   const offer = (q.get('offer') || String(lot.offer || '')).replace(/[^0-9.]/g, '')
   const listed = q.get('listed') === '1' || (q.get('listed') == null && lot.listingType === 'listed')
   const commPct = (q.get('commission') || '').replace(/[^0-9.]/g, '') || (listed ? '3' : '0')
-  const dueDilDays = parseInt(q.get('dueDilDays') || '45', 10) || 45
-  const closeBusinessDays = parseInt(q.get('closeBusinessDays') || '10', 10) || 10
-  const sellerCostContrib = q.get('sellerCostContrib') || '350'
 
   // Verified county data — the only source for the legal description.
   const parcel = await fetchParcel(address)
