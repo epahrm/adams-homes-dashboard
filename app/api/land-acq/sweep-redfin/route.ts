@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
   const iType = col('PROPERTY TYPE'), iAddr = col('ADDRESS'), iCity = col('CITY'),
     iZip = col('ZIP OR POSTAL CODE'), iPrice = col('PRICE'), iLot = col('LOT SIZE'),
     iUrl = hdr.findIndex((h) => h.startsWith('URL')), iMls = col('MLS#'),
-    iApn = hdr.findIndex((h) => /PARCEL|APN|LOT ID/i.test(h))
+    iApn = hdr.findIndex((h) => /PARCEL|APN|LOT ID/i.test(h)), iDom = col('DAYS ON MARKET')
 
   const candidates: Array<{ address: string; data: Record<string, unknown> }> = []
   for (let r = 1; r < rows.length; r++) {
@@ -94,6 +94,7 @@ export async function GET(req: NextRequest) {
     if (!/palm bay/i.test(city)) continue
     const address = `${street}, ${city}, FL${zip ? ' ' + zip : ''}`
     const apn = iApn >= 0 ? (c[iApn] || undefined) : undefined
+    const daysOnMarket = iDom >= 0 ? Number(c[iDom] || 0) || undefined : undefined
     candidates.push({
       address,
       data: {
@@ -102,6 +103,7 @@ export async function GET(req: NextRequest) {
         listingUrl: iUrl >= 0 ? (c[iUrl] || undefined) : undefined,
         mls: iMls >= 0 ? (c[iMls] || undefined) : undefined,
         apn: apn ? apn.trim() : undefined,
+        daysOnMarket: daysOnMarket,
         addedBy: 'redfin-sweep',
       },
     })
