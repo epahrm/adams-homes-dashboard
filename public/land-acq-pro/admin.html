@@ -1475,13 +1475,14 @@
       const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
       const meta = document.createElement('div'); meta.className = 'opp-meta';
       const util = inferUtilityType(l);
-      meta.textContent = [l.source || 'Market Scan',
+      const metaParts = [l.source || 'Market Scan',
         l.mls ? 'MLS ' + l.mls : null,
-        typeof l.listPrice === 'number' ? 'Listed ' + money(l.listPrice) : null,
+        typeof l.listPrice === 'number' ? '<b>Listed ' + money(l.listPrice) + '</b>' : null,
         l.daysOnMarket ? l.daysOnMarket + ' DOM' : null,
         acresOf(l) != null ? acresOf(l) + ' ac' : null,
         util ? STIPEND_LABELS[util] + (l.utilitiesConfirmed ? ' ✓' : '') : null,
-        l.createdAt ? 'Added ' + new Date(l.createdAt).toLocaleDateString() : null].filter(Boolean).join(' · ');
+        l.createdAt ? '<b>Added ' + new Date(l.createdAt).toLocaleDateString() + '</b>' : null].filter(Boolean).join(' · ');
+      meta.innerHTML = metaParts;
       const reason = document.createElement('div'); reason.className = 'opp-reason';
       reason.textContent = (ev.light === 'green' ? '✓ ' : '⚠ ') + ev.reasons.join(' · ');
       main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
