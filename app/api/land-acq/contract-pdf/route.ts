@@ -68,6 +68,9 @@ export async function GET(req: NextRequest) {
   const offer = (q.get('offer') || String(lot.offer || '')).replace(/[^0-9.]/g, '')
   const listed = q.get('listed') === '1' || (q.get('listed') == null && lot.listingType === 'listed')
   const commPct = (q.get('commission') || '').replace(/[^0-9.]/g, '') || (listed ? '3' : '0')
+  const dueDilDays = parseInt(q.get('dueDilDays') || '45', 10) || 45
+  const closeBusinessDays = parseInt(q.get('closeBusinessDays') || '10', 10) || 10
+  const sellerCostContrib = q.get('sellerCostContrib') || '350'
 
   // Verified county data — the only source for the legal description.
   const parcel = await fetchParcel(address)
@@ -129,12 +132,12 @@ export async function GET(req: NextRequest) {
 
   // Listing-agent (Seller's-side) block — the Buyer's side is pre-printed with
   // Adams Homes. Fill the left column from the lot for on-market deals:
-  //   pg 6 (idx 5) line 327: Seller's Sales Associate / License No.
+  //   pg 6 (idx 5) line 327: Seller's Sales Associate name (license verified separately, not printed)
   //   pg 7 (idx 6) line 329: email · line 332: phone · line 335: listing brokerage
   if (listed) {
     const pAgentName = pages[5]
-    if (pAgentName && (agentName || agentLicense)) {
-      put(pAgentName, [agentName, agentLicense].filter(Boolean).join(' / '), 175, 108, 10)
+    if (pAgentName && agentName) {
+      put(pAgentName, agentName, 175, 108, 10)
     }
     const pAgent = pages[6]
     if (pAgent) {
