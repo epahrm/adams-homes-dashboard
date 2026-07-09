@@ -208,6 +208,20 @@
         <div class="hint">This property card is included in the seller's offer email and in Kevin's copy.</div>
       </div>
 
+      <!-- Listing Agent Information (pulled from MLS/listing data) -->
+      <div class="card" id="agentDisplayCard" style="display:none;">
+        <h3>Listing Agent Information</h3>
+        <div class="two-col">
+          <div class="field"><div class="lbl">Agent Name</div><div class="val" id="dAgentNameDisplay">—</div></div>
+          <div class="field"><div class="lbl">Brokerage</div><div class="val" id="dAgentBrokerageDisplay">—</div></div>
+          <div class="field"><div class="lbl">Phone</div><div class="val"><a id="dAgentPhoneDisplay" href="javascript:void(0)" style="color:#1a5a3a; text-decoration:none;">—</a></div></div>
+          <div class="field"><div class="lbl">Email</div><div class="val"><a id="dAgentEmailDisplay" href="javascript:void(0)" style="color:#1a5a3a; text-decoration:none;">—</a></div></div>
+          <div class="field"><div class="lbl">License #</div><div class="val" id="dAgentLicenseDisplay">—</div></div>
+          <div class="field"><div class="lbl">MLS #</div><div class="val" id="dMlsDisplay">—</div></div>
+        </div>
+        <div class="hint">Agent information pulled from listing data. Edit the Listing Agent section below to make changes.</div>
+      </div>
+
       <!-- Deal details -->
       <div class="card">
         <h3>Deal Details</h3>
@@ -1281,6 +1295,36 @@
       document.getElementById('mlsNum').value = lot.mls || '';
       // Point the "look up" links at this agent's name to speed verification.
       updateAgentLookups();
+
+      // Display agent information card if agent data exists
+      const hasAgent = !!(lot.agentName || lot.agentPhone || lot.agentEmail || lot.agentBrokerage);
+      const agentCard = document.getElementById('agentDisplayCard');
+      if (hasAgent) {
+        agentCard.style.display = '';
+        document.getElementById('dAgentNameDisplay').textContent = lot.agentName || '—';
+        document.getElementById('dAgentBrokerageDisplay').textContent = lot.agentBrokerage || '—';
+        document.getElementById('dAgentLicenseDisplay').textContent = lot.agentLicense || '—';
+        document.getElementById('dMlsDisplay').textContent = lot.mls || '—';
+        const phoneEl = document.getElementById('dAgentPhoneDisplay');
+        if (lot.agentPhone) {
+          phoneEl.textContent = lot.agentPhone;
+          phoneEl.href = 'tel:' + lot.agentPhone.replace(/[^\d+]/g, '');
+        } else {
+          phoneEl.textContent = '—';
+          phoneEl.href = 'javascript:void(0)';
+        }
+        const emailEl = document.getElementById('dAgentEmailDisplay');
+        if (lot.agentEmail) {
+          emailEl.textContent = lot.agentEmail;
+          emailEl.href = 'mailto:' + lot.agentEmail;
+        } else {
+          emailEl.textContent = '—';
+          emailEl.href = 'javascript:void(0)';
+        }
+      } else {
+        agentCard.style.display = 'none';
+      }
+
       // Wholesaler details (who brought the deal + the spread)
       document.getElementById('wsName').value = lot.wholesalerName || '';
       document.getElementById('wsCompany').value = lot.wholesalerCompany || '';
