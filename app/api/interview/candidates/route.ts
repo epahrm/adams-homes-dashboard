@@ -187,6 +187,8 @@ export async function POST(request: NextRequest) {
       instagram: String(body.instagram || '').trim(),
       facebook: String(body.facebook || '').trim(),
       resumeUrl: safeUrl(body.resumeUrl),
+      photoData: String(body.photoData || '').slice(0, 1) === 'd' ? body.photoData : null,
+      introVideoData: String(body.introVideoData || '').slice(0, 1) === 'd' ? body.introVideoData : null,
       appAnswers: Array.isArray(body.appAnswers)
         ? body.appAnswers.slice(0, APP_QUESTIONS.length).map((a: unknown) => String(a || ''))
         : [],

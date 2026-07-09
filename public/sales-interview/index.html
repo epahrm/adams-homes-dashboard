@@ -402,6 +402,25 @@ function render() {
           <option value="other" selected>Other</option>
         </select>
       </div>
+
+      <hr class="divider">
+
+      <div class="info-box">
+        <p><strong>One More Thing — Record Your Intro Video</strong><br>In 60–90 seconds, tell us why you'd be an outstanding New Home Sales Associate at Adams Homes and why you're excited about this opportunity. This is your chance to show us who you are beyond your answers.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Your 60–90 Second Introduction *</label>
+        <div id="videoControls" style="background:#f8fafb;border:1px solid var(--border);border-radius:8px;padding:16px;margin:10px 0;">
+          <div id="videoPreview" style="background:#000;width:100%;aspect-ratio:16/9;border-radius:6px;margin-bottom:12px;display:none;"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" id="startRecordBtn" class="btn btn-primary" style="flex:1;min-width:140px;background:var(--navy);" onclick="startVideoRecord()">Start Recording</button>
+            <button type="button" id="stopRecordBtn" class="btn btn-primary" style="flex:1;min-width:140px;display:none;background:var(--red);" onclick="stopVideoRecord()">Stop Recording</button>
+          </div>
+          <div id="recordingStatus" style="font-size:12px;color:#7f8c8d;margin-top:10px;text-align:center;"></div>
+        </div>
+        <p style="font-size:12px;color:#7f8c8d;margin-top:6px;">Record from a quiet space with good lighting. Camera on, facing the camera directly. You'll see a preview above once you've recorded.</p>
+      </div>
     </div>
 
     <div class="modal-buttons">
@@ -410,17 +429,11 @@ function render() {
     </div>
     <div class="form-error" id="err2"></div>`;
   } else if (step === 3) {
-    const link = location.origin + '/sales-interview/interview.html?token=' + appData.token;
     c.innerHTML = `<div class="success-section">
       <div class="success-icon">✅</div>
-      <h3 class="success-title">Submitted!</h3>
-      <p style="color: #7f8c8d; font-size: 14px; line-height: 1.6;">You're done—grab coffee ☕<br>We'll be in touch soon.</p>
-      <div class="video-cta">
-        <h4>Want a head start? Record your video interview now.</h4>
-        <p>Five short questions — the same ones our managers use in the group interview. Record from your phone or computer whenever you're ready. It's the fastest way to get in front of the hiring team.</p>
-        <button class="btn btn-primary" style="width:100%;" onclick="location.href='${link.replace(/'/g, '')}'">Start My Video Interview</button>
-        <p style="margin-top:10px;">You can also chat with the hiring team from that page.</p>
-      </div>
+      <h3 class="success-title">You're All Set!</h3>
+      <p style="color: #7f8c8d; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">You've completed the pre-interview application and submitted your video. Your video and application are going to our leadership team for review. We'll be in touch as soon as we've reviewed everything.</p>
+      <p style="color: #5c6480; font-size: 13px;">Check your email—we've sent you a confirmation and instructions. Thanks for applying!</p>
     </div>`;
   }
 }
@@ -476,6 +489,40 @@ function handlePhoto(input) {
   img.src = URL.createObjectURL(file);
 }
 
+let mediaRecorder, recordedChunks = [];
+
+function startVideoRecord() {
+  recordedChunks = [];
+  navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    .then(stream => {
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const reader = new FileReader();
+        reader.onload = () => { appData.introVideoData = reader.result; };
+        reader.readAsDataURL(blob);
+        document.getElementById('startRecordBtn').style.display = 'block';
+        document.getElementById('stopRecordBtn').style.display = 'none';
+        document.getElementById('recordingStatus').textContent = '✓ Recording saved';
+      };
+      mediaRecorder.start();
+      document.getElementById('startRecordBtn').style.display = 'none';
+      document.getElementById('stopRecordBtn').style.display = 'block';
+      document.getElementById('recordingStatus').textContent = 'Recording...';
+      // Stop stream after 2 minutes max
+      setTimeout(() => { if (mediaRecorder.state === 'recording') stopVideoRecord(); }, 120000);
+    })
+    .catch(err => alert('Cannot access camera: ' + err.message));
+}
+
+function stopVideoRecord() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(t => t.stop());
+  }
+}
+
 async function submitApp() {
   const err = document.getElementById('err2');
   err.style.display = 'none';
@@ -495,6 +542,7 @@ async function submitApp() {
         hasLicense: appData.hasLicense,
         appAnswers: appData.appAnswers,
         photoData: appData.photoData || null,
+        introVideoData: appData.introVideoData || null,
         linkedin: document.getElementById('linkedin').value.trim() || 'N/A',
         instagram: document.getElementById('instagram').value.trim() || 'N/A',
         facebook: document.getElementById('facebook').value.trim() || 'N/A',
