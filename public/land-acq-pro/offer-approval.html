@@ -190,14 +190,14 @@
         <h3>Brevard County Property Card</h3>
         <div class="two-col">
           <div class="field"><div class="lbl">Address</div><div class="val" id="cAddress">—</div></div>
-          <div class="field"><div class="lbl">Parcel</div><div class="val" id="cParcel">—</div></div>
-          <div class="field"><div class="lbl">Owner (from County)</div><div class="val" id="cOwner">—</div></div>
+          <div class="field"><label class="form-label" for="parcelOverride">Parcel <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="parcelOverride" placeholder="Parcel ID"><div class="val" id="cParcel" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
+          <div class="field"><label class="form-label" for="ownerOverride">Owner <span style="font-weight:400; color:#667;">(override county data)</span></label><input type="text" id="ownerOverride" placeholder="Owner name"><div class="val" id="cOwner" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
           <div class="field"><label class="form-label" for="sellerName">Seller Name (for Contract) <span style="color:#b02a1a;">*</span></label><input type="text" id="sellerName" placeholder="Name to appear on contract"></div>
           <div class="field"><div class="lbl">Owner Contact</div><div class="val" id="cOwnerContact">—</div></div>
-          <div class="field"><div class="lbl">Lot Size</div><div class="val" id="cLotSize">—</div></div>
-          <div class="field"><div class="lbl">Zoning</div><div class="val" id="cZoning">—</div></div>
-          <div class="field"><div class="lbl">Utilities</div><div class="val" id="cUtilities">—</div></div>
-          <div class="field"><div class="lbl">Tax Assessment</div><div class="val" id="cTax">—</div></div>
+          <div class="field"><label class="form-label" for="lotSizeOverride">Lot Size <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="lotSizeOverride" placeholder="e.g. 0.5 acres"><div class="val" id="cLotSize" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
+          <div class="field"><label class="form-label" for="zoningOverride">Zoning <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="zoningOverride" placeholder="Zoning code"><div class="val" id="cZoning" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
+          <div class="field"><label class="form-label" for="utilitiesOverride">Utilities <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="utilitiesOverride" placeholder="Utility type"><div class="val" id="cUtilities" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
+          <div class="field"><label class="form-label" for="taxOverride">Tax Assessment <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="taxOverride" placeholder="Tax value"><div class="val" id="cTax" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
         </div>
         <div class="field" style="margin-top:12px;"><div class="lbl">County Record</div>
           <button type="button" id="pullCountyBtn" style="margin-right:10px; padding:8px 14px; font-family:inherit; font-size:14px; font-weight:700; color:#fff; background:#1a5ba5; border:none; border-radius:8px; cursor:pointer;">Pull County Record</button>
@@ -234,6 +234,7 @@
               <option value="Direct Mail">Direct Mail / Mailer</option>
               <option value="Email">Email</option>
               <option value="QR Landing Page">QR Landing Page</option>
+              <option value="MLS">MLS / Listed</option>
               <option value="FSBO">FSBO</option>
               <option value="Wholesaler">Wholesaler</option>
               <option value="Expired">Expired</option>
