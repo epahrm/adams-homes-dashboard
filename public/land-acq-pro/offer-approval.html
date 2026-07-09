@@ -184,7 +184,8 @@
         <div class="two-col">
           <div class="field"><div class="lbl">Address</div><div class="val" id="cAddress">—</div></div>
           <div class="field"><div class="lbl">Parcel</div><div class="val" id="cParcel">—</div></div>
-          <div class="field"><div class="lbl">Owner</div><div class="val" id="cOwner">—</div></div>
+          <div class="field"><div class="lbl">Owner (from County)</div><div class="val" id="cOwner">—</div></div>
+          <div class="field"><label class="form-label" for="sellerName">Seller Name (for Contract) <span style="color:#b02a1a;">*</span></label><input type="text" id="sellerName" placeholder="Name to appear on contract"></div>
           <div class="field"><div class="lbl">Owner Contact</div><div class="val" id="cOwnerContact">—</div></div>
           <div class="field"><div class="lbl">Lot Size</div><div class="val" id="cLotSize">—</div></div>
           <div class="field"><div class="lbl">Zoning</div><div class="val" id="cZoning">—</div></div>
@@ -622,7 +623,7 @@
     function contractSummary() {
       const price = document.getElementById('offerAmount').value.trim() || '$_____';
       const emd = document.getElementById('emd').value.trim() || '$100';
-      const seller = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '__________';
+      const seller = document.getElementById('sellerName').value.trim() || lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '__________';
       const address = lot.address || 'See Exhibit "A"';
       const legalM = (lot.ownerContact || '').match(/legal:\s*([^|]+)/i);
       const legal = lot.legal || (legalM ? legalM[1].trim() : '') || 'See Exhibit "A"';
@@ -681,8 +682,14 @@
     function buildPacketHtml() {
       const price = document.getElementById('offerAmount').value.trim() || '$_____';
       const emd = document.getElementById('emd').value.trim() || '$100';
-      const seller = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '__________';
+      const seller = document.getElementById('sellerName').value.trim() || lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '__________';
       const address = lot.address || 'See Exhibit "A"';
+      const agentName = document.getElementById('agentName').value.trim();
+      const agentPhone = document.getElementById('agentPhone').value.trim();
+      const agentEmail = document.getElementById('agentEmail').value.trim();
+      const agentLicense = document.getElementById('agentLicense').value.trim();
+      const mlsNum = document.getElementById('mlsNum').value.trim();
+      const daysOnMarket = document.getElementById('daysOnMarket').value.trim();
       const legalM = (lot.ownerContact || '').match(/legal:\s*([^|]+)/i);
       const legal = lot.legal || (legalM ? legalM[1].trim() : '') || 'See Exhibit "A"';
       const parcel = lot.parcel || 'See Exhibit "A"';
@@ -734,11 +741,12 @@
         + row('Closing', 'On/before 10 business days after the Due Diligence Period (¶4)')
         + row('Title', 'Statutory warranty deed; title evidence at Buyer’s expense, ≥ 2 days before closing (¶8)')
         + row('Assignability', 'Buyer may not assign (¶7)')
-        + row('Closing Costs', 'Seller pays $350 toward Escrow settlement charge; Buyer pays the balance')
-        + row('Addendum', 'Addendum for Vacant Land Contract attached (¶22C)')
-        + row('Buyer’s Broker', 'Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388) · 100 W. Garden St., 2nd Floor, Pensacola, FL 32502')
-        + row('Commission', escHtml(commLine))
-        + '</table><div class="sig"><div class="muted">Seller signs first; Buyer (Elizabeth Porter, Regional Manager) counter-signs last — the Effective Date.</div>'
+        + row(‘Closing Costs’, ‘Seller pays $350 toward Escrow settlement charge; Buyer pays the balance’)
+        + row(‘Addendum’, ‘Addendum for Vacant Land Contract attached (¶22C)’)
+        + row(‘Buyer’s Broker’, ‘Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388) · 100 W. Garden St., 2nd Floor, Pensacola, FL 32502’)
+        + row(‘Commission’, escHtml(commLine))
+        + (agentName ? (row(‘Listing Agent / Realtor’, escHtml(agentName) + (agentPhone ? ‘ · ‘ + escHtml(agentPhone) : ‘’) + (agentEmail ? ‘ · ‘ + escHtml(agentEmail) : ‘’) + (agentLicense ? ‘ (FL ‘ + escHtml(agentLicense) + ‘)’ : ‘’)) + (mlsNum ? row(‘MLS #’, escHtml(mlsNum)) : ‘’) + (daysOnMarket ? row(‘Days on Market’, escHtml(daysOnMarket)) : ‘’)) : ‘’)
+        + ‘</table><div class="sig"><div class="muted">Seller signs first; Buyer (Elizabeth Porter, Regional Manager) counter-signs last — the Effective Date.</div>’
         + '<div class="sigline">Seller signature &nbsp;·&nbsp; Date</div>'
         + '<div class="sigline">Buyer: Elizabeth Porter, Regional Manager — Adams Homes &nbsp;·&nbsp; Date</div></div>' + initials + '</div>'
         + '<div class="page"><div class="tag">EXHIBIT “A”</div>'
@@ -1067,6 +1075,7 @@
       const btn = document.getElementById('saveAgentBtn');
       const set = {
         listingType: document.getElementById('listingType').value,
+        sellerName: document.getElementById('sellerName').value.trim() || null,
         agentName: document.getElementById('agentName').value.trim(),
         agentBrokerage: document.getElementById('agentBrokerage').value.trim(),
         agentPhone: document.getElementById('agentPhone').value.trim(),
@@ -1225,6 +1234,9 @@
       document.getElementById('wholesalerConfirmed').checked = !!lot.wholesalerConfirmed;
       toggleWholesaler();
 
+      // Seller name — editable, defaults to county owner record
+      const defaultSellerName = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '';
+      document.getElementById('sellerName').value = lot.sellerName || defaultSellerName;
       // Listing agent / realtor — auto-filled from the listing
       document.getElementById('agentName').value = lot.agentName || '';
       document.getElementById('agentBrokerage').value = lot.agentBrokerage || '';
@@ -1293,6 +1305,9 @@
     document.getElementById('commission').addEventListener('input', updateCommissionHint);
     document.getElementById('leadSource').addEventListener('change', toggleWholesaler);
     document.getElementById('saveAgentBtn').addEventListener('click', saveAgentDetails);
+    document.getElementById('sellerName').addEventListener('change', async function() {
+      try { await saveLot({ sellerName: this.value.trim() || null }); } catch (e) { msg('Could not save seller name — please try again.', false); }
+    });
     document.getElementById('agentName').addEventListener('input', updateAgentLookups);
     document.getElementById('agentBrokerage').addEventListener('input', updateAgentLookups);
     document.getElementById('saveWsBtn').addEventListener('click', saveWholesalerDetails);
