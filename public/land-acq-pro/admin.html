@@ -68,6 +68,15 @@
     .mtile .m-lbl { font-size: 10px; color: #556; margin-bottom: 2px; letter-spacing: 0.3px; }
     .mtile .m-val { font-size: 15px; font-weight: 800; color: #003d66; font-variant-numeric: tabular-nums; }
     .goal-badge { font-size: 11px; font-weight: 600; color: #1a5a3a; background: #e6f2ea; border-radius: 10px; padding: 2px 8px; letter-spacing: 0.3px; text-transform: none; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
+    /* Property Appraiser GIS quick-lookup box (right column, under metrics) */
+    .gis-box { border: 2px solid #003d66; border-radius: 12px; background: #eaf2fb; padding: 14px 14px; }
+    .gis-box h3 { color: #003d66; font-size: 15px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+    .gis-box h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: #4a6b8f; font-size: 12px; }
+    .gis-row { display: flex; gap: 8px; }
+    .gis-row input { flex: 1; min-width: 0; padding: 9px 11px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .gis-row input:focus { outline: none; border-color: #1a5ba5; box-shadow: 0 0 0 3px rgba(26,91,165,0.12); }
+    .gis-row .btn-navy { white-space: nowrap; }
+    .gis-note { font-size: 11px; color: #667; margin-top: 6px; }
 
     /* New leads inbox */
     .newleads { border: 2px solid #e8963c; border-radius: 12px; background: #fff8ef; padding: 14px 16px; margin-bottom: 24px; max-width: 760px; }
@@ -508,15 +517,27 @@
             <div class="kpi deepgreen"><div class="lbl">Closed (MTD)</div><div class="num" id="kpiClosed">0</div></div>
           </div>
         </div>
-        <!-- Right column: Quick Metrics with the monthly goal and progress % -->
-        <div class="metrics" style="margin-bottom:0;">
-          <h3 style="margin-top:0;">Quick Metrics <span class="goal-badge" id="goalBadge">Goal 50 &middot; <span id="goalPct">0%</span> of month</span></h3>
-          <div class="metrics-grid mg-2col">
-            <div class="mtile"><div class="m-lbl">Closed This Month</div><div class="m-val" id="mClosedMonth">0</div></div>
-            <div class="mtile"><div class="m-lbl">Pending Closings</div><div class="m-val" id="mPendingClose">0</div></div>
-            <div class="mtile"><div class="m-lbl">Scheduled to Close</div><div class="m-val" id="mScheduled">0</div></div>
-            <div class="mtile"><div class="m-lbl">Offer Acceptance</div><div class="m-val" id="mAcceptance">&ndash;</div></div>
-            <div class="mtile"><div class="m-lbl">Avg Days to Close</div><div class="m-val" id="mDays">&ndash;</div></div>
+        <!-- Right column: Quick Metrics + a quick Property Appraiser GIS lookup,
+             stacked so the column stays even with the stipend/status column. -->
+        <div class="stack-col">
+          <div class="metrics" style="margin-bottom:0;">
+            <h3 style="margin-top:0;">Quick Metrics <span class="goal-badge" id="goalBadge">Goal 50 &middot; <span id="goalPct">0%</span> of month</span></h3>
+            <div class="metrics-grid mg-2col">
+              <div class="mtile"><div class="m-lbl">Closed This Month</div><div class="m-val" id="mClosedMonth">0</div></div>
+              <div class="mtile"><div class="m-lbl">Pending Closings</div><div class="m-val" id="mPendingClose">0</div></div>
+              <div class="mtile"><div class="m-lbl">Scheduled to Close</div><div class="m-val" id="mScheduled">0</div></div>
+              <div class="mtile"><div class="m-lbl">Offer Acceptance</div><div class="m-val" id="mAcceptance">&ndash;</div></div>
+              <div class="mtile"><div class="m-lbl">Avg Days to Close</div><div class="m-val" id="mDays">&ndash;</div></div>
+            </div>
+          </div>
+          <!-- Property Appraiser GIS: quick lookup of an incoming lead's parcel -->
+          <div class="gis-box">
+            <h3>Property Appraiser GIS <span>&mdash; look up a lead's parcel</span></h3>
+            <div class="gis-row">
+              <input type="search" id="gisSearch" placeholder="Address or parcel ID&hellip;" aria-label="Property Appraiser GIS search">
+              <button type="button" class="btn-navy" id="gisSearchBtn">Search &#8599;</button>
+            </div>
+            <div class="gis-note">Opens the Brevard County Property Appraiser (BCPAO) in a new tab.</div>
           </div>
         </div>
       </div>
@@ -852,10 +873,10 @@
           </div>
           <div><label for="dDaysOnMarket">Days on Market</label><input type="number" id="dDaysOnMarket" placeholder="0" min="0"></div>
           <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
-          <div><label for="dAgentPhone">Agent Phone</label><input type="text" id="dAgentPhone" placeholder="(321) 555-0100"></div>
-          <div><label for="dAgentEmail">Agent Email</label><input type="text" id="dAgentEmail" placeholder="agent@example.com"></div>
+          <div><label for="dAgentPhone">Agent Phone</label><input type="tel" id="dAgentPhone" placeholder="(321) 555-0000"></div>
+          <div><label for="dAgentEmail">Agent Email</label><input type="email" id="dAgentEmail" placeholder="agent@example.com"></div>
           <div><label for="dAgentBrokerage">Brokerage</label><input type="text" id="dAgentBrokerage" placeholder="Brokerage"></div>
-          <div><label for="dAgentLicense">License #</label><input type="text" id="dAgentLicense" placeholder="AB123456"></div>
+          <div><label for="dAgentLicense">Agent License</label><input type="text" id="dAgentLicense" placeholder="License number"></div>
           <div><label for="dWholesaler">Wholesaler (if wholesaler deal)</label><input type="text" id="dWholesaler" placeholder="Wholesaler name / company"></div>
           <div><label for="dAccepted">Accepted Date</label><input type="date" id="dAccepted"></div>
           <div><label for="dClose">Scheduled Close</label><input type="date" id="dClose"></div>
@@ -2366,6 +2387,9 @@
       renderThankYou(lots);
       renderRealtors(lots);
       renderWholesalers(lots);
+      // Closing calendar (this month + next) — render early and defensively so
+      // a later metrics error can never suppress it. It always shows both months.
+      try { renderCalendar(lots); } catch (e) { console.error('[calendar] render failed:', e); }
       loadAllOps();
 
       // Test inquiries are kept for review but excluded from every metric so
@@ -2451,9 +2475,6 @@
       renderLeadGroup('nlWebGroup', 'nlWebList', 'nlWebCount', webLeads, false);
       renderLeadGroup('nlMktGroup', 'nlMktList', 'nlMktCount', mktLeads, true);
       document.getElementById('newLeadsBlock').style.display = (webLeads.length || mktLeads.length) ? 'block' : 'none';
-
-      // Closing calendar (this month + next)
-      renderCalendar(lots);
 
       // Table — active contract lots only (drops off once closed/declined/pre-offer).
       // Grouped by pipeline phase so each block carries a plain-English title.
@@ -2805,6 +2826,51 @@
     document.getElementById('addDealBtn').addEventListener('click', openDeal);
     document.getElementById('dCancel').addEventListener('click', closeDeal);
 
+    // Email ingest — fetch unread Zillow alerts from Gmail
+    document.getElementById('ingestEmailBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('ingestEmailBtn');
+      const label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Scanning…';
+      try {
+        const res = await fetch('/api/land-acq/ingest-email', {
+          headers: adminHeaders()
+        });
+        const data = await res.json();
+        if (res.ok && data.configured) {
+          const msg = `Scanned: ${data.scanned} | Added: ${data.added} | Duplicates: ${data.duplicates} | Rejected: ${data.rejected}`;
+          importMsg(msg, data.added > 0 || data.scanned > 0);
+          if (data.added > 0) render();
+        } else if (!data.configured) {
+          importMsg('Gmail credentials not configured — set LANDACQ_GMAIL_USER and LANDACQ_GMAIL_APP_PASSWORD in Vercel environment.', false);
+        } else {
+          importMsg(`Error: ${data.reason || 'Unknown error'}. ${data.hint || ''}`, false);
+        }
+      } catch (err) {
+        console.error('[email ingest]', err);
+        importMsg('Could not connect to email service — check your network and try again.', false);
+      }
+      btn.disabled = false;
+      btn.textContent = label;
+    });
+
+    // Property Appraiser GIS quick lookup — open BCPAO search for the typed
+    // address/parcel in a new tab so Kevin can vet an incoming lead's parcel.
+    (function () {
+      const input = document.getElementById('gisSearch');
+      const btn = document.getElementById('gisSearchBtn');
+      if (!input || !btn) return;
+      const openGis = () => {
+        const q = (input.value || '').trim();
+        const url = q
+          ? 'https://www.bcpao.us/PropertySearch/#/nav/Search?searchText=' + encodeURIComponent(q)
+          : 'https://www.bcpao.us/PropertySearch/';
+        window.open(url, '_blank', 'noopener');
+      };
+      btn.addEventListener('click', openGis);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); openGis(); } });
+    })();
+
     // ---------- Upload Contract (PDF) -> read -> pre-fill Add Deal for review ----------
     document.getElementById('contractBtn').addEventListener('click', () => document.getElementById('contractFile').click());
     document.getElementById('contractFile').addEventListener('change', async function() {
@@ -3033,32 +3099,6 @@
       } catch (e) { swMsg('County lookup timed out — try a smaller pull.'); return null; }
     }
     document.getElementById('sweepBtn').addEventListener('click', () => { swOverlay.classList.add('show'); swMsg('Set your filters and click Preview Count.'); });
-    document.getElementById('ingestEmailBtn').addEventListener('click', async () => {
-      const btn = document.getElementById('ingestEmailBtn');
-      const origText = btn.textContent;
-      btn.textContent = '⏳ Processing emails…';
-      btn.disabled = true;
-      try {
-        const res = await fetch('/api/land-acq/ingest-email', {
-          headers: { 'x-admin-key': sessionStorage.laAdminKey }
-        });
-        const result = await res.json();
-        if (result.configured === false) {
-          alert('Email ingest not configured. Set LANDACQ_GMAIL_USER and LANDACQ_GMAIL_APP_PASSWORD in Vercel environment.');
-        } else if (result.error) {
-          alert('Email ingest failed: ' + result.reason + '\n' + result.hint);
-        } else {
-          alert('Email ingest complete:\n' + result.scanned + ' listings scanned\n' + result.added + ' new lots added\n' + result.duplicates + ' duplicates\n' + result.rejected + ' rejected by buy box');
-          // Reload the page to see new lots
-          setTimeout(() => window.location.reload(), 1000);
-        }
-      } catch (e) {
-        alert('Email ingest error: ' + e.message);
-      } finally {
-        btn.textContent = origText;
-        btn.disabled = false;
-      }
-    });
     document.getElementById('swCancel').addEventListener('click', () => swOverlay.classList.remove('show'));
     swOverlay.addEventListener('click', e => { if (e.target === swOverlay) swOverlay.classList.remove('show'); });
     document.getElementById('swPreview').addEventListener('click', async () => {

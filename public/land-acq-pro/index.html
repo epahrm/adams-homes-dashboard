@@ -217,6 +217,9 @@
     .footer-links { margin: 14px 0 6px; font-size: 15px; }
     .footer-links a { color: #cfe0f2; text-decoration: underline; }
     .footer-copy { font-size: 14px; color: #a9bcd4; }
+    .footer-admin { font-size: 11px; color: #778; margin-top: 8px; }
+    .footer-admin a { color: #778; text-decoration: none; transition: color 0.2s; }
+    .footer-admin a:hover { color: #a9bcd4; }
 
     @media (min-width: 768px) {
       .values { grid-template-columns: repeat(3, 1fr); }
@@ -227,6 +230,7 @@
       .hero .subtitle { font-size: 18px; }
       .section h2 { font-size: 25px; }
     }
+
   </style>
 </head>
 <body>
@@ -481,6 +485,7 @@
   <footer class="site-footer">
     <div class="footer-logo"><img src="adams-homes-logo.png" alt="Adams Homes"></div>
     <div class="footer-links"><a href="#">Privacy Policy</a> &nbsp;|&nbsp; <a href="#">Terms</a></div>
+    <div class="footer-admin"><a href="/land-acq-pro/admin.html">admin</a></div>
     <p class="footer-copy">&copy; 2026 Adams Homes. All Rights Reserved.</p>
   </footer>
 
@@ -763,6 +768,7 @@
       msg.style.display = 'block';
       this.reset();
     });
+
   </script>
 </body>
 </html>
