@@ -9,6 +9,7 @@
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f5f7; color: #333; }
     .page { max-width: 1400px; margin: 0 auto; background: white; min-height: 100vh; }
     @media (max-width: 900px) { .page { max-width: 900px; } }
+    @media (max-width: 400px) { .page { max-width: 100%; padding: 12px 8px !important; } }
 
     /* Header */
     .topbar { background: #003d66; color: white; padding: 24px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
@@ -196,7 +197,7 @@
     .opp-more { display: block; width: 100%; margin-top: 4px; padding: 11px; border: 1px dashed #b9c8da; background: #fff; color: #0a4f8e; font-weight: 700; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; }
     .opp-more:hover { background: #eef5fd; }
     .opp-showing { text-align: center; color: #889; font-size: 13px; padding: 8px; }
-    @media (max-width: 560px) { .opp-row { flex-wrap: wrap; } .opp-actions { flex-direction: row; width: 100%; } .opp-actions button { flex: 1; } }
+    @media (max-width: 560px) { .opp-row { flex-wrap: wrap; } .opp-actions { flex-direction: row; width: 100%; } .opp-actions button { flex: 1; min-height: 44px; } }
 
     /* Closing calendar */
     .calendar-block { border: 2px solid #003d66; border-radius: 12px; background: #f7fafd; padding: 16px 16px 10px; margin-bottom: 24px; }
@@ -699,6 +700,7 @@
             <option value="FSBO">FSBO</option>
             <option value="Expired">Expired</option>
             <option value="Off-Market">Off-Market</option>
+            <option value="MLS - On Market">MLS - On Market</option>
             <option value="Wholesaler">Wholesaler</option>
             <option value="QR Landing Page">QR Landing Page</option>
           </select>
