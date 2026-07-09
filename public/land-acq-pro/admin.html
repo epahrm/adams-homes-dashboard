@@ -135,6 +135,8 @@
     .opp-row.blue .opp-reason { color: #0a4f8e; font-weight: 600; }
     .opp-row.red { border-left-color: #c0392b; }
     .opp-row.red .opp-reason { color: #c0392b; font-weight: 600; }
+    .opp-row.gray { border-left-color: #999; background: #f9f9f9; }
+    .opp-row.gray .opp-reason { color: #666; }
     .opp-empty { color: #6b7d90; font-size: 13px; font-style: italic; padding: 6px 2px; }
     .opps-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
     .sweep-btn { padding: 8px 14px; font-size: 13px; font-weight: 600; min-height: 40px; }
@@ -648,6 +650,14 @@
           <div class="opps-sub" id="thankYouSub"></div>
           <div id="thankYouList"></div>
         </div>
+      </div>
+
+      <!-- Unsuitable lots: marked by Kevin as unsuitable with reason (Flood/Power/Species/Neighbor/Other) -->
+      <div class="opps" id="unsuitableBlock" style="display:none; border-color:#999; background:#f5f5f5;">
+        <h3 style="color:#666;">Unsuitable Lots <span>&mdash; marked as unsuitable with reason · searchable</span></h3>
+        <input type="search" class="opp-search" id="unsuitableSearch" placeholder="Search unsuitable — address, reason…">
+        <div class="opps-sub" id="unsuitableSub"></div>
+        <div id="unsuitableList"></div>
       </div>
 
       <div class="filters">
@@ -1535,13 +1545,11 @@
       const main = document.createElement('div'); main.className = 'opp-main';
       const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
       const meta = document.createElement('div'); meta.className = 'opp-meta';
-      const util = inferUtilityType(l);
       const metaParts = [l.source || 'Market Scan',
         l.mls ? 'MLS ' + l.mls : null,
         typeof l.listPrice === 'number' ? '<b>Listed ' + money(l.listPrice) + '</b>' : null,
         l.daysOnMarket ? l.daysOnMarket + ' DOM' : null,
         acresOf(l) != null ? acresOf(l) + ' ac' : null,
-        util ? STIPEND_LABELS[util] + (l.utilitiesConfirmed ? ' ✓' : '') : null,
         l.createdAt ? '<b>Added ' + new Date(l.createdAt).toLocaleDateString() + '</b>' : null].filter(Boolean).join(' · ');
       meta.innerHTML = metaParts;
       const reason = document.createElement('div'); reason.className = 'opp-reason';
@@ -1646,6 +1654,11 @@
         const el = document.getElementById(id);
         if (el && !el.dataset.wired) { el.dataset.wired = '1'; el.addEventListener('input', () => renderOpportunities(lastLots)); }
       });
+      const unsuitableSearch = document.getElementById('unsuitableSearch');
+      if (unsuitableSearch && !unsuitableSearch.dataset.wired) {
+        unsuitableSearch.dataset.wired = '1';
+        unsuitableSearch.addEventListener('input', () => renderUnsuitable(lastLots));
+      }
     }
 
     function renderOpportunities(lots) {
@@ -1740,6 +1753,37 @@
       actions.appendChild(add); actions.appendChild(back);
       row.appendChild(main); row.appendChild(actions);
       return row;
+    }
+
+    // Unsuitable lots: marked by Kevin as unsuitable with reason (Flood/Power/Species/Neighbor/Other)
+    function renderUnsuitable(lots) {
+      const block = document.getElementById('unsuitableBlock');
+      const list = document.getElementById('unsuitableList');
+      const q = (document.getElementById('unsuitableSearch') || {}).value || '';
+      let unsuitable = lots.filter(l => l.status === 'dismissed' && l.unsuitableReason);
+      if (q) unsuitable = unsuitable.filter(l => oppMatch(l, q));
+      unsuitable = unsuitable.sort((a, b) => new Date(b.dismissedAt || 0) - new Date(a.dismissedAt || 0));
+      list.innerHTML = '';
+      if (!unsuitable.length) { block.style.display = 'none'; return; }
+      block.style.display = 'block';
+      document.getElementById('unsuitableSub').textContent = unsuitable.length + ' unsuitable · searchable by address, MLS, source, or reason';
+      unsuitable.forEach(l => {
+        const row = document.createElement('div'); row.className = 'opp-row gray';
+        const main = document.createElement('div'); main.className = 'opp-main';
+        const addr = document.createElement('div'); addr.className = 'opp-addr';
+        addr.textContent = (l.address || '—') + ' (Unsuitable - ' + l.unsuitableReason + ')';
+        const meta = document.createElement('div'); meta.className = 'opp-meta';
+        meta.textContent = [l.source || 'Market Scan', l.mls ? 'MLS ' + l.mls : null,
+          typeof l.listPrice === 'number' ? 'Listed ' + money(l.listPrice) : null,
+          l.dismissedAt ? 'Marked ' + new Date(l.dismissedAt).toLocaleDateString() : null].filter(Boolean).join(' · ');
+        main.appendChild(addr); main.appendChild(meta);
+        const actions = document.createElement('div'); actions.className = 'opp-actions';
+        const restore = document.createElement('button'); restore.className = 'opp-btn-hold'; restore.textContent = 'Restore';
+        restore.addEventListener('click', () => patchLot(l.id, { status: 'opportunity', unsuitableReason: undefined, dismissedAt: undefined, unsuitableBy: undefined }));
+        actions.appendChild(restore);
+        row.appendChild(main); row.appendChild(actions);
+        list.appendChild(row);
+      });
     }
 
     // Offer Follow-Up Due — an offer is out but the deal hasn't moved to
@@ -2433,6 +2477,7 @@
       const lots = await loadLots();
       renderBuyBoxNotes();
       renderOpportunities(lots);
+      renderUnsuitable(lots);
       renderOfferFollowups(lots);
       renderReoffer(lots);
       renderFollowups(lots);
