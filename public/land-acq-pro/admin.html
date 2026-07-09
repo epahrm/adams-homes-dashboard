@@ -404,8 +404,17 @@
     .ops-reasons .rz b { color: #003d66; }
     .ops-empty { color: #99a; font-size: 13px; padding: 10px 4px; }
 
+    /* Back-to-top button */
+    .back-to-top { position: fixed; bottom: 24px; right: 24px; width: 48px; height: 48px; background: #1a5a3a; color: white; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; display: none; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 999; transition: background 0.3s, box-shadow 0.3s; }
+    .back-to-top:hover { background: #14472e; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .back-to-top.show { display: flex; }
+
+    /* Live Site link */
+    .live-site-link { position: fixed; top: 24px; right: 24px; text-decoration: none; color: #0a4f8e; font-size: 14px; font-weight: 500; z-index: 998; transition: color 0.2s; }
+    .live-site-link:hover { color: #003d66; text-decoration: underline; }
+
     @media print {
-      .topbar .logout, .filters, .actions, .pager, .back-link { display: none !important; }
+      .topbar .logout, .filters, .actions, .pager, .back-link, .back-to-top { display: none !important; }
     }
   </style>
 </head>
@@ -428,6 +437,7 @@
   </div>
 
   <div class="page">
+    <a class="live-site-link" href="https://palmbaylandoffer.com/land-acq-pro/admin.html" target="_blank" title="Open live site in new tab">Live Site →</a>
     <div class="topbar">
       <h1>Land Acquisition Pipeline</h1>
       <div class="who"><div class="avatar">K</div><div>Kevin Nelson |<br>Palm Bay Division</div></div>
@@ -1035,6 +1045,8 @@
       </div>
     </div>
   </div>
+
+  <button class="back-to-top" id="backToTop" title="Back to top" aria-label="Back to top">↑</button>
 
   <script>
     const STORE_KEY = 'landAcqSubmissions';
@@ -3320,6 +3332,19 @@
         const anchor = document.querySelector('.filters');
         if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
+    });
+
+    // Back-to-top button: show when scrolled down, scroll smoothly to top on click
+    const backToTopBtn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        backToTopBtn.classList.add('show');
+      } else {
+        backToTopBtn.classList.remove('show');
+      }
+    });
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     function applyUser() {
