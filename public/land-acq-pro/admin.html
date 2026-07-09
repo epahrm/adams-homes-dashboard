@@ -1730,6 +1730,11 @@
     function renderOfferFollowups(lots) {
       const block = document.getElementById('offerFollowBlock');
       const list = document.getElementById('offerFollowList');
+      // The "Awaiting Seller Response" block was folded into the Offers Sent box
+      // at the top of the dashboard, so its element no longer exists. Bail out
+      // safely if it's absent — a null here would throw and abort render(),
+      // which previously left the calendar/KPIs/metrics blank.
+      if (!block || !list) return;
       const now = Date.now();
       const due = lots
         .filter(l => (l.displayStatus || l.status) === 'offer-sent')
