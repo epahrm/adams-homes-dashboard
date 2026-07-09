@@ -39,3 +39,29 @@ backToTopBtn.addEventListener('click', () => {
 - Smooth scroll animation to top
 - Accessible with aria-label and title
 - Hidden in print mode
+
+### Live Site Link (Top-Right)
+Add a persistent "Live Site →" link in the top-right corner so the site URL is always accessible without scrolling. This link should be visible during development/builds.
+
+**Implementation:**
+
+1. **CSS** - Add to `<style>` section:
+```css
+.live-site-link { position: fixed; top: 24px; right: 24px; text-decoration: none; color: #0a4f8e; font-size: 14px; font-weight: 500; z-index: 998; transition: color 0.2s; }
+.live-site-link:hover { color: #003d66; text-decoration: underline; }
+@media print { .live-site-link { display: none !important; } }
+```
+
+2. **HTML** - Add link in the `<body>` or after opening `<div class="page">`:
+```html
+<a class="live-site-link" href="REPLACE_WITH_PREVIEW_URL" target="_blank" title="Open preview in new tab">Live Site →</a>
+```
+
+3. **Setup** - Replace `REPLACE_WITH_PREVIEW_URL` with the actual preview/production URL
+
+**Features:**
+- Fixed position, always visible without scrolling
+- Simple text link with arrow, minimal styling
+- Opens in new tab
+- Hidden in print mode
+- Non-intrusive, doesn't interfere with page content
