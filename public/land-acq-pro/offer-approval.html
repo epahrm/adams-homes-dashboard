@@ -625,7 +625,7 @@
       const stip = stipendForLot();
       document.getElementById('stipendVal').textContent = stip == null ? 'Set utility type' : money(stip);
       const t = document.getElementById('utilityType').value || inferUtilityType(lot);
-      document.getElementById('stipendUtil').textContent = t ? '(' + STIPEND_LABELS[t] + ')' : '';
+      document.getElementById('stipendUtil').textContent = '';
       const offer = num(document.getElementById('offerAmount').value);
       const warn = document.getElementById('overWarn');
       if (stip != null && offer > stip) {
