@@ -104,6 +104,10 @@
        into a wrap. flex-grow fills whatever room is actually available. */
     .row2 > .opps, .row2 > .metrics { flex: 1 1 380px; min-width: 0; margin-bottom: 0; }
     @media (max-width: 720px) { .row2 { flex-direction: column; } }
+    /* Compact offers sent at top */
+    .row-compact { margin-bottom: 16px; }
+    .opps-compact { border: 2px solid #0a4f8e; border-radius: 8px; background: #f2f8ff; padding: 10px 12px; }
+    .opps-compact .opp-row { padding: 8px 10px; margin-bottom: 6px; }
     .opps h3 { color: #123a63; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
     .opps h3 span { text-transform: none; letter-spacing: 0; font-weight: 400; color: #4a6b8f; font-size: 13px; }
     .opps .opps-sub { font-size: 12px; color: #5a7290; margin-bottom: 12px; }
@@ -457,14 +461,18 @@
            stalling, not a routine metric. Reminder stays visible (and its
            "Xd overdue" count keeps climbing) every 3 days Kevin hasn't logged
            a follow-up touch. -->
-      <div class="opps" id="offerFollowBlock" style="display:none; border-color:#c0392b; background:#fdf3f1;">
-        <h3 style="color:#c0392b;">Awaiting Seller Response <span>&mdash; offer sent, not moving toward signature</span></h3>
-        <div class="opps-sub" id="offerFollowSub"></div>
-        <div id="offerFollowList"></div>
+      <!-- OFFERS SENT — top of dashboard, compact -->
+      <div class="row-compact">
+        <div class="opps-compact" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
+          <h3 style="color:#0a4f8e; margin:0 0 8px 0;">Offers Sent</h3>
+          <div class="opps-sub" id="followupSub" style="font-size:12px; margin-bottom:8px;"></div>
+          <div id="followupList"></div>
+        </div>
       </div>
 
-      <!-- Compact stipend panel -->
-      <div class="stipend-panel">
+      <div class="row2">
+        <!-- Compact stipend panel (half width) -->
+        <div class="stipend-panel" style="flex:1;">
         <div class="stipend-head">
           <h3>Approved Lot Stipend: Palm Bay</h3>
           <button type="button" class="stipend-edit" id="stipendEditBtn">Update Stipend</button>
@@ -479,10 +487,22 @@
           </div>
         </form>
         <div class="stipend-msg" id="stipendMsg"></div>
-        <details class="stipend-audit">
-          <summary>Change history</summary>
-          <ul id="stipendAuditList"><li class="empty">No changes recorded yet.</li></ul>
+        <details class="stipend-audit" style="margin-top:8px;">
+          <summary style="font-size:12px;">Change history</summary>
+          <ul id="stipendAuditList" style="font-size:11px;"><li class="empty">No changes recorded yet.</li></ul>
         </details>
+      </div>
+        <!-- Quick metrics (compact sidebar) -->
+        <div class="metrics" style="flex:1; margin-left:16px;">
+          <h3 style="margin-top:0;">Quick Metrics</h3>
+          <div class="metrics-grid" style="grid-template-columns:1fr;">
+            <div class="mtile"><div class="m-lbl">Closed This Month</div><div class="m-val" id="mClosedMonth">0</div></div>
+            <div class="mtile"><div class="m-lbl">Pending Closings</div><div class="m-val" id="mPendingClose">0</div></div>
+            <div class="mtile"><div class="m-lbl">Scheduled to Close</div><div class="m-val" id="mScheduled">0</div></div>
+            <div class="mtile"><div class="m-lbl">Offer Acceptance</div><div class="m-val" id="mAcceptance">&ndash;</div></div>
+            <div class="mtile"><div class="m-lbl">Avg Days to Close</div><div class="m-val" id="mDays">&ndash;</div></div>
+          </div>
+        </div>
       </div>
 
       <!-- Buy Box reference — the rules the triage runs on, kept in sync with
@@ -526,12 +546,6 @@
           <div class="opps-sub" id="holdsSub"></div>
           <div id="holdsList"></div>
         </div>
-        <!-- Offers Sent: track contracts sent to sellers for follow-up -->
-        <div class="opps" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
-          <h3 style="color:#0a4f8e;">Offers Sent <span>&mdash; contracts out for seller response</span></h3>
-          <div class="opps-sub" id="followupSub"></div>
-          <div id="followupList"></div>
-        </div>
       </div>
 
       <div class="kpi-grid">
@@ -545,18 +559,6 @@
       </div>
 
       <div class="target"><b>Target:</b> 50 accepted contracts/month | <b>Accepted this month:</b> <span id="targetCurrent">0</span> <span id="targetCheck"></span></div>
-
-      <!-- Quick metrics (compact) -->
-      <div class="metrics">
-        <h3>Quick Metrics</h3>
-        <div class="metrics-grid">
-          <div class="mtile"><div class="m-lbl">Closed This Month</div><div class="m-val" id="mClosedMonth">0</div></div>
-          <div class="mtile"><div class="m-lbl">Pending Closings</div><div class="m-val" id="mPendingClose">0</div></div>
-          <div class="mtile"><div class="m-lbl">Scheduled to Close</div><div class="m-val" id="mScheduled">0</div></div>
-          <div class="mtile"><div class="m-lbl">Offer Acceptance</div><div class="m-val" id="mAcceptance">&ndash;</div></div>
-          <div class="mtile"><div class="m-lbl">Avg Days to Close</div><div class="m-val" id="mDays">&ndash;</div></div>
-        </div>
-      </div>
 
       <!-- Contract stats over time: month / quarter / year-to-date -->
       <div class="metrics">
