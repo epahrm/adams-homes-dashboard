@@ -77,6 +77,24 @@
     .chat-input { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #e2e8f0; background: white; }
     .chat-input textarea { flex: 1; border: 1px solid #ccc; border-radius: 8px; padding: 9px; font-family: inherit; font-size: 14px; resize: none; height: 42px; }
     .chat-input button { background: var(--blue); color: white; border: none; border-radius: 8px; padding: 0 16px; font-weight: 700; cursor: pointer; }
+
+    /* Milestone Tracker */
+    .milestone-timeline { position: relative; }
+    .milestone-timeline::before { content: ''; position: absolute; left: 19px; top: 40px; bottom: 0; width: 2px; background: #dde3ea; }
+    .milestone { display: flex; gap: 16px; margin-bottom: 24px; position: relative; }
+    .milestone:last-child { margin-bottom: 0; }
+    .milestone-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; position: relative; z-index: 1; background: white; border: 2px solid #dde3ea; }
+    .milestone.completed .milestone-icon { background: #1a7a44; border-color: #1a7a44; color: white; }
+    .milestone.active .milestone-icon { background: var(--red); border-color: var(--red); color: white; box-shadow: 0 0 0 3px rgba(192, 67, 47, 0.15); }
+    .milestone-content { padding-top: 6px; flex: 1; }
+    .milestone-label { font-weight: 600; color: var(--ink); font-size: 14px; margin-bottom: 4px; }
+    .milestone.completed .milestone-label { color: #1a7a44; }
+    .milestone.active .milestone-label { color: var(--red); }
+    .milestone.pending .milestone-label { color: #667; }
+    .milestone-message { font-size: 12px; color: #667; line-height: 1.5; }
+    .milestone.active .milestone-message { color: var(--ink); font-weight: 500; }
+    .status-badge { display: inline-block; background: rgba(26, 122, 68, 0.1); color: #1a7a44; font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 3px; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .milestone.active .status-badge { background: rgba(192, 67, 47, 0.1); color: var(--red); }
   </style>
 </head>
 <body>
@@ -90,6 +108,13 @@
 
   <div class="container">
     <div class="error-card" id="errorCard"></div>
+
+    <!-- Milestone Tracker -->
+    <div class="card" id="milestoneCard" style="display:none;">
+      <h2 style="margin-bottom:20px;">Your Hiring Journey</h2>
+      <div class="milestone-timeline" id="milestoneTimeline"></div>
+      <div class="progress-label" id="progressLabel" style="margin-top:20px;padding-top:20px;border-top:1px solid #dde3ea;font-size:12px;color:#667;"></div>
+    </div>
 
     <!-- Welcome / camera check -->
     <div class="card" id="welcomeCard" style="display:none;">
@@ -441,7 +466,30 @@
       } catch (e) { /* transient */ }
     }
 
+    function renderMilestoneTracker() {
+      const milestones = [
+        { icon: '✓', label: 'Application & Intro Video Submitted', msg: 'You\'ve completed the pre-interview application and submitted your intro video. Your submission is heading to our leadership team for review.', status: 'Completed' },
+        { icon: '👀', label: 'Under Leadership Review', msg: 'Your application and video are being reviewed by our leadership team.', status: 'In Progress' },
+        { icon: '🏆', label: 'Invited to Virtual Assessment', msg: 'Congratulations! You\'ve been selected to advance to our Virtual Assessment Center.', status: 'Invited' },
+        { icon: '🤝', label: 'Virtual Assessment Complete', msg: 'Thank you for your time and energy today. Our team will be reviewing everything very closely and we\'ll be in touch soon. Your success is important to us.', status: 'Complete' },
+        { icon: '💎', label: 'Invited to Final Interview', msg: 'Excellent! You\'ve advanced to our final step, the in-person interview.', status: 'Invited' },
+        { icon: '🎉', label: 'Final Interview Complete', msg: 'Thank you for meeting with us. Our team will be in touch soon with our decision.', status: 'Complete' },
+        { icon: '💌', label: 'Offer or Next Steps', msg: 'We\'ll let you know about your next steps with Adams Homes.', status: 'Pending' },
+      ];
+      const statusMap = { 'applied': 0, 'under_review': 1, 'advanced': 2, 'scheduled': 2, 'interviewed': 4, 'offer_sent': 6 };
+      const current = statusMap[candData?.status] ?? 0;
+      let html = '';
+      milestones.forEach((m, i) => {
+        const cls = i < current ? 'completed' : (i === current ? 'active' : 'pending');
+        html += `<div class="milestone ${cls}"><div class="milestone-icon">${m.icon}</div><div class="milestone-content"><div class="milestone-label">${m.label}</div><div class="milestone-message">${m.msg}</div><div class="status-badge">${m.status}</div></div></div>`;
+      });
+      el('milestoneTimeline').innerHTML = html;
+      el('progressLabel').textContent = '📊 Progress: ' + (current) + ' of ' + milestones.length + ' completed';
+      if (current > 0 || candData?.status) el('milestoneCard').style.display = 'block';
+    }
+
     init();
+    renderMilestoneTracker();
   </script>
 </body>
 </html>
