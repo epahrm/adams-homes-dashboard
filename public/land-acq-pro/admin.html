@@ -901,14 +901,6 @@
             </select>
           </div>
           <div><label for="dOffer">Offer Amount</label><input type="text" id="dOffer" placeholder="$30,000"></div>
-          <div><label for="dUtility">Utility Type</label>
-            <select id="dUtility">
-              <option value="">Default (Well/Septic $30k)</option>
-              <option value="well-septic">Well / Septic</option>
-              <option value="water-septic">Water / Septic</option>
-              <option value="water-sewer">Water / Sewer</option>
-            </select>
-          </div>
           <div><label for="dListing">Deal Type</label>
             <select id="dListing"><option value="off-market">Off-Market</option><option value="listed">On-Market (Listed / MLS)</option><option value="wholesaler">Wholesaler</option></select>
           </div>
@@ -2768,10 +2760,10 @@
     document.getElementById('exportCsv').addEventListener('click', () => {
       const lots = applyFilters(lastLots);
       const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-      const head = ['Address','List Price','Stipend','Utility Type','Status','Source','Owner','Parcel','Offer','Created'];
+      const head = ['Address','List Price','Stipend','Status','Source','Owner','Parcel','Offer','Created'];
       const lines = [head.join(',')].concat(lots.map(l => {
         const stip = lotStipend(l);
-        return [l.address, listPriceLabel(l), stip == null ? '' : money(stip), STIPEND_LABELS[inferUtilityType(l)] || '', PILL_LABELS[l.displayStatus] || l.displayStatus, l.source || 'QR Landing Page', l.owner || '', l.parcel || '', l.offer || '', l.createdAt].map(esc).join(',');
+        return [l.address, listPriceLabel(l), stip == null ? '' : money(stip), PILL_LABELS[l.displayStatus] || l.displayStatus, l.source || 'QR Landing Page', l.owner || '', l.parcel || '', l.offer || '', l.createdAt].map(esc).join(',');
       }));
       const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
       const a = document.createElement('a');
@@ -3121,7 +3113,6 @@
         if (f.offer) document.getElementById('dOffer').value = f.offer;
         document.getElementById('dStage').value = 'offer-sent';   // a contract means an offer is out
         if (f.legal) document.getElementById('dOwnerContact').value = 'Legal: ' + f.legal;
-        if (f.utilityType) document.getElementById('dUtility').value = f.utilityType;
         if (f.acceptedDate) document.getElementById('dAccepted').value = f.acceptedDate;
         if (f.daysOnMarket) document.getElementById('dDaysOnMarket').value = f.daysOnMarket;
         if (f.agentName || f.agentBrokerage || f.agentPhone || f.agentEmail || f.agentLicense) {
@@ -3158,7 +3149,6 @@
         owner: val('dOwner') || undefined,
         ownerContact: val('dOwnerContact') || undefined,
         offer: val('dOffer') || undefined,
-        utilityType: val('dUtility') || undefined,
         listingType: val('dListing'),
         source: isWholesaler ? 'Wholesaler' : (val('dSource') || 'Direct Mail'),
         daysOnMarket: val('dDaysOnMarket') ? parseInt(val('dDaysOnMarket'), 10) : undefined,
