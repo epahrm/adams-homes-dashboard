@@ -7,7 +7,8 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f5f7; color: #333; }
-    .page { max-width: 900px; margin: 0 auto; background: white; min-height: 100vh; }
+    .page { max-width: 1400px; margin: 0 auto; background: white; min-height: 100vh; }
+    @media (max-width: 900px) { .page { max-width: 900px; } }
 
     /* Header */
     .topbar { background: #003d66; color: white; padding: 24px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
@@ -144,7 +145,10 @@
     .sweep-msg.ok { background: #e8f2ec; color: #14401d; }
     .sweep-msg.warn { background: #fdf3e6; color: #8a5200; }
     .opp-main { flex: 1; min-width: 0; }
-    .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; }
+    .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; cursor: pointer; position: relative; padding: 2px 0; }
+    .opp-addr:hover { text-decoration: underline; }
+    .opp-addr-edit { display: inline-block; width: 100%; }
+    .opp-addr-edit input { font-family: inherit; font-size: 15px; font-weight: 600; color: #003d66; border: 1px solid #0a4f8e; border-radius: 4px; padding: 6px 8px; width: 100%; }
     .opp-meta { font-size: 13px; color: #667; margin-top: 2px; }
     .opp-last { font-size: 12.5px; color: #8a6d3b; margin-top: 2px; font-style: italic; }
     .opp-reason { font-size: 12px; margin-top: 4px; }
@@ -899,7 +903,7 @@
             <select id="dListing"><option value="off-market">Off-Market</option><option value="listed">On-Market (Listed / MLS)</option><option value="wholesaler">Wholesaler</option></select>
           </div>
           <div><label for="dSource">Lead Source</label>
-            <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Wholesaler</option><option>Referral</option><option>Other</option></select>
+            <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>MLS - On Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Wholesaler</option><option>Referral</option><option>Other</option></select>
           </div>
           <div><label for="dDaysOnMarket">Days on Market</label><input type="number" id="dDaysOnMarket" placeholder="0" min="0"></div>
           <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
@@ -1544,7 +1548,27 @@
       badge.className = 'light ' + ev.light;
       badge.textContent = ev.light === 'green' ? 'Ready' : 'Review';
       const main = document.createElement('div'); main.className = 'opp-main';
-      const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
+      const addr = document.createElement('div'); addr.className = 'opp-addr';
+      const editAddr = () => {
+        if (addr.querySelector('input')) return;
+        const orig = l.address || '—';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = orig;
+        addr.textContent = '';
+        addr.appendChild(input);
+        input.focus();
+        input.select();
+        const save = () => {
+          const newAddr = input.value.trim();
+          if (newAddr && newAddr !== orig) patchLot(l.id, { address: newAddr });
+          addr.textContent = newAddr || '—';
+        };
+        input.addEventListener('blur', save);
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { addr.textContent = orig; } });
+      };
+      addr.textContent = l.address || '—';
+      addr.addEventListener('click', editAddr);
       const meta = document.createElement('div'); meta.className = 'opp-meta';
       const metaParts = [l.source || 'Market Scan',
         l.mls ? 'MLS ' + l.mls : null,
