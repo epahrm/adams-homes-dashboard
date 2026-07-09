@@ -20,7 +20,7 @@ export const maxDuration = 60
 const GMAIL_USER = (process.env.LANDACQ_GMAIL_USER || '').trim().replace(/^["']|["']$/g, '')
 // App password is 16 lowercase letters shown as "abcd efgh ijkl mnop". Strip
 // the display spaces and any stray surrounding quotes so the IMAP LOGIN parses.
-const GMAIL_PASS = (process.env.LANDACQ_GMAIL_APP_PASSWORD || '').replace(/^["']|["']$/g, '').replace(/\s+/g, '')
+const GMAIL_PASS = (process.env.LANDACQ_GMAIL_APP_PASSWORD || '').trim().replace(/^["']+|["']+$/g, '').replace(/\s+/g, '')
 const CRON_SECRET = process.env.CRON_SECRET
 
 function authorized(req: NextRequest): boolean {
