@@ -64,7 +64,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Database unavailable' }, { status: 503 })
   }
 
-  const address = String(lot.address || '')
+  const addressOverride = (q.get('addressOverride') || '').trim()
+  const legalOverride = (q.get('legalOverride') || '').trim()
+  const parcelOverride = (q.get('parcelOverride') || '').trim()
+  const ownerOverride = (q.get('ownerOverride') || '').trim()
+  const lotSizeOverride = (q.get('lotSizeOverride') || '').trim()
+  const zoningOverride = (q.get('zoningOverride') || '').trim()
+  const utilitiesOverride = (q.get('utilitiesOverride') || '').trim()
+  const taxOverride = (q.get('taxOverride') || '').trim()
+
+  const address = addressOverride || String(lot.address || '')
   const offer = (q.get('offer') || String(lot.offer || '')).replace(/[^0-9.]/g, '')
   const listed = q.get('listed') === '1' || (q.get('listed') == null && lot.listingType === 'listed')
   const commPct = (q.get('commission') || '').replace(/[^0-9.]/g, '') || (listed ? '3' : '0')
@@ -73,30 +82,32 @@ export async function GET(req: NextRequest) {
   const parcel = await fetchParcel(address)
   const review: string[] = []
 
-  const sellerFromLot = (lot.owner as string) || [lot.firstName, lot.lastName].filter(Boolean).join(' ')
+  const sellerFromLot = ownerOverride || (lot.owner as string) || [lot.firstName, lot.lastName].filter(Boolean).join(' ')
   let seller = (parcel && parcel.OwnerName) ? String(parcel.OwnerName).trim() : (sellerFromLot || '')
   if (!parcel) review.push('Property not found in the Palm Bay county GIS — verify the owner of record, parcel ID, and legal description before sending.')
   else if (!parcel.OwnerName && sellerFromLot) review.push('Owner of record not returned by GIS — Seller name is from the listing; confirm current owner.')
   if (!seller) { seller = '____________________'; review.push('Seller name unconfirmed.') }
 
-  const parcelId = (parcel && (parcel.ParcelID || parcel.RENUM)) || (lot.parcel as string) || ''
-  let legal = ''
-  if (parcel && parcel.Lot && parcel.Blk) {
-    legal = `Lot ${parcel.Lot}, Block ${parcel.Blk}` +
-      (parcel.Sec ? `, Section ${parcel.Sec}` : '') +
-      (parcel.Twp ? `, Township ${parcel.Twp} S` : '') +
-      (parcel.Rng ? `, Range ${parcel.Rng} E` : '') +
-      (parcel.Sub ? ` (subdivision code ${parcel.Sub})` : '') + ', Brevard County, FL'
-    review.push('Confirm the recorded plat/subdivision name (e.g., Port Malabar Unit __) and Plat Book & Page — not available from GIS.')
-  } else {
-    legal = (lot.legal as string) || 'SEE COUNTY RECORD — NOT CONFIRMED'
-    review.push('Legal description (Lot/Block) not confirmed from county GIS — verify manually.')
+  const parcelId = parcelOverride || (parcel && (parcel.ParcelID || parcel.RENUM)) || (lot.parcel as string) || ''
+  let legal = legalOverride
+  if (!legal) {
+    if (parcel && parcel.Lot && parcel.Blk) {
+      legal = `Lot ${parcel.Lot}, Block ${parcel.Blk}` +
+        (parcel.Sec ? `, Section ${parcel.Sec}` : '') +
+        (parcel.Twp ? `, Township ${parcel.Twp} S` : '') +
+        (parcel.Rng ? `, Range ${parcel.Rng} E` : '') +
+        (parcel.Sub ? ` (subdivision code ${parcel.Sub})` : '') + ', Brevard County, FL'
+      review.push('Confirm the recorded plat/subdivision name (e.g., Port Malabar Unit __) and Plat Book & Page — not available from GIS.')
+    } else {
+      legal = (lot.legal as string) || 'SEE COUNTY RECORD — NOT CONFIRMED'
+      review.push('Legal description (Lot/Block) not confirmed from county GIS — verify manually.')
+    }
   }
-  const acreage = parcel && typeof parcel.Acreage === 'number' ? parcel.Acreage + ' acres'
-    : (lot.lotSize as string) || (lot.acres ? lot.acres + ' acres' : '—')
-  const useDesc = (parcel && parcel.UseCodeDesc && parcel.UseCodeDesc.trim()) || 'Vacant residential (verify)'
-  const assessed = parcel && typeof parcel.AssessedValue === 'number'
-    ? '$' + parcel.AssessedValue.toLocaleString('en-US') : (lot.taxValue as string) || '—'
+  const acreage = lotSizeOverride || (parcel && typeof parcel.Acreage === 'number' ? parcel.Acreage + ' acres'
+    : (lot.lotSize as string) || (lot.acres ? lot.acres + ' acres' : '—'))
+  const useDesc = zoningOverride || (parcel && parcel.UseCodeDesc && parcel.UseCodeDesc.trim()) || 'Vacant residential (verify)'
+  const assessed = taxOverride || (parcel && typeof parcel.AssessedValue === 'number'
+    ? '$' + parcel.AssessedValue.toLocaleString('en-US') : (lot.taxValue as string) || '—')
 
   // Listing-agent details (on-market / listed deals only) — populate the
   // Seller's-side broker block. License # is verified/entered by Kevin.
