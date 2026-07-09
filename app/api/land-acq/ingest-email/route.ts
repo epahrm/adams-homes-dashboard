@@ -99,19 +99,50 @@ export async function GET(req: NextRequest) {
             sourceEmail: from,
           }
           // Merge with existing lot data if it already exists (e.g., from Redfin sweep)
-          // Priority: Zillow agent info overwrites empty agent fields, but preserves existing values
+          // First try to insert; if conflict, update with agent info from Zillow
           const mergeData = JSON.stringify(data)
-          const res = await pool.query(
+          const addrKey = addressKey(li.address)
+
+          // Try to insert new lot
+          let res = await pool.query(
             `INSERT INTO land_acq_lots (address, address_key, status, data)
              VALUES ($1, $2, 'opportunity', $3)
-             ON CONFLICT (address_key) DO UPDATE SET
-               data = data || $3::jsonb,
-               status = CASE WHEN status = 'opportunity' THEN 'opportunity' ELSE status END
+             ON CONFLICT (address_key) DO NOTHING
              RETURNING id`,
-            [li.address, addressKey(li.address), mergeData]
+            [li.address, addrKey, mergeData]
           )
-          if (res.rows.length) added++
-          else duplicates++
+
+          if (res.rows.length) {
+            // New lot was inserted
+            added++
+          } else {
+            // Lot already exists - merge agent info into it
+            duplicates++
+            try {
+              // Fetch existing lot data and merge in agent fields
+              const existing = await pool.query(
+                'SELECT data FROM land_acq_lots WHERE address_key = $1',
+                [addrKey]
+              )
+              if (existing.rows.length) {
+                const existingData = existing.rows[0].data || {}
+                const merged = Object.assign({}, existingData, {
+                  agentName: li.agentName || existingData.agentName,
+                  agentPhone: li.agentPhone || existingData.agentPhone,
+                  agentEmail: li.agentEmail || existingData.agentEmail,
+                  agentBrokerage: li.brokerage || existingData.agentBrokerage,
+                  agentLicense: li.agentLicense || existingData.agentLicense,
+                  daysOnMarket: li.daysOnMarket || existingData.daysOnMarket,
+                })
+                await pool.query(
+                  'UPDATE land_acq_lots SET data = $1 WHERE address_key = $2',
+                  [JSON.stringify(merged), addrKey]
+                )
+              }
+            } catch (e) {
+              console.error('[land-acq] merge failed:', e)
+            }
+          }
         }
         // Mark handled so we don't re-scan it next run.
         await client.messageFlagsAdd(String(uid), ['\\Seen'], { uid: true })
