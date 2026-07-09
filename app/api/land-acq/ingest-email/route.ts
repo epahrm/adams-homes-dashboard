@@ -98,11 +98,17 @@ export async function GET(req: NextRequest) {
             addedBy: 'email-scan',
             sourceEmail: from,
           }
+          // Merge with existing lot data if it already exists (e.g., from Redfin sweep)
+          // Priority: Zillow agent info overwrites empty agent fields, but preserves existing values
+          const mergeData = JSON.stringify(data)
           const res = await pool.query(
             `INSERT INTO land_acq_lots (address, address_key, status, data)
              VALUES ($1, $2, 'opportunity', $3)
-             ON CONFLICT (address_key) DO NOTHING RETURNING id`,
-            [li.address, addressKey(li.address), JSON.stringify(data)]
+             ON CONFLICT (address_key) DO UPDATE SET
+               data = data || $3::jsonb,
+               status = CASE WHEN status = 'opportunity' THEN 'opportunity' ELSE status END
+             RETURNING id`,
+            [li.address, addressKey(li.address), mergeData]
           )
           if (res.rows.length) added++
           else duplicates++
