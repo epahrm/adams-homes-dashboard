@@ -89,9 +89,18 @@ export default function RecruitLanding() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
         <div className="rc-crest" style={{ width: 44, height: 44, fontSize: 17, borderRadius: 10 }}>{BRAND_INITIALS}</div>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800 }}>{BRAND_NAME}</h1>
-          <div className="rc-sub">{BRAND_TAGLINE}</div>
+          <h1 className="wordmark" style={{ fontSize: 24 }}>{BRAND_NAME}</h1>
+          <div className="eyebrow" style={{ color: 'var(--accent)' }}>{BRAND_TAGLINE}</div>
         </div>
+      </div>
+
+      <div style={{ margin: '26px 0 4px' }}>
+        <div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1.12, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
+          Your path.<br />Your game.<br /><span style={{ color: 'var(--accent)' }}>Your future.</span>
+        </div>
+        <p className="rc-sub" style={{ fontSize: 15, marginTop: 10 }}>
+          Expert guidance. Proven strategies. <span style={{ color: 'var(--accent)', fontWeight: 700 }}>Real</span> connections.
+        </p>
       </div>
 
       <div style={{ display: 'flex', gap: 8, margin: '22px 0 16px' }}>

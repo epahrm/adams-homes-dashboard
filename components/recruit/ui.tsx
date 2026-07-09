@@ -77,7 +77,7 @@ export function Shell({
     <>
       <header className="rc-appbar">
         <div className="rc-crest">{BRAND_INITIALS}</div>
-        <strong style={{ fontSize: 15 }}>{BRAND_NAME}</strong>
+        <strong className="wordmark" style={{ fontSize: 16 }}>{BRAND_NAME}</strong>
         <div className="rc-who">
           <span className="rc-rolepill">{roleLabel}</span>
           <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 180 }}>

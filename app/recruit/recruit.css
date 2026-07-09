@@ -1,25 +1,25 @@
-/* First Touch Recruiting design system — pitch green on chalk, amber for
-   dates/deadlines, scoreboard numerals for anything counted. */
+/* Cleats to College design system — navy & gold (per brand sheet), serif
+   wordmark, scoreboard numerals for anything counted. */
 
 .rc {
-  --bg: #f2f3ee;
+  --bg: #f6f5f1;
   --surface: #ffffff;
-  --surface2: #eaede4;
-  --ink: #1a2620;
-  --muted: #5c6b61;
-  --line: #d8ded3;
-  --brand: #1e5c38;
+  --surface2: #ecebe4;
+  --ink: #17223c;
+  --muted: #5b6474;
+  --line: #dcdcd4;
+  --brand: #1c2c50;
   --brand-ink: #ffffff;
-  --brand-soft: #e3eee6;
-  --accent: #c77e1f;
-  --accent-soft: #f6ebd9;
+  --brand-soft: #e7eaf3;
+  --accent: #b28a2e;
+  --accent-soft: #f5ecd6;
   --good: #2e7d4f;
   --good-soft: #e1efe6;
   --warn: #b97a18;
   --warn-soft: #f5ead4;
   --crit: #ae4436;
   --crit-soft: #f4e1de;
-  --shadow: 0 1px 2px rgba(26, 38, 32, 0.06), 0 8px 24px rgba(26, 38, 32, 0.07);
+  --shadow: 0 1px 2px rgba(23, 34, 60, 0.06), 0 8px 24px rgba(23, 34, 60, 0.08);
 
   background: var(--bg);
   color: var(--ink);
@@ -29,19 +29,25 @@
   -webkit-font-smoothing: antialiased;
 }
 
+.rc .wordmark {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
 @media (prefers-color-scheme: dark) {
   .rc {
-    --bg: #0f1713;
-    --surface: #17221c;
-    --surface2: #1e2b24;
-    --ink: #e8ede7;
-    --muted: #93a398;
-    --line: #2a382f;
-    --brand: #4fa477;
-    --brand-ink: #0f1713;
-    --brand-soft: #1e3328;
-    --accent: #e0a24a;
-    --accent-soft: #3a2e17;
+    --bg: #0e1526;
+    --surface: #16203a;
+    --surface2: #1d2a4a;
+    --ink: #e8ebf2;
+    --muted: #96a0b6;
+    --line: #2a3757;
+    --brand: #8aa6dd;
+    --brand-ink: #0e1526;
+    --brand-soft: #1e2c50;
+    --accent: #d9b25e;
+    --accent-soft: #3a2f14;
     --good: #55b183;
     --good-soft: #1c3427;
     --warn: #d99a3d;
