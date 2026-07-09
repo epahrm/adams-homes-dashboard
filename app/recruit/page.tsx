@@ -65,6 +65,25 @@ export default function RecruitLanding() {
     return Array.from({ length: 9 }, (_, i) => y + i)
   })()
 
+  async function startDemo(role: 'ATHLETE' | 'PARENT' | 'ADVISOR') {
+    setError('')
+    setBusy(true)
+    try {
+      const res = await fetch('/api/recruit/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error || 'Could not start the demo'); return }
+      router.push(role === 'ADVISOR' ? '/recruit/advisor' : '/recruit/dashboard')
+    } catch {
+      setError('Network error — please try again')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div style={{ maxWidth: 460, margin: '0 auto', padding: '56px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
@@ -134,6 +153,18 @@ export default function RecruitLanding() {
           {busy ? 'One moment…' : mode === 'login' ? 'Sign in' : 'Create account'}
         </button>
       </form>
+
+      <div className="rc-card" style={{ marginTop: 18, textAlign: 'center' }}>
+        <div className="eyebrow" style={{ color: 'var(--accent)' }}>Just looking? Take the tour</div>
+        <p className="rc-sub" style={{ margin: '6px 0 12px' }}>
+          Explore every screen with a pre-filled demo family — no password, nothing to set up.
+        </p>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button className="rc-btn primary" disabled={busy} onClick={() => startDemo('ATHLETE')}>Tour as athlete</button>
+          <button className="rc-btn ghost" disabled={busy} onClick={() => startDemo('PARENT')}>Tour as parent</button>
+          <button className="rc-btn ghost" disabled={busy} onClick={() => startDemo('ADVISOR')}>Tour as advisor</button>
+        </div>
+      </div>
 
       <p className="rc-sub" style={{ textAlign: 'center', marginTop: 18 }}>
         Guided by your advisor at every step — from first practice to signing day.

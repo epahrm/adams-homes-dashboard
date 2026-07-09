@@ -1,63 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { hashPassword } from '@/lib/auth'
-import { RECRUIT_DDL, RECRUIT_FKS } from '@/lib/recruit/schema-sql'
-import { STANDARD_TASKS, MODULES } from '@/lib/recruit/seed-content'
+import { ensureTables, seedContent, tablesExist, realAdvisorCount } from '@/lib/recruit/bootstrap'
 import { createToken, sessionCookie } from '@/lib/recruit/session'
 
 export const dynamic = 'force-dynamic'
-
-async function tablesExist(): Promise<boolean> {
-  const rows = await prisma.$queryRaw<{ count: bigint }[]>`
-    SELECT COUNT(*)::bigint AS count FROM information_schema.tables
-    WHERE table_name = 'RecUser'`
-  return rows.length > 0 && Number(rows[0].count) > 0
-}
-
-async function ensureTables() {
-  for (const sql of [...RECRUIT_DDL, ...RECRUIT_FKS]) {
-    await prisma.$executeRawUnsafe(sql)
-  }
-}
-
-async function seedContent() {
-  const taskCount = await prisma.recTask.count({ where: { athleteId: null } })
-  if (taskCount === 0) {
-    let order = 0
-    for (const t of STANDARD_TASKS) {
-      await prisma.recTask.create({
-        data: { band: t.band, order: order++, title: t.title, detail: t.detail, source: 'STANDARD' },
-      })
-    }
-  }
-  const moduleCount = await prisma.recModule.count()
-  if (moduleCount === 0) {
-    let mOrder = 0
-    for (const m of MODULES) {
-      await prisma.recModule.create({
-        data: {
-          slug: m.slug,
-          order: mOrder++,
-          title: m.title,
-          description: m.description,
-          band: m.band,
-          lessons: {
-            create: m.lessons.map((l, i) => ({
-              order: i, title: l.title, kind: l.kind, content: l.content,
-            })),
-          },
-        },
-      })
-    }
-  }
-}
 
 export async function GET() {
   try {
     const initialized = await tablesExist()
     let hasAdvisor = false
     if (initialized) {
-      hasAdvisor = (await prisma.recUser.count({ where: { role: 'ADVISOR' } })) > 0
+      hasAdvisor = (await realAdvisorCount()) > 0
     }
     return NextResponse.json({ initialized, hasAdvisor })
   } catch (e) {
@@ -79,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     await ensureTables()
 
-    const advisorCount = await prisma.recUser.count({ where: { role: 'ADVISOR' } })
+    const advisorCount = await realAdvisorCount()
     if (advisorCount > 0) {
       return NextResponse.json(
         { error: 'Setup has already been completed. Sign in instead.' },
