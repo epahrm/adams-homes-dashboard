@@ -17,9 +17,13 @@
   tell Elizabeth when the live preview is behind the repo.
 
 ## Communication
-- Include live link(s) (preview URL, PR) only with BIG pushes/meaningful
-  deploys — not with every small change (Elizabeth 2026-07-08). Same for
-  screenshots: save them for milestones.
+- LINK FOOTER (Elizabeth 2026-07-08, supersedes the big-pushes-only link
+  rule): during ANY active build session, end EVERY message with a
+  one-line footer: `🔗 Live: <deployed URL>` so the newest message always
+  has the site one tap away — Elizabeth must never scroll back to find
+  it. Append "(deploy pending — showing vN)" when the live site is behind
+  the repo. This applies across ALL builds/projects, not just travel.
+- Screenshots are still milestones-only.
 
 ## Travel planning
 - Before any trip-planning work, read `docs/travel/` in this order:
