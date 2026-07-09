@@ -1882,9 +1882,13 @@
     function renderFollowups(lots) {
       const block = document.getElementById('followupBlock');
       const list = document.getElementById('followupList');
+      // Every deal at the Offer Sent stage appears here, dated by the best
+      // available timestamp (confirmed-sent > generated > sent > accepted >
+      // created) so manually-added and contract-matched offers still show.
+      const sentStamp = l => l.offerConfirmedSentAt || l.generatedAt || l.offerSentAt || l.acceptedAt || l.createdAt || null;
       const offersSent = lots
-        .filter(l => l.status === 'offer-sent' && (l.offerConfirmedSentAt || l.offerSentAt))
-        .map(l => ({ l, sentAt: new Date(l.offerConfirmedSentAt || l.offerSentAt).getTime() }))
+        .filter(l => l.status === 'offer-sent')
+        .map(l => ({ l, sentAt: sentStamp(l) ? new Date(sentStamp(l)).getTime() : 0 }))
         .sort((a, b) => b.sentAt - a.sentAt);
       if (!offersSent.length) { block.style.display = 'none'; return; }
       block.style.display = 'block';
@@ -1896,7 +1900,9 @@
         const main = document.createElement('div'); main.className = 'opp-main';
         const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
         const meta = document.createElement('div'); meta.className = 'opp-meta';
-        meta.textContent = 'Contract sent ' + new Date(sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }).replace(',', '');
+        meta.textContent = sentAt
+          ? 'Contract sent ' + new Date(sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }).replace(',', '')
+          : 'Offer sent';
         main.appendChild(addr); main.appendChild(meta);
         const actions = document.createElement('div'); actions.className = 'opp-actions';
         const open = document.createElement('button'); open.className = 'opp-btn-add'; open.textContent = 'View Deal';
