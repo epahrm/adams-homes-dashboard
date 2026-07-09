@@ -654,10 +654,11 @@
 
       <!-- Unsuitable lots: marked by Kevin as unsuitable with reason (Flood/Power/Species/Neighbor/Other) -->
       <div class="opps" id="unsuitableBlock" style="display:none; border-color:#999; background:#f5f5f5;">
-        <h3 style="color:#666;">Unsuitable Lots <span>&mdash; marked as unsuitable with reason · searchable</span></h3>
+        <h3 style="color:#666;">Unsuitable Lots <span id="unsuitableCount" style="font-weight: normal; color: #999;"></span><span>&mdash; marked as unsuitable with reason · searchable</span></h3>
         <input type="search" class="opp-search" id="unsuitableSearch" placeholder="Search unsuitable — address, reason…">
         <div class="opps-sub" id="unsuitableSub"></div>
         <div id="unsuitableList"></div>
+        <button id="unsuitableExpandBtn" style="display:none; margin-top: 8px; padding: 6px 12px; font-size: 12px; background: #0a4f8e; color: white; border: none; border-radius: 4px; cursor: pointer;">Show all</button>
       </div>
 
       <div class="filters">
@@ -1759,15 +1760,23 @@
     function renderUnsuitable(lots) {
       const block = document.getElementById('unsuitableBlock');
       const list = document.getElementById('unsuitableList');
+      const expandBtn = document.getElementById('unsuitableExpandBtn');
+      const countSpan = document.getElementById('unsuitableCount');
       const q = (document.getElementById('unsuitableSearch') || {}).value || '';
       let unsuitable = lots.filter(l => l.status === 'dismissed' && l.unsuitableReason);
       if (q) unsuitable = unsuitable.filter(l => oppMatch(l, q));
-      unsuitable = unsuitable.sort((a, b) => new Date(b.dismissedAt || 0) - new Date(a.dismissedAt || 0));
+      unsuitable = unsuitable.sort((a, b) => {
+        if (a.unsuitableReason !== b.unsuitableReason) return a.unsuitableReason.localeCompare(b.unsuitableReason);
+        return new Date(b.dismissedAt || 0) - new Date(a.dismissedAt || 0);
+      });
       list.innerHTML = '';
       if (!unsuitable.length) { block.style.display = 'none'; return; }
       block.style.display = 'block';
-      document.getElementById('unsuitableSub').textContent = unsuitable.length + ' unsuitable · searchable by address, MLS, source, or reason';
-      unsuitable.forEach(l => {
+      countSpan.textContent = '(' + unsuitable.length + ' total) ';
+      document.getElementById('unsuitableSub').textContent = 'Sorted by reason · searchable by address, MLS, source, or reason';
+      const showCount = expandBtn.dataset.expanded === '1' ? unsuitable.length : 5;
+      const renderItems = unsuitable.slice(0, showCount);
+      renderItems.forEach(l => {
         const row = document.createElement('div'); row.className = 'opp-row gray';
         const main = document.createElement('div'); main.className = 'opp-main';
         const addr = document.createElement('div'); addr.className = 'opp-addr';
@@ -1784,6 +1793,19 @@
         row.appendChild(main); row.appendChild(actions);
         list.appendChild(row);
       });
+      if (unsuitable.length > 5) {
+        expandBtn.style.display = 'block';
+        expandBtn.textContent = expandBtn.dataset.expanded === '1' ? 'Show 5' : 'Show all (' + unsuitable.length + ')';
+        if (!expandBtn.dataset.wired) {
+          expandBtn.dataset.wired = '1';
+          expandBtn.addEventListener('click', () => {
+            expandBtn.dataset.expanded = expandBtn.dataset.expanded === '1' ? '0' : '1';
+            renderUnsuitable(lastLots);
+          });
+        }
+      } else {
+        expandBtn.style.display = 'none';
+      }
     }
 
     // Offer Follow-Up Due — an offer is out but the deal hasn't moved to
