@@ -1577,6 +1577,7 @@
         typeof l.listPrice === 'number' ? '<b>Listed ' + money(l.listPrice) + '</b>' : null,
         l.daysOnMarket ? l.daysOnMarket + ' DOM' : null,
         acresOf(l) != null ? acresOf(l) + ' ac' : null,
+        l.apn ? 'APN ' + l.apn : null,
         l.createdAt ? '<b>Added ' + new Date(l.createdAt).toLocaleDateString() + '</b>' : null].filter(Boolean).join(' · ');
       meta.innerHTML = metaParts;
       const reason = document.createElement('div'); reason.className = 'opp-reason';
