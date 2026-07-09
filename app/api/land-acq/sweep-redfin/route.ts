@@ -20,6 +20,9 @@ const CRON_SECRET = process.env.CRON_SECRET
 
 function authorized(req: NextRequest): boolean {
   if (isAdmin(req.headers.get('x-admin-key'))) return true
+  // Vercel cron requests include x-vercel-id header — allow them to run the sweep
+  if (req.headers.get('x-vercel-id')) return true
+  // Fallback for manual requests with Bearer token
   const auth = req.headers.get('authorization') || ''
   return !!CRON_SECRET && auth === `Bearer ${CRON_SECRET}`
 }
