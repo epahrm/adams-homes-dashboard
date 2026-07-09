@@ -92,10 +92,12 @@
     #nlWebGroup h3 { color: #b3400a; }
     #nlWebGroup h3 .nl-count { background: #c0392b; }
     .nl-urgent-note { font-size: 12px; color: #b3400a; margin-bottom: 8px; font-weight: 600; }
-    .lead-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+    #nlWebList, #nlMktList { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin-bottom: 6px; }
+    .lead-row { display: flex; flex-direction: column; gap: 12px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 12px; }
     #nlWebGroup .lead-row { border-color: #f2c6ba; }
     .lead-row:last-child { margin-bottom: 0; }
-    .lead-row .l-main { min-width: 0; flex: 1; }
+    .lead-row .l-main { flex: 1; }
+    .lead-row .l-cta { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
     .lead-row .l-addr { font-weight: 600; color: #003d66; font-size: 15px; }
     .lead-row .l-meta { font-size: 13px; color: #667; margin-top: 2px; }
     .lead-row .l-when { font-size: 11.5px; color: #8a94a0; margin-top: 2px; }
@@ -104,8 +106,7 @@
     .lead-row .l-dnc { display: inline-block; background: #b3261e; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 0.6px; padding: 2px 7px; border-radius: 4px; margin-top: 4px; }
     .lead-row.l-dncrow { opacity: 0.6; }
     .lead-row .l-src { display: inline-block; background: #eef4fb; color: #1a5ba5; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; padding: 2px 7px; border-radius: 4px; margin-top: 4px; }
-    .lead-row .l-cta { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
-    .lead-row .l-cta button { font-family: inherit; font-size: 12.5px; font-weight: 700; min-height: 34px; padding: 6px 12px; border-radius: 6px; cursor: pointer; white-space: nowrap; border: 1px solid transparent; }
+    .lead-row .l-cta button { font-family: inherit; font-size: 12.5px; font-weight: 700; min-height: 34px; padding: 6px 12px; border-radius: 6px; cursor: pointer; white-space: normal; border: 1px solid transparent; }
     .l-btn-offer { background: #0a4f8e; color: #fff; }
     .l-btn-email { background: #fff; color: #0a4f8e; border-color: #0a4f8e !important; }
     .l-btn-test { background: #fff; color: #6b7280; border-color: #cdd6e0 !important; }
