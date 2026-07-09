@@ -70,7 +70,6 @@ export async function GET(req: NextRequest) {
   const ownerOverride = (q.get('ownerOverride') || '').trim()
   const lotSizeOverride = (q.get('lotSizeOverride') || '').trim()
   const zoningOverride = (q.get('zoningOverride') || '').trim()
-  const utilitiesOverride = (q.get('utilitiesOverride') || '').trim()
   const taxOverride = (q.get('taxOverride') || '').trim()
 
   const address = addressOverride || String(lot.address || '')
