@@ -526,9 +526,9 @@
           <div class="opps-sub" id="holdsSub"></div>
           <div id="holdsList"></div>
         </div>
-        <!-- Follow-Up Cadence: keeps every seller lead on a multi-touch sequence -->
+        <!-- Offers Sent: track contracts sent to sellers for follow-up -->
         <div class="opps" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
-          <h3 style="color:#0a4f8e;">Follow-Ups Due <span>&mdash; keep every lead on the cadence</span></h3>
+          <h3 style="color:#0a4f8e;">Offers Sent <span>&mdash; contracts out for seller response</span></h3>
           <div class="opps-sub" id="followupSub"></div>
           <div id="followupList"></div>
         </div>
@@ -1853,45 +1853,26 @@
     function renderFollowups(lots) {
       const block = document.getElementById('followupBlock');
       const list = document.getElementById('followupList');
-      const now = Date.now();
-      const due = lots
-        .filter(l => CADENCE_STAGES.includes(l.displayStatus || l.status))
-        .map(l => ({ l, cs: cadenceState(l) }))
-        .filter(x => !x.cs.done && new Date(x.cs.dueAt).getTime() <= now)
-        .sort((a, b) => new Date(a.cs.dueAt) - new Date(b.cs.dueAt));
-      if (!due.length) { block.style.display = 'none'; return; }
+      const offersSent = lots
+        .filter(l => l.status === 'offer-sent' && (l.offerConfirmedSentAt || l.offerSentAt))
+        .map(l => ({ l, sentAt: new Date(l.offerConfirmedSentAt || l.offerSentAt).getTime() }))
+        .sort((a, b) => b.sentAt - a.sentAt);
+      if (!offersSent.length) { block.style.display = 'none'; return; }
       block.style.display = 'block';
-      const overdue = due.filter(x => (now - new Date(x.cs.dueAt).getTime()) > 86400000).length;
       document.getElementById('followupSub').textContent =
-        due.length + ' follow-up' + (due.length === 1 ? '' : 's') + ' due' + (overdue ? ' · ' + overdue + ' overdue' : '') + ' — log each touch to advance the cadence.' + capNote(due.length);
+        offersSent.length + ' offer' + (offersSent.length === 1 ? '' : 's') + ' sent — check status' + capNote(offersSent.length);
       list.innerHTML = '';
-      due.slice(0, FOLLOWUP_CAP).forEach(({ l, cs }) => {
+      offersSent.slice(0, FOLLOWUP_CAP).forEach(({ l, sentAt }) => {
         const row = document.createElement('div'); row.className = 'opp-row blue';
         const main = document.createElement('div'); main.className = 'opp-main';
         const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
-        const daysOver = Math.floor((now - new Date(cs.dueAt).getTime()) / 86400000);
-        const touches = Array.isArray(l.cadenceLog) ? l.cadenceLog.length : 0;
         const meta = document.createElement('div'); meta.className = 'opp-meta';
-        meta.textContent = 'Step ' + (cs.step + 1) + ' of ' + CADENCE.length + ' · ' + cs.action.channel +
-          (daysOver > 0 ? ' · ' + daysOver + 'd overdue' : ' · due today') +
-          (touches ? ' · ' + touches + ' touch' + (touches === 1 ? '' : 'es') + ' logged' : '');
-        // Last activity taken, so Kevin sees what was already done and what's next.
-        const lastTouch = (Array.isArray(l.cadenceLog) && l.cadenceLog[0]) ? l.cadenceLog[0] : null;
-        const last = document.createElement('div'); last.className = 'opp-last';
-        last.textContent = lastTouch
-          ? 'Last activity: ' + lastTouch.channel + ' on ' + new Date(lastTouch.at).toLocaleDateString() + (lastTouch.by ? ' · ' + lastTouch.by : '')
-          : 'Last activity: none yet — first touch';
-        const reason = document.createElement('div'); reason.className = 'opp-reason';
-        reason.textContent = '➡ Next: ' + cs.action.label;
-        main.appendChild(addr); main.appendChild(meta); main.appendChild(last); main.appendChild(reason);
+        meta.textContent = 'Contract sent ' + new Date(sentAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }).replace(',', '');
+        main.appendChild(addr); main.appendChild(meta);
         const actions = document.createElement('div'); actions.className = 'opp-actions';
-        const done = document.createElement('button'); done.className = 'opp-btn-add'; done.textContent = 'Log Touch ✓';
-        done.addEventListener('click', () => logTouch(l));
-        const snooze = document.createElement('button'); snooze.className = 'opp-btn-hold'; snooze.textContent = 'Snooze 3d';
-        snooze.addEventListener('click', () => patchLot(l.id, { cadenceNextAt: new Date(now + 3 * 86400000).toISOString() }));
-        const open = document.createElement('button'); open.className = 'opp-btn-skip'; open.textContent = 'Open';
+        const open = document.createElement('button'); open.className = 'opp-btn-add'; open.textContent = 'View Deal';
         open.addEventListener('click', () => { window.location.href = 'offer-approval.html?id=' + l.id; });
-        actions.appendChild(done); actions.appendChild(snooze); actions.appendChild(open);
+        actions.appendChild(open);
         row.appendChild(main); row.appendChild(actions);
         list.appendChild(row);
       });
