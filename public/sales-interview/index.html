@@ -200,11 +200,22 @@ textarea { min-height: 100px; resize: vertical; }
 </ul>
 
 <p style="margin-top: 24px; padding: 12px; background: rgba(26, 58, 112, 0.05); border-radius: 4px;"><strong>Ready to Build Your Future?</strong> If you're ready to join a team where performance is rewarded, opportunities are abundant, and your income reflects your results, start your application today.</p>
+
+<div style="background: #f8fafb; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 20px 0;">
+  <div style="display: flex; gap: 12px; align-items: flex-start;">
+    <input type="checkbox" id="acknowledgment" style="width: 20px; height: 20px; margin-top: 2px; cursor: pointer; flex-shrink: 0;">
+    <label for="acknowledgment" style="margin: 0; cursor: pointer; font-size: 14px; line-height: 1.5;">
+      <strong>Before applying, I understand that:</strong><br>
+      This is an onsite sales position requiring weekend availability, continuous learning, accountability, and a commitment to delivering an exceptional customer experience.
+    </label>
+  </div>
+  <p style="margin: 12px 0 0 32px; font-size: 13px; color: #5c6480;">I understand and would like to continue.</p>
+</div>
 </div>
 
 <div class="modal-buttons">
 <button class="btn btn-secondary" onclick="skipJobDesc()">Back</button>
-<button class="btn btn-primary" onclick="startApplication()">Start Application</button>
+<button class="btn btn-primary" id="startAppBtn" onclick="startApplication()" disabled>Start Application</button>
 </div>
 </div>
 </div>
@@ -261,6 +272,13 @@ async function loadQuestions() {
 async function init() {
   renderCards();
   try { await loadQuestions(); } catch (e) { /* retried on demand in startApplication */ }
+  const ackCheckbox = document.getElementById('acknowledgment');
+  const startBtn = document.getElementById('startAppBtn');
+  if (ackCheckbox && startBtn) {
+    ackCheckbox.addEventListener('change', () => {
+      startBtn.disabled = !ackCheckbox.checked;
+    });
+  }
 }
 
 function openJobDesc(code) {
