@@ -45,6 +45,9 @@ export function defaultNotification(
   extra?: {
     interviewUrl?: string
     sessionDate?: string
+    teamsUrl?: string
+    managerName?: string
+    managerEmail?: string
     offer?: { commission?: string; startDate?: string }
   }
 ): { subject: string; html: string; text: string } {
@@ -63,12 +66,28 @@ export function defaultNotification(
       }
     case 'scheduled':
       return {
-        subject: 'Your Adams Homes group interview is scheduled',
-        text: `Hi ${firstRaw}, you're scheduled for the Adams Homes ${division} group interview${extra?.sessionDate ? ' on ' + extra.sessionDate : ''}. A Microsoft Teams link will follow. Please join 10 minutes early.`,
+        subject: 'Congratulations—You\'re Invited to Your Adams Homes Team Assessment',
+        text: `Hi ${firstRaw}, congratulations! You impressed us, and we'd like to invite you to participate in our team assessment for the ${division} location${extra?.sessionDate ? ' on ' + extra.sessionDate : ''}. We hire professionals who prepare—please spend 30 minutes learning about Adams Homes before your assessment. Questions? Contact ${extra?.managerName} at ${extra?.managerEmail}.`,
         html: WRAP(`
           <p>Hi ${first},</p>
-          <p>Great news &mdash; you're scheduled for our <b>group interview</b> for the ${division} team${extra?.sessionDate ? ' on <b>' + extra.sessionDate + '</b>' : ''}.</p>
-          <p>You'll receive a Microsoft Teams link before the interview. Please join 10 minutes early, camera on, dressed like you're meeting a buyer.</p>`),
+          <p><b>Congratulations!</b> You impressed us, and we'd like to invite you to participate in our team assessment.</p>
+
+          <h3 style="font-size:16px;margin:20px 0 10px;color:#1a3a70;">Interview Details</h3>
+          <ul style="margin:10px 0 20px;padding-left:20px;">
+            <li><b>Date & Time:</b> ${extra?.sessionDate || 'TBD'}</li>
+            <li><b>Format:</b> Virtual (Microsoft Teams)</li>
+            ${extra?.teamsUrl ? `<li><b>Teams Link:</b> <a href="${extra.teamsUrl}">${extra.teamsUrl}</a></li>` : ''}
+          </ul>
+
+          <h3 style="font-size:16px;margin:20px 0 10px;color:#1a3a70;">Before Your Assessment</h3>
+          <p>We hire professionals who prepare. Please spend 30 minutes learning about Adams Homes. Review our website and be prepared to discuss what you learned and why you believe you're the right fit.</p>
+          <p>We value preparation because that's exactly how we serve our customers.</p>
+
+          <h3 style="font-size:16px;margin:20px 0 10px;color:#1a3a70;">What to Wear</h3>
+          <p>Dress professionally—as if you're meeting with a customer. Business casual or better.</p>
+
+          <h3 style="font-size:16px;margin:20px 0 10px;color:#1a3a70;">Questions or Scheduling Conflict?</h3>
+          <p>If you have any questions or need to reschedule, please contact <b>${extra?.managerName}</b> at <b><a href="mailto:${extra?.managerEmail}">${extra?.managerEmail}</a></b>.</p>`),
       }
     case 'advanced':
       return {

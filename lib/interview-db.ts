@@ -126,6 +126,15 @@ export const DIVISIONS = [
   },
 ] as const
 
+// Sales managers by location (hiring contacts for candidate communication)
+export const MANAGERS = {
+  JAX: { name: 'Fernando Arruda', email: 'farruda@adamshomes.com' },
+  ORL: { name: 'Liza Carrasquillo', email: 'lcarrasquillo@adamshomes.com' },
+  DAY: { name: 'Eric Landrum', email: 'elandrum@adamshomes.com' },
+  MEL: { name: 'Kristi Worley', email: 'kworley@adamshomes.com' },
+  PSL: { name: 'Bob Frein', email: 'bfrein@adamshomes.com' },
+} as const
+
 // Round 1 competency framework (from HANDOFF Round 1 Interview Guide):
 // 4 competencies, 1-5 scale, straight average. 3.0+ advances.
 export const COMPETENCIES = [

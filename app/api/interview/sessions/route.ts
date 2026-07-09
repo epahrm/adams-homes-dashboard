@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { pool, ensureTables, isAdmin, COMPETENCIES } from '@/lib/interview-db'
+import { pool, ensureTables, isAdmin, COMPETENCIES, DIVISIONS, MANAGERS } from '@/lib/interview-db'
+import { defaultNotification, sendCandidateNotification } from '@/lib/interview-email'
 
 export const dynamic = 'force-dynamic'
 
@@ -193,6 +194,29 @@ export async function POST(request: NextRequest) {
          WHERE id = $1 AND status IN ('applied', 'video_complete', 'under_review')`,
         [candidateId]
       )
+      // Send pre-interview email with preparation instructions and manager contact info
+      const cand = await pool.query('SELECT * FROM vi_candidates WHERE id = $1', [candidateId])
+      const sess = await pool.query('SELECT * FROM vi_sessions WHERE id = $1', [sessionId])
+      if (cand.rows.length > 0 && sess.rows.length > 0) {
+        const c = cand.rows[0]
+        const s = sess.rows[0]
+        const sessionDate = `${s.session_date.getFullYear()}-${String(s.session_date.getMonth() + 1).padStart(2, '0')}-${String(s.session_date.getDate()).padStart(2, '0')}`
+        const divisionInfo = DIVISIONS.find((d) => d.code === c.division)
+        const divisionName = divisionInfo?.name || c.division
+        const manager = MANAGERS[c.division as keyof typeof MANAGERS]
+        const n = defaultNotification('scheduled', c.name, divisionName, {
+          sessionDate,
+          teamsUrl: s.teams_url || undefined,
+          managerName: manager?.name,
+          managerEmail: manager?.email,
+        })
+        sendCandidateNotification(
+          c.email,
+          n.subject,
+          n.html,
+          n.text
+        ).catch(() => {})
+      }
       return NextResponse.json({ session: await sessionDetail(sessionId) })
     }
 
