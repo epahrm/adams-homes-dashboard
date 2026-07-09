@@ -657,7 +657,7 @@
       const address = lot.address || ‘See Exhibit "A"’;
       const legalM = (lot.ownerContact || ‘’).match(/legal:\s*([^|]+)/i);
       const legal = lot.legal || (legalM ? legalM[1].trim() : ‘’) || ‘See Exhibit "A"’;
-      const parcel = lot.parcel || ‘See Exhibit "A"’;
+      const parcel = document.getElementById(‘parcelOverride’).value.trim() || lot.parcel || ‘See Exhibit "A"’;
       const c = resolveCommission();
       const commLine = c.listed
         ? c.pct + ‘% Buyer’s Agent Commission (‘ + money(c.amt) + ‘) — negotiated with Seller’s Broker, assigned to Buyer and credited to Buyer on the closing statement’
@@ -725,16 +725,16 @@
       const daysOnMarket = document.getElementById(‘daysOnMarket’).value.trim();
       const legalM = (lot.ownerContact || ‘’).match(/legal:\s*([^|]+)/i);
       const legal = lot.legal || (legalM ? legalM[1].trim() : ‘’) || ‘See Exhibit "A"’;
-      const parcel = lot.parcel || ‘See Exhibit "A"’;
+      const parcel = document.getElementById(‘parcelOverride’).value.trim() || lot.parcel || ‘See Exhibit "A"’;
       const c = resolveCommission();
       const commLine = c.listed
         ? c.pct + ‘% Buyer’s Agent Commission (‘ + money(c.amt) + ‘) — negotiated with Seller’s Broker, assigned to Buyer and credited to Buyer on the closing statement’
         : ‘$0’;
       const exp = lot.offerExpires ? fmtDate(lot.offerExpires) : fmtDate(addDays(new Date().toISOString(), OFFER_VALID_DAYS));
-      const lotSize = lot.lotSize || (lot.acres ? lot.acres + ‘ acres’ : ‘—‘);
-      const zoning = lot.zoning || ‘Residential (vacant)’;
-      const utilities = lot.utilities || ‘—‘;
-      const taxVal = lot.taxValue || ‘—‘;
+      const lotSize = document.getElementById(‘lotSizeOverride’).value.trim() || lot.lotSize || (lot.acres ? lot.acres + ‘ acres’ : ‘—‘);
+      const zoning = document.getElementById(‘zoningOverride’).value.trim() || lot.zoning || ‘Residential (vacant)’;
+      const utilities = document.getElementById(‘utilitiesOverride’).value.trim() || lot.utilities || ‘—‘;
+      const taxVal = document.getElementById(‘taxOverride’).value.trim() || lot.taxValue || ‘—‘;
       const annualTax = lot.annualTax || ‘’;
       const dueDilDays = parseInt(document.getElementById(‘dueDiligenceDays’).value) || 45;
       const closeBusinessDays = parseInt(document.getElementById(‘closeBusinessDays’).value) || 10;
