@@ -123,7 +123,7 @@
     /* .page caps out at 900px (≈856px content), so two columns have ~420px
        each to share — basis stays comfortably under half so they never trip
        into a wrap. flex-grow fills whatever room is actually available. */
-    .row2 > .opps, .row2 > .metrics, .row2 > .stack-col { flex: 1 1 380px; min-width: 0; margin-bottom: 0; }
+    .row2 > .opps, .row2 > .metrics, .row2 > .stack-col, .row2 > .newleads, .row2 > .opps-compact { flex: 1 1 380px; min-width: 0; margin-bottom: 0; }
     .stack-col { display: flex; flex-direction: column; gap: 14px; }
     @media (max-width: 720px) { .row2 { flex-direction: column; } }
     /* Compact offers sent at top */
@@ -481,30 +481,31 @@
       </div>
       <div class="import-msg" id="importMsg" style="display:none;"></div>
 
-      <!-- New leads — first thing Kevin sees on login. Split by urgency:
-           inbound website/QR leads (sellers reaching out to us) are the most
-           urgent; on-market leads are lots we sourced and can contract now. -->
-      <div class="newleads" id="newLeadsBlock" style="display:none;">
-        <div class="nl-group" id="nlWebGroup" style="display:none;">
-          <h3>Website Leads <span>&mdash; sellers reaching out for an offer</span>
-            <span class="nl-count" id="nlWebCount">0</span></h3>
-          <div class="nl-urgent-note">Most urgent &mdash; these sellers came to us. Respond first.</div>
-          <div id="nlWebList"></div>
+      <!-- New leads and Offers Sent side by side — top section -->
+      <div class="row2">
+        <!-- New leads — first thing Kevin sees on login. Split by urgency:
+             inbound website/QR leads (sellers reaching out to us) are the most
+             urgent; on-market leads are lots we sourced and can contract now. -->
+        <div class="newleads" id="newLeadsBlock" style="display:none;">
+          <div class="nl-group" id="nlWebGroup" style="display:none;">
+            <h3>Website Leads <span>&mdash; sellers reaching out for an offer</span>
+              <span class="nl-count" id="nlWebCount">0</span></h3>
+            <div class="nl-urgent-note">Most urgent &mdash; these sellers came to us. Respond first.</div>
+            <div id="nlWebList"></div>
+          </div>
+          <div class="nl-group" id="nlMktGroup" style="display:none;">
+            <h3>On-Market Leads <span>&mdash; listed lots ready to contract</span>
+              <span class="nl-count" id="nlMktCount">0</span></h3>
+            <div id="nlMktList"></div>
+          </div>
         </div>
-        <div class="nl-group" id="nlMktGroup" style="display:none;">
-          <h3>On-Market Leads <span>&mdash; listed lots ready to contract</span>
-            <span class="nl-count" id="nlMktCount">0</span></h3>
-          <div id="nlMktList"></div>
-        </div>
-      </div>
 
-      <!-- Awaiting seller response: offer sent but not moving toward Elizabeth's
-           signature within 3 days. Kept near the top — this is a live deal
-           stalling, not a routine metric. Reminder stays visible (and its
-           "Xd overdue" count keeps climbing) every 3 days Kevin hasn't logged
-           a follow-up touch. -->
-      <!-- OFFERS SENT — top of dashboard, compact -->
-      <div class="row-compact">
+        <!-- Awaiting seller response: offer sent but not moving toward Elizabeth's
+             signature within 3 days. Kept near the top — this is a live deal
+             stalling, not a routine metric. Reminder stays visible (and its
+             "Xd overdue" count keeps climbing) every 3 days Kevin hasn't logged
+             a follow-up touch. -->
+        <!-- OFFERS SENT — top of dashboard, compact -->
         <div class="opps-compact" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
           <h3 style="color:#0a4f8e; margin:0 0 8px 0;">Offers Sent</h3>
           <input type="search" class="opp-search" id="offerSentSearch" placeholder="Search offers sent — address, owner, MLS, agent…">
