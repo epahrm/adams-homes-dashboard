@@ -409,6 +409,10 @@
     .back-to-top:hover { background: #14472e; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     .back-to-top.show { display: flex; }
 
+    /* Live Site link */
+    .live-site-link { position: fixed; top: 24px; right: 24px; text-decoration: none; color: #0a4f8e; font-size: 14px; font-weight: 500; z-index: 998; transition: color 0.2s; }
+    .live-site-link:hover { color: #003d66; text-decoration: underline; }
+
     @media print {
       .topbar .logout, .filters, .actions, .pager, .back-link, .back-to-top { display: none !important; }
     }
@@ -433,6 +437,7 @@
   </div>
 
   <div class="page">
+    <a class="live-site-link" href="https://palmbaylandoffer.com/land-acq-pro/admin.html" target="_blank" title="Open live site in new tab">Live Site →</a>
     <div class="topbar">
       <h1>Land Acquisition Pipeline</h1>
       <div class="who"><div class="avatar">K</div><div>Kevin Nelson |<br>Palm Bay Division</div></div>
