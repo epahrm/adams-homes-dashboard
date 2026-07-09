@@ -1687,7 +1687,11 @@
 
     function renderOpportunities(lots) {
       wireOppSearch();
-      const opps = lots.filter(l => l.status === 'opportunity' && !l.doNotContact);
+      // Filter: status=opportunity, not do-not-contact, and not sold/pending on MLS
+      const opps = lots.filter(l =>
+        l.status === 'opportunity' && !l.doNotContact &&
+        l.listStatus !== 'Sold' && l.listStatus !== 'Pending'
+      );
       const scored = opps.map(l => ({ l, ev: evaluateBuyBox(l) }));
       const order = { green: 0, yellow: 1 };
       const actionable = scored
