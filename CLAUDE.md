@@ -40,8 +40,8 @@ backToTopBtn.addEventListener('click', () => {
 - Accessible with aria-label and title
 - Hidden in print mode
 
-### Live Site Link (Top-Right)
-Add a persistent "Live Site →" link in the top-right corner so the site URL is always accessible without scrolling. This link should be visible during development/builds.
+### Live Site Link (Top-Right, Mobile Responsive)
+Add a persistent "Live Site →" link in the top-right corner so the site URL is always accessible without scrolling. On mobile devices, moves to bottom-right below the back-to-top button for easy thumb access.
 
 **Implementation:**
 
@@ -49,6 +49,7 @@ Add a persistent "Live Site →" link in the top-right corner so the site URL is
 ```css
 .live-site-link { position: fixed; top: 24px; right: 24px; text-decoration: none; color: #0a4f8e; font-size: 14px; font-weight: 500; z-index: 998; transition: color 0.2s; }
 .live-site-link:hover { color: #003d66; text-decoration: underline; }
+@media (max-width: 640px) { .live-site-link { top: auto; bottom: 80px; } }
 @media print { .live-site-link { display: none !important; } }
 ```
 

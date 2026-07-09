@@ -73,7 +73,8 @@ export async function GET(req: NextRequest) {
   const col = (n: string) => hdr.indexOf(n)
   const iType = col('PROPERTY TYPE'), iAddr = col('ADDRESS'), iCity = col('CITY'),
     iZip = col('ZIP OR POSTAL CODE'), iPrice = col('PRICE'), iLot = col('LOT SIZE'),
-    iUrl = hdr.findIndex((h) => h.startsWith('URL')), iMls = col('MLS#')
+    iUrl = hdr.findIndex((h) => h.startsWith('URL')), iMls = col('MLS#'),
+    iApn = hdr.findIndex((h) => /PARCEL|APN|LOT ID/i.test(h))
 
   const candidates: Array<{ address: string; data: Record<string, unknown> }> = []
   for (let r = 1; r < rows.length; r++) {
@@ -91,6 +92,7 @@ export async function GET(req: NextRequest) {
     const city = (c[iCity] || 'Palm Bay').trim()
     if (!/palm bay/i.test(city)) continue
     const address = `${street}, ${city}, FL${zip ? ' ' + zip : ''}`
+    const apn = iApn >= 0 ? (c[iApn] || undefined) : undefined
     candidates.push({
       address,
       data: {
@@ -98,6 +100,7 @@ export async function GET(req: NextRequest) {
         listPrice: price, acres: acres ?? undefined,
         listingUrl: iUrl >= 0 ? (c[iUrl] || undefined) : undefined,
         mls: iMls >= 0 ? (c[iMls] || undefined) : undefined,
+        apn: apn ? apn.trim() : undefined,
         addedBy: 'redfin-sweep',
       },
     })

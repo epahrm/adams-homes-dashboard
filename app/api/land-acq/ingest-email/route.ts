@@ -20,11 +20,14 @@ export const maxDuration = 60
 const GMAIL_USER = (process.env.LANDACQ_GMAIL_USER || '').trim().replace(/^["']|["']$/g, '')
 // App password is 16 lowercase letters shown as "abcd efgh ijkl mnop". Strip
 // the display spaces and any stray surrounding quotes so the IMAP LOGIN parses.
-const GMAIL_PASS = (process.env.LANDACQ_GMAIL_APP_PASSWORD || '').replace(/^["']|["']$/g, '').replace(/\s+/g, '')
+const GMAIL_PASS = (process.env.LANDACQ_GMAIL_APP_PASSWORD || '').trim().replace(/^["']+|["']+$/g, '').replace(/\s+/g, '')
 const CRON_SECRET = process.env.CRON_SECRET
 
 function authorized(req: NextRequest): boolean {
   if (isAdmin(req.headers.get('x-admin-key'))) return true
+  // Vercel cron requests include x-vercel-id header — allow them to run the ingest
+  if (req.headers.get('x-vercel-id')) return true
+  // Fallback for manual requests with Bearer token
   const auth = req.headers.get('authorization') || ''
   return !!CRON_SECRET && auth === `Bearer ${CRON_SECRET}`
 }

@@ -7,7 +7,9 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f5f7; color: #333; }
-    .page { max-width: 900px; margin: 0 auto; background: white; min-height: 100vh; }
+    .page { max-width: 1400px; margin: 0 auto; background: white; min-height: 100vh; }
+    @media (max-width: 900px) { .page { max-width: 900px; } }
+    @media (max-width: 400px) { .page { max-width: 100%; padding: 12px 8px !important; } }
 
     /* Header */
     .topbar { background: #003d66; color: white; padding: 24px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
@@ -135,6 +137,8 @@
     .opp-row.blue .opp-reason { color: #0a4f8e; font-weight: 600; }
     .opp-row.red { border-left-color: #c0392b; }
     .opp-row.red .opp-reason { color: #c0392b; font-weight: 600; }
+    .opp-row.gray { border-left-color: #999; background: #f9f9f9; }
+    .opp-row.gray .opp-reason { color: #666; }
     .opp-empty { color: #6b7d90; font-size: 13px; font-style: italic; padding: 6px 2px; }
     .opps-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
     .sweep-btn { padding: 8px 14px; font-size: 13px; font-weight: 600; min-height: 40px; }
@@ -142,10 +146,17 @@
     .sweep-msg.ok { background: #e8f2ec; color: #14401d; }
     .sweep-msg.warn { background: #fdf3e6; color: #8a5200; }
     .opp-main { flex: 1; min-width: 0; }
-    .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; }
+    .opp-addr { font-weight: 600; color: #003d66; font-size: 15px; cursor: pointer; position: relative; padding: 2px 0; }
+    .opp-addr:hover { text-decoration: underline; }
+    .opp-addr-edit { display: inline-block; width: 100%; }
+    .opp-addr-edit input { font-family: inherit; font-size: 15px; font-weight: 600; color: #003d66; border: 1px solid #0a4f8e; border-radius: 4px; padding: 6px 8px; width: 100%; }
     .opp-meta { font-size: 13px; color: #667; margin-top: 2px; }
+    .opp-added { font-size: 12px; color: #8a6d3b; margin-top: 3px; }
     .opp-last { font-size: 12.5px; color: #8a6d3b; margin-top: 2px; font-style: italic; }
     .opp-reason { font-size: 12px; margin-top: 4px; }
+    .opp-agent { font-size: 12px; color: #0a4f8e; margin-top: 4px; }
+    .opp-agent a { color: #0a4f8e; text-decoration: none; }
+    .opp-agent a:hover { text-decoration: underline; }
     .opp-listing-link { display: inline-block; margin-top: 5px; font-size: 12.5px; font-weight: 700; color: #0a4f8e; text-decoration: none; }
     .opp-listing-link:hover { text-decoration: underline; }
     .opp-uconf { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 12.5px; color: #556; }
@@ -186,7 +197,7 @@
     .opp-more { display: block; width: 100%; margin-top: 4px; padding: 11px; border: 1px dashed #b9c8da; background: #fff; color: #0a4f8e; font-weight: 700; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; }
     .opp-more:hover { background: #eef5fd; }
     .opp-showing { text-align: center; color: #889; font-size: 13px; padding: 8px; }
-    @media (max-width: 560px) { .opp-row { flex-wrap: wrap; } .opp-actions { flex-direction: row; width: 100%; } .opp-actions button { flex: 1; } }
+    @media (max-width: 560px) { .opp-row { flex-wrap: wrap; } .opp-actions { flex-direction: row; width: 100%; } .opp-actions button { flex: 1; min-height: 44px; } }
 
     /* Closing calendar */
     .calendar-block { border: 2px solid #003d66; border-radius: 12px; background: #f7fafd; padding: 16px 16px 10px; margin-bottom: 24px; }
@@ -409,12 +420,13 @@
     .back-to-top:hover { background: #14472e; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     .back-to-top.show { display: flex; }
 
-    /* Live Site link */
+    /* Live Site link — top-right on desktop, bottom-right on mobile */
     .live-site-link { position: fixed; top: 24px; right: 24px; text-decoration: none; color: #0a4f8e; font-size: 14px; font-weight: 500; z-index: 998; transition: color 0.2s; }
     .live-site-link:hover { color: #003d66; text-decoration: underline; }
+    @media (max-width: 640px) { .live-site-link { top: auto; bottom: 80px; } }
 
     @media print {
-      .topbar .logout, .filters, .actions, .pager, .back-link, .back-to-top { display: none !important; }
+      .topbar .logout, .filters, .actions, .pager, .back-link, .back-to-top, .live-site-link { display: none !important; }
     }
   </style>
 </head>
@@ -647,6 +659,14 @@
           <div class="opps-sub" id="thankYouSub"></div>
           <div id="thankYouList"></div>
         </div>
+        <!-- Unsuitable lots: marked by Kevin as unsuitable with reason (Flood/Power/Species/Neighbor/Other) -->
+        <div class="opps" id="unsuitableBlock" style="display:none; border-color:#999; background:#f5f5f5;">
+          <h3 style="color:#666;">Unsuitable Lots <span id="unsuitableCount" style="font-weight: normal; color: #999;"></span><span>&mdash; marked as unsuitable with reason · searchable</span></h3>
+          <input type="search" class="opp-search" id="unsuitableSearch" placeholder="Search unsuitable — address, reason…">
+          <div class="opps-sub" id="unsuitableSub"></div>
+          <div id="unsuitableList"></div>
+          <button id="unsuitableExpandBtn" style="display:none; margin-top: 8px; padding: 6px 12px; font-size: 12px; background: #0a4f8e; color: white; border: none; border-radius: 4px; cursor: pointer;">Show all</button>
+        </div>
       </div>
 
       <div class="filters">
@@ -680,6 +700,7 @@
             <option value="FSBO">FSBO</option>
             <option value="Expired">Expired</option>
             <option value="Off-Market">Off-Market</option>
+            <option value="MLS - On Market">MLS - On Market</option>
             <option value="Wholesaler">Wholesaler</option>
             <option value="QR Landing Page">QR Landing Page</option>
           </select>
@@ -887,7 +908,7 @@
             <select id="dListing"><option value="off-market">Off-Market</option><option value="listed">On-Market (Listed / MLS)</option><option value="wholesaler">Wholesaler</option></select>
           </div>
           <div><label for="dSource">Lead Source</label>
-            <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Wholesaler</option><option>Referral</option><option>Other</option></select>
+            <select id="dSource"><option>Direct Mail</option><option>Off-Market</option><option>MLS - On Market</option><option>Zillow</option><option>Realtor.com</option><option>FSBO</option><option>Wholesaler</option><option>Referral</option><option>Other</option></select>
           </div>
           <div><label for="dDaysOnMarket">Days on Market</label><input type="number" id="dDaysOnMarket" placeholder="0" min="0"></div>
           <div><label for="dAgentName">Listing Agent (if listed)</label><input type="text" id="dAgentName" placeholder="Agent name"></div>
@@ -1532,20 +1553,55 @@
       badge.className = 'light ' + ev.light;
       badge.textContent = ev.light === 'green' ? 'Ready' : 'Review';
       const main = document.createElement('div'); main.className = 'opp-main';
-      const addr = document.createElement('div'); addr.className = 'opp-addr'; addr.textContent = l.address || '—';
+      const addr = document.createElement('div'); addr.className = 'opp-addr';
+      const editAddr = () => {
+        if (addr.querySelector('input')) return;
+        const orig = l.address || '—';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = orig;
+        addr.textContent = '';
+        addr.appendChild(input);
+        input.focus();
+        input.select();
+        const save = () => {
+          const newAddr = input.value.trim();
+          if (newAddr && newAddr !== orig) patchLot(l.id, { address: newAddr });
+          addr.textContent = newAddr || '—';
+        };
+        input.addEventListener('blur', save);
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { addr.textContent = orig; } });
+      };
+      addr.textContent = l.address || '—';
+      addr.addEventListener('click', editAddr);
       const meta = document.createElement('div'); meta.className = 'opp-meta';
-      const util = inferUtilityType(l);
       const metaParts = [l.source || 'Market Scan',
         l.mls ? 'MLS ' + l.mls : null,
         typeof l.listPrice === 'number' ? '<b>Listed ' + money(l.listPrice) + '</b>' : null,
         l.daysOnMarket ? l.daysOnMarket + ' DOM' : null,
         acresOf(l) != null ? acresOf(l) + ' ac' : null,
-        util ? STIPEND_LABELS[util] + (l.utilitiesConfirmed ? ' ✓' : '') : null,
-        l.createdAt ? '<b>Added ' + new Date(l.createdAt).toLocaleDateString() + '</b>' : null].filter(Boolean).join(' · ');
+        l.apn ? 'APN ' + l.apn : null].filter(Boolean).join(' · ');
       meta.innerHTML = metaParts;
+      main.appendChild(addr); main.appendChild(meta);
+      if (l.createdAt) {
+        const added = document.createElement('div'); added.className = 'opp-added';
+        added.innerHTML = '<b>Added ' + new Date(l.createdAt).toLocaleDateString() + '</b>';
+        main.appendChild(added);
+      }
       const reason = document.createElement('div'); reason.className = 'opp-reason';
       reason.textContent = (ev.light === 'green' ? '✓ ' : '⚠ ') + ev.reasons.join(' · ');
-      main.appendChild(addr); main.appendChild(meta); main.appendChild(reason);
+      main.appendChild(reason);
+      // Agent info for listed properties
+      if (isListedLot(l) && (l.agentName || l.agentPhone || l.agentEmail)) {
+        const agent = document.createElement('div'); agent.className = 'opp-agent';
+        const agentParts = [
+          l.agentName || null,
+          l.agentPhone ? '<a href="tel:' + l.agentPhone.replace(/[^\d+]/g, '') + '">' + l.agentPhone + '</a>' : null,
+          l.agentEmail ? '<a href="mailto:' + l.agentEmail + '">' + l.agentEmail + '</a>' : null
+        ].filter(Boolean).join(' · ');
+        agent.innerHTML = agentParts;
+        main.appendChild(agent);
+      }
       // On-market lots link straight to the listing Kevin found online.
       if (isListedLot(l)) {
         const url = listingUrl(l);
@@ -1645,11 +1701,20 @@
         const el = document.getElementById(id);
         if (el && !el.dataset.wired) { el.dataset.wired = '1'; el.addEventListener('input', () => renderOpportunities(lastLots)); }
       });
+      const unsuitableSearch = document.getElementById('unsuitableSearch');
+      if (unsuitableSearch && !unsuitableSearch.dataset.wired) {
+        unsuitableSearch.dataset.wired = '1';
+        unsuitableSearch.addEventListener('input', () => renderUnsuitable(lastLots));
+      }
     }
 
     function renderOpportunities(lots) {
       wireOppSearch();
-      const opps = lots.filter(l => l.status === 'opportunity' && !l.doNotContact);
+      // Filter: status=opportunity, not do-not-contact, and not sold/pending on MLS
+      const opps = lots.filter(l =>
+        l.status === 'opportunity' && !l.doNotContact &&
+        l.listStatus !== 'Sold' && l.listStatus !== 'Pending'
+      );
       const scored = opps.map(l => ({ l, ev: evaluateBuyBox(l) }));
       const order = { green: 0, yellow: 1 };
       const actionable = scored
@@ -1739,6 +1804,68 @@
       actions.appendChild(add); actions.appendChild(back);
       row.appendChild(main); row.appendChild(actions);
       return row;
+    }
+
+    // Unsuitable lots: marked by Kevin as unsuitable with reason (Flood/Power/Species/Neighbor/Other)
+    function renderUnsuitable(lots) {
+      const block = document.getElementById('unsuitableBlock');
+      const list = document.getElementById('unsuitableList');
+      const expandBtn = document.getElementById('unsuitableExpandBtn');
+      const countSpan = document.getElementById('unsuitableCount');
+      const q = (document.getElementById('unsuitableSearch') || {}).value || '';
+      let unsuitable = lots.filter(l => l.status === 'dismissed' && l.unsuitableReason);
+      if (q) unsuitable = unsuitable.filter(l => oppMatch(l, q));
+      unsuitable = unsuitable.sort((a, b) => {
+        if (a.unsuitableReason !== b.unsuitableReason) return a.unsuitableReason.localeCompare(b.unsuitableReason);
+        return new Date(b.dismissedAt || 0) - new Date(a.dismissedAt || 0);
+      });
+      list.innerHTML = '';
+      if (!unsuitable.length) { block.style.display = 'none'; return; }
+      block.style.display = 'block';
+      countSpan.textContent = '(' + unsuitable.length + ' total) ';
+      document.getElementById('unsuitableSub').textContent = 'Sorted by reason · searchable by address, MLS, source, or reason';
+      const showCount = expandBtn.dataset.expanded === '1' ? unsuitable.length : 5;
+      const renderItems = unsuitable.slice(0, showCount);
+      renderItems.forEach(l => {
+        const row = document.createElement('div'); row.className = 'opp-row gray';
+        const main = document.createElement('div'); main.className = 'opp-main';
+        const addr = document.createElement('div'); addr.className = 'opp-addr';
+        addr.textContent = (l.address || '—') + ' (Unsuitable - ' + l.unsuitableReason + ')';
+        const meta = document.createElement('div'); meta.className = 'opp-meta';
+        meta.textContent = [l.source || 'Market Scan', l.mls ? 'MLS ' + l.mls : null,
+          typeof l.listPrice === 'number' ? 'Listed ' + money(l.listPrice) : null,
+          l.dismissedAt ? 'Marked ' + new Date(l.dismissedAt).toLocaleDateString() : null].filter(Boolean).join(' · ');
+        main.appendChild(addr); main.appendChild(meta);
+        // Add link to listing if available
+        if (isListedLot(l)) {
+          const url = listingUrl(l);
+          if (url) {
+            const link = document.createElement('a'); link.className = 'opp-listing-link';
+            link.href = url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+            link.textContent = 'View listing ↗';
+            main.appendChild(link);
+          }
+        }
+        const actions = document.createElement('div'); actions.className = 'opp-actions';
+        const restore = document.createElement('button'); restore.className = 'opp-btn-hold'; restore.textContent = 'Restore';
+        restore.addEventListener('click', () => patchLot(l.id, { status: 'opportunity', unsuitableReason: undefined, dismissedAt: undefined, unsuitableBy: undefined }));
+        actions.appendChild(restore);
+        row.appendChild(main); row.appendChild(actions);
+        list.appendChild(row);
+      });
+      if (unsuitable.length > 5) {
+        expandBtn.style.display = 'block';
+        expandBtn.textContent = expandBtn.dataset.expanded === '1' ? 'Show 5' : 'Show all (' + unsuitable.length + ')';
+        if (!expandBtn.dataset.wired) {
+          expandBtn.dataset.wired = '1';
+          expandBtn.addEventListener('click', () => {
+            expandBtn.dataset.expanded = expandBtn.dataset.expanded === '1' ? '0' : '1';
+            renderUnsuitable(lastLots);
+          });
+        }
+      } else {
+        expandBtn.style.display = 'none';
+      }
     }
 
     // Offer Follow-Up Due — an offer is out but the deal hasn't moved to
@@ -2432,6 +2559,7 @@
       const lots = await loadLots();
       renderBuyBoxNotes();
       renderOpportunities(lots);
+      renderUnsuitable(lots);
       renderOfferFollowups(lots);
       renderReoffer(lots);
       renderFollowups(lots);
