@@ -654,15 +654,14 @@
           <div class="opps-sub" id="thankYouSub"></div>
           <div id="thankYouList"></div>
         </div>
-      </div>
-
-      <!-- Unsuitable lots: marked by Kevin as unsuitable with reason (Flood/Power/Species/Neighbor/Other) -->
-      <div class="opps" id="unsuitableBlock" style="display:none; border-color:#999; background:#f5f5f5;">
-        <h3 style="color:#666;">Unsuitable Lots <span id="unsuitableCount" style="font-weight: normal; color: #999;"></span><span>&mdash; marked as unsuitable with reason · searchable</span></h3>
-        <input type="search" class="opp-search" id="unsuitableSearch" placeholder="Search unsuitable — address, reason…">
-        <div class="opps-sub" id="unsuitableSub"></div>
-        <div id="unsuitableList"></div>
-        <button id="unsuitableExpandBtn" style="display:none; margin-top: 8px; padding: 6px 12px; font-size: 12px; background: #0a4f8e; color: white; border: none; border-radius: 4px; cursor: pointer;">Show all</button>
+        <!-- Unsuitable lots: marked by Kevin as unsuitable with reason (Flood/Power/Species/Neighbor/Other) -->
+        <div class="opps" id="unsuitableBlock" style="display:none; border-color:#999; background:#f5f5f5;">
+          <h3 style="color:#666;">Unsuitable Lots <span id="unsuitableCount" style="font-weight: normal; color: #999;"></span><span>&mdash; marked as unsuitable with reason · searchable</span></h3>
+          <input type="search" class="opp-search" id="unsuitableSearch" placeholder="Search unsuitable — address, reason…">
+          <div class="opps-sub" id="unsuitableSub"></div>
+          <div id="unsuitableList"></div>
+          <button id="unsuitableExpandBtn" style="display:none; margin-top: 8px; padding: 6px 12px; font-size: 12px; background: #0a4f8e; color: white; border: none; border-radius: 4px; cursor: pointer;">Show all</button>
+        </div>
       </div>
 
       <div class="filters">
@@ -1810,6 +1809,16 @@
           typeof l.listPrice === 'number' ? 'Listed ' + money(l.listPrice) : null,
           l.dismissedAt ? 'Marked ' + new Date(l.dismissedAt).toLocaleDateString() : null].filter(Boolean).join(' · ');
         main.appendChild(addr); main.appendChild(meta);
+        // Add link to listing if available
+        if (isListedLot(l)) {
+          const url = listingUrl(l);
+          if (url) {
+            const link = document.createElement('a'); link.className = 'opp-listing-link';
+            link.href = url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+            link.textContent = 'View listing ↗';
+            main.appendChild(link);
+          }
+        }
         const actions = document.createElement('div'); actions.className = 'opp-actions';
         const restore = document.createElement('button'); restore.className = 'opp-btn-hold'; restore.textContent = 'Restore';
         restore.addEventListener('click', () => patchLot(l.id, { status: 'opportunity', unsuitableReason: undefined, dismissedAt: undefined, unsuitableBy: undefined }));
