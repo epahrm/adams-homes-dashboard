@@ -20,10 +20,11 @@ const globalForPool = global as unknown as {
   landAcqTableReady?: Promise<unknown>
 }
 
-// Lazy pool initialization — ensures DATABASE_URL is available when pool is first created
-export function getPool(): Pool {
+// Lazy pool initialization — read DATABASE_URL on first access, not at module load time
+function getPool(): Pool {
   if (!globalForPool.landAcqPool) {
     const databaseUrl = (process.env.DATABASE_URL || '').split('?')[0]
+    if (!databaseUrl) throw new Error('DATABASE_URL not set')
     globalForPool.landAcqPool = new Pool({
       connectionString: databaseUrl,
       max: 3,
@@ -34,12 +35,17 @@ export function getPool(): Pool {
   return globalForPool.landAcqPool
 }
 
-export const pool = new Proxy({} as Pool, {
-  get: (_, prop) => {
+// Export for external use
+export { getPool }
+
+// Lazy-load pool for backward compatibility
+export const pool: Pool = new Proxy(Object.create(null), {
+  get: (_target, prop: string) => {
     const actualPool = getPool()
-    return (actualPool as any)[prop]
+    const value = (actualPool as any)[prop]
+    return typeof value === 'function' ? value.bind(actualPool) : value
   },
-})
+}) as unknown as Pool
 
 export const LOT_STATUSES = [
   'opportunity',      // buy-box market-scan match, pre-triage
