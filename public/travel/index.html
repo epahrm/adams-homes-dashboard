@@ -740,6 +740,40 @@ function normalize(d){
     { id:"m-seth", name:"Seth", emoji:"\u26bd", color:MEMBER_COLORS[1] },
   ];
   s.draft = s.draft || null;   // saved mid-wizard trip planning (resume from Home)
+  // One-time seeded trips (deleting them sticks — the flag survives).
+  s.seeded = s.seeded || {};
+  if (!s.seeded.vegasVault){
+    s.seeded.vegasVault = true;
+    const eliz = s.family.find(m => /eliz/i.test(m.name));
+    s.trips.push({
+      id:"vegas-vault-2026", name:"Las Vegas \u2014 The Vault", dest:"Las Vegas, NV",
+      emoji:"\ud83c\udfa4", type:"conference", start:"2026-08-31", end:"2026-09-03", notes:"",
+      travelers: eliz ? [eliz.id] : [],
+      stops:[], packing:[], budget:{ total:0, expenses:[] },
+      wallet:[
+        { id:"vv-w1", kind:"stay", title:"The Cosmopolitan of Las Vegas \u00b7 Terrace Studio King",
+          code:"", details:"Aug 31 \u2192 Sep 3 (3 nights) \u00b7 resort fee $55/night + tax \u00b7 deposit refundable until Aug 28 (hotel local time) \u00b7 booked 5/30 \u2014 confirmation # in the booking email", url:"https://www.cosmopolitanlasvegas.com/", img:null },
+      ],
+      ideas:[
+        { id:"vv-i1", text:"Fountains of Bellagio \u2014 directly across the street; free, best after dark", votes:[] },
+        { id:"vv-i2", text:"Bellagio Conservatory \u2014 free, air-conditioned, seasonal display", votes:[] },
+        { id:"vv-i3", text:"The Sphere exterior at night \u2014 viral photo from the Strip", votes:[] },
+        { id:"vv-i4", text:"Welcome to Las Vegas sign \u2014 classic shot if an hour opens up", votes:[] },
+      ],
+      mission:{ purpose:"The Vault Conference (PBD) \u2014 MGM Grand \u00b7 Elizabeth solo", cats:{
+        flights:{ s:"r", note:"Not booked yet" },
+        hotel:{ s:"g", note:"Cosmopolitan Terrace Studio King \u00b7 refundable to Aug 28" },
+        rental:{ s:"g", note:"No rental \u2014 walking both ways (~0.8 mi, 15\u201318 min)" },
+        tickets:{ s:"r", note:"Vault ticket NOT purchased \u2014 the next step" },
+        resv:{ s:"y", note:"None yet \u2014 dining Top-3s on request" },
+        lounge:{ s:"y", note:"MCO: The Club (Priority Pass) \u2014 pin terminal once flights are booked; check LAS for the return" },
+        packing:{ s:"r", note:"Conference wardrobe + Vegas heat \u2014 build 2 weeks out" },
+        weather:{ s:"g", note:"Early Sep: ~99\u00b0 highs / ~76\u00b0 lows, dry \u2014 run early, stay indoors afternoons" },
+        verify:{ s:"r", note:"Final verification window Aug 17\u201324" },
+      } },
+      intake:{ mode:"committed", fixed:"The Vault Conference \u2014 MGM Grand \u00b7 Aug 31\u2013Sep 3", link:"https://vault.betdavidconsulting.com/", complete:true },
+    });
+  }
   return s;
 }
 function load(){
