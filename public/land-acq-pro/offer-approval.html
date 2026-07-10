@@ -675,7 +675,7 @@
       const parcel = document.getElementById('parcelOverride')?.value?.trim() || lot.parcel || 'See Exhibit "A"';
       const c = resolveCommission();
       const commLine = c.listed
-        ? c.pct + '% Buyer's Agent Commission (' + money(c.amt) + ') — negotiated with Seller's Broker, assigned to Buyer and credited to Buyer on the closing statement'
+        ? c.pct + "% Buyer's Agent Commission (" + money(c.amt) + ") — negotiated with Seller's Broker, assigned to Buyer and credited to Buyer on the closing statement"
         : '$0';
       const dueDilDays = parseInt(document.getElementById('dueDiligenceDays')?.value || '45') || 45;
       const closeBusinessDays = parseInt(document.getElementById('closeBusinessDays')?.value || '10') || 10;
@@ -703,13 +703,13 @@
         'KEY TERMS',
         '  Due Diligence Period: ' + dueDilDays + ' days after Effective Date (¶9a1)',
         '  Closing: on/before ' + closeBusinessDays + ' business days after the Due Diligence Period (¶4)',
-        '  Title: statutory warranty deed; title evidence at Buyer's expense, ≥ 2 days before closing (¶8)',
+        "  Title: statutory warranty deed; title evidence at Buyer's expense, ≥ 2 days before closing (¶8)",
         '  Assignability: Buyer may not assign (¶7)',
         '  Closing costs: Seller pays ' + sellerCostContrib + ' toward the Escrow settlement charge; Buyer pays the balance',
         '  Addendum for Vacant Land Contract: attached (¶22C)',
         '',
         'BROKERAGE (¶21 + Addendum)',
-        '  Buyer's Broker: Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388)',
+        "  Buyer's Broker: Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388)",
         '  100 W. Garden St., 2nd Floor, Pensacola, FL 32502',
         '  Commission: ' + commLine,
         '',
@@ -743,7 +743,7 @@
       const parcel = document.getElementById('parcelOverride')?.value?.trim() || lot.parcel || 'See Exhibit "A"';
       const c = resolveCommission();
       const commLine = c.listed
-        ? c.pct + '% Buyer's Agent Commission (' + money(c.amt) + ') — negotiated with Seller's Broker, assigned to Buyer and credited to Buyer on the closing statement'
+        ? c.pct + "% Buyer's Agent Commission (" + money(c.amt) + ") — negotiated with Seller's Broker, assigned to Buyer and credited to Buyer on the closing statement"
         : '$0';
       const exp = lot.offerExpires ? fmtDate(lot.offerExpires) : fmtDate(addDays(new Date().toISOString(), OFFER_VALID_DAYS));
       const lotSize = document.getElementById('lotSizeOverride')?.value?.trim() || lot.lotSize || (lot.acres ? lot.acres + ' acres' : '—');
@@ -789,11 +789,11 @@
         + row('Escrow Agent', 'Emmanuel, Sheppard &amp; Condon, P.A. — John Monroe · 30 S. Spring St., Pensacola, FL 32502 · (850) 433-6581 · jwm@esclaw.com')
         + row('Due Diligence', dueDilDays + ' days after Effective Date (¶9a1)')
         + row('Closing', 'On/before ' + closeBusinessDays + ' business days after the Due Diligence Period (¶4)')
-        + row('Title', 'Statutory warranty deed; title evidence at Buyer's expense, ≥ 2 days before closing (¶8)')
+        + row('Title', "Statutory warranty deed; title evidence at Buyer's expense, ≥ 2 days before closing (¶8)")
         + row('Assignability', 'Buyer may not assign (¶7)')
         + row('Closing Costs', 'Seller pays ' + sellerCostContrib + ' toward Escrow settlement charge; Buyer pays the balance')
         + row('Addendum', 'Addendum for Vacant Land Contract attached (¶22C)')
-        + row('Buyer's Broker', 'Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388) · 100 W. Garden St., 2nd Floor, Pensacola, FL 32502')
+        + row("Buyer's Broker", 'Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388) · 100 W. Garden St., 2nd Floor, Pensacola, FL 32502')
         + row('Commission', escHtml(commLine))
         + (mlsNum ? row('MLS #', escHtml(mlsNum)) : '')
         + '</table><div class="sig"><div class="muted">Seller signs first; Buyer (Elizabeth Porter, Regional Manager) counter-signs last — the Effective Date.</div>'
@@ -841,7 +841,7 @@
       p.textContent = '';
       p.classList.add('show');
       const note = document.createElement('div');
-      note.textContent = 'Send by email or print & mail as a postcard — Kevin's choice. The card below is print-ready (postcard format).';
+      note.textContent = "Send by email or print & mail as a postcard — Kevin's choice. The card below is print-ready (postcard format)";
       note.style.cssText = 'text-align:center; color:#556; font-size:14px; margin-bottom:10px;';
       p.appendChild(note);
       const img = document.createElement('img');
@@ -950,7 +950,7 @@
         'pending': 'New lead — generate and send the offer.',
         'offer-sent': 'Offer sent to seller. Mark received once they sign in Dotloop.',
         'seller-signed': 'Seller signed. Routing to Elizabeth for counter-signature.',
-        'pending-ep-sig': isElizabeth() ? 'Review the summary and sign to make it official.' : 'Awaiting Elizabeth's signature.',
+        'pending-ep-sig': isElizabeth() ? 'Review the summary and sign to make it official.' : "Awaiting Elizabeth's signature.",
         'ip': 'Executed. In inspection period.', 'manager-driven': 'Manager-driven review.',
         'survey-rcvd': 'Survey received.', 'cd-approved': 'Closing disclosure approved.',
         'ctc': 'Clear to close.', 'closed': 'Closed.', 'declined': 'Declined.',
@@ -1190,7 +1190,7 @@
       lot.offerExpires = set.offerExpires;
       lot.premiumTBD = premiumPossible;
       renderAll();
-      msg('Offer generated. Packet (contract + cover letter + property card) ready to send via Dotloop with Kevin's login. Expires ' + fmtDate(set.offerExpires) + '.'
+      msg("Offer generated. Packet (contract + cover letter + property card) ready to send via Dotloop with Kevin's login. Expires " + fmtDate(set.offerExpires) + '.'
         + (premiumPossible ? ' Premium flagged as possible — enter the amount when the signed contract comes back.' : ''), true);
     }
 
@@ -1201,7 +1201,7 @@
       try { await saveLot({ offerConfirmedSentAt: now }); } catch (e) { return msg('Could not save — please try again.', false); }
       lot.offerConfirmedSentAt = now;
       renderAll();
-      msg('Offer marked sent ' + fmtDate(now) + '. Follow-up reminder set for ' + fmtDate(addDays(now, 3)) + ' if the seller hasn't responded.', true);
+      msg('Offer marked sent ' + fmtDate(now) + ". Follow-up reminder set for " + fmtDate(addDays(now, 3)) + " if the seller hasn't responded.", true);
     }
 
     // Finalize a previously-flagged possible premium once the contract is back.
@@ -1211,7 +1211,7 @@
       try { await saveLot({ premiums: premiums, premiumTBD: false }); } catch (e) { return msg('Could not save — please try again.', false); }
       lot.premiums = premiums; lot.premiumTBD = false;
       renderAll();
-      msg(amt > 0 ? ('Lot premium set to ' + money(amt) + '. Ready for Elizabeth's signature.') : 'Recorded no premium. Ready for Elizabeth's signature.', true);
+      msg(amt > 0 ? ('Lot premium set to ' + money(amt) + ". Ready for Elizabeth's signature.") : "Recorded no premium. Ready for Elizabeth's signature.", true);
     }
 
     async function markSellerReceived() {
@@ -1566,6 +1566,22 @@
       mode = sessionStorage.getItem('laMode') || 'local';
       boot();
     }
+
+    // Back-to-top button: show when scrolled down, scroll smoothly to top on click
+    const backToTopBtn = document.getElementById('backToTop');
+    if (backToTopBtn) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+          backToTopBtn.classList.add('show');
+        } else {
+          backToTopBtn.classList.remove('show');
+        }
+      });
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
   </script>
+  <button class="back-to-top" id="backToTop" title="Back to top" aria-label="Back to top">↑</button>
 </body>
 </html>
