@@ -1,3 +1,4 @@
+<!-- Rebuild trigger: Force Vercel redeploy -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,7 +84,7 @@
     .gis-note { font-size: 11px; color: #667; margin-top: 6px; }
 
     /* New leads inbox */
-    .newleads { border: 2px solid #e8963c; border-radius: 12px; background: #fff8ef; padding: 14px 16px; margin-bottom: 24px; max-width: 760px; }
+    .newleads { border: 2px solid #e8963c; border-radius: 12px; background: #fff8ef; padding: 14px 16px; margin-bottom: 24px; }
     .nl-group { margin-bottom: 16px; }
     .nl-group:last-child { margin-bottom: 0; }
     .newleads h3 { color: #8a5200; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
@@ -92,10 +93,14 @@
     #nlWebGroup h3 { color: #b3400a; }
     #nlWebGroup h3 .nl-count { background: #c0392b; }
     .nl-urgent-note { font-size: 12px; color: #b3400a; margin-bottom: 8px; font-weight: 600; }
-    .lead-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+    #nlWebList, #nlMktList { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 6px; }
+    .lead-row { display: flex; flex-direction: column; gap: 12px; background: white; border: 1px solid #f0dcc2; border-radius: 8px; padding: 12px; flex: 1 1 280px; min-width: 0; }
+    @media (max-width: 1200px) { .lead-row { flex: 1 1 300px; } }
+    @media (max-width: 640px) { .lead-row { flex: 1 1 100%; } }
     #nlWebGroup .lead-row { border-color: #f2c6ba; }
     .lead-row:last-child { margin-bottom: 0; }
-    .lead-row .l-main { min-width: 0; flex: 1; }
+    .lead-row .l-main { flex: 1; }
+    .lead-row .l-cta { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
     .lead-row .l-addr { font-weight: 600; color: #003d66; font-size: 15px; }
     .lead-row .l-meta { font-size: 13px; color: #667; margin-top: 2px; }
     .lead-row .l-when { font-size: 11.5px; color: #8a94a0; margin-top: 2px; }
@@ -104,8 +109,7 @@
     .lead-row .l-dnc { display: inline-block; background: #b3261e; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: 0.6px; padding: 2px 7px; border-radius: 4px; margin-top: 4px; }
     .lead-row.l-dncrow { opacity: 0.6; }
     .lead-row .l-src { display: inline-block; background: #eef4fb; color: #1a5ba5; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; padding: 2px 7px; border-radius: 4px; margin-top: 4px; }
-    .lead-row .l-cta { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
-    .lead-row .l-cta button { font-family: inherit; font-size: 12.5px; font-weight: 700; min-height: 34px; padding: 6px 12px; border-radius: 6px; cursor: pointer; white-space: nowrap; border: 1px solid transparent; }
+    .lead-row .l-cta button { font-family: inherit; font-size: 12.5px; font-weight: 700; min-height: 34px; padding: 6px 12px; border-radius: 6px; cursor: pointer; white-space: normal; border: 1px solid transparent; }
     .l-btn-offer { background: #0a4f8e; color: #fff; }
     .l-btn-email { background: #fff; color: #0a4f8e; border-color: #0a4f8e !important; }
     .l-btn-test { background: #fff; color: #6b7280; border-color: #cdd6e0 !important; }
@@ -120,7 +124,7 @@
     /* .page caps out at 900px (≈856px content), so two columns have ~420px
        each to share — basis stays comfortably under half so they never trip
        into a wrap. flex-grow fills whatever room is actually available. */
-    .row2 > .opps, .row2 > .metrics, .row2 > .stack-col { flex: 1 1 380px; min-width: 0; margin-bottom: 0; }
+    .row2 > .opps, .row2 > .metrics, .row2 > .stack-col, .row2 > .newleads, .row2 > .opps-compact { flex: 1 1 380px; min-width: 0; margin-bottom: 0; }
     .stack-col { display: flex; flex-direction: column; gap: 14px; }
     @media (max-width: 720px) { .row2 { flex-direction: column; } }
     /* Compact offers sent at top */
@@ -478,30 +482,31 @@
       </div>
       <div class="import-msg" id="importMsg" style="display:none;"></div>
 
-      <!-- New leads — first thing Kevin sees on login. Split by urgency:
-           inbound website/QR leads (sellers reaching out to us) are the most
-           urgent; on-market leads are lots we sourced and can contract now. -->
-      <div class="newleads" id="newLeadsBlock" style="display:none;">
-        <div class="nl-group" id="nlWebGroup" style="display:none;">
-          <h3>Website Leads <span>&mdash; sellers reaching out for an offer</span>
-            <span class="nl-count" id="nlWebCount">0</span></h3>
-          <div class="nl-urgent-note">Most urgent &mdash; these sellers came to us. Respond first.</div>
-          <div id="nlWebList"></div>
+      <!-- New leads and Offers Sent side by side — top section -->
+      <div class="row2">
+        <!-- New leads — first thing Kevin sees on login. Split by urgency:
+             inbound website/QR leads (sellers reaching out to us) are the most
+             urgent; on-market leads are lots we sourced and can contract now. -->
+        <div class="newleads" id="newLeadsBlock" style="display:none;">
+          <div class="nl-group" id="nlWebGroup" style="display:none;">
+            <h3>Website Leads <span>&mdash; sellers reaching out for an offer</span>
+              <span class="nl-count" id="nlWebCount">0</span></h3>
+            <div class="nl-urgent-note">Most urgent &mdash; these sellers came to us. Respond first.</div>
+            <div id="nlWebList"></div>
+          </div>
+          <div class="nl-group" id="nlMktGroup" style="display:none;">
+            <h3>On-Market Leads <span>&mdash; listed lots ready to contract</span>
+              <span class="nl-count" id="nlMktCount">0</span></h3>
+            <div id="nlMktList"></div>
+          </div>
         </div>
-        <div class="nl-group" id="nlMktGroup" style="display:none;">
-          <h3>On-Market Leads <span>&mdash; listed lots ready to contract</span>
-            <span class="nl-count" id="nlMktCount">0</span></h3>
-          <div id="nlMktList"></div>
-        </div>
-      </div>
 
-      <!-- Awaiting seller response: offer sent but not moving toward Elizabeth's
-           signature within 3 days. Kept near the top — this is a live deal
-           stalling, not a routine metric. Reminder stays visible (and its
-           "Xd overdue" count keeps climbing) every 3 days Kevin hasn't logged
-           a follow-up touch. -->
-      <!-- OFFERS SENT — top of dashboard, compact -->
-      <div class="row-compact">
+        <!-- Awaiting seller response: offer sent but not moving toward Elizabeth's
+             signature within 3 days. Kept near the top — this is a live deal
+             stalling, not a routine metric. Reminder stays visible (and its
+             "Xd overdue" count keeps climbing) every 3 days Kevin hasn't logged
+             a follow-up touch. -->
+        <!-- OFFERS SENT — top of dashboard, compact -->
         <div class="opps-compact" id="followupBlock" style="display:none; border-color:#0a4f8e; background:#f2f8ff;">
           <h3 style="color:#0a4f8e; margin:0 0 8px 0;">Offers Sent</h3>
           <input type="search" class="opp-search" id="offerSentSearch" placeholder="Search offers sent — address, owner, MLS, agent…">
@@ -896,14 +901,6 @@
             </select>
           </div>
           <div><label for="dOffer">Offer Amount</label><input type="text" id="dOffer" placeholder="$30,000"></div>
-          <div><label for="dUtility">Utility Type</label>
-            <select id="dUtility">
-              <option value="">Default (Well/Septic $30k)</option>
-              <option value="well-septic">Well / Septic</option>
-              <option value="water-septic">Water / Septic</option>
-              <option value="water-sewer">Water / Sewer</option>
-            </select>
-          </div>
           <div><label for="dListing">Deal Type</label>
             <select id="dListing"><option value="off-market">Off-Market</option><option value="listed">On-Market (Listed / MLS)</option><option value="wholesaler">Wholesaler</option></select>
           </div>
@@ -2763,10 +2760,10 @@
     document.getElementById('exportCsv').addEventListener('click', () => {
       const lots = applyFilters(lastLots);
       const esc = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-      const head = ['Address','List Price','Stipend','Utility Type','Status','Source','Owner','Parcel','Offer','Created'];
+      const head = ['Address','List Price','Stipend','Status','Source','Owner','Parcel','Offer','Created'];
       const lines = [head.join(',')].concat(lots.map(l => {
         const stip = lotStipend(l);
-        return [l.address, listPriceLabel(l), stip == null ? '' : money(stip), STIPEND_LABELS[inferUtilityType(l)] || '', PILL_LABELS[l.displayStatus] || l.displayStatus, l.source || 'QR Landing Page', l.owner || '', l.parcel || '', l.offer || '', l.createdAt].map(esc).join(',');
+        return [l.address, listPriceLabel(l), stip == null ? '' : money(stip), PILL_LABELS[l.displayStatus] || l.displayStatus, l.source || 'QR Landing Page', l.owner || '', l.parcel || '', l.offer || '', l.createdAt].map(esc).join(',');
       }));
       const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
       const a = document.createElement('a');
@@ -3116,7 +3113,6 @@
         if (f.offer) document.getElementById('dOffer').value = f.offer;
         document.getElementById('dStage').value = 'offer-sent';   // a contract means an offer is out
         if (f.legal) document.getElementById('dOwnerContact').value = 'Legal: ' + f.legal;
-        if (f.utilityType) document.getElementById('dUtility').value = f.utilityType;
         if (f.acceptedDate) document.getElementById('dAccepted').value = f.acceptedDate;
         if (f.daysOnMarket) document.getElementById('dDaysOnMarket').value = f.daysOnMarket;
         if (f.agentName || f.agentBrokerage || f.agentPhone || f.agentEmail || f.agentLicense) {
@@ -3153,7 +3149,6 @@
         owner: val('dOwner') || undefined,
         ownerContact: val('dOwnerContact') || undefined,
         offer: val('dOffer') || undefined,
-        utilityType: val('dUtility') || undefined,
         listingType: val('dListing'),
         source: isWholesaler ? 'Wholesaler' : (val('dSource') || 'Direct Mail'),
         daysOnMarket: val('dDaysOnMarket') ? parseInt(val('dDaysOnMarket'), 10) : undefined,

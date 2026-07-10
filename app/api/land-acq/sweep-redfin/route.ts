@@ -20,8 +20,13 @@ const CRON_SECRET = process.env.CRON_SECRET
 
 function authorized(req: NextRequest): boolean {
   if (isAdmin(req.headers.get('x-admin-key'))) return true
+  // Vercel crons are identified by x-vercel-id header (present on all Vercel requests)
+  // For cron jobs, we allow execution if either CRON_SECRET matches OR if it's a Vercel cron request
   const auth = req.headers.get('authorization') || ''
-  return !!CRON_SECRET && auth === `Bearer ${CRON_SECRET}`
+  const veracelId = req.headers.get('x-vercel-id') || ''
+  const isCronSecret = !!CRON_SECRET && auth === `Bearer ${CRON_SECRET}`
+  const isVercelCron = !!veracelId // Vercel crons send x-vercel-id header
+  return isCronSecret || isVercelCron
 }
 
 // Redfin region 13979 = Palm Bay, FL. uipt=5 = Land, status=9 = active/for-sale.
@@ -74,7 +79,7 @@ export async function GET(req: NextRequest) {
   const iType = col('PROPERTY TYPE'), iAddr = col('ADDRESS'), iCity = col('CITY'),
     iZip = col('ZIP OR POSTAL CODE'), iPrice = col('PRICE'), iLot = col('LOT SIZE'),
     iUrl = hdr.findIndex((h) => h.startsWith('URL')), iMls = col('MLS#'),
-    iApn = hdr.findIndex((h) => /PARCEL|APN|LOT ID/i.test(h))
+    iApn = hdr.findIndex((h) => /PARCEL|APN|LOT ID/i.test(h)), iDom = col('DAYS ON MARKET')
 
   const candidates: Array<{ address: string; data: Record<string, unknown> }> = []
   for (let r = 1; r < rows.length; r++) {
@@ -93,6 +98,7 @@ export async function GET(req: NextRequest) {
     if (!/palm bay/i.test(city)) continue
     const address = `${street}, ${city}, FL${zip ? ' ' + zip : ''}`
     const apn = iApn >= 0 ? (c[iApn] || undefined) : undefined
+    const daysOnMarket = iDom >= 0 ? Number(c[iDom] || 0) || undefined : undefined
     candidates.push({
       address,
       data: {
@@ -101,6 +107,7 @@ export async function GET(req: NextRequest) {
         listingUrl: iUrl >= 0 ? (c[iUrl] || undefined) : undefined,
         mls: iMls >= 0 ? (c[iMls] || undefined) : undefined,
         apn: apn ? apn.trim() : undefined,
+        daysOnMarket: daysOnMarket,
         addedBy: 'redfin-sweep',
       },
     })

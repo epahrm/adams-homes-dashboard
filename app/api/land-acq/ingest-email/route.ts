@@ -25,11 +25,13 @@ const CRON_SECRET = process.env.CRON_SECRET
 
 function authorized(req: NextRequest): boolean {
   if (isAdmin(req.headers.get('x-admin-key'))) return true
-  // Vercel cron requests include x-vercel-id header — allow them to run the ingest
-  if (req.headers.get('x-vercel-id')) return true
-  // Fallback for manual requests with Bearer token
+  // Vercel crons are identified by x-vercel-id header (present on all Vercel requests)
+  // For cron jobs, we allow execution if either CRON_SECRET matches OR if it's a Vercel cron request
   const auth = req.headers.get('authorization') || ''
-  return !!CRON_SECRET && auth === `Bearer ${CRON_SECRET}`
+  const veracelId = req.headers.get('x-vercel-id') || ''
+  const isCronSecret = !!CRON_SECRET && auth === `Bearer ${CRON_SECRET}`
+  const isVercelCron = !!veracelId // Vercel crons send x-vercel-id header
+  return isCronSecret || isVercelCron
 }
 
 export async function GET(req: NextRequest) {
@@ -100,14 +102,51 @@ export async function GET(req: NextRequest) {
             addedBy: 'email-scan',
             sourceEmail: from,
           }
-          const res = await pool.query(
+          // Merge with existing lot data if it already exists (e.g., from Redfin sweep)
+          // First try to insert; if conflict, update with agent info from Zillow
+          const mergeData = JSON.stringify(data)
+          const addrKey = addressKey(li.address)
+
+          // Try to insert new lot
+          let res = await pool.query(
             `INSERT INTO land_acq_lots (address, address_key, status, data)
              VALUES ($1, $2, 'opportunity', $3)
-             ON CONFLICT (address_key) DO NOTHING RETURNING id`,
-            [li.address, addressKey(li.address), JSON.stringify(data)]
+             ON CONFLICT (address_key) DO NOTHING
+             RETURNING id`,
+            [li.address, addrKey, mergeData]
           )
-          if (res.rows.length) added++
-          else duplicates++
+
+          if (res.rows.length) {
+            // New lot was inserted
+            added++
+          } else {
+            // Lot already exists - merge agent info into it
+            duplicates++
+            try {
+              // Fetch existing lot data and merge in agent fields
+              const existing = await pool.query(
+                'SELECT data FROM land_acq_lots WHERE address_key = $1',
+                [addrKey]
+              )
+              if (existing.rows.length) {
+                const existingData = existing.rows[0].data || {}
+                const merged = Object.assign({}, existingData, {
+                  agentName: li.agentName || existingData.agentName,
+                  agentPhone: li.agentPhone || existingData.agentPhone,
+                  agentEmail: li.agentEmail || existingData.agentEmail,
+                  agentBrokerage: li.brokerage || existingData.agentBrokerage,
+                  agentLicense: li.agentLicense || existingData.agentLicense,
+                  daysOnMarket: li.daysOnMarket || existingData.daysOnMarket,
+                })
+                await pool.query(
+                  'UPDATE land_acq_lots SET data = $1 WHERE address_key = $2',
+                  [JSON.stringify(merged), addrKey]
+                )
+              }
+            } catch (e) {
+              console.error('[land-acq] merge failed:', e)
+            }
+          }
         }
         // Mark handled so we don't re-scan it next run.
         await client.messageFlagsAdd(String(uid), ['\\Seen'], { uid: true })

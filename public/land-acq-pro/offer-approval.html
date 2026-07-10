@@ -1,3 +1,4 @@
+<!-- Land Acq Pro - Offer Approval Dashboard with Contract PDF Overrides -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -132,6 +133,12 @@
     .gate select, .gate input { width: 100%; padding: 12px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; font-family: inherit; margin-bottom: 12px; background: white; }
     .gate .gate-error { color: #c62828; font-size: 14px; margin-bottom: 8px; display: none; }
     .gate button { width: 100%; padding: 14px; background: #003d66; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+    /* Live Site link — top-right on desktop, bottom-right on mobile */
+    .live-site-link { position: fixed; top: 24px; right: 24px; text-decoration: none; color: #0a4f8e; font-size: 14px; font-weight: 500; z-index: 998; transition: color 0.2s; }
+    .live-site-link:hover { color: #003d66; text-decoration: underline; }
+    @media (max-width: 640px) { .live-site-link { top: auto; bottom: 80px; } }
+    @media print { .live-site-link { display: none !important; } }
   </style>
 </head>
 <body>
@@ -153,6 +160,7 @@
   </div>
 
   <div class="page">
+    <a class="live-site-link" href="https://palmbaylandoffer.com/land-acq-pro/offer-approval.html" target="_blank" title="Open live site in new tab">Live Site →</a>
     <div class="topbar">
       <h1>Offer Approval</h1>
       <div class="who"><div class="avatar">K</div><div id="whoName">Kevin Nelson</div></div>
@@ -182,15 +190,15 @@
       <div class="card">
         <h3>Brevard County Property Card</h3>
         <div class="two-col">
-          <div class="field"><div class="lbl">Address</div><div class="val" id="cAddress">—</div></div>
-          <div class="field"><div class="lbl">Parcel</div><div class="val" id="cParcel">—</div></div>
-          <div class="field"><div class="lbl">Owner (from County)</div><div class="val" id="cOwner">—</div></div>
+          <div class="field"><label class="form-label" for="addressOverride">Address <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="addressOverride" placeholder="Street address"><div class="val" id="cAddress" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
+          <div class="field"><label class="form-label" for="legalOverride">Legal Description <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="legalOverride" placeholder="Legal description"><div class="val" id="cLegal" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
+          <div class="field"><label class="form-label" for="parcelOverride">Parcel <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="parcelOverride" placeholder="Parcel ID"><div class="val" id="cParcel" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
+          <div class="field"><label class="form-label" for="ownerOverride">Owner (of Record) <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="ownerOverride" placeholder="Owner name"><div class="val" id="cOwner" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
           <div class="field"><label class="form-label" for="sellerName">Seller Name (for Contract) <span style="color:#b02a1a;">*</span></label><input type="text" id="sellerName" placeholder="Name to appear on contract"></div>
           <div class="field"><div class="lbl">Owner Contact</div><div class="val" id="cOwnerContact">—</div></div>
-          <div class="field"><div class="lbl">Lot Size</div><div class="val" id="cLotSize">—</div></div>
-          <div class="field"><div class="lbl">Zoning</div><div class="val" id="cZoning">—</div></div>
-          <div class="field"><div class="lbl">Utilities</div><div class="val" id="cUtilities">—</div></div>
-          <div class="field"><div class="lbl">Tax Assessment</div><div class="val" id="cTax">—</div></div>
+          <div class="field"><label class="form-label" for="lotSizeOverride">Lot Size <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="lotSizeOverride" placeholder="e.g. 0.5 acres"><div class="val" id="cLotSize" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
+          <div class="field"><label class="form-label" for="zoningOverride">Zoning <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="zoningOverride" placeholder="Zoning code"><div class="val" id="cZoning" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
+          <div class="field"><label class="form-label" for="taxOverride">Tax Assessment <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="taxOverride" placeholder="Tax value"><div class="val" id="cTax" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
         </div>
         <div class="field" style="margin-top:12px;"><div class="lbl">County Record</div>
           <button type="button" id="pullCountyBtn" style="margin-right:10px; padding:8px 14px; font-family:inherit; font-size:14px; font-weight:700; color:#fff; background:#1a5ba5; border:none; border-radius:8px; cursor:pointer;">Pull County Record</button>
@@ -198,6 +206,20 @@
           <span id="countyMsg" class="hint" style="display:none; margin-left:8px;"></span>
         </div>
         <div class="hint">This property card is included in the seller's offer email and in Kevin's copy.</div>
+      </div>
+
+      <!-- Listing Agent Information (pulled from MLS/listing data) -->
+      <div class="card" id="agentDisplayCard" style="display:none;">
+        <h3>Listing Agent Information</h3>
+        <div class="two-col">
+          <div class="field"><div class="lbl">Agent Name</div><div class="val" id="dAgentNameDisplay">—</div></div>
+          <div class="field"><div class="lbl">Brokerage</div><div class="val" id="dAgentBrokerageDisplay">—</div></div>
+          <div class="field"><div class="lbl">Phone</div><div class="val"><a id="dAgentPhoneDisplay" href="javascript:void(0)" style="color:#1a5a3a; text-decoration:none;">—</a></div></div>
+          <div class="field"><div class="lbl">Email</div><div class="val"><a id="dAgentEmailDisplay" href="javascript:void(0)" style="color:#1a5a3a; text-decoration:none;">—</a></div></div>
+          <div class="field"><div class="lbl">License #</div><div class="val" id="dAgentLicenseDisplay">—</div></div>
+          <div class="field"><div class="lbl">MLS #</div><div class="val" id="dMlsDisplay">—</div></div>
+        </div>
+        <div class="hint">Agent information pulled from listing data. Edit the Listing Agent section below to make changes.</div>
       </div>
 
       <!-- Deal details -->
@@ -227,6 +249,7 @@
               <option value="Direct Mail">Direct Mail / Mailer</option>
               <option value="Email">Email</option>
               <option value="QR Landing Page">QR Landing Page</option>
+              <option value="MLS">MLS / Listed</option>
               <option value="FSBO">FSBO</option>
               <option value="Wholesaler">Wholesaler</option>
               <option value="Expired">Expired</option>
@@ -643,50 +666,50 @@
     // in, and the per-deal fields (seller, property, legal, price, commission)
     // come from the lot + this screen. This is what Kevin sends on a ready lot.
     function contractSummary() {
-      const price = document.getElementById(‘offerAmount’).value.trim() || ‘$_____’;
-      const emd = document.getElementById(‘emd’).value.trim() || ‘$100’;
-      const seller = document.getElementById(‘sellerName’).value.trim() || lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(‘ ‘) || ‘__________’;
-      const address = lot.address || ‘See Exhibit "A"’;
-      const legalM = (lot.ownerContact || ‘’).match(/legal:\s*([^|]+)/i);
-      const legal = lot.legal || (legalM ? legalM[1].trim() : ‘’) || ‘See Exhibit "A"’;
-      const parcel = lot.parcel || ‘See Exhibit "A"’;
+      const price = document.getElementById('offerAmount')?.value?.trim() || '$_____';
+      const emd = document.getElementById('emd')?.value?.trim() || '$100';
+      const seller = document.getElementById('sellerName')?.value?.trim() || lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '__________';
+      const address = document.getElementById('addressOverride')?.value?.trim() || lot.address || 'See Exhibit "A"';
+      const legalM = (lot.ownerContact || '').match(/legal:\s*([^|]+)/i);
+      const legal = document.getElementById('legalOverride')?.value?.trim() || lot.legal || (legalM ? legalM[1].trim() : '') || 'See Exhibit "A"';
+      const parcel = document.getElementById('parcelOverride')?.value?.trim() || lot.parcel || 'See Exhibit "A"';
       const c = resolveCommission();
       const commLine = c.listed
-        ? c.pct + ‘% Buyer’s Agent Commission (‘ + money(c.amt) + ‘) — negotiated with Seller’s Broker, assigned to Buyer and credited to Buyer on the closing statement’
-        : ‘$0’;
-      const dueDilDays = parseInt(document.getElementById(‘dueDiligenceDays’).value) || 45;
-      const closeBusinessDays = parseInt(document.getElementById(‘closeBusinessDays’).value) || 10;
-      const sellerCostContrib = document.getElementById(‘sellerCostContrib’).value.trim() || ‘$350’;
+        ? c.pct + '% Buyer's Agent Commission (' + money(c.amt) + ') — negotiated with Seller's Broker, assigned to Buyer and credited to Buyer on the closing statement'
+        : '$0';
+      const dueDilDays = parseInt(document.getElementById('dueDiligenceDays')?.value || '45') || 45;
+      const closeBusinessDays = parseInt(document.getElementById('closeBusinessDays')?.value || '10') || 10;
+      const sellerCostContrib = document.getElementById('sellerCostContrib')?.value?.trim() || '$350';
       return [
-        ‘ADAMS HOMES — VACANT LAND CONTRACT (Florida Realtors VAC-14) — auto-filled offer terms’,
-        ‘’,
-        ‘SELLER:  ‘ + seller,
-        ‘BUYER:   Adams Homes of Northwest Florida, Inc. (a Florida corporation)’,
-        ‘’,
-        ‘PROPERTY’,
-        ‘  Address: ‘ + address,
-        ‘  Legal Description: ‘ + legal,
-        ‘  County / Real Property ID: Brevard — ‘ + parcel,
-        ‘’,
-        ‘PRICE & DEPOSIT’,
-        ‘  Purchase Price: ‘ + price + ‘ — all cash, no financing contingency (¶6a)’,
-        ‘  Initial Deposit: ‘ + emd + ‘, to Escrow Agent within 10 days of Effective Date (¶2a)’,
-        ‘  Balance to close: by wire / collected funds at closing (¶2e)’,
-        ‘’,
-        ‘ESCROW AGENT (¶2)’,
-        ‘  Emmanuel, Sheppard & Condon, P.A. — John Monroe’,
-        ‘  30 S. Spring Street, Pensacola, FL 32502 · (850) 433-6581 · jwm@esclaw.com’,
-        ‘’,
-        ‘KEY TERMS’,
-        ‘  Due Diligence Period: ‘ + dueDilDays + ‘ days after Effective Date (¶9a1)’,
-        ‘  Closing: on/before ‘ + closeBusinessDays + ‘ business days after the Due Diligence Period (¶4)’,
-        ‘  Title: statutory warranty deed; title evidence at Buyer’s expense, ≥ 2 days before closing (¶8)’,
-        ‘  Assignability: Buyer may not assign (¶7)’,
-        ‘  Closing costs: Seller pays ‘ + sellerCostContrib + ‘ toward the Escrow settlement charge; Buyer pays the balance’,
+        'ADAMS HOMES — VACANT LAND CONTRACT (Florida Realtors VAC-14) — auto-filled offer terms',
+        '',
+        'SELLER:  ' + seller,
+        'BUYER:   Adams Homes of Northwest Florida, Inc. (a Florida corporation)',
+        '',
+        'PROPERTY',
+        '  Address: ' + address,
+        '  Legal Description: ' + legal,
+        '  County / Real Property ID: Brevard — ' + parcel,
+        '',
+        'PRICE & DEPOSIT',
+        '  Purchase Price: ' + price + ' — all cash, no financing contingency (¶6a)',
+        '  Initial Deposit: ' + emd + ', to Escrow Agent within 10 days of Effective Date (¶2a)',
+        '  Balance to close: by wire / collected funds at closing (¶2e)',
+        '',
+        'ESCROW AGENT (¶2)',
+        '  Emmanuel, Sheppard & Condon, P.A. — John Monroe',
+        '  30 S. Spring Street, Pensacola, FL 32502 · (850) 433-6581 · jwm@esclaw.com',
+        '',
+        'KEY TERMS',
+        '  Due Diligence Period: ' + dueDilDays + ' days after Effective Date (¶9a1)',
+        '  Closing: on/before ' + closeBusinessDays + ' business days after the Due Diligence Period (¶4)',
+        '  Title: statutory warranty deed; title evidence at Buyer's expense, ≥ 2 days before closing (¶8)',
+        '  Assignability: Buyer may not assign (¶7)',
+        '  Closing costs: Seller pays ' + sellerCostContrib + ' toward the Escrow settlement charge; Buyer pays the balance',
         '  Addendum for Vacant Land Contract: attached (¶22C)',
         '',
         'BROKERAGE (¶21 + Addendum)',
-        '  Buyer’s Broker: Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388)',
+        '  Buyer's Broker: Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388)',
         '  100 W. Garden St., 2nd Floor, Pensacola, FL 32502',
         '  Commission: ' + commLine,
         '',
@@ -705,32 +728,31 @@
     // each on its own page with Buyer/Seller initial lines and signature spots.
     // Opened in a print window so it saves straight to PDF for Dotloop.
     function buildPacketHtml() {
-      const price = document.getElementById(‘offerAmount’).value.trim() || ‘$_____’;
-      const emd = document.getElementById(‘emd’).value.trim() || ‘$100’;
-      const seller = document.getElementById(‘sellerName’).value.trim() || lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(‘ ‘) || ‘__________’;
-      const address = lot.address || ‘See Exhibit "A"’;
-      const agentName = document.getElementById(‘agentName’).value.trim();
-      const agentPhone = document.getElementById(‘agentPhone’).value.trim();
-      const agentEmail = document.getElementById(‘agentEmail’).value.trim();
-      const agentLicense = document.getElementById(‘agentLicense’).value.trim();
-      const mlsNum = document.getElementById(‘mlsNum’).value.trim();
-      const daysOnMarket = document.getElementById(‘daysOnMarket’).value.trim();
-      const legalM = (lot.ownerContact || ‘’).match(/legal:\s*([^|]+)/i);
-      const legal = lot.legal || (legalM ? legalM[1].trim() : ‘’) || ‘See Exhibit "A"’;
-      const parcel = lot.parcel || ‘See Exhibit "A"’;
+      const price = document.getElementById('offerAmount')?.value?.trim() || '$_____';
+      const emd = document.getElementById('emd')?.value?.trim() || '$100';
+      const seller = document.getElementById('sellerName')?.value?.trim() || lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '__________';
+      const address = document.getElementById('addressOverride')?.value?.trim() || lot.address || 'See Exhibit "A"';
+      const agentName = document.getElementById('agentName')?.value?.trim() || '';
+      const agentPhone = document.getElementById('agentPhone')?.value?.trim() || '';
+      const agentEmail = document.getElementById('agentEmail')?.value?.trim() || '';
+      const agentLicense = document.getElementById('agentLicense')?.value?.trim() || '';
+      const mlsNum = document.getElementById('mlsNum')?.value?.trim() || '';
+      const daysOnMarket = document.getElementById('daysOnMarket')?.value?.trim() || '';
+      const legalM = (lot.ownerContact || '').match(/legal:\s*([^|]+)/i);
+      const legal = document.getElementById('legalOverride')?.value?.trim() || lot.legal || (legalM ? legalM[1].trim() : '') || 'See Exhibit "A"';
+      const parcel = document.getElementById('parcelOverride')?.value?.trim() || lot.parcel || 'See Exhibit "A"';
       const c = resolveCommission();
       const commLine = c.listed
-        ? c.pct + ‘% Buyer’s Agent Commission (‘ + money(c.amt) + ‘) — negotiated with Seller’s Broker, assigned to Buyer and credited to Buyer on the closing statement’
-        : ‘$0’;
+        ? c.pct + '% Buyer's Agent Commission (' + money(c.amt) + ') — negotiated with Seller's Broker, assigned to Buyer and credited to Buyer on the closing statement'
+        : '$0';
       const exp = lot.offerExpires ? fmtDate(lot.offerExpires) : fmtDate(addDays(new Date().toISOString(), OFFER_VALID_DAYS));
-      const lotSize = lot.lotSize || (lot.acres ? lot.acres + ‘ acres’ : ‘—‘);
-      const zoning = lot.zoning || ‘Residential (vacant)’;
-      const utilities = lot.utilities || ‘—‘;
-      const taxVal = lot.taxValue || ‘—‘;
-      const annualTax = lot.annualTax || ‘’;
-      const dueDilDays = parseInt(document.getElementById(‘dueDiligenceDays’).value) || 45;
-      const closeBusinessDays = parseInt(document.getElementById(‘closeBusinessDays’).value) || 10;
-      const sellerCostContrib = document.getElementById(‘sellerCostContrib’).value.trim() || ‘$350’;
+      const lotSize = document.getElementById('lotSizeOverride')?.value?.trim() || lot.lotSize || (lot.acres ? lot.acres + ' acres' : '—');
+      const zoning = document.getElementById('zoningOverride')?.value?.trim() || lot.zoning || 'Residential (vacant)';
+      const taxVal = document.getElementById('taxOverride')?.value?.trim() || lot.taxValue || '—';
+      const annualTax = lot.annualTax || '';
+      const dueDilDays = parseInt(document.getElementById('dueDiligenceDays')?.value || '45') || 45;
+      const closeBusinessDays = parseInt(document.getElementById('closeBusinessDays')?.value || '10') || 10;
+      const sellerCostContrib = document.getElementById('sellerCostContrib')?.value?.trim() || '$350';
       const initials = '<div class="ini"><span>Buyer <b>______</b></span><span>Seller <b>______</b></span></div>';
       const row = (k, v) => '<tr><td class="k">' + k + '</td><td>' + v + '</td></tr>';
       // Absolute URL so the logo resolves in the popped-open print window (whose
@@ -759,25 +781,25 @@
         + row('Buyer', 'Adams Homes of Northwest Florida, Inc. (a Florida corporation)')
         + row('Property Address', escHtml(address))
         + row('Legal Description', escHtml(legal))
-        + row('County / Real Property ID', 'Brevard — ' + escHtml(parcel) + ' (see Exhibit “A”)')
+        + row('County / Real Property ID', 'Brevard — ' + escHtml(parcel) + ' (see Exhibit "A")')
         + '</table><h2>Price &amp; Terms</h2><table class="kv">'
         + row('Purchase Price', escHtml(price) + ' — all cash, no financing contingency (¶6a)')
         + row('Initial Deposit', escHtml(emd) + ' to Escrow Agent within 10 days of Effective Date (¶2a)')
         + row('Balance to Close', 'Wire / collected funds at closing (¶2e)')
-        + row(‘Escrow Agent’, ‘Emmanuel, Sheppard &amp; Condon, P.A. — John Monroe · 30 S. Spring St., Pensacola, FL 32502 · (850) 433-6581 · jwm@esclaw.com’)
-        + row(‘Due Diligence’, dueDilDays + ‘ days after Effective Date (¶9a1)’)
-        + row(‘Closing’, ‘On/before ‘ + closeBusinessDays + ‘ business days after the Due Diligence Period (¶4)’)
-        + row(‘Title’, ‘Statutory warranty deed; title evidence at Buyer’s expense, ≥ 2 days before closing (¶8)’)
-        + row(‘Assignability’, ‘Buyer may not assign (¶7)’)
-        + row(‘Closing Costs’, ‘Seller pays ‘ + sellerCostContrib + ‘ toward Escrow settlement charge; Buyer pays the balance’)
-        + row(‘Addendum’, ‘Addendum for Vacant Land Contract attached (¶22C)’)
-        + row(‘Buyer’s Broker’, ‘Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388) · 100 W. Garden St., 2nd Floor, Pensacola, FL 32502’)
-        + row(‘Commission’, escHtml(commLine))
-        + (mlsNum ? row(‘MLS #’, escHtml(mlsNum)) : ‘’)
-        + ‘</table><div class="sig"><div class="muted">Seller signs first; Buyer (Elizabeth Porter, Regional Manager) counter-signs last — the Effective Date.</div>’
+        + row('Escrow Agent', 'Emmanuel, Sheppard &amp; Condon, P.A. — John Monroe · 30 S. Spring St., Pensacola, FL 32502 · (850) 433-6581 · jwm@esclaw.com')
+        + row('Due Diligence', dueDilDays + ' days after Effective Date (¶9a1)')
+        + row('Closing', 'On/before ' + closeBusinessDays + ' business days after the Due Diligence Period (¶4)')
+        + row('Title', 'Statutory warranty deed; title evidence at Buyer's expense, ≥ 2 days before closing (¶8)')
+        + row('Assignability', 'Buyer may not assign (¶7)')
+        + row('Closing Costs', 'Seller pays ' + sellerCostContrib + ' toward Escrow settlement charge; Buyer pays the balance')
+        + row('Addendum', 'Addendum for Vacant Land Contract attached (¶22C)')
+        + row('Buyer's Broker', 'Adams Homes Realty, Inc. — N. Duncan Hudnall (BK 234388) · 100 W. Garden St., 2nd Floor, Pensacola, FL 32502')
+        + row('Commission', escHtml(commLine))
+        + (mlsNum ? row('MLS #', escHtml(mlsNum)) : '')
+        + '</table><div class="sig"><div class="muted">Seller signs first; Buyer (Elizabeth Porter, Regional Manager) counter-signs last — the Effective Date.</div>'
         + '<div class="sigline">Seller signature &nbsp;·&nbsp; Date</div>'
         + '<div class="sigline">Buyer: Elizabeth Porter, Regional Manager — Adams Homes &nbsp;·&nbsp; Date</div></div>' + initials + '</div>'
-        + '<div class="page"><div class="tag">EXHIBIT “A”</div>'
+        + '<div class="page"><div class="tag">EXHIBIT "A"</div>'
         + '<h1 style="margin-top:12px">Brevard County Property Appraiser Card</h1>'
         + '<div class="muted">Property &amp; legal description referenced in the Vacant Land Contract above.</div>'
         + '<table class="kv" style="margin-top:14px">'
@@ -787,9 +809,8 @@
         + row('Legal Description', escHtml(legal))
         + row('Lot Size', escHtml(lotSize))
         + row('Zoning / Use', escHtml(zoning))
-        + row('Utilities', escHtml(utilities))
         + row('Assessed Value', escHtml(taxVal) + (annualTax ? ' · Annual Tax ' + escHtml(annualTax) : ''))
-        + '</table><div class="sig"><div class="muted">By initialing below, Seller and Buyer acknowledge this Exhibit “A” as the property described in the Contract.</div>'
+        + '</table><div class="sig"><div class="muted">By initialing below, Seller and Buyer acknowledge this Exhibit "A" as the property described in the Contract.</div>'
         + '<div class="sigline">Seller initials &nbsp;·&nbsp; Date</div>'
         + '<div class="sigline">Buyer initials &nbsp;·&nbsp; Date</div></div>' + initials + '</div>'
         + '</body></html>';
@@ -820,7 +841,7 @@
       p.textContent = '';
       p.classList.add('show');
       const note = document.createElement('div');
-      note.textContent = 'Send by email or print & mail as a postcard — Kevin’s choice. The card below is print-ready (postcard format).';
+      note.textContent = 'Send by email or print & mail as a postcard — Kevin's choice. The card below is print-ready (postcard format).';
       note.style.cssText = 'text-align:center; color:#556; font-size:14px; margin-bottom:10px;';
       p.appendChild(note);
       const img = document.createElement('img');
@@ -929,7 +950,7 @@
         'pending': 'New lead — generate and send the offer.',
         'offer-sent': 'Offer sent to seller. Mark received once they sign in Dotloop.',
         'seller-signed': 'Seller signed. Routing to Elizabeth for counter-signature.',
-        'pending-ep-sig': isElizabeth() ? 'Review the summary and sign to make it official.' : 'Awaiting Elizabeth’s signature.',
+        'pending-ep-sig': isElizabeth() ? 'Review the summary and sign to make it official.' : 'Awaiting Elizabeth's signature.',
         'ip': 'Executed. In inspection period.', 'manager-driven': 'Manager-driven review.',
         'survey-rcvd': 'Survey received.', 'cd-approved': 'Closing disclosure approved.',
         'ctc': 'Clear to close.', 'closed': 'Closed.', 'declined': 'Declined.',
@@ -1169,7 +1190,7 @@
       lot.offerExpires = set.offerExpires;
       lot.premiumTBD = premiumPossible;
       renderAll();
-      msg('Offer generated. Packet (contract + cover letter + property card) ready to send via Dotloop with Kevin’s login. Expires ' + fmtDate(set.offerExpires) + '.'
+      msg('Offer generated. Packet (contract + cover letter + property card) ready to send via Dotloop with Kevin's login. Expires ' + fmtDate(set.offerExpires) + '.'
         + (premiumPossible ? ' Premium flagged as possible — enter the amount when the signed contract comes back.' : ''), true);
     }
 
@@ -1180,7 +1201,7 @@
       try { await saveLot({ offerConfirmedSentAt: now }); } catch (e) { return msg('Could not save — please try again.', false); }
       lot.offerConfirmedSentAt = now;
       renderAll();
-      msg('Offer marked sent ' + fmtDate(now) + '. Follow-up reminder set for ' + fmtDate(addDays(now, 3)) + ' if the seller hasn’t responded.', true);
+      msg('Offer marked sent ' + fmtDate(now) + '. Follow-up reminder set for ' + fmtDate(addDays(now, 3)) + ' if the seller hasn't responded.', true);
     }
 
     // Finalize a previously-flagged possible premium once the contract is back.
@@ -1190,7 +1211,7 @@
       try { await saveLot({ premiums: premiums, premiumTBD: false }); } catch (e) { return msg('Could not save — please try again.', false); }
       lot.premiums = premiums; lot.premiumTBD = false;
       renderAll();
-      msg(amt > 0 ? ('Lot premium set to ' + money(amt) + '. Ready for Elizabeth’s signature.') : 'Recorded no premium. Ready for Elizabeth’s signature.', true);
+      msg(amt > 0 ? ('Lot premium set to ' + money(amt) + '. Ready for Elizabeth's signature.') : 'Recorded no premium. Ready for Elizabeth's signature.', true);
     }
 
     async function markSellerReceived() {
@@ -1251,7 +1272,6 @@
       setLines(document.getElementById('cOwnerContact'), (lot.ownerContact || [lot.address, lot.phone, lot.email].filter(Boolean).join(' | ') || '—').split('|').map(s => s.trim()));
       document.getElementById('cLotSize').textContent = lot.lotSize || '—';
       document.getElementById('cZoning').textContent = lot.zoning || '—';
-      setLines(document.getElementById('cUtilities'), (lot.utilities || '—').split('/').map(s => s.trim()));
       document.getElementById('cTax').textContent = lot.taxValue ? ('Value: ' + lot.taxValue + (lot.annualTax ? ' · Tax: ' + lot.annualTax : '')) : '—';
 
       // Deal details
@@ -1275,6 +1295,36 @@
       document.getElementById('mlsNum').value = lot.mls || '';
       // Point the "look up" links at this agent's name to speed verification.
       updateAgentLookups();
+
+      // Display agent information card if agent data exists
+      const hasAgent = !!(lot.agentName || lot.agentPhone || lot.agentEmail || lot.agentBrokerage);
+      const agentCard = document.getElementById('agentDisplayCard');
+      if (hasAgent) {
+        agentCard.style.display = '';
+        document.getElementById('dAgentNameDisplay').textContent = lot.agentName || '—';
+        document.getElementById('dAgentBrokerageDisplay').textContent = lot.agentBrokerage || '—';
+        document.getElementById('dAgentLicenseDisplay').textContent = lot.agentLicense || '—';
+        document.getElementById('dMlsDisplay').textContent = lot.mls || '—';
+        const phoneEl = document.getElementById('dAgentPhoneDisplay');
+        if (lot.agentPhone) {
+          phoneEl.textContent = lot.agentPhone;
+          phoneEl.href = 'tel:' + lot.agentPhone.replace(/[^\d+]/g, '');
+        } else {
+          phoneEl.textContent = '—';
+          phoneEl.href = 'javascript:void(0)';
+        }
+        const emailEl = document.getElementById('dAgentEmailDisplay');
+        if (lot.agentEmail) {
+          emailEl.textContent = lot.agentEmail;
+          emailEl.href = 'mailto:' + lot.agentEmail;
+        } else {
+          emailEl.textContent = '—';
+          emailEl.href = 'javascript:void(0)';
+        }
+      } else {
+        agentCard.style.display = 'none';
+      }
+
       // Wholesaler details (who brought the deal + the spread)
       document.getElementById('wsName').value = lot.wholesalerName || '';
       document.getElementById('wsCompany').value = lot.wholesalerCompany || '';
@@ -1372,7 +1422,18 @@
       const offer = num(document.getElementById('offerAmount').value);
       const cc = resolveCommission();
       const listed = document.getElementById('listingType').value === 'listed';
-      const params = new URLSearchParams({ id: String(lot.id), offer: String(offer || ''), commission: String(cc.pct || ''), listed: listed ? '1' : '0' });
+      const params = new URLSearchParams({
+        id: String(lot.id),
+        offer: String(offer || ''),
+        commission: String(cc.pct || ''),
+        listed: listed ? '1' : '0',
+        parcelOverride: document.getElementById('parcelOverride')?.value?.trim() || '',
+        addressOverride: document.getElementById('addressOverride')?.value?.trim() || '',
+        legalOverride: document.getElementById('legalOverride')?.value?.trim() || '',
+        lotSizeOverride: document.getElementById('lotSizeOverride')?.value?.trim() || '',
+        zoningOverride: document.getElementById('zoningOverride')?.value?.trim() || '',
+        taxOverride: document.getElementById('taxOverride')?.value?.trim() || ''
+      });
       btn.disabled = true; btn.textContent = 'Filling your contract…';
       try {
         const res = await fetch('/api/land-acq/contract-pdf?' + params.toString(), { headers: adminHeaders(), signal: AbortSignal.timeout(30000) });
