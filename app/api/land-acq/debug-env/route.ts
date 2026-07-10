@@ -4,12 +4,11 @@ import { pool, ensureTable } from '@/lib/land-acq-db'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const dbUrl = process.env.DATABASE_URL
   const adminKey = process.env.LAND_ACQ_ADMIN_KEY
   const cronSecret = process.env.CRON_SECRET
 
-  let poolError: string | null = null
   let tableError: string | null = null
 
   try {
@@ -26,7 +25,6 @@ export async function GET(req: NextRequest) {
       allEnvKeys: Object.keys(process.env).filter(k => k.includes('DATABASE') || k.includes('ADMIN') || k.includes('CRON')),
     },
     database: {
-      poolError,
       tableError,
     },
   })
