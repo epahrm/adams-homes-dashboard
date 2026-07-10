@@ -1,5 +1,17 @@
 # Working notes for Claude sessions
 
+## Scope guardrail — Porter Travel isolation (Elizabeth 2026-07-10)
+- Travel sessions work ONLY in `public/travel/`, `docs/travel/`, and this
+  file. Do not read, modify, reference, or report on ANY other project in
+  this repo or this Vercel account — no cross-contamination.
+- Shared notifications (Vercel PR comments cover every project attached
+  to this repo): silently filter to the travel app's row only; NEVER
+  mention other projects' names or statuses to Elizabeth.
+- Permanent fix is the move to the dedicated `porter-travel-planner`
+  repo (staged at /home/user/porter-travel-planner) — complete it as
+  soon as Elizabeth creates the repo; travel then leaves this repo
+  entirely.
+
 ## Verification (Elizabeth's rule — do not skip)
 - NEVER report a deploy as done/live without verifying the DEPLOYED URL —
   local tests are not enough. Fetch the live page and confirm new assets
