@@ -147,7 +147,7 @@
 </head>
 <body>
   <div class="gate-overlay" id="gateOverlay">
-    <div class="gate">
+    <!-- GATE DISABLED --><div class="gate" style="display:none;">
       <h2>Admin Access</h2>
       <p>Enter the admin password to open this offer.</p>
       <form id="gateForm">
@@ -171,7 +171,7 @@
       <button class="logout" onclick="sessionStorage.removeItem('laAdminKey'); sessionStorage.removeItem('laMode'); sessionStorage.removeItem('laRole'); window.location.href='index.html'">Logout</button>
     </div>
 
-    <div class="content" id="content" style="display:none;">
+    <div class="content" id="content" style="display:block;">
       <h2 id="pageTitle">Offer Approval</h2>
       <div class="stage-line">Current stage: <span class="pill" id="stagePill">—</span> <span id="stageHint"></span></div>
 
