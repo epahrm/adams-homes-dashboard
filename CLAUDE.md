@@ -66,3 +66,15 @@ Add a persistent "Live Site →" link in the top-right corner so the site URL is
 - Opens in new tab
 - Hidden in print mode
 - Non-intrusive, doesn't interfere with page content
+
+## Important: File Scope Boundaries
+
+⛔ **DO NOT reference, point to, or suggest solutions from:**
+- Dashboard/onboarding files in this project (separate codebase)
+- Dylan the acorn files (not relevant to this project)
+
+For this project (adams-homes-dashboard / Land Acq Pro), only work with:
+- `/home/user/adams-homes-dashboard/` directory
+- `/workspace/land-acq-pro-app/` directory
+
+Any suggestions, fixes, or documentation should ONLY use code from these directories.
