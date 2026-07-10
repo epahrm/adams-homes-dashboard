@@ -134,7 +134,7 @@ export async function GET(req: NextRequest) {
   // "crooked" look on real owner names.
   let sellerSize = 11
   while (sellerSize > 8 && font.widthOfTextAtSize(seller, sellerSize) > 208) sellerSize -= 0.5
-  put(p1, seller, 308, 686, sellerSize)
+  put(p1, seller, 308, 680, sellerSize)
   if (offer) put(p1, Number(offer).toLocaleString('en-US'), 505, 549, 11)
 
   // Listing-agent (Seller's-side) block — the Buyer's side is pre-printed with
@@ -161,7 +161,7 @@ export async function GET(req: NextRequest) {
   if (pAddendum) {
     let addSize = 11
     while (addSize > 8 && font.widthOfTextAtSize(seller, addSize) > 280) addSize -= 0.5
-    put(pAddendum, seller, 220, 688, addSize)
+    put(pAddendum, seller, 220, 682, addSize)
   }
 
   const p11 = pages[10]
