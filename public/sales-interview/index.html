@@ -256,9 +256,17 @@ function esc(s) {
 
 function renderCards() {
   // Whole card (image + city name) opens the application for that office.
-  document.getElementById('locationsGrid').innerHTML = LOCS.map(l =>
+  console.log('[DEBUG] renderCards called with LOCS:', LOCS);
+  const grid = document.getElementById('locationsGrid');
+  console.log('[DEBUG] locationsGrid element found:', !!grid);
+  if (!grid) {
+    console.error('[ERROR] locationsGrid not found in DOM');
+    return;
+  }
+  grid.innerHTML = LOCS.map(l =>
     `<div class="location-card" onclick="openJobDesc('${l.code}')" style="cursor:pointer;" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openJobDesc('${l.code}')"><img src="/sales-interview/img/${l.img}" class="location-card-image" alt="${esc(l.name)}" loading="lazy"><div class="location-card-content"><button class="job-btn city-btn">${esc(l.name)}</button></div></div>`
   ).join('');
+  console.log('[DEBUG] renderCards completed, rendered', LOCS.length, 'cards');
 }
 
 function saveProgress() {
@@ -321,8 +329,14 @@ async function loadQuestions() {
 }
 
 async function init() {
+  console.log('[DEBUG] init() called');
   renderCards();
-  try { await loadQuestions(); } catch (e) { /* retried on demand in startApplication */ }
+  try {
+    await loadQuestions();
+  } catch (e) {
+    console.error('[ERROR] loadQuestions failed:', e);
+    /* retried on demand in startApplication */
+  }
   const ackCheckbox = document.getElementById('acknowledgment');
   const startBtn = document.getElementById('startAppBtn');
   if (ackCheckbox && startBtn) {
@@ -422,11 +436,11 @@ function render() {
 
       <hr class="divider">
 
-      <button type="button" class="save-progress-btn" onclick="saveProgress(); alert('Your progress has been saved!');">💾 Save Progress</button>
-
       <div class="info-box">
         <p><strong>Show Us What's Great About You</strong><br>We're looking for driven professionals with the passion and track record to succeed at the highest level. These questions help us understand your experience, your mindset, and your commitment to excellence. Be specific, be honest, and let us see the top performer we know you are.</p>
       </div>
+
+      <button type="button" class="save-progress-btn" onclick="saveProgress(); alert('Your progress has been saved!');">💾 Save Progress</button>
 
       ${qHTML}
     </div>
