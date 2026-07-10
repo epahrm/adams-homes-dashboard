@@ -111,6 +111,8 @@ textarea { min-height: 100px; resize: vertical; }
 .video-cta h4 { font-family: 'Playfair Display', serif; color: var(--navy); font-size: 17px; margin-bottom: 8px; }
 .video-cta p { font-size: 13px; color: #556; line-height: 1.6; margin-bottom: 14px; }
 .link-box { background: white; border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; font-size: 12px; word-break: break-all; color: var(--navy); margin-bottom: 12px; }
+.save-progress-btn { background: #27ae60; color: white; padding: 10px 16px; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 16px; width: 100%; min-height: 44px; }
+.save-progress-btn:hover { background: #229954; }
 </style>
 </head>
 <body>
@@ -259,6 +261,52 @@ function renderCards() {
   ).join('');
 }
 
+function saveProgress() {
+  const formData = {
+    step: step,
+    appData: appData,
+    formValues: {}
+  };
+  if (step === 1) {
+    formData.formValues.fn = document.getElementById('fn')?.value || '';
+    formData.formValues.ln = document.getElementById('ln')?.value || '';
+    formData.formValues.em = document.getElementById('em')?.value || '';
+    formData.formValues.ph = document.getElementById('ph')?.value || '';
+    formData.formValues.license = document.querySelector('input[name="license"]:checked')?.value || '';
+    for (let i = 0; i < QS.length; i++) {
+      formData.formValues['q' + i] = document.getElementById('q' + i)?.value || '';
+    }
+  } else if (step === 2) {
+    formData.formValues.linkedin = document.getElementById('linkedin')?.value || '';
+    formData.formValues.instagram = document.getElementById('instagram')?.value || '';
+    formData.formValues.facebook = document.getElementById('facebook')?.value || '';
+    formData.formValues.socialStrategy = document.getElementById('socialStrategy')?.value || '';
+    formData.formValues.res = document.getElementById('res')?.value || '';
+    formData.formValues.referral = document.getElementById('referral')?.value || '';
+  }
+  localStorage.setItem('appProgress', JSON.stringify(formData));
+}
+
+function loadProgress() {
+  const saved = localStorage.getItem('appProgress');
+  if (!saved) return false;
+  try {
+    const data = JSON.parse(saved);
+    appData = data.appData || {};
+    const formValues = data.formValues || {};
+    if (data.step === 1) {
+      formValues.fn && (appData.firstName = formValues.fn);
+      formValues.ln && (appData.lastName = formValues.ln);
+      formValues.em && (appData.email = formValues.em);
+      formValues.ph && (appData.phone = formValues.ph);
+      if (formValues.license) appData.hasLicense = formValues.license === 'yes';
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 let lastLoadError = '';
 async function loadQuestions() {
   const res = await fetch(API + '/questions');
@@ -308,6 +356,7 @@ async function startApplication() {
   document.getElementById('modalLoc').textContent = currentLoc.name;
   document.getElementById('jobDescModal').classList.remove('active');
   document.getElementById('appModal').classList.add('active');
+  loadProgress();
   render();
 }
 function closeAppModal() { document.getElementById('appModal').classList.remove('active'); }
@@ -373,6 +422,8 @@ function render() {
 
       <hr class="divider">
 
+      <button type="button" class="save-progress-btn" onclick="saveProgress(); alert('Your progress has been saved!');">💾 Save Progress</button>
+
       <div class="info-box">
         <p><strong>Show Us What's Great About You</strong><br>We're looking for driven professionals with the passion and track record to succeed at the highest level. These questions help us understand your experience, your mindset, and your commitment to excellence. Be specific, be honest, and let us see the top performer we know you are.</p>
       </div>
@@ -385,6 +436,24 @@ function render() {
       <button class="btn btn-primary" onclick="validateStep1()">Next</button>
     </div>
     <div class="form-error" id="err1"></div>`;
+
+    setTimeout(() => {
+      const saved = localStorage.getItem('appProgress');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          const formValues = data.formValues || {};
+          if (formValues.fn) document.getElementById('fn').value = formValues.fn;
+          if (formValues.ln) document.getElementById('ln').value = formValues.ln;
+          if (formValues.em) document.getElementById('em').value = formValues.em;
+          if (formValues.ph) document.getElementById('ph').value = formValues.ph;
+          if (formValues.license) document.querySelector(`input[name="license"][value="${formValues.license}"]`)?.click();
+          for (let i = 0; i < QS.length; i++) {
+            if (formValues['q' + i]) document.getElementById('q' + i).value = formValues['q' + i];
+          }
+        } catch (e) { }
+      }
+    }, 0);
   } else if (step === 2) {
     c.innerHTML = `<div>
       <div class="social-section">
