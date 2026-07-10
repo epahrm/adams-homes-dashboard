@@ -266,6 +266,9 @@ async function loadQuestions() {
   if (!res.ok) { lastLoadError = data.error ? data.error + ' (HTTP ' + res.status + ')' : 'HTTP ' + res.status; return false; }
   if (data.divisions) { LOCS = data.divisions; renderCards(); }
   QS = (data.appQuestions || []).map((q, i) => ({ ...q, label: (i + 1) + '. ' + q.text }));
+  console.log('[DEBUG] Loaded questions:', QS.slice(0, 5));
+  console.log('[DEBUG] First question category:', QS[0]?.category);
+  console.log('[DEBUG] Fifth question category:', QS[4]?.category);
   return QS.length > 0;
 }
 
