@@ -36,8 +36,9 @@ export async function GET(request: NextRequest) {
       : await pool.query('SELECT * FROM land_acq_lots ORDER BY created_at DESC')
     return NextResponse.json({ lots: result.rows.map(toLot) })
   } catch (e) {
-    console.error('[land-acq] GET lots failed:', e)
-    return NextResponse.json({ error: 'Database unavailable' }, { status: 503 })
+    const errMsg = e instanceof Error ? e.message : String(e)
+    console.error('[land-acq] GET lots failed:', errMsg)
+    return NextResponse.json({ error: 'Database unavailable', detail: errMsg }, { status: 503 })
   }
 }
 
@@ -70,8 +71,9 @@ export async function POST(request: NextRequest) {
     } catch { /* alerting must never fail the submission */ }
     return NextResponse.json({ lot: toLot(result.rows[0]) }, { status: 201 })
   } catch (e) {
-    console.error('[land-acq] POST lot failed:', e)
-    return NextResponse.json({ error: 'Database unavailable' }, { status: 503 })
+    const errMsg = e instanceof Error ? e.message : String(e)
+    console.error('[land-acq] POST lot failed:', errMsg)
+    return NextResponse.json({ error: 'Database unavailable', detail: errMsg }, { status: 503 })
   }
 }
 
@@ -106,7 +108,8 @@ export async function PATCH(request: NextRequest) {
     }
     return NextResponse.json({ lot: toLot(result.rows[0]) })
   } catch (e) {
-    console.error('[land-acq] PATCH lot failed:', e)
-    return NextResponse.json({ error: 'Database unavailable' }, { status: 503 })
+    const errMsg = e instanceof Error ? e.message : String(e)
+    console.error('[land-acq] PATCH lot failed:', errMsg)
+    return NextResponse.json({ error: 'Database unavailable', detail: errMsg }, { status: 503 })
   }
 }

@@ -122,7 +122,8 @@ export async function GET(req: NextRequest) {
     }
     return NextResponse.json({ ok: true, source: 'Redfin', scanned: candidates.length, added, duplicates })
   } catch (e) {
-    console.error('[land-acq] redfin sweep insert failed:', e)
-    return NextResponse.json({ error: 'Database unavailable' }, { status: 503 })
+    const errMsg = e instanceof Error ? e.message : String(e)
+    console.error('[land-acq] redfin sweep insert failed:', errMsg)
+    return NextResponse.json({ error: 'Database unavailable', detail: errMsg }, { status: 503 })
   }
 }
