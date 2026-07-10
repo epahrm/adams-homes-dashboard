@@ -5,7 +5,7 @@ Admin reference for dylantheacorn.com. Lives in `docs/` (private repo), NOT in
 whenever hosting, costs, or accounts change — automated reminders (below)
 assume it is accurate.
 
-_Last updated: 2026-07-08 (DNS records set; awaiting propagation)_
+_Last updated: 2026-07-10 (Site LIVE ✅ | Coloring pages added)_
 
 ## Where everything lives
 
@@ -22,14 +22,25 @@ _Last updated: 2026-07-08 (DNS records set; awaiting propagation)_
 
 ## Action checklist (as of last update)
 
-- [x] Porkbun: set A record `@ → 216.198.79.1`, CNAME `www → cname.vercel-dns.com` (records created 2026-07-08, awaiting DNS propagation)
-- [ ] **URGENT:** Porkbun: turn ON auto-renew for the domain (currently OFF; expires May 24, 2027)
-- [ ] Vercel: verify `dylantheacorn.com` + `www.dylantheacorn.com` domains appear in project settings once DNS propagates
-- [ ] Collect first Amazon reviews → paste best ones into site (only ≥3 stars display; filter is enforced in code)
-- [ ] Personalize Seth's bio on the author page
-- [ ] First event for the events section
-- [ ] Optional: Formspree account for real newsletter signups
-- [ ] Optional: submit site to Google Search Console once domain is live
+### ✅ COMPLETED
+- [x] Porkbun: set A record `@ → 216.198.79.1`, CNAME `www → cname.vercel-dns.com`
+- [x] DNS propagation complete — site LIVE at https://dylantheacorn.com
+- [x] Auto-renew enabled on domain (expires May 24, 2027)
+- [x] Free coloring pages added (3 downloadable print-ready sheets)
+- [x] Navigation updated with "Coloring Pages" link
+
+### 📋 PRIORITY (Next Batch)
+- [ ] Collect first Amazon reviews → paste 3-5 best ones into site (only ≥3 stars display)
+- [ ] Personalize Seth's bio on the author page (age, hobbies, why he wrote Dylan)
+- [ ] Add first event to events section (or set a specific "coming soon" date)
+- [ ] Set up Formspree for newsletter (captures emails instead of mailto)
+
+### 🎯 NICE-TO-HAVE (Future Batches)
+- [ ] Parent & Teacher resource hub with discussion guides
+- [ ] Video: Seth reading an excerpt
+- [ ] Feelings wheel PDF + calm-down reminder cards
+- [ ] Teacher bulk order discount info
+- [ ] Google Search Console submission
 
 ## Automated reminders (Claude Routines)
 
