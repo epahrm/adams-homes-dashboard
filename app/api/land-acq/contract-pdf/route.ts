@@ -140,7 +140,7 @@ export async function GET(req: NextRequest) {
   // Listing-agent (Seller's-side) block — the Buyer's side is pre-printed with
   // Adams Homes. Fill the left column from the lot for on-market deals:
   //   pg 6 (idx 5) line 327: Seller's Sales Associate name (license verified separately, not printed)
-  //   pg 7 (idx 6) line 329: email · line 332: phone · line 335: listing brokerage
+  //   pg 7 (idx 6) line 329: email · line 332: phone · line 335: listing brokerage · line 338: license
   if (listed) {
     const pAgentName = pages[5]
     if (pAgentName && agentName) {
@@ -151,6 +151,7 @@ export async function GET(req: NextRequest) {
       if (agentEmail) put(pAgent, agentEmail, 175, 726, 10)
       if (agentPhone) put(pAgent, agentPhone, 175, 690, 10)
       if (agentBrokerage) put(pAgent, agentBrokerage, 175, 655, 10)
+      if (agentLicense) put(pAgent, agentLicense, 175, 621, 10)
     }
   }
 
