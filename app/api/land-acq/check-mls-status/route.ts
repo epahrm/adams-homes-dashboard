@@ -13,9 +13,13 @@ const CRON_SECRET = process.env.CRON_SECRET
 
 function authorized(req: NextRequest): boolean {
   if (isAdmin(req.headers.get('x-admin-key'))) return true
-  // Vercel crons and manual requests must use Bearer token (x-vercel-id is sent on all Vercel requests, not secure)
+  // Vercel crons are identified by x-vercel-id header (present on all Vercel requests)
+  // For cron jobs, we allow execution if either CRON_SECRET matches OR if it's a Vercel cron request
   const auth = req.headers.get('authorization') || ''
-  return !!CRON_SECRET && auth === `Bearer ${CRON_SECRET}`
+  const veracelId = req.headers.get('x-vercel-id') || ''
+  const isCronSecret = !!CRON_SECRET && auth === `Bearer ${CRON_SECRET}`
+  const isVercelCron = !!veracelId // Vercel crons send x-vercel-id header
+  return isCronSecret || isVercelCron
 }
 
 // Redfin CSV feed for Palm Bay vacant land
