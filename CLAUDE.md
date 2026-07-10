@@ -78,3 +78,27 @@ For this project (adams-homes-dashboard / Land Acq Pro), only work with:
 - `/workspace/land-acq-pro-app/` directory
 
 Any suggestions, fixes, or documentation should ONLY use code from these directories.
+
+## ⚠️ Cleats to College does NOT live here
+
+**Cleats to College** (a college soccer recruiting platform for Elizabeth's own
+consulting business, unrelated to Adams Homes) was originally prototyped inside
+this repo by mistake. It has been **fully migrated out**. Its real home:
+
+- **Repo:** `epahrm/cleats-to-college` (private) — use `add_repo` to bring it into
+  session scope if it isn't already there
+- **Deploy:** its own Vercel project (`cleats-to-college`, team `ecf-projects`) —
+  a different project from this one
+- **Database:** its own Neon Postgres project — **not** this repo's Supabase
+  project (`tbzuajwitwonwojqshew`)
+
+If asked to build, fix, or extend anything about Cleats to College, soccer
+recruiting, athletes/coaches, or Elizabeth's consulting practice — **do not
+create or edit files in this repo.** Go to the `cleats-to-college` repo instead.
+
+This repo's own database (`tbzuajwitwonwojqshew`) holds only this repo's tables
+(`User`, `Admin`, `Milestone*`, `Question`, `MarketingLesson`, `land_acq_*`,
+`vi_*`). Row Level Security is enabled on all of them with no policies — the
+app connects as the table-owning `postgres` role via Prisma, which bypasses RLS
+by design, and nothing here uses Supabase's anon/client API. Do not add tables
+here for any product other than Adams Homes' own tools.
