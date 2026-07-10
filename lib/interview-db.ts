@@ -222,34 +222,26 @@ export const MANAGERS = [
 
 // The finalized 20 application questions (from the 07/07/2026 landing page
 // prototype). Q5 is a select; everything else free text.
-export const APP_QUESTIONS: { text: string; type: 'text' | 'select'; options?: string[] }[] = [
-  // Sales Experience
-  { text: 'Tell us about your experience in new home sales or consultative sales.', type: 'text' },
+export const APP_QUESTIONS: { text: string; type: 'text' | 'select'; options?: string[]; category?: string }[] = [
+  { category: 'Sales Experience', text: 'Tell us about your experience in new home sales or consultative sales.', type: 'text' },
   { text: 'Walk us through your sales process from first contact to closing.', type: 'text' },
   { text: 'Tell us about your biggest sales win. What made it successful?', type: 'text' },
   { text: 'Tell us about your most challenging sale. How did you eventually close it—or why didn\'t you?', type: 'text' },
-  // Performance & Mindset
-  { text: 'Describe a time you had a disappointing month or lost an important deal. How did you respond?', type: 'text' },
+  { category: 'Performance & Mindset', text: 'Describe a time you had a disappointing month or lost an important deal. How did you respond?', type: 'text' },
   { text: 'What does winning mean to you?', type: 'text' },
   { text: 'What\'s your annual income goal?', type: 'text' },
   { text: 'How do you ensure you achieve your goals?', type: 'text' },
   { text: 'When you miss a goal or quota, what\'s the first thing you evaluate, and what changes do you make to improve your results?', type: 'text' },
-  // Culture & Coachability
-  { text: 'How do you respond to coaching and feedback?', type: 'text' },
+  { category: 'Culture & Coachability', text: 'How do you respond to coaching and feedback?', type: 'text' },
   { text: 'What characteristics separate elite sales professionals from average ones?', type: 'text' },
-  // Adams Homes
-  { text: 'What do you know about Adams Homes, and why do you believe you\'d be successful here?', type: 'text' },
+  { category: 'Adams Homes', text: 'What do you know about Adams Homes, and why do you believe you\'d be successful here?', type: 'text' },
   { text: 'How would you become an expert on our floor plans, communities, pricing, and competition during your first 30 days?', type: 'text' },
-  // Customer & Sales Skills
-  { text: 'How would your previous customers describe their experience working with you?', type: 'text' },
+  { category: 'Customer & Sales Skills', text: 'How would your previous customers describe their experience working with you?', type: 'text' },
   { text: 'A buyer says, "You\'re more expensive than the builder down the street." How do you respond?', type: 'text' },
   { text: 'A buyer can\'t make a decision after multiple visits. What do you do?', type: 'text' },
-  // Prospecting
-  { text: 'Describe what a great sales week looks like when you don\'t have any appointments scheduled. How would you create opportunities?', type: 'text' },
-  // Marketing & Technology
-  { text: 'How do you use social media, technology, and AI to build your personal brand, improve the customer experience, and generate new business?', type: 'text' },
-  // Closing
-  { text: 'Are you currently interviewing with any other companies? If so, where are you in the hiring process?', type: 'text' },
+  { category: 'Prospecting', text: 'Describe what a great sales week looks like when you don\'t have any appointments scheduled. How would you create opportunities?', type: 'text' },
+  { category: 'Marketing & Technology', text: 'How do you use social media, technology, and AI to build your personal brand, improve the customer experience, and generate new business?', type: 'text' },
+  { category: 'Closing', text: 'Are you currently interviewing with any other companies? If so, where are you in the hiring process?', type: 'text' },
   { text: 'Is there anything else you\'d like us to know?', type: 'text' },
 ]
 
