@@ -18,23 +18,19 @@
     },
     {
       "path": "/api/land-acq/ingest-email",
-      "schedule": "0 11 * * *",
-      "allowConcurrentSchedules": false
+      "schedule": "0 11 * * *"
     },
     {
       "path": "/api/land-acq/ingest-email",
-      "schedule": "0 15 * * *",
-      "allowConcurrentSchedules": false
+      "schedule": "0 15 * * *"
     },
     {
       "path": "/api/land-acq/ingest-email",
-      "schedule": "0 19 * * *",
-      "allowConcurrentSchedules": false
+      "schedule": "0 19 * * *"
     },
     {
       "path": "/api/land-acq/ingest-email",
-      "schedule": "0 23 * * *",
-      "allowConcurrentSchedules": false
+      "schedule": "0 23 * * *"
     }
   ]
 }
