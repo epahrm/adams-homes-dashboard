@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adams Homes - Sell Your Vacant Land</title>
+  <style>
+    :root {
+      --blue: #1a5ba5;
+      --blue-dark: #14508f;
+      --blue-deep: #123a63;
+      --red: #c0432f;
+      --red-dark: #a5361f;
+      --ink: #1a1a1a;
+      --muted: #555;
+      --ground: #eef2f7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #ffffff; color: var(--ink); font-size: 16px;
+    }
+    .container { max-width: 1024px; margin: 0 auto; padding: 0 20px; }
+
+    /* Header */
+    .site-header { background: #ffffff; }
+    .site-header .container { display: flex; align-items: center; justify-content: center; padding: 22px 20px 16px; }
+    .brand-block { text-align: center; }
+    .brand-block img { height: 136px; width: auto; max-width: 100%; display: block; margin: 0 auto; }
+    .brand-block .tagline { color: var(--muted); font-size: 14px; letter-spacing: 0.5px; margin-top: 4px; }
+    @media (max-width: 520px) { .brand-block img { height: 98px; } }
+    .brand-band { height: 6px; background: var(--red); }
+    .brand-band::after { content: ''; display: block; height: 2px; background: var(--blue); margin-top: 2px; }
+
+    /* Hero — layered navy gradient + architectural grid texture */
+    .hero { position: relative; overflow: hidden; color: #fff;
+      background:
+        radial-gradient(1100px 480px at 74% -12%, rgba(255,255,255,0.14), transparent 60%),
+        linear-gradient(158deg, #1c62b0 0%, #14508f 42%, #10345a 100%);
+      padding: 60px 20px 66px; }
+    .hero::before { content: ''; position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.055) 0 1px, transparent 1px 48px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.055) 0 1px, transparent 1px 48px);
+      -webkit-mask-image: linear-gradient(175deg, rgba(0,0,0,0.7), transparent 72%);
+      mask-image: linear-gradient(175deg, rgba(0,0,0,0.7), transparent 72%); }
+    .hero .container { position: relative; max-width: 1140px; }
+    .hero-grid { display: grid; grid-template-columns: 1fr; gap: 34px; align-items: center; }
+    .hero-copy { text-align: center; }
+    .hero .eyebrow { display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28);
+      color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; padding: 8px 18px; border-radius: 999px; margin-bottom: 20px; }
+    .hero h1 { font-size: 42px; line-height: 1.06; margin-bottom: 18px; text-wrap: balance; letter-spacing: -0.5px; }
+    .hero .subtitle { font-size: 19px; line-height: 1.55; color: #dce8f5; max-width: 540px; margin: 0 auto 26px; }
+    .hero-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .hero-cta { display: inline-flex; align-items: center; justify-content: center; padding: 15px 28px; border-radius: 10px; font-size: 17px; font-weight: 800; text-decoration: none; transition: background 0.15s, box-shadow 0.15s, transform 0.1s; }
+    .hero-cta.primary { background: var(--red); color: #fff; box-shadow: 0 10px 26px rgba(192,67,47,0.42); }
+    .hero-cta.primary:hover { background: var(--red-dark); transform: translateY(-1px); }
+    .hero-cta.ghost { background: rgba(255,255,255,0.08); color: #fff; border: 2px solid rgba(255,255,255,0.55); }
+    .hero-cta.ghost:hover { background: rgba(255,255,255,0.16); }
+    /* Floating "cash offer" card */
+    .hero-card { background: #fff; color: var(--ink); border-radius: 16px; padding: 24px 24px 22px; box-shadow: 0 26px 64px rgba(6,26,48,0.34); max-width: 400px; margin: 0 auto; text-align: left; }
+    .hero-card .hc-top { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eef1f5; padding-bottom: 14px; margin-bottom: 14px; }
+    .hero-card .hc-badge { background: #e3f2ea; color: #1a7a44; font-weight: 800; font-size: 12px; letter-spacing: 0.5px; padding: 6px 12px; border-radius: 999px; }
+    .hero-card h4 { color: var(--blue); font-size: 19px; }
+    .hero-card .hc-row { display: flex; align-items: flex-start; gap: 10px; margin: 11px 0; font-size: 15px; color: #333; line-height: 1.35; }
+    .hero-card .hc-row::before { content: '✓'; color: #1a7a44; font-weight: 900; flex-shrink: 0; }
+    .hero-card .hc-figure { margin-top: 16px; background: var(--ground); border-radius: 10px; padding: 14px 16px; text-align: center; }
+    .hero-card .hc-figure .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #778; }
+    .hero-card .hc-figure .amt { font-size: 25px; font-weight: 800; color: var(--blue); margin-top: 2px; }
+    @media (min-width: 920px) {
+      .hero { padding: 88px 20px 96px; }
+      .hero-grid { grid-template-columns: 1.12fr 0.88fr; gap: 52px; }
+      .hero-copy { text-align: left; }
+      .hero .subtitle { margin-left: 0; margin-right: 0; }
+      .hero-ctas { justify-content: flex-start; }
+      .hero h1 { font-size: 56px; }
+      .hero-card { margin-right: 0; }
+    }
+
+    /* Stats trust band */
+    .hero-brand { display: block; width: fit-content; margin: 0 auto 26px; background: #fff; padding: 8px 18px; border-radius: 12px; box-shadow: 0 10px 26px rgba(3,20,38,0.28); }
+    .hero-brand img { height: 104px; width: auto; display: block; }
+    @media (max-width: 640px) { .hero-brand { padding: 7px 14px; } .hero-brand img { height: 88px; } }
+
+    .direct-contact { font-size: 13px; color: #667; margin-top: 12px; line-height: 1.55; }
+    .direct-contact a { color: var(--blue); font-weight: 600; text-decoration: none; }
+    .direct-contact.light { color: #cfe0f2; margin-top: 14px; }
+    .direct-contact.light a { color: #fff; text-decoration: underline; }
+
+    .stats-band { background: linear-gradient(180deg, var(--red) 0%, var(--red-dark) 100%); color: #fff; }
+    .stats-band .container { max-width: 1140px; display: grid; grid-template-columns: repeat(2, 1fr); padding: 8px 20px; }
+    .stat { text-align: center; padding: 18px 10px; }
+    .stat .num { font-size: 30px; font-weight: 800; line-height: 1; }
+    .stat .lbl { font-size: 12.5px; margin-top: 7px; color: #ffe2db; letter-spacing: 0.3px; }
+    @media (min-width: 760px) { .stats-band .container { grid-template-columns: repeat(4, 1fr); } .stat { padding: 24px 10px; } .stat .num { font-size: 34px; } }
+
+    /* Section shells */
+    .section { padding: 52px 0; }
+    .section.tint { background: var(--ground); }
+    .section h2 { color: var(--blue); font-size: 30px; text-align: center; margin-bottom: 12px; text-wrap: balance; }
+    .section .lede { text-align: center; color: var(--muted); font-size: 17px; max-width: 560px; margin: 0 auto 8px; }
+
+    /* Why Adams Homes bullets — centered under the heading */
+    .why-grid { display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 900px; margin: 26px auto 0; text-align: left; }
+    @media (min-width: 760px) { .why-grid { grid-template-columns: 1fr 1fr; } }
+    .why-item { display: flex; gap: 15px; align-items: flex-start; background: #fff; border: 1px solid #e6e9ee; border-left: 4px solid var(--blue); border-radius: 12px; padding: 20px 22px; box-shadow: 0 3px 14px rgba(3,20,38,0.06); }
+    .why-item .why-ic { font-size: 26px; line-height: 1; flex-shrink: 0; }
+    .why-item b { display: block; color: var(--blue); font-size: 17px; margin-bottom: 4px; letter-spacing: -0.2px; }
+    .why-item span { display: block; color: #556; font-size: 14.5px; line-height: 1.45; }
+
+    /* Value props */
+    .values { display: grid; gap: 22px; grid-template-columns: 1fr; margin-top: 12px; }
+    @media (min-width: 820px) { .values { grid-template-columns: repeat(3, 1fr); align-items: stretch; } .value-card { display: flex; flex-direction: column; } }
+    .value-card { background: #fff; border: 1px solid #e6e9ee; border-radius: 14px; padding: 30px 26px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+    .value-card .icon { font-size: 44px; margin-bottom: 12px; }
+    .value-card h3 { color: var(--blue); font-size: 22px; margin-bottom: 16px; }
+    .value-card ul { list-style: none; text-align: left; max-width: 340px; margin: 0 auto; }
+    .value-card li { position: relative; padding-left: 22px; margin-bottom: 10px; line-height: 1.5; color: #333; }
+    .value-card li::before { content: '•'; position: absolute; left: 6px; color: var(--muted); font-weight: 700; }
+
+    /* Search */
+    .search-grid { max-width: 640px; margin: 24px auto 0; }
+    .search-card { border: 1px solid #dde3ea; border-radius: 12px; padding: 24px 22px; background: white; }
+    .search-card label { display: block; font-weight: 700; font-size: 17px; margin-bottom: 4px; color: var(--ink); }
+    .search-card .hint { color: #667; font-size: 15px; margin-bottom: 14px; line-height: 1.45; }
+    input, textarea {
+      width: 100%; padding: 15px; border: 1px solid #ccc; border-radius: 8px;
+      font-family: inherit; font-size: 16px;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26, 91, 165, 0.14); }
+    .btn { display: block; width: 100%; padding: 16px; border-radius: 8px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; border: none; text-align: center; text-decoration: none; min-height: 52px; transition: background 0.15s, box-shadow 0.15s; }
+    .btn-blue { background: var(--blue); color: white; margin-top: 16px; }
+    .btn-blue:hover { background: var(--blue-dark); box-shadow: 0 3px 10px rgba(0,0,0,0.18); }
+    .btn-blue:disabled { background: #99a; opacity: 0.65; cursor: not-allowed; }
+    .btn-red { background: var(--red); color: white; }
+    .btn-red:hover { background: var(--red-dark); box-shadow: 0 3px 10px rgba(0,0,0,0.18); }
+    .btn-outline { background: white; color: var(--blue); border: 2px solid var(--blue); }
+    .btn-outline:hover { background: #eef4fb; }
+    .field-error { color: #c62828; font-size: 14px; margin-top: 8px; display: none; }
+    .or-divider { display: flex; align-items: center; gap: 16px; margin: 24px 0; color: #667; font-size: 16px; font-weight: 600; }
+    .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: #cdd5de; }
+
+    /* Found property card */
+    #resultPanel { display: none; max-width: 640px; margin: 24px auto 0; }
+    #chooserPanel { display: none; max-width: 640px; margin: 24px auto 0; }
+    .chooser-card { border: 2px solid var(--blue); border-radius: 12px; padding: 22px 20px; background: white; }
+    .chooser-card h3 { color: var(--blue); font-size: 18px; margin-bottom: 4px; text-wrap: balance; }
+    .chooser-card #chooserCount { font-weight: 800; }
+    .chooser-hint { color: #667; font-size: 14px; margin-bottom: 14px; }
+    .chooser-item { display: block; width: 100%; text-align: left; background: #f6f9fd; border: 1px solid #d8e4f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; font-family: inherit; }
+    .chooser-item:hover { background: #eaf2fb; border-color: var(--blue); }
+    .chooser-item .ci-addr { font-weight: 700; color: var(--blue); font-size: 15px; }
+    .chooser-item .ci-meta { color: #667; font-size: 13px; margin-top: 2px; }
+    .chooser-more { display: block; width: 100%; margin-top: 6px; padding: 12px 14px; min-height: 44px; background: white; color: var(--blue); border: 1px dashed var(--blue); border-radius: 8px; font-family: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .chooser-more:hover { background: #f2f8ff; }
+    .property-card { border: 2px solid var(--blue); border-radius: 12px; padding: 24px 22px; background: white; }
+    .property-card h3 { color: var(--blue); font-size: 15px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid var(--blue); padding-bottom: 10px; margin-bottom: 18px; }
+    .p-field { margin-bottom: 14px; }
+    .p-field .lbl { color: #778; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px; }
+    .p-field .val { font-size: 17px; color: var(--ink); }
+    .confirm { background: #e8f2ec; border-left: 5px solid #1a7a44; border-radius: 6px; padding: 18px; font-size: 17px; color: #14401d; margin-top: 20px; display: none; }
+    .contact-capture { display: none; margin-top: 22px; padding-top: 20px; border-top: 2px dashed #d6e0ec; }
+    .contact-capture h4 { color: var(--blue); font-size: 19px; margin-bottom: 6px; text-wrap: balance; }
+    .contact-capture .cc-sub { color: #555; font-size: 15px; line-height: 1.5; margin-bottom: 16px; }
+    .contact-capture .rf-group { margin-bottom: 12px; }
+    .cc-pref { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 4px 0 2px; }
+    .cc-pref-lbl { width: 100%; color: #778; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+    .cc-pref label { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; color: var(--ink); cursor: pointer; }
+    .cc-pref input[type="radio"] { width: auto; margin: 0; }
+    .message { padding: 14px; border-radius: 8px; margin-top: 16px; display: none; font-size: 16px; }
+    .message.success { background: #e8f2ec; color: #14401d; border: 1px solid #bcd8c6; }
+    .message.error { background: #fdecea; color: #b02a1a; border: 1px solid #f3c3bb; }
+    .notfound-note { display: none; max-width: 640px; margin: 20px auto 0; background: #fdf3ef; border: 1px solid #f0cabe; border-radius: 8px; padding: 14px 18px; font-size: 15px; color: #8a3a28; text-align: center; }
+
+    /* Can't find box */
+    .cantfind { max-width: 640px; margin: 26px auto 0; background: #fdf5ef; border: 1px solid #f2ddcf; border-radius: 14px; padding: 28px 24px; text-align: center; }
+    .cantfind h3 { color: var(--blue); font-size: 22px; margin-bottom: 10px; text-wrap: balance; }
+    .cantfind p { color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 18px; }
+    .cantfind .rf-group { margin-bottom: 12px; text-align: left; }
+    .cantfind textarea { resize: vertical; }
+    .cantfind .field-error { text-align: left; }
+    .cantfind-or { margin: 20px 0 14px; color: #8a7a70; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Why sell now */
+    .reasons { max-width: 680px; margin: 24px auto 0; display: grid; gap: 16px; }
+    .reason { background: #fff; border: 1px solid #e6e9ee; border-left: 5px solid var(--red); border-radius: 10px; padding: 20px 22px; }
+    .reason h3 { color: var(--ink); font-size: 18px; margin-bottom: 6px; }
+    .reason p { color: #555; font-size: 16px; line-height: 1.5; }
+
+    /* How it works */
+    .steps { max-width: 620px; margin: 8px auto 0; text-align: center; }
+    .step .num { width: 64px; height: 64px; border-radius: 50%; background: var(--blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; margin: 0 auto 14px; }
+    .step h3 { color: var(--blue); font-size: 18px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .step p { color: #444; line-height: 1.6; max-width: 480px; margin: 0 auto; }
+    .step-connector { width: 3px; height: 46px; background: #c9d4e2; margin: 18px auto; }
+
+    /* Kevin card */
+    .kevin-wrap { padding: 40px 0 8px; }
+    .kevin-card { max-width: 600px; margin: 0 auto; background: var(--blue); border-radius: 16px; color: white; text-align: center; padding: 40px 28px; }
+    .kevin-card .photo { width: 128px; height: 128px; border-radius: 50%; margin: 0 auto 20px; object-fit: cover; object-position: center 26%; border: 4px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.12); }
+    .kevin-card .name { font-size: 27px; font-weight: 800; margin-bottom: 6px; }
+    .kevin-card .role { font-size: 15px; letter-spacing: 2px; text-transform: uppercase; color: #cfe0f2; margin-bottom: 18px; }
+    .kevin-card .bio { font-size: 17px; line-height: 1.6; color: #eaf1f8; margin-bottom: 22px; max-width: 460px; margin-left: auto; margin-right: auto; }
+    .kevin-card .btn-white { background: white; color: var(--blue); }
+    .kevin-card .btn-white:hover { background: #eef4fb; }
+    .kevin-card .btn-translucent { background: rgba(255,255,255,0.16); color: white; border: 1px solid rgba(255,255,255,0.5); margin-top: 12px; }
+    .kevin-card .btn-translucent:hover { background: rgba(255,255,255,0.26); }
+    .kevin-card .sbd { margin-top: 16px; font-style: italic; color: #cfe0f2; font-size: 15px; }
+
+    /* Footer */
+    .site-footer { background: var(--blue-deep); color: white; text-align: center; padding: 40px 20px 44px; }
+    .footer-logo { display: inline-block; background: white; border-radius: 12px; padding: 12px 22px; margin-bottom: 20px; }
+    .footer-logo img { height: 124px; width: auto; display: block; max-width: 100%; }
+    @media (max-width: 640px) { .footer-logo { padding: 10px 16px; } .footer-logo img { height: 100px; } }
+    .site-footer p { color: #d3deec; font-size: 15px; line-height: 1.7; }
+    .site-footer .tag { font-size: 16px; color: #eaf1f8; }
+    .footer-links { margin: 14px 0 6px; font-size: 15px; }
+    .footer-links a { color: #cfe0f2; text-decoration: underline; }
+    .footer-copy { font-size: 14px; color: #a9bcd4; }
+    .footer-admin { font-size: 11px; color: #778; margin-top: 8px; }
+    .footer-admin a { color: #778; text-decoration: none; transition: color 0.2s; }
+    .footer-admin a:hover { color: #a9bcd4; }
+
+    @media (min-width: 768px) {
+      .values { grid-template-columns: repeat(3, 1fr); }
+      .hero h1 { font-size: 48px; }
+    }
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 32px; }
+      .hero .subtitle { font-size: 18px; }
+      .section h2 { font-size: 25px; }
+    }
+
+    /* Back-to-top button */
+    .back-to-top { position: fixed; bottom: 24px; right: 24px; width: 48px; height: 48px; background: #1a5a3a; color: white; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; display: none; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 999; transition: background 0.3s, box-shadow 0.3s; }
+    .back-to-top:hover { background: #14472e; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .back-to-top.show { display: flex; }
+
+    /* Live Site link — top-right on desktop, bottom-right on mobile */
+    .live-site-link { position: fixed; top: 24px; right: 24px; text-decoration: none; color: #0a4f8e; font-size: 14px; font-weight: 500; z-index: 998; transition: color 0.2s; }
+    .live-site-link:hover { color: #003d66; text-decoration: underline; }
+    @media (max-width: 640px) { .live-site-link { top: auto; bottom: 80px; } }
+
+  </style>
+</head>
+<body>
+
+  <!-- Hero (logo lives inside the blue box; no white header bar above) -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-brand"><img src="adams-homes-logo.png" alt="Adams Homes"></div>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">Palm Bay Vacant Land</div>
+          <h1>Turn Your Empty Lot Into Cash</h1>
+          <p class="subtitle">One of America's largest homebuilders, Adams Homes buys vacant residential lots directly. No agents, no fees, no banks, no waiting. Get a cash offer that closes in days, not months.</p>
+          <div class="hero-ctas">
+            <a class="hero-cta primary" href="#start">Let's Get Started</a>
+            <a class="hero-cta ghost" href="#why">Why Adams Homes</a>
+          </div>
+        </div>
+        <div class="hero-card" aria-hidden="true">
+          <div class="hc-top"><span class="hc-badge">100% CASH</span><h4>Your Cash Offer</h4></div>
+          <div class="hc-row">No agents, brokers, or commissions</div>
+          <div class="hc-row">No financing &mdash; funds ready now</div>
+          <div class="hc-row">We handle all the paperwork</div>
+          <div class="hc-figure"><div class="lbl">No obligation offer</div><div class="amt">Let's get started</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust / stats band -->
+  <div class="stats-band">
+    <div class="container">
+      <div class="stat"><div class="num">35+</div><div class="lbl">Years Building</div></div>
+      <div class="stat"><div class="num">75,000+</div><div class="lbl">Lots Purchased</div></div>
+      <div class="stat"><div class="num">100%</div><div class="lbl">Cash Buyer</div></div>
+      <div class="stat"><div class="num">Days</div><div class="lbl">Not Months to Close</div></div>
+    </div>
+  </div>
+
+  <!-- Why Adams Homes -->
+  <section class="section" id="why">
+    <div class="container">
+      <h2>Why Adams Homes?</h2>
+      <div class="why-grid">
+        <div class="why-item"><span class="why-ic">&#127942;</span><div><b>65,000+ homes built</b><span>One of America's largest homebuilders &mdash; across more than 30 markets.</span></div></div>
+        <div class="why-item"><span class="why-ic">&#9889;</span><div><b>No banks, no financing, no delays</b><span>Nothing to wait on &mdash; we move fast and keep it simple.</span></div></div>
+        <div class="why-item"><span class="why-ic">&#129309;</span><div><b>A full-time local team</b><span>Right here in Palm Bay, with a proven reputation.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Value props -->
+  <section class="section tint">
+    <div class="container">
+      <div class="values">
+        <div class="value-card">
+          <div class="icon">&#9889;</div>
+          <h3>Fastest Closing</h3>
+          <ul>
+            <li>No one closes faster than Adams Homes</li>
+            <li>Our team gets to work right away</li>
+            <li>Closing process is very convenient with no travel required</li>
+          </ul>
+        </div>
+        <div class="value-card">
+          <div class="icon">&#128176;</div>
+          <h3>Cash Ready</h3>
+          <ul>
+            <li>We are a 100% cash buyer</li>
+            <li>No financing contingencies</li>
+          </ul>
+        </div>
+        <div class="value-card">
+          <div class="icon">&#10003;</div>
+          <h3>Zero Middlemen</h3>
+          <ul>
+            <li>Deal direct with Adams Homes</li>
+            <li>No agents. No brokers.</li>
+            <li>No commissions or hidden fees</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Let's Get Started! Find Your Property (combined CTA + search) -->
+  <section class="section tint" id="start">
+    <div class="container">
+      <h2>Let's Get Started! Find Your Property</h2>
+      <p class="lede">Search your property below to get your cash offer, or have our Land team reach out to you.</p>
+      <div class="search-grid">
+        <div class="search-card">
+          <label for="ownerName">Search by Owner Name</label>
+          <p class="hint">Enter the owner's <b>last name</b> (e.g. "Smith"), or full name in any order &mdash; we'll find the match.</p>
+          <input type="text" id="ownerName" placeholder="Last name, or full name" autocomplete="name">
+          <div class="field-error" id="ownerNameError">Please enter an owner name (at least 2 characters).</div>
+          <button type="button" class="btn btn-blue" id="searchNameBtn">Search by Name</button>
+        </div>
+
+        <div class="or-divider">OR</div>
+
+        <div class="search-card">
+          <label for="streetAddress">Search by Property Address</label>
+          <p class="hint">If you have a formal address, enter it here to speed up the search.</p>
+          <input type="text" id="streetAddress" placeholder="Enter property address" autocomplete="street-address">
+          <div class="field-error" id="streetAddressError">Please enter a valid property address.</div>
+          <button type="button" class="btn btn-blue" id="searchAddressBtn">Search by Address</button>
+        </div>
+      </div>
+
+      <!-- Multiple properties under a name — seller picks theirs -->
+      <div id="chooserPanel">
+        <div class="chooser-card">
+          <h3>We found <span id="chooserCount">several</span> properties under that name</h3>
+          <p class="chooser-hint">Select the one you own. (Names can repeat, so check the address.)</p>
+          <div id="chooserList"></div>
+          <button type="button" id="chooserMore" class="chooser-more" style="display:none;">None of these are my lots — show more</button>
+        </div>
+      </div>
+
+      <!-- Found property -->
+      <div id="resultPanel">
+        <div class="property-card">
+          <h3>Property Found</h3>
+          <div class="p-field"><div class="lbl">Address</div><div class="val" id="recAddress"></div></div>
+          <div class="p-field"><div class="lbl">Owner</div><div class="val" id="recOwner"></div></div>
+          <div class="p-field"><div class="lbl">Lot Size</div><div class="val" id="recLotSize"></div></div>
+          <div class="p-field"><div class="lbl">Zoning</div><div class="val" id="recZoning"></div></div>
+          <div class="p-field"><div class="lbl">Utilities</div><div class="val" id="recUtilities"></div></div>
+          <button type="button" class="btn btn-blue" id="confirmBtn">Yes, this is my property</button>
+          <button type="button" class="btn btn-outline" id="searchAgainBtn" style="margin-top:12px;">No, search again</button>
+
+          <!-- Seller contact capture — where do we send the offer? -->
+          <div class="contact-capture" id="contactCapture">
+            <h4>Where should we send your offer?</h4>
+            <p class="cc-sub">Enter your details and Kevin will send your custom cash offer within one business day. No obligation.</p>
+            <form id="offerContactForm" novalidate>
+              <div class="rf-group">
+                <input type="text" id="ccName" placeholder="Your full name *" autocomplete="name">
+                <div class="field-error" id="ccNameError">Please enter your name.</div>
+              </div>
+              <div class="rf-group">
+                <input type="tel" id="ccPhone" placeholder="Phone *" autocomplete="tel">
+                <div class="field-error" id="ccPhoneError">Please enter a phone number.</div>
+              </div>
+              <div class="rf-group">
+                <input type="email" id="ccEmail" placeholder="Email *" autocomplete="email">
+                <div class="field-error" id="ccEmailError">Please enter a valid email.</div>
+              </div>
+              <div class="rf-group">
+                <textarea id="ccNote" rows="3" placeholder="Anything you'd like us to know or any questions? (optional)"></textarea>
+              </div>
+              <div class="rf-group cc-pref">
+                <span class="cc-pref-lbl">Best way to reach you</span>
+                <label><input type="radio" name="ccPref" value="Phone" checked> Phone</label>
+                <label><input type="radio" name="ccPref" value="Text"> Text</label>
+                <label><input type="radio" name="ccPref" value="Email"> Email</label>
+              </div>
+              <button type="submit" class="btn btn-red">Send Me My Offer</button>
+            </form>
+          </div>
+
+          <div class="confirm" id="confirmMsg">Thank you! Kevin will send your custom offer within one business day.</div>
+          <div class="message" id="resultMessage"></div>
+        </div>
+      </div>
+
+      <div class="notfound-note" id="notFoundNote">We couldn't find that property automatically &mdash; no problem. Our Land team will research it for you.</div>
+
+      <!-- Can't find / general inquiry -->
+      <div class="cantfind">
+        <h3>Can't Find Your Property? No Problem.</h3>
+        <p>Send us your details and our Land team will look into your property and get back to you within one business day.</p>
+        <form id="researchForm" novalidate>
+          <div class="rf-group">
+            <input type="text" id="rfName" placeholder="Your name *" autocomplete="name">
+            <div class="field-error" id="rfNameError">Please enter your name.</div>
+          </div>
+          <div class="rf-group">
+            <input type="text" id="rfAddress" placeholder="Property address or description *" autocomplete="street-address">
+            <div class="field-error" id="rfAddressError">Please enter your property address or a short description.</div>
+          </div>
+          <div class="rf-group">
+            <input type="tel" id="rfPhone" placeholder="Phone (optional)" autocomplete="tel">
+            <div class="field-error" id="rfPhoneError">Please enter a phone number.</div>
+          </div>
+          <div class="rf-group">
+            <input type="email" id="rfEmail" placeholder="Email *" autocomplete="email">
+            <div class="field-error" id="rfEmailError">Please enter a valid email.</div>
+          </div>
+          <div class="rf-group">
+            <textarea id="rfNotes" rows="3" placeholder="Anything else we should know? (optional)" maxlength="500"></textarea>
+          </div>
+          <button type="submit" class="btn btn-red">Have Our Land Team Reach Out</button>
+        </form>
+        <div class="message" id="researchMessage"></div>
+        <div class="cantfind-or">Or reach Kevin directly</div>
+        <a class="btn btn-outline" href="tel:4075230908">&#128222;&nbsp; Call Kevin: (407) 523-0908</a>
+        <a class="btn btn-outline" href="mailto:ecland@adamshomes.com?subject=Vacant%20Land%20Inquiry" style="margin-top:12px;">&#9993;&nbsp; Email Kevin: ecland@adamshomes.com</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Sell Now -->
+  <section class="section">
+    <div class="container">
+      <h2>Why Sell Now?</h2>
+      <div class="reasons">
+        <div class="reason"><h3>Carrying Costs Add Up</h3><p>Vacant land costs you money every year in taxes, insurance, and maintenance.</p></div>
+        <div class="reason"><h3>Market is Strong Right Now</h3><p>Interest rates and market conditions shift. This is a strong seller's market.</p></div>
+        <div class="reason"><h3>We're Actively Buying This Quarter</h3><p>We are a cash buyer and we're closing deals fast.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section tint">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <h3>Get Your Custom Offer</h3>
+          <p>Once we verify your property, we'll send your offer within one business day. No obligation.</p>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step">
+          <div class="num">2</div>
+          <h3>We Close Your Deal</h3>
+          <p>Our team handles everything&mdash;no appraisals, no inspections, no delays. Average close: 45 days.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Kevin card -->
+  <section class="kevin-wrap">
+    <div class="container">
+      <div class="kevin-card">
+        <img class="photo" src="kevin-nelson.jpg" alt="Kevin Nelson, Regional Land Acquisitions">
+        <div class="name">Kevin Nelson</div>
+        <div class="role">Regional Land Acquisitions</div>
+        <a class="btn btn-white" href="tel:4075230908">&#128222;&nbsp; Call Kevin: (407) 523-0908</a>
+        <a class="btn btn-translucent" href="mailto:ecland@adamshomes.com?subject=Vacant%20Land%20Inquiry">&#9993;&nbsp; Email Kevin: ecland@adamshomes.com</a>
+        <div class="direct-contact light">Or reach him directly:<br><a href="tel:4075230908">(407) 523-0908</a> &middot; <a href="mailto:ecland@adamshomes.com">ecland@adamshomes.com</a></div>
+        <div class="sbd">Same business day response</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-logo"><img src="adams-homes-logo.png" alt="Adams Homes"></div>
+    <div class="footer-links"><a href="#">Privacy Policy</a> &nbsp;|&nbsp; <a href="#">Terms</a></div>
+    <p class="footer-copy">&copy; 2026 Adams Homes. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    // Live search goes through /api/land-acq/county (a server-side proxy to
+    // the Brevard County Property Appraiser). These sample records are the
+    // offline/demo fallback when the county site or API is unreachable.
+    const API_LOTS = '/api/land-acq/lots';
+    const API_COUNTY = '/api/land-acq/county';
+
+    // Postcard QR tracking: if the visitor arrived from a postcard QR
+    // (?p=lotId&b=batch), log the scan so Kevin can see which mailings work.
+    (function () {
+      try {
+        const q = new URLSearchParams(location.search);
+        const p = q.get('p'), b = q.get('b');
+        if (p) {
+          const body = JSON.stringify({ propertyId: p, batch: b });
+          if (navigator.sendBeacon) navigator.sendBeacon('/api/land-acq/scan', new Blob([body], { type: 'application/json' }));
+          else fetch('/api/land-acq/scan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true }).catch(() => {});
+        }
+      } catch (e) { /* tracking must never block the page */ }
+    })();
+    const SAMPLE_RECORDS = [
+      { address: '123 Maple Avenue, Palm Bay, FL 32908', parcel: '2936-02GI-10509', owner: 'John Smith', ownerContact: '123 Maple Ave, Palm Bay, FL 32908 | (321) 555-1234 | john@email.com', ownerEmail: 'john@email.com', lotSize: '0.23 acres (10,019 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$28,500', annualTax: '$495', listPrice: 35000, listStatus: 'Active Listing', agentName: 'John Johnson', agentBrokerage: 'Keller Williams Island Life', agentPhone: '941-123-4567', agentEmail: 'john@kw-islandlife.com' },
+      { address: '456 Oak Street, Palm Bay, FL 32907', parcel: '2937-11AB-20443', owner: 'Maria Garcia', ownerContact: '456 Oak Street, Palm Bay, FL 32907 | (321) 555-2288 | maria@email.com', ownerEmail: 'maria@email.com', lotSize: '0.25 acres (10,890 sqft)', zoning: 'RS2 Residential', utilities: 'Water: City / Sewer: None (Septic required)', taxValue: '$31,200', annualTax: '$540', listPrice: 40000, listStatus: 'Active Listing', agentName: 'Sarah Lee', agentBrokerage: 'RE/MAX Elite', agentPhone: '321-555-8890', agentEmail: 'sarah@remaxelite.com' },
+      { address: '789 Pine Road, Palm Bay, FL 32909', parcel: '2938-07CD-31877', owner: 'Robert Chen', ownerContact: '789 Pine Road, Palm Bay, FL 32909 | (321) 555-3401 | rchen@email.com', ownerEmail: 'rchen@email.com', lotSize: '0.28 acres (12,196 sqft)', zoning: 'RS2 Residential', utilities: 'Water: None (Well required) / Sewer: None (Septic required)', taxValue: '$26,800', annualTax: '$463', listPrice: null, listStatus: 'Off-Market', agentName: null, agentBrokerage: null, agentPhone: null, agentEmail: null }
+    ];
+
+    const resultPanel = document.getElementById('resultPanel');
+    const confirmMsg = document.getElementById('confirmMsg');
+    const resultMessage = document.getElementById('resultMessage');
+    const notFoundNote = document.getElementById('notFoundNote');
+    let matchedRecord = null;
+
+    function normalize(s) { return (s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+    function showError(id, show) { document.getElementById(id).style.display = show ? 'block' : 'none'; }
+
+    function showMatch(record) {
+      matchedRecord = record;
+      notFoundNote.style.display = 'none';
+      document.getElementById('chooserPanel').style.display = 'none';
+      resultPanel.style.display = 'block';
+      confirmMsg.style.display = 'none';
+      resultMessage.style.display = 'none';
+      const cc = document.getElementById('contactCapture');
+      if (cc) { cc.style.display = 'none'; document.getElementById('offerContactForm').reset(); }
+      const confirmBtn = document.getElementById('confirmBtn');
+      confirmBtn.disabled = false;
+      confirmBtn.style.display = 'block';
+      document.getElementById('recAddress').textContent = record.address || '—';
+      document.getElementById('recOwner').textContent = record.owner || '—';
+      document.getElementById('recLotSize').textContent = record.lotSize || 'Kevin will verify';
+      document.getElementById('recZoning').textContent = record.zoning || 'Kevin will verify';
+      document.getElementById('recUtilities').textContent = record.utilities || 'Kevin will verify';
+      resultPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function showNotFound() {
+      matchedRecord = null;
+      resultPanel.style.display = 'none';
+      document.getElementById('chooserPanel').style.display = 'none';
+      notFoundNote.style.display = 'block';
+      notFoundNote.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Returns an array of matches (an owner can hold many lots, and two owners
+    // can share a name — so we show them all and let the seller pick).
+    function sampleSearch(kind, raw) {
+      const q = normalize(raw);
+      if (!q) return [];
+      if (kind === 'name') return SAMPLE_RECORDS.filter(r => normalize(r.owner).includes(q) || q.includes(normalize(r.owner)));
+      const one = SAMPLE_RECORDS.find(r => normalize(r.address).includes(q) || q.includes(normalize(r.address).slice(0, 12)));
+      return one ? [one] : [];
+    }
+
+    async function countySearch(kind, raw) {
+      try {
+        const param = kind === 'name' ? 'name' : 'address';
+        const res = await fetch(API_COUNTY + '?' + param + '=' + encodeURIComponent(raw), { signal: AbortSignal.timeout(12000) });
+        if (res.ok) {
+          const body = await res.json();
+          if (body.records && body.records.length) return body.records;
+          return [];
+        }
+      } catch (e) { /* offline / county unavailable */ }
+      return sampleSearch(kind, raw);
+    }
+
+    // Multiple properties under a name — let the seller choose theirs. A builder
+    // can hold dozens of lots, so we show 10 at a time and only reveal the next
+    // batch if the seller says none of the shown lots are theirs.
+    const CHOOSER_PAGE = 10;
+    function showChooser(records) {
+      matchedRecord = null;
+      notFoundNote.style.display = 'none';
+      resultPanel.style.display = 'none';
+      const panel = document.getElementById('chooserPanel');
+      const list = document.getElementById('chooserList');
+      const moreBtn = document.getElementById('chooserMore');
+      document.getElementById('chooserCount').textContent = records.length;
+      list.innerHTML = '';
+      let shown = 0;
+      function renderNext() {
+        records.slice(shown, shown + CHOOSER_PAGE).forEach(r => {
+          const item = document.createElement('button');
+          item.type = 'button'; item.className = 'chooser-item';
+          const addr = document.createElement('div'); addr.className = 'ci-addr'; addr.textContent = r.address || '—';
+          const meta = document.createElement('div'); meta.className = 'ci-meta';
+          meta.textContent = [r.owner, r.lotSize, r.useDesc].filter(Boolean).join(' · ');
+          item.appendChild(addr); item.appendChild(meta);
+          item.addEventListener('click', () => { panel.style.display = 'none'; showMatch(r); });
+          list.appendChild(item);
+        });
+        shown = Math.min(shown + CHOOSER_PAGE, records.length);
+        const remaining = records.length - shown;
+        if (remaining > 0) {
+          moreBtn.style.display = 'block';
+          moreBtn.textContent = 'None of these are my lots — show ' + Math.min(CHOOSER_PAGE, remaining) + ' more';
+        } else {
+          moreBtn.style.display = 'none';
+        }
+      }
+      moreBtn.onclick = renderNext;
+      renderNext();
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function runSearch(kind, inputId, errorId, btn) {
+      const raw = document.getElementById(inputId).value.trim();
+      const valid = kind === 'name' ? raw.length >= 2 : raw.length >= 5;
+      showError(errorId, !valid);
+      if (!valid) return;
+      document.getElementById('chooserPanel').style.display = 'none';
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Searching…';
+      try {
+        const recs = await countySearch(kind, raw);
+        if (!recs.length) showNotFound();
+        else if (recs.length === 1) showMatch(recs[0]);
+        else showChooser(recs);
+      } finally {
+        btn.disabled = false; btn.textContent = label;
+      }
+    }
+
+    document.getElementById('searchNameBtn').addEventListener('click', function() { runSearch('name', 'ownerName', 'ownerNameError', this); });
+    document.getElementById('searchAddressBtn').addEventListener('click', function() { runSearch('address', 'streetAddress', 'streetAddressError', this); });
+    document.getElementById('searchAgainBtn').addEventListener('click', function() {
+      resultPanel.style.display = 'none';
+      document.getElementById('chooserPanel').style.display = 'none';
+      matchedRecord = null;
+      document.getElementById('ownerName').focus();
+      document.querySelector('.search-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    function saveLocal(lead) {
+      const submissions = JSON.parse(localStorage.getItem('landAcqSubmissions') || '[]');
+      const normalized = (lead.address || '').toLowerCase();
+      if (submissions.some(s => (s.address || '').toLowerCase() === normalized)) return 'duplicate';
+      submissions.push(lead);
+      localStorage.setItem('landAcqSubmissions', JSON.stringify(submissions));
+      return 'ok';
+    }
+
+    async function saveLead(fields) {
+      const lead = Object.assign({ id: Date.now(), status: 'pending', createdAt: new Date().toISOString(), source: 'QR Landing Page' }, fields);
+      try {
+        const res = await fetch(API_LOTS, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(lead), signal: AbortSignal.timeout(9000) });
+        if (res.status === 201) return 'ok';
+        if (res.status === 409) return 'duplicate';
+      } catch (e) { /* offline */ }
+      return saveLocal(lead);
+    }
+
+    // "Yes, this is my property" now reveals the contact form so we can
+    // actually reach the seller — the lead is not saved until they give us a
+    // way to send the offer.
+    const contactCapture = document.getElementById('contactCapture');
+    document.getElementById('confirmBtn').addEventListener('click', function() {
+      if (!matchedRecord) return;
+      this.style.display = 'none';
+      contactCapture.style.display = 'block';
+      // Pre-fill the seller's name from the county record if we have it.
+      const nameInput = document.getElementById('ccName');
+      if (matchedRecord.owner && !nameInput.value) nameInput.value = ownerDisplayName(matchedRecord.owner);
+      if (matchedRecord.ownerEmail) document.getElementById('ccEmail').value = matchedRecord.ownerEmail;
+      contactCapture.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      nameInput.focus();
+    });
+
+    // County owner names come through as "LAST, FIRST" — flip to "First Last"
+    // so the pre-filled name reads naturally for the seller.
+    function ownerDisplayName(owner) {
+      const m = (owner || '').match(/^\s*([^,]+),\s*(.+?)\s*$/);
+      return m ? (m[2] + ' ' + m[1]).replace(/\s+/g, ' ').trim() : owner;
+    }
+
+    document.getElementById('offerContactForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const rec = matchedRecord;
+      if (!rec) return;
+      const name = document.getElementById('ccName').value.trim();
+      const phone = document.getElementById('ccPhone').value.trim();
+      const email = document.getElementById('ccEmail').value.trim();
+      const pref = (document.querySelector('input[name="ccPref"]:checked') || {}).value || 'Phone';
+      const sellerNote = document.getElementById('ccNote').value.trim();
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      showError('ccNameError', !name);
+      showError('ccPhoneError', !phone);
+      showError('ccEmailError', !emailOk);
+      if (!name || !phone || !emailOk) return;
+      const btn = this.querySelector('button');
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Sending…';
+      const result = await saveLead({
+        address: rec.address,
+        firstName: name.split(' ')[0],
+        lastName: name.split(' ').slice(1).join(' '),
+        sellerName: name, email, phone, preferredContact: pref,
+        sellerNote: sellerNote || undefined,
+        parcel: rec.parcel, owner: rec.owner,
+        ownerContact: [name, phone, email].filter(Boolean).join(' | ') + ' | prefers ' + pref,
+        lotSize: rec.lotSize, zoning: rec.zoning, utilities: rec.utilities,
+        taxValue: rec.taxValue, annualTax: rec.annualTax,
+        listPrice: rec.listPrice, listStatus: rec.listStatus,
+        agentName: rec.agentName, agentBrokerage: rec.agentBrokerage,
+        agentPhone: rec.agentPhone, agentEmail: rec.agentEmail,
+        source: 'Seller Confirmed', verified: true
+      });
+      btn.disabled = false; btn.textContent = label;
+      if (result === 'duplicate') {
+        resultMessage.className = 'message error';
+        resultMessage.textContent = 'This property has already been submitted. Kevin will send your offer within one business day.';
+        resultMessage.style.display = 'block';
+        return;
+      }
+      contactCapture.style.display = 'none';
+      confirmMsg.style.display = 'block';
+      confirmMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    // "Can't find" research request — captures a lead into the pipeline.
+    document.getElementById('researchForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('rfName').value.trim();
+      const address = document.getElementById('rfAddress').value.trim();
+      const phone = document.getElementById('rfPhone').value.trim();
+      const email = document.getElementById('rfEmail').value.trim();
+      const notes = document.getElementById('rfNotes').value.trim();
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      showError('rfNameError', !name);
+      showError('rfAddressError', !address);
+      showError('rfPhoneError', false);   // phone is optional here
+      showError('rfEmailError', !emailOk);
+      if (!name || !address || !emailOk) return;
+      const btn = this.querySelector('button');
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Sending…';
+      const msg = document.getElementById('researchMessage');
+      const result = await saveLead({
+        address,
+        firstName: name.split(' ')[0],
+        lastName: name.split(' ').slice(1).join(' '),
+        owner: name, email, phone, notes: notes || null,
+        ownerContact: [address, phone, email].filter(Boolean).join(' | '),
+        source: 'Research Request',
+        verified: false
+      });
+      btn.disabled = false; btn.textContent = label;
+      if (result === 'duplicate') {
+        msg.className = 'message error';
+        msg.textContent = 'We already have a request for this property. Kevin will be in touch within one business day.';
+        msg.style.display = 'block';
+        return;
+      }
+      msg.className = 'message success';
+      msg.textContent = 'Thanks! Kevin will research your property and get back to you within one business day.';
+      msg.style.display = 'block';
+      this.reset();
+    });
+
+    // Back-to-top button: show when scrolled down, scroll smoothly to top on click
+    const backToTopBtn = document.getElementById('backToTop');
+    if (backToTopBtn) {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+          backToTopBtn.classList.add('show');
+        } else {
+          backToTopBtn.classList.remove('show');
+        }
+      });
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+  </script>
+  <a class="live-site-link" href="https://palmbaylandoffer.com/land-acq-pro/index.html" target="_blank" title="Open live site in new tab">Live Site →</a>
+  <button class="back-to-top" id="backToTop" title="Back to top" aria-label="Back to top">↑</button>
+</body>
+</html>

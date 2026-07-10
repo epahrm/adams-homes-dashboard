@@ -71,7 +71,9 @@
       "Bash(node -e ' *)",
       "Bash(curl -s https://adams-homes-dashboard.vercel.app/api/env-test)",
       "Bash(curl -s https://adams-homes-dashboard.vercel.app/api/db-test)",
-      "Bash(python3 -m json.tool)"
+      "Bash(python3 -m json.tool)",
+      "mcp__bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a__send_later",
+      "Bash(cp \"/root/.claude/uploads/dc05f3a4-13bd-50d7-9266-a80e27d7406b/6f8447c8-B2E74FD69AA74E3191174CD9411624FA.png\" public/land-acq-pro/thank-you-card.png && ls -la public/land-acq-pro/thank-you-card.png)"
     ]
   }
 }

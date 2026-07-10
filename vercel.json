@@ -1,10 +1,16 @@
 {
-  "env": {
-    "DATABASE_URL": "postgresql://postgres.tbzuajwitwonwojqshew:AdamsHomes1991%21@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public&sslmode=require"
-  },
-  "build": {
-    "env": {
-      "DATABASE_URL": "postgresql://postgres.tbzuajwitwonwojqshew:AdamsHomes1991%21@aws-1-us-east-2.pooler.supabase.com:6543/postgres?schema=public&sslmode=require"
+  "crons": [
+    {
+      "path": "/app/api/land-acq/sweep-redfin/route.ts",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/app/api/land-acq/ingest-email/route.ts",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/app/api/land-acq/check-mls-status/route.ts",
+      "schedule": "0 * * * *"
     }
-  }
+  ]
 }
