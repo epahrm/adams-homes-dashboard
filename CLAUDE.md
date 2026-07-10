@@ -79,26 +79,74 @@ For this project (adams-homes-dashboard / Land Acq Pro), only work with:
 
 Any suggestions, fixes, or documentation should ONLY use code from these directories.
 
-## ⚠️ Cleats to College does NOT live here
+## 🔒 Isolation protocol — Adams Homes vs. Cleats to College
 
+Two completely separate products have shared this Claude account's attention.
 **Cleats to College** (a college soccer recruiting platform for Elizabeth's own
-consulting business, unrelated to Adams Homes) was originally prototyped inside
-this repo by mistake. It has been **fully migrated out**. Its real home:
+consulting business) was originally prototyped inside *this* repo by mistake,
+which caused real cross-contamination: leftover tables in this repo's
+database, a stray un-pushed local clone, and a near-miss where a fix meant for
+Cleats to College almost got committed to this repo's `main` branch. All of
+that has been cleaned up. This section exists so it never happens again.
 
-- **Repo:** `epahrm/cleats-to-college` (private) — use `add_repo` to bring it into
-  session scope if it isn't already there
-- **Deploy:** its own Vercel project (`cleats-to-college`, team `ecf-projects`) —
-  a different project from this one
-- **Database:** its own Neon Postgres project — **not** this repo's Supabase
-  project (`tbzuajwitwonwojqshew`)
+### Identity card — THIS repo (Adams Homes)
 
-If asked to build, fix, or extend anything about Cleats to College, soccer
-recruiting, athletes/coaches, or Elizabeth's consulting practice — **do not
-create or edit files in this repo.** Go to the `cleats-to-college` repo instead.
+| | |
+|---|---|
+| Product | Adams Homes internal tooling: onboarding, Land Acq Pro, candidate vetting, misc static sites |
+| GitHub repo | `epahrm/adams-homes-dashboard` |
+| Local path | `/home/user/adams-homes-dashboard` |
+| Vercel project | `adams-homes-dashboard` (team `ecf-projects`, id `prj_qf3ZcPIM0I8A6b5U67f7A4iNRPfi`) |
+| Database | Supabase project `tbzuajwitwonwojqshew` (`elizporter15@gmail.com` org, us-east-2) |
+| Tables | `User`, `Admin`, `Milestone*`, `Question`, `MarketingLesson`, `land_acq_*`, `vi_*` |
 
-This repo's own database (`tbzuajwitwonwojqshew`) holds only this repo's tables
-(`User`, `Admin`, `Milestone*`, `Question`, `MarketingLesson`, `land_acq_*`,
-`vi_*`). Row Level Security is enabled on all of them with no policies — the
-app connects as the table-owning `postgres` role via Prisma, which bypasses RLS
-by design, and nothing here uses Supabase's anon/client API. Do not add tables
-here for any product other than Adams Homes' own tools.
+### Identity card — the OTHER repo (Cleats to College — not here)
+
+| | |
+|---|---|
+| Product | College soccer recruiting platform, Elizabeth's personal consulting business |
+| GitHub repo | `epahrm/cleats-to-college` |
+| Local path | `/workspace/cleats-to-college` (only after `add_repo` — do not create a second local copy) |
+| Vercel project | `cleats-to-college` (team `ecf-projects`, id `prj_XZpvp4ZwXGRVGbDwrSZf7sYLg1ak`) |
+| Database | **Neon** Postgres (not Supabase) — its own project, unrelated to `tbzuajwitwonwojqshew` |
+| Tables | Everything prefixed `Rec*` (`RecUser`, `RecProfile`, `RecTask`, ...) — if you ever see a `Rec*` table in *this* repo's database again, that's contamination; flag it |
+
+### Before touching anything, verify you're in the right place
+
+If the request mentions soccer, recruiting, athletes, coaches, GPA/eligibility,
+or "Cleats to College" — **stop and confirm you're in `/workspace/cleats-to-college`
+before writing a single file.** Concretely, before any edit or commit:
+
+```bash
+pwd                      # must show .../cleats-to-college, not adams-homes-dashboard
+git remote -v             # must show epahrm/cleats-to-college
+git rev-parse --abbrev-ref HEAD   # confirm the branch you think you're on
+git status --short --branch       # confirm no unexpected divergence before pushing
+```
+
+Before any `git push` in *either* repo, `git fetch` first and compare — this repo
+in particular sees frequent independent commits from other sessions, so a stale
+local branch is a real, not theoretical, risk. If local and remote have diverged
+in a way you don't expect, stop and reconcile before pushing; don't force-push.
+
+### What NOT to do
+
+- Do not create Cleats to College files (anything under a `recruit/`-style path,
+  soccer content, athlete/coach/questionnaire logic) anywhere in this repo.
+- Do not point Cleats to College's `DATABASE_URL` at this repo's Supabase project,
+  or vice versa.
+- Do not keep a second local clone of Cleats to College outside `/workspace/cleats-to-college`
+  "just to test something" — that's exactly how the stray untracked copy that had
+  to be deleted came to exist. One canonical local path per repo.
+- Do not assume a Vercel/GitHub/Supabase MCP action defaults to the right project —
+  Vercel project IDs, Supabase project refs, and repo owner/name are all
+  ambiguous by short name alone (e.g. both projects live under the same
+  `ecf-projects` Vercel team). Always pass the explicit ID from the identity
+  cards above, never rely on "whichever one is selected."
+
+### If you ever find cross-contamination
+
+Don't just delete it silently — tell Elizabeth what you found (which tables/files/
+deploys, in which project) and confirm before removing anything, the same way
+the original cleanup was done: list what's there, get explicit confirmation,
+then remove it, then verify the legitimate app still works afterward.
