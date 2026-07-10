@@ -733,6 +733,13 @@ function normalize(d){
     t.intake = t.intake || { mode:"committed", fixed:"", complete:true };
   }
   s.jx = s.jx || {};   // per-journal user data: custom cover, notes, landmark photos
+  // Default travel party — Elizabeth, Simon, Seth; add anyone else via \uFF0B Other.
+  if (!s.family.length) s.family = [
+    { id:"m-elizabeth", name:"Elizabeth", emoji:"\ud83c\udf38", color:MEMBER_COLORS[5] },
+    { id:"m-simon", name:"Simon", emoji:"\ud83c\udfaf", color:MEMBER_COLORS[0] },
+    { id:"m-seth", name:"Seth", emoji:"\u26bd", color:MEMBER_COLORS[1] },
+  ];
+  s.draft = s.draft || null;   // saved mid-wizard trip planning (resume from Home)
   return s;
 }
 function load(){
@@ -740,7 +747,7 @@ function load(){
     const d = JSON.parse(localStorage.getItem(KEY));
     if (d && d.v === 1 && Array.isArray(d.trips)) return normalize(d);
   }catch(e){}
-  return blank();
+  return normalize(blank());
 }
 function loadR(){
   try{
@@ -875,6 +882,19 @@ function vHome(){
   </div>
 
   ${hero ? `<div style="margin-top:18px">${hero}</div>` : ""}
+
+  ${S.draft ? `
+  <div class="card" style="margin-top:14px;display:flex;align-items:center;gap:6px;padding:6px 10px 6px 4px">
+    <button class="grow" data-a="resumeDraft" style="text-align:left;display:flex;align-items:center;gap:12px;padding:10px 12px">
+      <span class="tripemoji">\ud83d\udcdd</span>
+      <span class="grow">
+        <h3 style="font-size:16px">Resume planning \u2014 ${esc(S.draft.v1?.name || S.draft.v1?.dest || "new trip")}</h3>
+        <div class="meta">Saved mid-planning \u00b7 step ${S.draft.step} of 3 \u2014 pick up right where you left off</div>
+      </span>
+      <span class="chev">\u203a</span>
+    </button>
+    <button class="iconbtn noprint" data-a="dropDraft" title="Discard this draft">\u2715</button>
+  </div>` : ""}
 
   ${trips.length === 0 ? `
     <div class="card empty" style="margin-top:16px">
@@ -1195,6 +1215,7 @@ function vMission(t){
     <div class="progress" style="margin-top:9px"><i style="width:${Math.round(ready / rows.length * 100)}%"></i></div>
     ${t.mission.purpose ? `<div class="mc-next">🎯 ${esc(t.mission.purpose)}</div>` : `<button class="btn subtle small" style="margin-top:6px;padding-left:0" data-a="mcPurpose">＋ Set trip purpose</button>`}
     ${t.intake.fixed ? `<div class="mc-next">📌 Locked events: <b>${esc(t.intake.fixed)}</b></div>` : ""}
+    ${t.intake.link ? `<div class="mc-next">\ud83d\udd17 <a href="${esc(t.intake.link)}" target="_blank" rel="noopener"><b>Open event link \u2197</b></a> \u2014 share it with your planner to auto-fill times, locations & details</div>` : ""}
     ${t.intake.complete ? "" : `<div class="mc-next due" style="color:var(--bad)">🔒 Intake unfinished — <b>log confirmed bookings</b> before planning. <button class="btn subtle small" style="padding:0 4px" data-a="resumeIntake">Finish now</button></div>`}
     ${ready === rows.length
       ? `<div class="mc-next">🎉 <b>Mission ready — everything is green.</b></div>`
@@ -1383,6 +1404,8 @@ function vWallet(t){
       </div>
       ${w.code ? `<div class="code"><b>${esc(w.code)}</b><button class="btn ghost small" data-a="copy" data-id="${esc(w.code)}">Copy</button></div>` : ""}
       ${w.details ? `<div class="det">${esc(w.details)}</div>` : ""}
+      ${w.url ? `<div class="det noprint"><a href="${esc(w.url)}" target="_blank" rel="noopener" style="font-weight:650">\ud83d\udd17 Open link \u2197</a></div>` : ""}
+      ${w.img ? `<div style="padding:0 16px 14px"><img src="${w.img}" alt="Confirmation" style="width:100%;border-radius:12px"></div>` : ""}
     </div>`;
   }).join("") : `
   <div class="card empty" style="margin-top:14px">
@@ -1418,8 +1441,8 @@ function vIdeas(t){
 /* =============================================================
    MODAL
    ============================================================= */
-let modalEl = null;
-function closeModal(){ if (modalEl){ modalEl.remove(); modalEl = null; } }
+let modalEl = null, modalCancelHook = null;
+function closeModal(){ if (modalEl){ modalEl.remove(); modalEl = null; } modalCancelHook = null; }
 function openModal(cfg){
   closeModal();
   modalEl = document.createElement("div");
@@ -1432,7 +1455,7 @@ function openModal(cfg){
       if (f.type === "color") return `<div class="field"><label>${esc(f.label)}</label>
         <div class="colorrow" data-k="${f.k}">${f.options.map(c => `<button type="button" data-v="${esc(c)}" class="${c === f.value ? "on" : ""}" style="background:${esc(c)}"></button>`).join("")}</div></div>`;
       if (f.type === "members") return `<div class="field"><label>${esc(f.label)}</label>
-        <div class="memberpick" data-k="${f.k}">${S.family.map(m => `<button type="button" data-v="${m.id}" class="${(f.value || []).includes(m.id) ? "on" : ""}"><span class="dot" style="background:${esc(m.color)}">${esc(m.emoji)}</span>${esc(m.name)}</button>`).join("") || `<span class="hint">No family members yet — add them from the home screen.</span>`}</div></div>`;
+        <div class="memberpick" data-k="${f.k}">${S.family.map(m => `<button type="button" data-v="${m.id}" class="${(f.value || []).includes(m.id) ? "on" : ""}"><span class="dot" style="background:${esc(m.color)}">${esc(m.emoji)}</span>${esc(m.name)}</button>`).join("") || `<span class="hint">No family members yet — add them from the home screen.</span>`}<button type="button" data-addk="${f.k}">\uFF0B Other</button></div></div>`;
       if (f.type === "select") return `<div class="field"><label>${esc(f.label)}</label>
         <select name="${f.k}">${f.options.map(([v,l]) => `<option value="${esc(v)}" ${v === f.value ? "selected" : ""}>${esc(l)}</option>`).join("")}</select></div>`;
       if (f.type === "photo") return `<div class="field"><label>${esc(f.label)}</label>
@@ -1467,6 +1490,16 @@ function openModal(cfg){
     if (f.type === "members") picked[f.k] = [...(f.value || [])];
     if (f.type === "photo") picked[f.k] = f.value || null;
   }
+  const collectVals = () => {
+    const vals = { ...picked };
+    for (const el of modalEl.querySelector("form").elements) if (el.name) vals[el.name] = el.value.trim();
+    return vals;
+  };
+  modalCancelHook = () => {
+    const v = cfg.onCancel ? collectVals() : null;
+    closeModal();
+    if (cfg.onCancel) cfg.onCancel(v);
+  };
   modalEl.addEventListener("change", e => {
     const inp = e.target.closest("input[type=file][data-photok]");
     if (inp && inp.files[0]){
@@ -1478,7 +1511,32 @@ function openModal(cfg){
     }
   });
   modalEl.addEventListener("click", e => {
-    if (e.target === modalEl){ closeModal(); return; }
+    if (e.target === modalEl){ modalCancelHook(); return; }
+    const ao = e.target.closest("button[data-addk]");
+    if (ao){
+      if (ao.previousElementSibling && ao.previousElementSibling.classList.contains("addother-in")){ ao.previousElementSibling.focus(); return; }
+      const k = ao.dataset.addk;
+      const inp = document.createElement("input");
+      inp.className = "addother-in"; inp.placeholder = "Name";
+      inp.style.cssText = "width:120px;padding:8px 12px;border-radius:999px;border:1px solid var(--line);font-size:14px;background:var(--card);color:var(--ink)";
+      ao.before(inp); inp.focus();
+      let donef = false;
+      const commit = () => {
+        if (donef) return; donef = true;
+        const name = inp.value.trim();
+        if (!name){ inp.remove(); return; }
+        const m = { id:uid(), name, emoji:"\ud83d\ude42", color:MEMBER_COLORS[S.family.length % MEMBER_COLORS.length] };
+        S.family.push(m); save();
+        picked[k].push(m.id);
+        const chip = document.createElement("button");
+        chip.type = "button"; chip.dataset.v = m.id; chip.className = "on";
+        chip.innerHTML = `<span class="dot" style="background:${esc(m.color)}">${esc(m.emoji)}</span>${esc(m.name)}`;
+        inp.before(chip); inp.remove();
+      };
+      inp.addEventListener("keydown", ev => { if (ev.key === "Enter"){ ev.preventDefault(); commit(); } });
+      inp.addEventListener("blur", commit);
+      return;
+    }
     const b = e.target.closest("button[data-v]");
     if (b){
       const wrap = b.parentElement, k = wrap.dataset.k, v = b.dataset.v;
@@ -1495,14 +1553,13 @@ function openModal(cfg){
     }
     const x = e.target.closest("button[data-x]");
     if (x){
-      if (x.dataset.x === "cancel") closeModal();
+      if (x.dataset.x === "cancel") modalCancelHook();
       if (x.dataset.x === "del"){ closeModal(); cfg.onDelete(); }
     }
   });
   modalEl.querySelector("form").addEventListener("submit", e => {
     e.preventDefault();
-    const vals = { ...picked };
-    for (const el of e.target.elements) if (el.name) vals[el.name] = el.value.trim();
+    const vals = collectVals();
     closeModal();
     cfg.onSubmit(vals);
   });
@@ -1567,6 +1624,12 @@ const A = {
 
   /* ----- trips ----- */
   addTrip(){ tripWizard(); },
+  resumeDraft(){
+    const d = S.draft; if (!d) return;
+    const j = d.jid ? JOURNALS.find(x => x.id === d.jid) : null;
+    if (d.step === 2 && d.v1) tripWizard2(d.v1, j, d.v2); else tripWizard(j, d);
+  },
+  dropDraft(){ S.draft = null; save(); render(); toast("Draft discarded"); },
   editTrip(){ tripForm(trip(R.trip)); },
   resumeIntake(){ tripWizard3(trip(R.trip)); },
   openJournal(el){ go({ view:"journal", jid: el.dataset.id }); },
@@ -1943,70 +2006,93 @@ const C = {
 /* ---------- forms ---------- */
 /* Intake wizard (Planning Standard v2 §0): who/type → dates/commitment →
    confirmed bookings. No day planning until intake completes. */
-function tripWizard(j){
+function tripWizard(j, d){
+  const v1d = (d && d.v1) || {};
   openModal({
-    title:"New trip · 1 of 3 — Who & what",
+    title:"New trip \u00b7 1 of 3 \u2014 Who & what",
     submit:"Next",
     fields:[
-      { k:"travelers", label:"Who’s going?", type:"members", value:S.family.map(m => m.id) },
-      { k:"type", label:"What kind of trip?", type:"select", value:"vacation", options:Object.entries(TRIP_TYPES) },
-      { k:"name", label:"Trip name", required:true, placeholder: j ? j.city + " — the return" : "e.g. Savannah Long Weekend" },
-      { k:"dest", label:"Destination", value: j?.dest || "", placeholder:"e.g. Savannah, GA" },
-      { k:"emoji", label:"Vibe", type:"emoji", options:TRIP_EMOJI, value: j ? "🛳️" : "🏖️" },
-      ...(j ? [{ k:"carry", label:"Start from the journal’s winners?", type:"select", value:"yes",
-        options:[["yes","⭐ Yes — preload the “do again” list as ideas"],["no","Fresh start"]] }] : []),
+      { k:"travelers", label:"Who\u2019s going? Tap everyone \u2014 \uff0b Other adds someone new", type:"members", value:v1d.travelers || S.family.map(m => m.id) },
+      { k:"type", label:"What kind of trip?", type:"select", value:v1d.type || "vacation", options:Object.entries(TRIP_TYPES) },
+      { k:"name", label:"Trip name", required:true, value:v1d.name || "", placeholder: j ? j.city + " \u2014 the return" : "e.g. Savannah Long Weekend" },
+      { k:"dest", label:"Destination", value: v1d.dest || (j && j.dest) || "", placeholder:"e.g. Savannah, GA" },
+      { k:"emoji", label:"Vibe", type:"emoji", options:TRIP_EMOJI, value: v1d.emoji || (j ? "\ud83d\udef3\ufe0f" : "\ud83c\udfd6\ufe0f") },
+      ...(j ? [{ k:"carry", label:"Start from the journal\u2019s winners?", type:"select", value:v1d.carry || "yes",
+        options:[["yes","\u2b50 Yes \u2014 preload the \u201cdo again\u201d list as ideas"],["no","Fresh start"]] }] : []),
     ],
-    onSubmit(v1){ if (v1.name) tripWizard2(v1, j); }
+    onCancel(v){
+      if (v && (v.name || v.dest)){
+        S.draft = { step:1, jid:(j && j.id) || null, v1:v };
+        save(); render(); toast("Planning saved \u2014 resume from Home anytime");
+      }
+    },
+    onSubmit(v1){
+      if (!v1.name) return;
+      S.draft = { step:2, jid:(j && j.id) || null, v1 };
+      save();
+      tripWizard2(v1, j, d && d.v2);
+    }
   });
 }
-function tripWizard2(v1, j){
+function tripWizard2(v1, j, v2d){
+  v2d = v2d || {};
   openModal({
-    title:"New trip · 2 of 3 — Dates & commitment",
+    title:"New trip \u00b7 2 of 3 \u2014 Dates & commitment",
     submit:"Next",
     fields:[
-      { k:"mode", label:"Researching or committed?", type:"select", value:"research",
-        options:[["research","🔎 Just researching — nothing locked"],["committed","🔒 Committed — dates & events locked"]] },
-      { k:"start", label:"First day", type:"date", half:true },
-      { k:"end", label:"Last day", type:"date", half:true },
-      { k:"fixed", label:"Obligated events to schedule around", type:"textarea", placeholder:"e.g. USA match July 1 · 5 PM — tickets locked" },
+      { k:"mode", label:"Researching or committed?", type:"select", value:v2d.mode || "research",
+        options:[["research","\ud83d\udd0e Just researching \u2014 nothing locked"],["committed","\ud83d\udd12 Committed \u2014 dates & events locked"]] },
+      { k:"start", label:"First day", type:"date", value:v2d.start, half:true },
+      { k:"end", label:"Last day", type:"date", value:v2d.end, half:true },
+      { k:"fixed", label:"Obligated events to schedule around", type:"textarea", value:v2d.fixed, placeholder:"e.g. USA match July 1 \u00b7 5 PM \u2014 tickets locked" },
+      { k:"elink", label:"Event link \u2014 conference, tournament, itinerary\u2026", value:v2d.elink,
+        placeholder:"https:// \u2014 share it with your planner to auto-fill times & locations" },
     ],
+    onCancel(v){
+      S.draft = { step:2, jid:(j && j.id) || null, v1, v2:v };
+      save(); render(); toast("Planning saved \u2014 resume from Home anytime");
+    },
     onSubmit(v2){
       let [a, b] = [v2.start, v2.end];
       if (a && b && b < a) [a, b] = [b, a];
       const id = uid();
-      const carried = j && v1.carry !== "no" ? (j.doAgain || []).map(x => ({ id:uid(), text: x.t + (x.why ? " — " + x.why : ""), votes:[] })) : [];
+      const carried = j && v1.carry !== "no" ? (j.doAgain || []).map(x => ({ id:uid(), text: x.t + (x.why ? " \u2014 " + x.why : ""), votes:[] })) : [];
       const packSrc = j && v1.carry !== "no" ? ((S.jx?.[j.id]?.packSpecial?.length ? S.jx[j.id].packSpecial : j.packSpecial) || []) : [];
       S.trips.push({ id, name:v1.name, dest:v1.dest, emoji:v1.emoji, type:v1.type, start:a, end:b, notes:"", travelers:v1.travelers,
         stops:[], packing: packSrc.map(text => ({ id:uid(), owner:"shared", text, done:false })), budget:{ total:0, expenses:[] }, wallet:[], ideas:carried,
         mission:{ purpose:"", cats:Object.fromEntries(MC_CATS.map(([k]) => [k, { s:"r", note:"" }])) },
-        intake:{ mode:v2.mode, fixed:v2.fixed, complete:false } });
+        intake:{ mode:v2.mode, fixed:v2.fixed, link:v2.elink, complete:false } });
+      S.draft = null;
       save(); go({ view:"trip", trip:id, tab:"mission" });
-      if (carried.length || packSrc.length) toast(`Loaded ${carried.length} winners + ${packSrc.length} packing notes ⭐`);
+      if (carried.length || packSrc.length) toast(`Loaded ${carried.length} winners + ${packSrc.length} packing notes \u2b50`);
       tripWizard3(trip(id));
     }
   });
 }
 function tripWizard3(t){
   openModal({
-    title:"New trip · 3 of 3 — Confirmed bookings",
+    title:"New trip \u00b7 3 of 3 \u2014 Confirmed bookings",
     submit:"Add",
     fields:[
       { k:"kind", label:"Anything already confirmed?", type:"select", value:"flight",
-        options:[...Object.entries(WALLET_KINDS).map(([k, [e, n]]) => [k, e + "  " + n]), ["done","✅ Nothing more — finish intake"]] },
-      { k:"title", label:"Name", placeholder:"e.g. Delta 1132 · MCO → SJC" },
+        options:[...Object.entries(WALLET_KINDS).map(([k, [e, n]]) => [k, e + "  " + n]), ["done","\u2705 Nothing more \u2014 finish intake"]] },
+      { k:"title", label:"Name", placeholder:"e.g. Delta 1132 \u00b7 MCO \u2192 SJC" },
       { k:"code", label:"Confirmation #", placeholder:"e.g. ABC123" },
-      { k:"details", label:"Details", type:"textarea", placeholder:"Times, addresses, check-in notes…" },
+      { k:"details", label:"Details", type:"textarea", placeholder:"Times, addresses, check-in notes\u2026" },
+      { k:"url", label:"Link \u2014 booking, virtual event, tournament page\u2026", placeholder:"https:// \u2014 share it with your planner to auto-fill details" },
+      { k:"img", type:"photo", label:"Upload the confirmation (screenshot or photo)",
+        hint:"Saved to the trip wallet \u2014 findable at the check-in desk even offline." },
     ],
     onSubmit(v){
       if (v.kind === "done" || !v.title){
         t.intake.complete = true;
         save(); render();
-        toast("Intake complete — plan away ✔");
+        toast("Intake complete \u2014 plan away \u2714");
         return;
       }
-      t.wallet.push({ id:uid(), kind:v.kind, title:v.title, code:v.code, details:v.details });
+      t.wallet.push({ id:uid(), kind:v.kind, title:v.title, code:v.code, details:v.details, url:v.url, img:v.img || null });
       const mk = KIND_TO_MC[v.kind];
-      if (mk) t.mission.cats[mk] = { s:"g", note:v.title + (v.code ? " · " + v.code : "") };
+      if (mk) t.mission.cats[mk] = { s:"g", note:v.title + (v.code ? " \u00b7 " + v.code : "") };
       save(); render();
       tripWizard3(t);   // keep asking until she says done
     }
@@ -2027,7 +2113,8 @@ function tripForm(t){
       { k:"mode", label:"Researching or committed?", type:"select", value:t.intake.mode || "research",
         options:[["research","🔎 Just researching"],["committed","🔒 Committed — dates & events locked"]] },
       { k:"fixed", label:"Obligated events", type:"textarea", value:t.intake.fixed },
-      { k:"travelers", label:"Who’s going?", type:"members", value:t.travelers },
+      { k:"elink", label:"Event link (conference / tournament / itinerary)", value:t.intake.link, placeholder:"https:// \u2014 share it with your planner to auto-fill details" },
+      { k:"travelers", label:"Who\u2019s going?", type:"members", value:t.travelers },
       { k:"notes", label:"Notes", type:"textarea", value:t.notes, placeholder:"Anything the family should know…" },
     ],
     onDelete: () => {
@@ -2041,7 +2128,7 @@ function tripForm(t){
       let [a, b] = [v.start, v.end];
       if (a && b && b < a) [a, b] = [b, a];
       Object.assign(t, { name:v.name, dest:v.dest, emoji:v.emoji, type:v.type, start:a, end:b, notes:v.notes, travelers:v.travelers });
-      t.intake.mode = v.mode; t.intake.fixed = v.fixed;
+      t.intake.mode = v.mode; t.intake.fixed = v.fixed; t.intake.link = v.elink;
       save(); render();
     }
   });
@@ -2142,12 +2229,14 @@ function walletForm(t, w){
       { k:"title", label:"Name", value:w?.title, required:true, placeholder:"e.g. Delta 1132 · MCO → JFK" },
       { k:"code", label:"Confirmation #", value:w?.code, placeholder:"e.g. ABC123" },
       { k:"details", label:"Details", type:"textarea", value:w?.details, placeholder:"Times, seats, addresses, phone numbers…" },
+      { k:"url", label:"Link \u2014 booking, virtual event, schedule\u2026", value:w?.url, placeholder:"https:// \u2014 share it with your planner to auto-fill details" },
+      { k:"img", type:"photo", label:"Confirmation photo / screenshot", value:w?.img },
     ],
     onDelete: isNew ? null : () => { t.wallet = t.wallet.filter(x => x.id !== w.id); save(); render(); },
     onSubmit(v){
       if (!v.title) return;
-      if (isNew) t.wallet.push({ id:uid(), kind:v.kind, title:v.title, code:v.code, details:v.details });
-      else Object.assign(w, { kind:v.kind, title:v.title, code:v.code, details:v.details });
+      if (isNew) t.wallet.push({ id:uid(), kind:v.kind, title:v.title, code:v.code, details:v.details, url:v.url, img:v.img || null });
+      else Object.assign(w, { kind:v.kind, title:v.title, code:v.code, details:v.details, url:v.url, img:v.img || null });
       save(); render();
     }
   });
@@ -2168,7 +2257,7 @@ document.addEventListener("change", e => {
   const fn = C[el.dataset.c];
   if (fn) fn(el);
 });
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") (modalCancelHook ? modalCancelHook() : closeModal()); });
 
 render();
 

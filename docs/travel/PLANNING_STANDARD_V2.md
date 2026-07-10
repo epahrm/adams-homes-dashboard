@@ -230,3 +230,18 @@ Note: this planned itinerary differs from what was actually done (see
 `reference/2026-07_california_world_cup_trip_recap.md` — Sausalito, Palace of
 Fine Arts were cut on the ground; San Pedro Square was added). Both documents
 matter: this one shows the FORMAT, the recap shows the JUDGMENTS.
+
+## 21. App intake capabilities (added 2026-07-09, Elizabeth's requests)
+- Confirmed bookings (flight/hotel/rental/tickets) accept a PHOTO UPLOAD
+  (screenshot of the confirmation) and a LINK at intake step 3 and in the
+  trip wallet — stored offline in the wallet, shown on the booking card.
+- Trips and bookings accept an EVENT LINK (conference page, tournament
+  schedule, virtual itinerary). The app stores and surfaces it on Mission
+  Control; Elizabeth shares the link in chat and the PLANNER (Claude)
+  reviews it to auto-populate locations, times, and details — the app
+  itself cannot fetch external pages (offline/self-contained by design).
+- Trip planning can be SAVED MID-WIZARD at any time (Cancel/Esc saves a
+  draft); a "Resume planning" card on the Home screen picks up exactly
+  where she left off. Drafts survive reloads; ✕ discards.
+- WHO'S GOING defaults to Elizabeth, Simon, Seth as tappable multi-select
+  chips, with "＋ Other" to add anyone (twin nieces, Mimi, teammates…).
