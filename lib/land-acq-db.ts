@@ -10,7 +10,6 @@ import { Pool } from 'pg'
 // node-postgres verify the server cert and reject Supabase's shared-pooler
 // chain with SELF_SIGNED_CERT_IN_CHAIN); TLS is governed by the Pool's ssl
 // option below (rejectUnauthorized:false), which the Supabase pooler needs.
-const databaseUrl = (process.env.DATABASE_URL || '').split('?')[0]
 
 // Shared password for the admin pages (Kevin + Elizabeth). Override in the
 // Vercel project env settings.
@@ -21,15 +20,26 @@ const globalForPool = global as unknown as {
   landAcqTableReady?: Promise<unknown>
 }
 
-export const pool =
-  globalForPool.landAcqPool ||
-  new Pool({
-    connectionString: databaseUrl,
-    max: 3,
-    connectionTimeoutMillis: 8000,
-    ssl: { rejectUnauthorized: false },
-  })
-globalForPool.landAcqPool = pool
+// Lazy pool initialization — ensures DATABASE_URL is available when pool is first created
+export function getPool(): Pool {
+  if (!globalForPool.landAcqPool) {
+    const databaseUrl = (process.env.DATABASE_URL || '').split('?')[0]
+    globalForPool.landAcqPool = new Pool({
+      connectionString: databaseUrl,
+      max: 3,
+      connectionTimeoutMillis: 8000,
+      ssl: { rejectUnauthorized: false },
+    })
+  }
+  return globalForPool.landAcqPool
+}
+
+export const pool = new Proxy({} as Pool, {
+  get: (_, prop) => {
+    const actualPool = getPool()
+    return (actualPool as any)[prop]
+  },
+})
 
 export const LOT_STATUSES = [
   'opportunity',      // buy-box market-scan match, pre-triage
