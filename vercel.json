@@ -1,15 +1,15 @@
 {
   "crons": [
     {
-      "path": "/app/api/land-acq/sweep-redfin/route.ts",
+      "path": "/api/land-acq/sweep-redfin",
       "schedule": "0 * * * *"
     },
     {
-      "path": "/app/api/land-acq/ingest-email/route.ts",
+      "path": "/api/land-acq/ingest-email",
       "schedule": "*/15 * * * *"
     },
     {
-      "path": "/app/api/land-acq/check-mls-status/route.ts",
+      "path": "/api/land-acq/check-mls-status",
       "schedule": "0 * * * *"
     }
   ]
