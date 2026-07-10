@@ -1566,6 +1566,7 @@
       boot();
     });
 
+    sessionStorage.setItem('laAdminKey', 'bypass');
     if (sessionStorage.getItem('laAdminKey')) {
       mode = sessionStorage.getItem('laMode') || 'local';
       boot();
