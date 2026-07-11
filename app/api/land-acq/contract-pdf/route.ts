@@ -126,15 +126,16 @@ export async function GET(req: NextRequest) {
     pg.drawText(String(txt == null ? '' : txt), { x, y, size, font: f, color: INK })
 
   const p1 = pages[0]
-  // Seat the Seller name on the "Sale and Purchase" blank: baseline y=686 rests
-  // it on the underline (matching the pre-filled Buyer line just below), and
-  // x=308 left-aligns it just after the colon. Auto-shrink the font so long
-  // entity names (e.g. "Adams Homes of Northwest Florida, Inc.") stay inside the
-  // blank instead of running into the ("Seller") label — that overflow was the
-  // "crooked" look on real owner names.
+  // Seat the Seller name on the "Sale and Purchase" blank. Measured directly off
+  // the template's rasterized underlines: the Seller line sits at y=691, one full
+  // line (11pt) above the pre-printed Buyer line at y=680. The old y=680 value put
+  // the Seller name directly on top of the Buyer's line instead, merging the two.
+  // x=308 left-aligns it just after the colon. Auto-shrink the font so long entity
+  // names (e.g. "Adams Homes of Northwest Florida, Inc.") stay inside the blank
+  // instead of running into the ("Seller") label.
   let sellerSize = 11
   while (sellerSize > 8 && font.widthOfTextAtSize(seller, sellerSize) > 208) sellerSize -= 0.5
-  put(p1, seller, 308, 680, sellerSize)
+  put(p1, seller, 308, 691, sellerSize)
   if (offer) put(p1, Number(offer).toLocaleString('en-US'), 505, 549, 11)
 
   // Listing-agent (Seller's-side) block — the Buyer's side is pre-printed with
