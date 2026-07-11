@@ -12,13 +12,17 @@ import { Pool } from 'pg'
 // option below (rejectUnauthorized:false), which the Supabase pooler needs.
 const databaseUrl = (process.env.DATABASE_URL || '').split('?')[0]
 
-// Shared password for the admin pages (Kevin + Elizabeth). Override in the
-// Vercel project env settings.
-export const ADMIN_KEY = process.env.LAND_ACQ_ADMIN_KEY || 'AdamsHomes2026!'
+// Shared password for the admin pages (Kevin + Elizabeth). Set in the Vercel
+// project env settings — no hardcoded fallback: this repo is public, so a
+// baked-in default would be a permanent, visible admin key. If the env var
+// is unset, isAdmin() below fails closed (nothing authenticates) rather than
+// falling back to a known value.
+export const ADMIN_KEY = process.env.LAND_ACQ_ADMIN_KEY || ''
 
 const globalForPool = global as unknown as {
   landAcqPool?: Pool
   landAcqTableReady?: Promise<unknown>
+  landAcqDocsTableReady?: Promise<unknown>
 }
 
 export const pool =
@@ -104,6 +108,36 @@ export function ensureTable(): Promise<unknown> {
       })
   }
   return globalForPool.landAcqTableReady
+}
+
+// Real file storage for lot documents (signed contracts, surveys, closing
+// disclosures, title docs). Stores bytes directly in Postgres via bytea —
+// the same pattern already used for candidate photos/interview video
+// (vi_candidates.photo, vi_responses.video), so no new storage bucket or
+// service-role key is needed. Fine for typical PDF/JPEG document sizes;
+// revisit if lot files start running many tens of MB.
+export function ensureDocumentsTable(): Promise<unknown> {
+  if (!globalForPool.landAcqDocsTableReady) {
+    globalForPool.landAcqDocsTableReady = pool
+      .query(`
+      CREATE TABLE IF NOT EXISTS land_acq_documents (
+        id BIGSERIAL PRIMARY KEY,
+        lot_id BIGINT NOT NULL REFERENCES land_acq_lots(id) ON DELETE CASCADE,
+        filename TEXT NOT NULL,
+        mime_type TEXT NOT NULL DEFAULT 'application/octet-stream',
+        size_bytes BIGINT NOT NULL DEFAULT 0,
+        data BYTEA NOT NULL,
+        uploaded_by TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `)
+      .then(() => pool.query(`ALTER TABLE land_acq_documents ENABLE ROW LEVEL SECURITY`).catch(() => {}))
+      .catch((e) => {
+        globalForPool.landAcqDocsTableReady = undefined
+        throw e
+      })
+  }
+  return globalForPool.landAcqDocsTableReady
 }
 
 export function isAdmin(key: string | null): boolean {

@@ -74,9 +74,12 @@
 
     /* Documents */
     .doc-list { list-style: none; margin: 10px 0 0; }
-    .doc-list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px; background: #f7f9fc; border: 1px solid #e3e9f0; border-radius: 8px; margin-bottom: 6px; font-size: 14px; }
-    .doc-list li .d-name { color: #003d66; font-weight: 600; }
+    .doc-list li { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: #f7f9fc; border: 1px solid #e3e9f0; border-radius: 8px; margin-bottom: 6px; font-size: 14px; }
+    .doc-list li .d-name { color: #003d66; font-weight: 600; text-decoration: none; }
+    .doc-list li .d-name:hover { text-decoration: underline; }
     .doc-list li .d-meta { color: #889; font-size: 12px; }
+    .doc-list li .d-remove { margin-left: auto; background: none; border: none; color: #b02a1a; font-size: 12px; cursor: pointer; padding: 4px 6px; flex: 0 0 auto; }
+    .doc-list li .d-remove:hover { text-decoration: underline; }
     .doc-list .empty { color: #889; background: none; border: none; padding: 6px 0; }
     .upload-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
 
@@ -412,7 +415,7 @@
         <div class="upload-row">
           <input type="file" id="docUpload" multiple>
         </div>
-        <div class="hint">Attach the signed contract, survey, closing disclosure, title docs, etc. (Files are recorded on the lot; live storage connects with the backend.)</div>
+        <div class="hint">Attach the signed contract, survey, closing disclosure, title docs, etc. (4MB max per file.)</div>
       </div>
 
       <!-- Lot notes -->
@@ -877,16 +880,50 @@
     }
 
     // ---------- Documents ----------
-    function renderDocs() {
+    // Real file storage: bytes live server-side (land_acq_documents table),
+    // not just a filename record. Download fetches with the admin header and
+    // triggers a blob save (a plain <a href> can't carry auth headers).
+    async function fetchDocs() {
+      if (mode !== 'server' || !lot || !lot.id) return [];
+      try {
+        const res = await fetch('/api/land-acq/documents?lotId=' + encodeURIComponent(lot.id), { headers: adminHeaders(), signal: AbortSignal.timeout(9000) });
+        if (!res.ok) return [];
+        return ((await res.json()).documents || []);
+      } catch (e) { return []; }
+    }
+    async function downloadDoc(id, name) {
+      try {
+        const res = await fetch('/api/land-acq/documents?id=' + encodeURIComponent(id) + '&download=1', { headers: adminHeaders(), signal: AbortSignal.timeout(20000) });
+        if (!res.ok) { msg('Could not download that file.', false); return; }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name; document.body.appendChild(a); a.click();
+        a.remove(); URL.revokeObjectURL(url);
+      } catch (e) { msg('Could not download that file.', false); }
+    }
+    async function deleteDoc(id) {
+      try {
+        const res = await fetch('/api/land-acq/documents?id=' + encodeURIComponent(id), { method: 'DELETE', headers: adminHeaders(), signal: AbortSignal.timeout(9000) });
+        if (!res.ok) { msg('Could not remove that file.', false); return; }
+        await renderDocs();
+      } catch (e) { msg('Could not remove that file.', false); }
+    }
+    async function renderDocs() {
       const list = document.getElementById('docList');
-      const docs = lot.documents || [];
+      const docs = await fetchDocs();
       list.innerHTML = '';
       if (!docs.length) { list.innerHTML = '<li class="empty">No documents uploaded yet.</li>'; return; }
       docs.forEach(d => {
         const li = document.createElement('li');
-        li.innerHTML = '<span class="d-name"></span><span class="d-meta"></span>';
-        li.querySelector('.d-name').textContent = d.name;
-        li.querySelector('.d-meta').textContent = (d.size ? Math.round(d.size / 1024) + ' KB · ' : '') + fmtDate(d.at) + ' · ' + (d.by || '');
+        const link = document.createElement('a');
+        link.href = '#'; link.className = 'd-name'; link.textContent = d.name;
+        link.addEventListener('click', e => { e.preventDefault(); downloadDoc(d.id, d.name); });
+        const meta = document.createElement('span'); meta.className = 'd-meta';
+        meta.textContent = (d.size ? Math.round(d.size / 1024) + ' KB · ' : '') + fmtDate(d.at) + ' · ' + (d.by || '');
+        const del = document.createElement('button'); del.type = 'button'; del.className = 'd-remove'; del.textContent = 'Remove'; del.title = 'Remove this document';
+        del.addEventListener('click', () => { if (confirm('Remove "' + d.name + '"?')) deleteDoc(d.id); });
+        li.appendChild(link); li.appendChild(meta); li.appendChild(del);
         list.appendChild(li);
       });
     }
@@ -1469,10 +1506,26 @@
     document.getElementById('docUpload').addEventListener('change', async function() {
       const files = Array.from(this.files || []);
       if (!files.length) return;
-      const docs = (lot.documents || []).slice();
-      files.forEach(f => docs.unshift({ name: f.name, size: f.size, at: new Date().toISOString(), by: currentUser() }));
-      try { await saveLot({ documents: docs }); renderDocs(); } catch (e) { msg('Could not record the upload — please try again.', false); }
+      if (mode !== 'server') { msg('Log in to upload documents — they need the live pipeline connection.', false); this.value = ''; return; }
+      const tooBig = files.find(f => f.size > 4_400_000);
+      if (tooBig) { msg('"' + tooBig.name + '" is over the 4MB upload limit.', false); this.value = ''; return; }
+      msg('Uploading ' + files.length + ' file' + (files.length > 1 ? 's' : '') + '…', true);
+      let failed = 0;
+      for (const f of files) {
+        try {
+          const fd = new FormData();
+          fd.append('lotId', String(lot.id));
+          fd.append('file', f);
+          fd.append('uploadedBy', currentUser());
+          // Not adminHeaders() here — it forces Content-Type: application/json,
+          // which stops the browser from setting the multipart boundary FormData needs.
+          const res = await fetch('/api/land-acq/documents', { method: 'POST', headers: { 'X-Admin-Key': sessionStorage.getItem('laAdminKey') || '' }, body: fd, signal: AbortSignal.timeout(30000) });
+          if (!res.ok) failed++;
+        } catch (e) { failed++; }
+      }
+      await renderDocs();
       this.value = '';
+      msg(failed ? (failed + ' of ' + files.length + ' file(s) failed to upload — try again.') : 'Uploaded.', !failed);
     });
     document.getElementById('addNoteBtn').addEventListener('click', async function() {
       const input = document.getElementById('lotNoteInput');
