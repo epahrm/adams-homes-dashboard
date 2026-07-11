@@ -1,13 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from 'next/server'
+import { pool, isAdmin } from '@/lib/land-acq-db'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
-export async function GET(req: NextRequest) {
-  const adminKey = req.headers.get('x-admin-key');
-
-  if (adminKey !== process.env.ADMIN_KEY) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+export async function GET(request: NextRequest) {
+  if (!isAdmin(request.headers.get('x-admin-key'))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const checks = {
@@ -17,23 +15,21 @@ export async function GET(req: NextRequest) {
       ADMIN_KEY_SET: !!process.env.ADMIN_KEY,
     },
     database: { status: 'unknown', error: null as string | null },
-  };
+  }
 
   // Try to connect to database
   if (process.env.DATABASE_URL) {
     try {
-      const prisma = new PrismaClient();
-      await prisma.$queryRaw`SELECT 1`;
-      await prisma.$disconnect();
-      checks.database.status = 'connected';
+      await pool.query('SELECT 1')
+      checks.database.status = 'connected'
     } catch (err: any) {
-      checks.database.status = 'error';
-      checks.database.error = err.message;
+      checks.database.status = 'error'
+      checks.database.error = err.message
     }
   } else {
-    checks.database.status = 'skipped';
-    checks.database.error = 'DATABASE_URL not set';
+    checks.database.status = 'skipped'
+    checks.database.error = 'DATABASE_URL not set'
   }
 
-  return NextResponse.json(checks);
+  return NextResponse.json(checks)
 }
