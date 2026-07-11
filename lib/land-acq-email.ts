@@ -132,9 +132,10 @@ function extractDaysOnMarket(body: string): number | null {
 const PALM_BAY = /\bPalm\s*Bay\b/i
 
 // A US street address ending in Palm Bay, FL + a 5-digit ZIP. The lookbehind
-// stops a price fragment ("$28,000") from being read as the street number.
+// stops a price fragment ("$28,000") and decimal acreage ("3.5 acres") from
+// being read as the street number.
 const ADDRESS_RE =
-  /(?<![\d,$])(\d{1,6}\s+[A-Za-z0-9.'-]+(?:\s+[A-Za-z0-9.'-]+){0,5}?)\s*,?\s*Palm\s*Bay\s*,?\s*FL\s*(\d{5})/gi
+  /(?<![\d,.$])(\d{1,6}\s+[A-Za-z0-9.'-]+(?:\s+[A-Za-z0-9.'-]+){0,5}?)\s*,?\s*Palm\s*Bay\s*,?\s*FL\s*(\d{5})/gi
 const PRICE_G = /\$\s?([0-9]{1,3}(?:,[0-9]{3})+|[0-9]{4,7})\b/g
 const ACRES_RE = /([0-9]+(?:\.[0-9]+)?)\s*ac(?:re|res|\.)?\b/i
 const SQFT_RE = /([0-9]{1,3}(?:,?[0-9]{3})|[0-9]{4,7})\s*sq\.?\s*ft/i
@@ -208,15 +209,17 @@ export function parseListingEmail(input: {
     const prevEnd = i > 0 ? matches[i - 1].end : 0
     const nextIdx = i + 1 < matches.length ? matches[i + 1].idx : body.length
     // Price sits just before the address; look back but not into the prior listing.
-    const preWin = body.slice(Math.max(prevEnd, cur.idx - 140), cur.idx)
+    // Use 80 chars max to avoid capturing previous listing's details in multi-listing emails.
+    const preWin = body.slice(Math.max(prevEnd, cur.idx - 80), cur.idx)
     // Acreage/size follows the address; expand window for agent info extraction.
     const postWin = body.slice(cur.end, Math.min(nextIdx, cur.end + 240))
     // Expanded context window for per-listing agent extraction
     const agentWin = body.slice(cur.idx, Math.min(nextIdx, cur.end + 300))
     // Try to extract agent info from this listing's context; fall back to email-level
     const agentDetails = Object.assign({}, emailAgentDetails, extractAgentDetails(body, agentWin))
-    let price = lastPrice(preWin)
-    if (price == null) price = lastPrice(postWin)
+    // Prefer postWin for prices (usually appear after address), fall back to preWin
+    let price = lastPrice(postWin)
+    if (price == null) price = lastPrice(preWin)
 
     const acresM = postWin.match(ACRES_RE) || preWin.match(ACRES_RE)
     const sqftM = !acresM ? postWin.match(SQFT_RE) : null
@@ -248,7 +251,7 @@ export function parseListingEmail(input: {
   // Fallback for link-only alerts (Crexi et al.) that carry no street address —
   // capture the listing title, city, acreage, and the "View Property" link so
   // the lead still reaches Kevin, flagged to open and confirm.
-  if (out.length === 0) out.push(...parseCardAlerts(rawHtml, body, source, agentDetails, daysOnMarket))
+  if (out.length === 0) out.push(...parseCardAlerts(rawHtml, body, source, emailAgentDetails, daysOnMarket))
   return out
 }
 
