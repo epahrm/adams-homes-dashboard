@@ -169,8 +169,27 @@ export async function GET(req: NextRequest) {
 
   const p11 = pages[10]
   if (p11) {
-    if (listed) { put(p11, commPct, 150, 486, 10); put(p11, 'X', 126, 546, 11, fontB) }
+    if (listed) {
+      put(p11, commPct, 150, 486, 10)
+      put(p11, 'X', 126, 546, 11, fontB)
+      // Item 8(1) "___ (Seller's Broker) will be compensated..." blank, right of the
+      // checkbox. Measured underline at y=544; y=551 clears the text of it.
+      if (agentBrokerage) {
+        let brokSize = 10
+        while (brokSize > 7 && font.widthOfTextAtSize(agentBrokerage, brokSize) > 210) brokSize -= 0.5
+        put(p11, agentBrokerage, 150, 551, brokSize)
+      }
+    }
     else { put(p11, 'X', 126, 404, 11, fontB) }
+  }
+
+  // Addendum signature block (last page) — Seller's "Print Name:" line under the
+  // BY: signature blank. Measured underline at y=524; y=527 clears the text of it.
+  const pSig = pages[11]
+  if (pSig) {
+    let sigSize = 10
+    while (sigSize > 7 && font.widthOfTextAtSize(seller, sigSize) > 180) sigSize -= 0.5
+    put(pSig, seller, 415, 527, sigSize)
   }
 
   // ---- Exhibit "A" ----
