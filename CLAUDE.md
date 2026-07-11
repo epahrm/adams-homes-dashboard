@@ -160,11 +160,13 @@ deploys, in which project) and confirm before removing anything, the same way
 the original cleanup was done: list what's there, get explicit confirmation,
 then remove it, then verify the legitimate app still works afterward.
 
-## ⚠️ Land Acq Pro — rules learned from the 2026-07-10 outage
+## ⚠️ Land Acq Pro — rules learned from the 2026-07-10/11 outage & hardening pass
 
-Full incident writeup: `docs/land-acq-pro/INCIDENT_2026-07-10.md`. Read it
-before making further changes to `app/api/land-acq/*` or
-`public/land-acq-pro/*` — it has exact coordinates, commit SHAs, and which
+Full incident writeup: `docs/land-acq-pro/INCIDENT_2026-07-10.md`. **Live,
+current checklist: `docs/land-acq-pro/OPEN_ITEMS.md`** — check this first,
+it's kept up to date; the incident doc is a frozen point-in-time snapshot.
+Read both before making further changes to `app/api/land-acq/*` or
+`public/land-acq-pro/*` — they have exact coordinates, commit SHAs, and which
 old Vercel deployments are known-bad rollback traps.
 
 - **`palm-bay-scattered-lots-07092026` (the live `palmbaylandoffer.com` site)
@@ -193,3 +195,20 @@ old Vercel deployments are known-bad rollback traps.
   the Zillow email ingestion pipeline (`app/api/land-acq/ingest-email`), never
   from the Redfin sweep. A lot with blank agent fields usually means that
   pipeline hasn't run against it yet, not a bug.
+- **`vercel.json` cron `path` must be the actual HTTP route** (`/api/land-acq/X`),
+  not the source-file path (`/app/api/land-acq/X/route.ts`). All three land-acq
+  crons had this wrong from the start — every scheduled run silently 404'd at
+  the edge for as long as they existed, only surfacing when someone checked
+  `get_runtime_logs` instead of assuming "the cron exists in vercel.json" means
+  "the cron has ever run." Verify with runtime logs after touching any cron path.
+- **Never hardcode a fallback for a secret** (e.g.
+  `process.env.LAND_ACQ_ADMIN_KEY || 'AdamsHomes2026!'`) — this repo is public,
+  so the fallback value is a permanent, readable copy of the secret regardless
+  of what the env var gets rotated to. Fail closed (empty string / throw) if
+  the env var is missing, never fail open to a known value.
+- **Lot document files are stored as `bytea` directly in Postgres**
+  (`land_acq_documents` table, `lib/land-acq-db.ts`'s `ensureDocumentsTable`),
+  the same pattern this app already used for candidate photos and interview
+  video (`vi_candidates.photo`, `vi_responses.video`). Don't introduce a
+  Supabase Storage bucket / service-role key for lot files — this precedent
+  already exists and avoids a new secret.
