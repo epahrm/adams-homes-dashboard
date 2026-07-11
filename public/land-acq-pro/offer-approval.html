@@ -1269,13 +1269,24 @@
       const shortAddr = (lot.address || '').split(',')[0];
       document.getElementById('pageTitle').textContent = 'Offer Approval: ' + (shortAddr || 'Lot');
 
-      // County card
+      // County card — pre-fill each override box with the known value (or a
+      // previously-saved override), still fully editable; caption below shows
+      // the source record for reference.
+      const defaultOwner = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '';
+      document.getElementById('addressOverride').value = lot.addressOverride || lot.address || '';
       document.getElementById('cAddress').textContent = lot.address || '—';
+      document.getElementById('legalOverride').value = lot.legalOverride || lot.legal || '';
+      document.getElementById('cLegal').textContent = lot.legal || '—';
+      document.getElementById('parcelOverride').value = lot.parcelOverride || lot.parcel || '';
       document.getElementById('cParcel').textContent = lot.parcel || 'Pending county lookup';
-      document.getElementById('cOwner').textContent = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || '—';
+      document.getElementById('ownerOverride').value = lot.ownerOverride || defaultOwner;
+      document.getElementById('cOwner').textContent = defaultOwner || '—';
       setLines(document.getElementById('cOwnerContact'), (lot.ownerContact || [lot.address, lot.phone, lot.email].filter(Boolean).join(' | ') || '—').split('|').map(s => s.trim()));
+      document.getElementById('lotSizeOverride').value = lot.lotSizeOverride || lot.lotSize || '';
       document.getElementById('cLotSize').textContent = lot.lotSize || '—';
+      document.getElementById('zoningOverride').value = lot.zoningOverride || lot.zoning || '';
       document.getElementById('cZoning').textContent = lot.zoning || '—';
+      document.getElementById('taxOverride').value = lot.taxOverride || lot.taxValue || '';
       document.getElementById('cTax').textContent = lot.taxValue ? ('Value: ' + lot.taxValue + (lot.annualTax ? ' · Tax: ' + lot.annualTax : '')) : '—';
 
       // Deal details
