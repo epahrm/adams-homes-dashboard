@@ -111,6 +111,15 @@ that has been cleaned up. This section exists so it never happens again.
 | Database | **Neon** Postgres (not Supabase) — its own project, unrelated to `tbzuajwitwonwojqshew` |
 | Tables | Everything prefixed `Rec*` (`RecUser`, `RecProfile`, `RecTask`, ...) — if you ever see a `Rec*` table in *this* repo's database again, that's contamination; flag it |
 
+**Status as of 2026-07-10: contamination confirmed, not yet cleaned up.** 13 `Rec*`
+tables with real data (not empty scaffolding) are currently live in
+`tbzuajwitwonwojqshew`, and all 16 tables lacking Row Level Security (the 13
+`Rec*` plus 3 `vi_interview_*`) are exposed to the public anon key. Do not
+delete the `Rec*` tables without Elizabeth's explicit confirmation that Cleats
+to College doesn't depend on this database (it shouldn't — its own docs say
+Neon, not Supabase) — see `docs/land-acq-pro/INCIDENT_2026-07-10.md` for full
+detail and the RLS remediation SQL.
+
 ### Before touching anything, verify you're in the right place
 
 If the request mentions soccer, recruiting, athletes, coaches, GPA/eligibility,
@@ -150,3 +159,37 @@ Don't just delete it silently — tell Elizabeth what you found (which tables/fi
 deploys, in which project) and confirm before removing anything, the same way
 the original cleanup was done: list what's there, get explicit confirmation,
 then remove it, then verify the legitimate app still works afterward.
+
+## ⚠️ Land Acq Pro — rules learned from the 2026-07-10 outage
+
+Full incident writeup: `docs/land-acq-pro/INCIDENT_2026-07-10.md`. Read it
+before making further changes to `app/api/land-acq/*` or
+`public/land-acq-pro/*` — it has exact coordinates, commit SHAs, and which
+old Vercel deployments are known-bad rollback traps.
+
+- **`palm-bay-scattered-lots-07092026` (the live `palmbaylandoffer.com` site)
+  is still deployed from this repo (`adams-homes-dashboard`), not the
+  dedicated `land-acq-pro-app` repo.** This is a known, unresolved architecture
+  problem, not a mistake to "fix" by moving files — the actual fix is a
+  deliberate repo migration that hasn't happened yet. Until it does, any push
+  to this repo's `main` can affect the live Land Acq Pro site (and vice versa,
+  as seen when the `sales-onboarding` Vercel project — a different product —
+  picked up a Land Acq Pro debug commit because it also deploys from this repo).
+- **Never commit a hardcoded auth bypass** (e.g.
+  `sessionStorage.setItem('laAdminKey', 'bypass')`) to `main`, even temporarily
+  for testing. This exact pattern caused the whole outage: it silently broke
+  every admin-gated API call on `offer-approval.html` for hours.
+- **Test contract-PDF coordinate changes locally before shipping.** `pdf-lib`
+  coordinates are bottom-up and the VAC-14 template's labels/underlines are a
+  rasterized image (not extractable text), so guessing is unreliable — three
+  guesses in a row were wrong on 2026-07-10. Decode `VAC14_TEMPLATE_B64` from
+  `lib/land-acq-vac14-template.ts`, render candidate fills with `pdf-lib` +
+  `PyMuPDF`/`fitz`, and visually check before committing.
+- **`ingest-email` cron must not run more than ~3x/day.** Running it every 15
+  minutes is the likely cause of the `landacq.leads` Gmail/Zillow account
+  getting disabled on 2026-07-10. Check `vercel.json`'s cron schedule for this
+  route before assuming the frequency is fine.
+- Listing-agent info (name/brokerage/phone/email/license) only ever comes from
+  the Zillow email ingestion pipeline (`app/api/land-acq/ingest-email`), never
+  from the Redfin sweep. A lot with blank agent fields usually means that
+  pipeline hasn't run against it yet, not a bug.
