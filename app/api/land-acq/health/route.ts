@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
 
 export async function GET(req: NextRequest) {
   const adminKey = req.headers.get('x-admin-key');
@@ -19,20 +20,10 @@ export async function GET(req: NextRequest) {
   // Try to connect to database
   if (process.env.DATABASE_URL) {
     try {
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-      );
-
-      const { error } = await supabase.from('land_acq_lots').select('count()', { count: 'exact', head: true });
-
-      if (error) {
-        checks.database.status = 'error';
-        checks.database.error = error.message;
-      } else {
-        checks.database.status = 'connected';
-      }
+      const prisma = new PrismaClient();
+      await prisma.$queryRaw`SELECT 1`;
+      await prisma.$disconnect();
+      checks.database.status = 'connected';
     } catch (err: any) {
       checks.database.status = 'error';
       checks.database.error = err.message;
