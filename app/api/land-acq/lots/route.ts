@@ -95,18 +95,23 @@ export async function PATCH(request: NextRequest) {
     // If status is changing, record it in statusHistory with reason/timestamp
     let enhancedSet = { ...set }
     if (set.status !== undefined) {
-      const current = await pool.query('SELECT data FROM land_acq_lots WHERE id = $1', [id])
+      const current = await pool.query('SELECT data, status FROM land_acq_lots WHERE id = $1', [id])
       if (current.rows.length) {
         const currentData = current.rows[0].data || {}
-        const currentStatus = (await pool.query('SELECT status FROM land_acq_lots WHERE id = $1', [id])).rows[0]?.status
+        const currentStatus = current.rows[0].status
 
-        // Build status history entry with reason if provided
-        const reason = set.statusChangeReason ? String(set.statusChangeReason) : `Changed to ${set.status}`
+        // Build status history entry with reason if provided (with length limits)
+        const reason = set.statusChangeReason
+          ? String(set.statusChangeReason).trim().slice(0, 255)
+          : `Changed to ${set.status}`
+        const by = set.changedBy
+          ? String(set.changedBy).trim().slice(0, 100)
+          : 'system'
         const historyEntry = {
           from: currentStatus || 'created',
           to: set.status,
           at: new Date().toISOString(),
-          by: set.changedBy || 'system',
+          by: by,
           reason: reason
         }
 

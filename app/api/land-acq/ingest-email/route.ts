@@ -103,10 +103,15 @@ export async function GET(req: NextRequest) {
             sourceEmail: from,
           }
           // Log agent info extraction for debugging
-          if (li.agentName || li.agentPhone || li.agentEmail || li.brokerage) {
-            console.log(`[land-acq] Agent info extracted: ${li.address} → ${li.agentName || '(no name)'} @ ${li.brokerage || '(no brokerage)'} | phone: ${li.agentPhone || 'none'} | email: ${li.agentEmail || 'none'}`)
+          const agentFields = []
+          if (li.agentName) agentFields.push(`name: ${li.agentName}`)
+          if (li.brokerage) agentFields.push(`brokerage: ${li.brokerage}`)
+          if (li.agentPhone) agentFields.push(`phone: ${li.agentPhone}`)
+          if (li.agentEmail) agentFields.push(`email: ${li.agentEmail}`)
+          if (agentFields.length) {
+            console.log(`[land-acq] Agent extracted for ${li.address}: ${agentFields.join(' | ')}`)
           } else {
-            console.log(`[land-acq] No agent info found in email for: ${li.address}`)
+            console.log(`[land-acq] No agent info found for ${li.address}`)
           }
           // Merge with existing lot data if it already exists (e.g., from Redfin sweep)
           // First try to insert; if conflict, update with agent info from Zillow

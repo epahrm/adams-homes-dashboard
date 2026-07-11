@@ -64,12 +64,14 @@ function extractAgentDetails(body: string, window?: string): {
   agentLicense?: string
 } {
   const result: Record<string, string> = {}
-  // Search in the provided window (per-listing context) first, then fall back to full body
+  // Search in provided window (per-listing context) if given; otherwise search full body.
+  // Caller handles fallback by merging email-level and listing-level extraction.
   const searchText = window || body
 
   // Agent name: look for "Listed by:", "Listing Agent:", or "Agent:" followed by name.
   // "Listed by: Eddy Desir 954-272-8123" is the standard Zillow format.
-  let m = searchText.match(/(?:Listed\s+by|Listing\s+Agent|Agent)\s*:?\s*([A-Z][A-Za-z\s.'-]{2,45}?)(?:\s+\d|\n|,|$)/i)
+  // More flexible: allow lowercase start, single-word names, better apostrophe handling.
+  let m = searchText.match(/(?:Listed\s+by|Listing\s+Agent|Agent)\s*:?\s*([A-Z][A-Za-z\s.'-]{1,45}?)(?:\s+\d|\n|,|$)/i)
   if (m) {
     let name = m[1].trim()
     // Remove trailing "Phone", "Email", etc. if accidentally included
