@@ -126,16 +126,16 @@ export async function GET(req: NextRequest) {
     pg.drawText(String(txt == null ? '' : txt), { x, y, size, font: f, color: INK })
 
   const p1 = pages[0]
-  // Seat the Seller name on the "Sale and Purchase" blank. Measured directly off
-  // the template's rasterized underlines: the Seller line sits at y=691, one full
-  // line (11pt) above the pre-printed Buyer line at y=680. The old y=680 value put
-  // the Seller name directly on top of the Buyer's line instead, merging the two.
-  // x=308 left-aligns it just after the colon. Auto-shrink the font so long entity
-  // names (e.g. "Adams Homes of Northwest Florida, Inc.") stay inside the blank
-  // instead of running into the ("Seller") label.
+  // Seat the Seller name on the "Sale and Purchase" blank. The underline itself
+  // is at y=691 (measured off the template), but drawing the baseline exactly on
+  // the line makes descenders collide with the rule ("crossed-out" look) — verified
+  // by test-rendering candidate values before shipping this. y=694 gives ~3pt of
+  // clearance above the line, matching how the pre-printed Buyer line just below
+  // (y=680) reads. x=308 left-aligns it just after the colon. Auto-shrink the font
+  // so long entity names stay inside the blank instead of hitting ("Seller").
   let sellerSize = 11
   while (sellerSize > 8 && font.widthOfTextAtSize(seller, sellerSize) > 208) sellerSize -= 0.5
-  put(p1, seller, 308, 691, sellerSize)
+  put(p1, seller, 308, 694, sellerSize)
   if (offer) put(p1, Number(offer).toLocaleString('en-US'), 505, 549, 11)
 
   // Listing-agent (Seller's-side) block — the Buyer's side is pre-printed with
@@ -158,11 +158,13 @@ export async function GET(req: NextRequest) {
 
   // Addendum for Vacant Land Contract — Seller name in line 1 (the intro
   // "entered into by and between ___ (Seller)"). Auto-fit like the cover line.
+  // Underline measured at y=684; y=691 gives clearance so the rule doesn't cross
+  // through the text (verified by test-render before shipping).
   const pAddendum = pages[8]
   if (pAddendum) {
     let addSize = 11
     while (addSize > 8 && font.widthOfTextAtSize(seller, addSize) > 280) addSize -= 0.5
-    put(pAddendum, seller, 220, 682, addSize)
+    put(pAddendum, seller, 220, 691, addSize)
   }
 
   const p11 = pages[10]
