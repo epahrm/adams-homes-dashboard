@@ -194,6 +194,9 @@
         </div>
         <div class="hint" id="effectiveDateHint">Defaults to today. If the executed contract came back dated earlier, set the real date here — inspection period and closing are calculated from it.</div>
         <div class="s-notes" id="sNotes">No notes from Kevin.</div>
+        <div class="actions" style="margin-top: 12px;">
+          <button type="button" class="btn btn-outline" id="saveDraftBtn" style="width: auto;">Save Draft (return later)</button>
+        </div>
       </div>
 
       <div class="grid">
@@ -230,6 +233,9 @@
           <div class="field"><div class="lbl">Email</div><div class="val"><a id="dAgentEmailDisplay" href="javascript:void(0)" style="color:#1a5a3a; text-decoration:none;">—</a></div></div>
           <div class="field"><div class="lbl">License #</div><div class="val" id="dAgentLicenseDisplay">—</div></div>
           <div class="field"><div class="lbl">MLS #</div><div class="val" id="dMlsDisplay">—</div></div>
+        </div>
+        <div class="actions" style="margin-top: 12px;">
+          <button type="button" class="btn btn-outline" id="viewListingBtn" style="width: auto;">View MLS Listing</button>
         </div>
         <div class="hint">Agent information pulled from listing data. Edit the Listing Agent section below to make changes.</div>
       </div>
@@ -1259,6 +1265,53 @@
       document.getElementById('wholesalerCheck').style.display = isWholesalerDeal() ? 'block' : 'none';
     }
 
+    async function saveDraft() {
+      const set = Object.assign(readForm(), {
+        lotStipend: stipendForLot()
+      });
+      try {
+        await saveLot(set);
+        msg('Draft saved. Return to the pipeline and click this lot again to continue where you left off.', true);
+      } catch (e) {
+        msg('Could not save the draft — please try again.', false);
+      }
+    }
+
+    function viewListing() {
+      const mls = (lot.mls || '').trim();
+      if (!mls) {
+        msg('No MLS # on file. Add the MLS # in the Listing Agent section, then try again.', false);
+        document.getElementById('mlsNum').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('mlsNum').focus();
+        return;
+      }
+      const zillow = 'https://www.zillow.com/homedetails/' + encodeURIComponent(mls) + '_zpid/';
+      const realtor = 'https://www.realtor.com/realestatetransactions/search?mls=' + encodeURIComponent(mls) + '&state=FL';
+      const w = window.open('', '_blank', 'width=900,height=700');
+      if (!w) {
+        msg('Please allow pop-ups so the listing can open.', false);
+        return;
+      }
+      w.document.write(
+        '<!doctype html><html><head><meta charset="utf-8"><title>MLS Listing ' + escHtml(mls) + '</title>' +
+        '<style>body{font-family:sans-serif;margin:0;padding:20px;background:#f5f5f5}' +
+        '.frame{border:none;width:100%;height:calc(100vh-80px);display:none}' +
+        '.links{margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap}' +
+        'a{padding:12px 16px;background:#003d66;color:white;text-decoration:none;border-radius:6px;font-weight:600;cursor:pointer}' +
+        'a:hover{background:#0a4f8e}</style>' +
+        '</head><body><div class="links">' +
+        '<a onclick="document.getElementById(\'zil\').style.display=\'block\'; return false;">Zillow</a>' +
+        '<a onclick="document.getElementById(\'real\').style.display=\'block\'; return false;">Realtor.com</a>' +
+        '<a onclick="window.location.href=\'' + zillow + '\'; return false;">Open Zillow Direct</a>' +
+        '<a onclick="window.location.href=\'' + realtor + '\'; return false;">Open Realtor Direct</a>' +
+        '</div>' +
+        '<iframe id="zil" class="frame" src="' + zillow + '"></iframe>' +
+        '<iframe id="real" class="frame" src="' + realtor + '"></iframe>' +
+        '</body></html>'
+      );
+      w.document.close();
+    }
+
     async function generateOffer() {
       const premChoice = premiumChoiceValue();
       if (premChoice === null) return msg('Please select whether there is a lot premium.', false);
@@ -1512,6 +1565,8 @@
     document.getElementById('commission').addEventListener('input', updateCommissionHint);
     document.getElementById('leadSource').addEventListener('change', toggleWholesaler);
     document.getElementById('saveAgentBtn').addEventListener('click', saveAgentDetails);
+    document.getElementById('saveDraftBtn').addEventListener('click', saveDraft);
+    document.getElementById('viewListingBtn').addEventListener('click', viewListing);
     document.getElementById('sellerName').addEventListener('change', async function() {
       try { await saveLot({ sellerName: this.value.trim() || null }); } catch (e) { msg('Could not save seller name — please try again.', false); }
     });

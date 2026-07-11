@@ -74,6 +74,10 @@ export async function GET(req: NextRequest) {
 
   const address = addressOverride || String(lot.address || '')
   const offer = (q.get('offer') || String(lot.offer || '')).replace(/[^0-9.]/g, '')
+  const emd = (lot.emd as string || '$100').replace(/[^0-9.]/g, '')
+  const offerNum = Number(offer) || 0
+  const emdNum = Number(emd) || 0
+  const balanceToClose = offerNum - emdNum
   const listed = q.get('listed') === '1' || (q.get('listed') == null && lot.listingType === 'listed')
   const commPct = (q.get('commission') || '').replace(/[^0-9.]/g, '') || (listed ? '3' : '0')
   // Flat-fee commission: Kevin can enter "$500" instead of a percent in the
@@ -156,6 +160,8 @@ export async function GET(req: NextRequest) {
   while (sellerSize > 8 && font.widthOfTextAtSize(seller, sellerSize) > 208) sellerSize -= 0.5
   put(p1, seller, 308, 694, sellerSize)
   if (offer) put(p1, Number(offer).toLocaleString('en-US'), 505, 549, 11)
+  // Balance to Close = Offer Price - Earnest Money Deposit (EMD)
+  if (balanceToClose > 0) put(p1, Number(balanceToClose).toLocaleString('en-US'), 505, 520, 11)
 
   // Paragraph 3 "Time for Acceptance": offer withdraws if not fully executed by
   // this date. Blank starts right after "before" — x=163 collided with that
