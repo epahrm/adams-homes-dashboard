@@ -188,6 +188,11 @@
           <span style="color:#b02a1a; font-weight:700;">Enter lot premium (required before signing)</span>
           <span><input id="premiumFinalizeAmt" type="text" inputmode="numeric" placeholder="$0" style="width:120px; padding:6px 8px;"> <button type="button" id="premiumFinalizeBtn" class="btn btn-navy" style="padding:6px 12px;">Save premium</button></span>
         </div>
+        <div class="s-row">
+          <span>Effective Date (both signed)</span>
+          <span><input id="effectiveDateInput" type="date"></span>
+        </div>
+        <div class="hint" id="effectiveDateHint">Defaults to today. If the executed contract came back dated earlier, set the real date here — inspection period and closing are calculated from it.</div>
         <div class="s-notes" id="sNotes">No notes from Kevin.</div>
       </div>
 
@@ -506,12 +511,16 @@
       const listed = document.getElementById('listingType').value === 'listed';
       const raw = document.getElementById('commission').value.trim();
       const offer = num(document.getElementById('offerAmount').value);
-      if (!listed) return { pct: 0, amt: 0, listed: false };
-      let pct, amt;
+      if (!listed) return { pct: 0, amt: 0, type: 'pct', listed: false };
+      let pct, amt, type;
       if (raw.indexOf('%') >= 0 || (!/\$|\d{3,}/.test(raw) && num(raw) <= 100)) {
-        pct = num(raw); amt = Math.round(offer * pct / 100);
-      } else { amt = num(raw); pct = offer ? +(amt / offer * 100).toFixed(2) : 0; }
-      return { pct, amt, listed: true };
+        pct = num(raw); amt = Math.round(offer * pct / 100); type = 'pct';
+      } else { amt = num(raw); pct = offer ? +(amt / offer * 100).toFixed(2) : 0; type = 'flat'; }
+      // type is the ground truth for what Kevin actually typed — the contract
+      // fill uses this, not the back-calculated pct, so a flat-fee entry
+      // ("$500") prints as "$500 flat fee" instead of silently becoming
+      // whatever percent that happens to equal against the offer amount.
+      return { pct, amt, type, listed: true };
     }
     function updateCommissionHint() {
       const c = resolveCommission();
@@ -535,6 +544,50 @@
     function addDays(iso, d) { const x = new Date(iso); x.setDate(x.getDate() + d); return x.toISOString(); }
     function addBusinessDays(iso, n) { const x = new Date(iso); let added = 0; while (added < n) { x.setDate(x.getDate() + 1); const d = x.getDay(); if (d !== 0 && d !== 6) added++; } return x.toISOString(); }
     function thursdayOnOrBefore(iso) { const x = new Date(iso); const diff = (x.getDay() - 4 + 7) % 7; x.setDate(x.getDate() - diff); return x.toISOString(); }
+
+    // Federal holidays — title companies/banks are closed, so we never schedule
+    // a closing on one. Computed per year (some are fixed dates, some are the
+    // Nth weekday of a month) rather than a hardcoded date list.
+    function nthWeekdayOfMonth(year, month, weekday, n) { // month/weekday 0-based
+      const d = new Date(year, month, 1);
+      let count = 0;
+      while (true) { if (d.getDay() === weekday) { count++; if (count === n) return new Date(d); } d.setDate(d.getDate() + 1); }
+    }
+    function lastWeekdayOfMonth(year, month, weekday) {
+      const d = new Date(year, month + 1, 0);
+      while (d.getDay() !== weekday) d.setDate(d.getDate() - 1);
+      return d;
+    }
+    function federalHolidays(year) {
+      const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      return new Set([
+        ymd(new Date(year, 0, 1)),                    // New Year's Day
+        ymd(nthWeekdayOfMonth(year, 0, 1, 3)),         // MLK Day — 3rd Monday Jan
+        ymd(nthWeekdayOfMonth(year, 1, 1, 3)),         // Presidents Day — 3rd Monday Feb
+        ymd(lastWeekdayOfMonth(year, 4, 1)),           // Memorial Day — last Monday May
+        ymd(new Date(year, 5, 19)),                    // Juneteenth
+        ymd(new Date(year, 6, 4)),                     // Independence Day
+        ymd(nthWeekdayOfMonth(year, 8, 1, 1)),         // Labor Day — 1st Monday Sep
+        ymd(nthWeekdayOfMonth(year, 9, 1, 2)),         // Columbus Day — 2nd Monday Oct
+        ymd(new Date(year, 10, 11)),                   // Veterans Day
+        ymd(nthWeekdayOfMonth(year, 10, 4, 4)),        // Thanksgiving — 4th Thursday Nov
+        ymd(new Date(year, 11, 25)),                   // Christmas
+      ]);
+    }
+    function isFederalHoliday(iso) {
+      const d = new Date(iso);
+      return federalHolidays(d.getFullYear()).has(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'));
+    }
+    // Pick the closing Thursday: the Thursday on/before the default date, but
+    // never a holiday — steps back a week at a time until it lands clear.
+    // Reports whether it had to adjust so the UI can flag it for confirmation.
+    function pickClosingThursday(defaultCloseIso) {
+      let d = thursdayOnOrBefore(defaultCloseIso);
+      let adjusted = false;
+      let guard = 0;
+      while (isFederalHoliday(d) && guard < 6) { d = addDays(d, -7); adjusted = true; guard++; }
+      return { date: d, adjusted };
+    }
 
     async function verifyPassword(password) {
       try {
@@ -1005,6 +1058,9 @@
         ep.classList.add('show');
         document.getElementById('sStipend').textContent = (stipendForLot() == null ? '—' : money(stipendForLot()));
         document.getElementById('sOffer').textContent = lot.offer || '—';
+        const effInput = document.getElementById('effectiveDateInput');
+        if (effInput && !effInput.value) effInput.value = new Date().toISOString().slice(0, 10);
+        if (typeof previewEffectiveDate === 'function') previewEffectiveDate();
         const prem = lot.premiums || [];
         const finRow = document.getElementById('premiumFinalizeRow');
         if (lot.premiumTBD) {
@@ -1270,10 +1326,16 @@
         document.getElementById('premiumFinalizeRow').scrollIntoView({ behavior: 'smooth', block: 'center' });
         return msg('Enter the lot premium amount before signing — Kevin flagged a possible premium at offer time.', false);
       }
-      const now = new Date().toISOString();               // Effective Date = Buyer (Elizabeth) signs last
+      // Effective Date = the date both parties actually signed, not necessarily
+      // the moment someone clicks this button — Kevin/Elizabeth can set the real
+      // date (e.g. from the executed contract that came back) in the field above.
+      const effInput = document.getElementById('effectiveDateInput');
+      const effRaw = effInput && effInput.value ? effInput.value : new Date().toISOString().slice(0, 10);
+      const now = new Date(effRaw + 'T12:00:00').toISOString();
       const ip = addDays(now, DD_PERIOD_DAYS);             // §9: due diligence / IP = 45 days after Effective Date
       const defClose = addBusinessDays(ip, BUSINESS_DAYS_TO_CLOSE); // §4: 10 business days after DD ends
-      const actualClose = thursdayOnOrBefore(defClose);   // we only close on Thursdays
+      const closing = pickClosingThursday(defClose);      // we only close on Thursdays, never a federal holiday
+      const actualClose = closing.date;
       const sellerEmail = lot.email || (lot.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@')) || 'seller';
       const set = {
         status: 'ip', epSignedAt: now, epSignedBy: currentUser(),
@@ -1282,7 +1344,8 @@
       };
       try { await saveLot(set); } catch (e) { return msg('Could not save — please try again.', false); }
       renderAll();
-      msg('Signed and official. Seller notified. Inspection period ends ' + fmtDate(ip) + '; closing ' + fmtDate(actualClose) + ' (Thursday).', true);
+      msg('Signed and official (Effective Date ' + fmtDate(now) + '). Seller notified. Inspection period ends ' + fmtDate(ip) + '; closing ' + fmtDate(actualClose) + ' (Thursday)'
+        + (closing.adjusted ? ' — moved back a week from the default because that Thursday is a federal holiday; confirm this date works.' : '.'), true);
     }
 
     const NEXT_STAGE = { 'ip': 'manager-driven', 'manager-driven': 'survey-rcvd', 'survey-rcvd': 'cd-approved', 'cd-approved': 'ctc', 'ctc': 'closed' };
@@ -1421,6 +1484,20 @@
     function renderAll() { fillForm(); buildPremiumList(); refreshStipend(); renderTimeline(); renderDocs(); renderLotNotes(); renderNotifs(); renderStage(); if ((lot.premiums || []).length) updatePremiumTotal(); }
 
     // ---------- Wiring ----------
+    function previewEffectiveDate() {
+      const input = document.getElementById('effectiveDateInput');
+      const hint = document.getElementById('effectiveDateHint');
+      if (!input || !hint || !input.value) return;
+      const now = new Date(input.value + 'T12:00:00').toISOString();
+      const ip = addDays(now, DD_PERIOD_DAYS);
+      const defClose = addBusinessDays(ip, BUSINESS_DAYS_TO_CLOSE);
+      const closing = pickClosingThursday(defClose);
+      hint.textContent = 'Due diligence / IP ends ' + fmtDate(ip) + ' · closing ' + fmtDate(closing.date) + ' (Thursday)'
+        + (closing.adjusted ? ' — ⚠ moved back a week: the default Thursday is a federal holiday. Confirm this works before signing.' : '.');
+      hint.style.color = closing.adjusted ? '#b02a1a' : '#667';
+    }
+    const effDateEl = document.getElementById('effectiveDateInput');
+    if (effDateEl) effDateEl.addEventListener('change', previewEffectiveDate);
     document.getElementById('utilityType').addEventListener('change', refreshStipend);
     document.getElementById('listingType').addEventListener('change', function() {
       // Keep the commission default in step with the deal type: off-market → $0,
@@ -1478,7 +1555,10 @@
         id: String(lot.id),
         offer: String(offer || ''),
         commission: String(cc.pct || ''),
+        commissionType: cc.type || 'pct',
+        commissionAmt: String(cc.amt || ''),
         listed: listed ? '1' : '0',
+        offerExpires: lot.offerExpires || addDays(new Date().toISOString(), OFFER_VALID_DAYS),
         parcelOverride: document.getElementById('parcelOverride')?.value?.trim() || '',
         addressOverride: document.getElementById('addressOverride')?.value?.trim() || '',
         legalOverride: document.getElementById('legalOverride')?.value?.trim() || '',

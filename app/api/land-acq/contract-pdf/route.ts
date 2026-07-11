@@ -76,6 +76,20 @@ export async function GET(req: NextRequest) {
   const offer = (q.get('offer') || String(lot.offer || '')).replace(/[^0-9.]/g, '')
   const listed = q.get('listed') === '1' || (q.get('listed') == null && lot.listingType === 'listed')
   const commPct = (q.get('commission') || '').replace(/[^0-9.]/g, '') || (listed ? '3' : '0')
+  // Flat-fee commission: Kevin can enter "$500" instead of a percent in the
+  // deal form. commissionType/commissionAmt carry that through so the contract
+  // prints "$500 flat fee" instead of silently converting it to whatever
+  // percent that happens to equal against the offer amount.
+  const commissionType = q.get('commissionType') === 'flat' ? 'flat' : 'pct'
+  const commissionAmt = (q.get('commissionAmt') || '').replace(/[^0-9.]/g, '')
+
+  // Paragraph 3 "Time for Acceptance" deadline — offer withdraws if not fully
+  // executed by this date. Falls back to today + 14 days if not provided.
+  const offerExpiresRaw = q.get('offerExpires')
+  const offerExpiresDate = offerExpiresRaw ? new Date(offerExpiresRaw) : new Date(Date.now() + 14 * 86400000)
+  const offerExpiresStr = Number.isNaN(offerExpiresDate.getTime())
+    ? ''
+    : offerExpiresDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
 
   // Verified county data — the only source for the legal description.
   const parcel = await fetchParcel(address)
@@ -124,6 +138,11 @@ export async function GET(req: NextRequest) {
   const pages = pdf.getPages()
   const put = (pg: (typeof pages)[number], txt: string, x: number, y: number, size = 10, f = font) =>
     pg.drawText(String(txt == null ? '' : txt), { x, y, size, font: f, color: INK })
+  // Covers pre-printed template text with a white rectangle so we can write our
+  // own label in its place (used for the commission blank, where the template's
+  // fixed word "percent" doesn't fit a flat-fee dollar amount).
+  const mask = (pg: (typeof pages)[number], x: number, y: number, w: number, h: number) =>
+    pg.drawRectangle({ x, y, width: w, height: h, color: rgb(1, 1, 1) })
 
   const p1 = pages[0]
   // Seat the Seller name on the "Sale and Purchase" blank. The underline itself
@@ -137,6 +156,11 @@ export async function GET(req: NextRequest) {
   while (sellerSize > 8 && font.widthOfTextAtSize(seller, sellerSize) > 208) sellerSize -= 0.5
   put(p1, seller, 308, 694, sellerSize)
   if (offer) put(p1, Number(offer).toLocaleString('en-US'), 505, 549, 11)
+
+  // Paragraph 3 "Time for Acceptance": offer withdraws if not fully executed by
+  // this date. Blank starts right after "before" — x=163 collided with that
+  // word in testing; x=235 clears it. Underline at y≈245.5, y=249 for clearance.
+  if (offerExpiresStr) put(p1, offerExpiresStr, 235, 249, 9)
 
   // Listing-agent (Seller's-side) block — the Buyer's side is pre-printed with
   // Adams Homes. Fill the left column from the lot for on-market deals:
@@ -158,19 +182,30 @@ export async function GET(req: NextRequest) {
 
   // Addendum for Vacant Land Contract — Seller name in line 1 (the intro
   // "entered into by and between ___ (Seller)"). Auto-fit like the cover line.
-  // Underline measured at y=684; y=691 gives clearance so the rule doesn't cross
-  // through the text (verified by test-render before shipping).
+  // Underline measured at y=684; y=688 gives clearance without sitting as high
+  // as the original y=691 (brought down 3pt per review — still reads clean
+  // above the rule, closer to the line as requested).
   const pAddendum = pages[8]
   if (pAddendum) {
     let addSize = 11
     while (addSize > 8 && font.widthOfTextAtSize(seller, addSize) > 280) addSize -= 0.5
-    put(pAddendum, seller, 220, 691, addSize)
+    put(pAddendum, seller, 220, 688, addSize)
   }
 
   const p11 = pages[10]
   if (p11) {
     if (listed) {
-      put(p11, commPct, 150, 486, 10)
+      // Commission blank + the template's pre-printed "percent" word (masked
+      // off so we can write a clear, unambiguous label — the template's fixed
+      // wording doesn't fit a flat-fee dollar amount). Underline/word span
+      // roughly x=95-250, y=478-500 (measured off the template).
+      mask(p11, 95, 478, 160, 20)
+      const commLabel = commissionType === 'flat'
+        ? '$' + (Number(commissionAmt) || 0).toLocaleString('en-US') + ' flat fee'
+        : commPct + '%'
+      let commSize = 10
+      while (commSize > 7 && font.widthOfTextAtSize(commLabel, commSize) > 145) commSize -= 0.5
+      put(p11, commLabel, 100, 486, commSize)
       put(p11, 'X', 126, 546, 11, fontB)
       // Item 8(1) "___ (Seller's Broker) will be compensated..." blank, right of the
       // checkbox. Measured underline at y=544; y=551 clears the text of it.

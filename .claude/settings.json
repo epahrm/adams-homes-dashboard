@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__computer-use__screenshot",
+      "mcp__656d1928-ccc7-41a6-af72-fdc9012d7e14__get_project",
+      "mcp__656d1928-ccc7-41a6-af72-fdc9012d7e14__get_runtime_logs",
+      "mcp__656d1928-ccc7-41a6-af72-fdc9012d7e14__get_deployment",
+      "mcp__656d1928-ccc7-41a6-af72-fdc9012d7e14__list_deployments",
+      "mcp__656d1928-ccc7-41a6-af72-fdc9012d7e14__web_fetch_vercel_url",
+      "mcp__656d1928-ccc7-41a6-af72-fdc9012d7e14__get_runtime_errors",
+      "mcp__Claude_in_Chrome__read_page",
+      "Bash(git fetch *)"
+    ]
+  }
+}
