@@ -91,7 +91,35 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
     await ensureTable()
-    const { status, ...dataFields } = set
+
+    // If status is changing, record it in statusHistory with reason/timestamp
+    let enhancedSet = { ...set }
+    if (set.status !== undefined) {
+      const current = await pool.query('SELECT data FROM land_acq_lots WHERE id = $1', [id])
+      if (current.rows.length) {
+        const currentData = current.rows[0].data || {}
+        const currentStatus = (await pool.query('SELECT status FROM land_acq_lots WHERE id = $1', [id])).rows[0]?.status
+
+        // Build status history entry with reason if provided
+        const reason = set.statusChangeReason ? String(set.statusChangeReason) : `Changed to ${set.status}`
+        const historyEntry = {
+          from: currentStatus || 'created',
+          to: set.status,
+          at: new Date().toISOString(),
+          by: set.changedBy || 'system',
+          reason: reason
+        }
+
+        // Append to statusHistory array
+        const history = (currentData.statusHistory || []) as Array<unknown>
+        history.push(historyEntry)
+        enhancedSet.statusHistory = history
+
+        console.log(`[land-acq] Status change: lot ${id} from ${historyEntry.from} to ${historyEntry.to}: ${reason}`)
+      }
+    }
+
+    const { status, statusChangeReason, changedBy, ...dataFields } = enhancedSet
     const result = await pool.query(
       `UPDATE land_acq_lots
        SET status = COALESCE($2, status),

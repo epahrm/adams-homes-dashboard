@@ -56,17 +56,20 @@ export function htmlToText(html: string): string {
 
 // Extract agent details from email body (name, phone, email, license).
 // Looks for patterns like "Listing Agent: Name", phone numbers, emails, and license #.
-function extractAgentDetails(body: string): {
+// If window is provided, extracts agent info from that specific listing's context window.
+function extractAgentDetails(body: string, window?: string): {
   agentName?: string
   agentPhone?: string
   agentEmail?: string
   agentLicense?: string
 } {
   const result: Record<string, string> = {}
+  // Search in the provided window (per-listing context) first, then fall back to full body
+  const searchText = window || body
 
   // Agent name: look for "Listed by:", "Listing Agent:", or "Agent:" followed by name.
   // "Listed by: Eddy Desir 954-272-8123" is the standard Zillow format.
-  let m = body.match(/(?:Listed\s+by|Listing\s+Agent|Agent)\s*:?\s*([A-Z][A-Za-z\s.'-]{2,45}?)(?:\s+\d|\n|,|$)/i)
+  let m = searchText.match(/(?:Listed\s+by|Listing\s+Agent|Agent)\s*:?\s*([A-Z][A-Za-z\s.'-]{2,45}?)(?:\s+\d|\n|,|$)/i)
   if (m) {
     let name = m[1].trim()
     // Remove trailing "Phone", "Email", etc. if accidentally included
@@ -76,7 +79,7 @@ function extractAgentDetails(body: string): {
 
   // Phone: look for (XXX) XXX-XXXX or XXX-XXX-XXXX or similar patterns
   // Match phone labels + the phone number up to a newline
-  m = body.match(/(?:Phone|Mobile|Tel)\s*:?\s*([\d\s\-().+]+?)(?:\n|$)/i)
+  m = searchText.match(/(?:Phone|Mobile|Tel)\s*:?\s*([\d\s\-().+]+?)(?:\n|$)/i)
   if (m) {
     const phone = m[1].trim()
     // Only keep if it looks like a valid phone (has at least 10 digits)
@@ -86,12 +89,12 @@ function extractAgentDetails(body: string): {
   }
 
   // Email: look for email addresses (standard format)
-  m = body.match(/(?:Email|Contact)\s*:?\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i)
+  m = searchText.match(/(?:Email|Contact)\s*:?\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i)
   if (m) result.agentEmail = m[1].trim()
 
   // License: look for license # patterns like "License #" or "License:" or "Lic #"
   // Typically FL licenses are 2 uppercase letters + digits, or just a number
-  m = body.match(/(?:License|Lic\.?)\s*#?\s*:?\s*([A-Z0-9]{4,20}?)(?:\n|$)/i)
+  m = searchText.match(/(?:License|Lic\.?)\s*#?\s*:?\s*([A-Z0-9]{4,20}?)(?:\n|$)/i)
   if (m) result.agentLicense = m[1].trim()
 
   return result
@@ -176,7 +179,7 @@ export function parseListingEmail(input: {
       : htmlToText(rawHtml || input.text || '')
   if (!PALM_BAY.test(body)) return []
   const urls = extractUrls(rawHtml)
-  const agentDetails = extractAgentDetails(body)
+  const emailAgentDetails = extractAgentDetails(body) // Email-level fallback
   const daysOnMarket = extractDaysOnMarket(body)
 
   const matches: Array<{ addr: string; num: string; idx: number; end: number }> = []
@@ -204,8 +207,12 @@ export function parseListingEmail(input: {
     const nextIdx = i + 1 < matches.length ? matches[i + 1].idx : body.length
     // Price sits just before the address; look back but not into the prior listing.
     const preWin = body.slice(Math.max(prevEnd, cur.idx - 140), cur.idx)
-    // Acreage/size follows the address.
+    // Acreage/size follows the address; expand window for agent info extraction.
     const postWin = body.slice(cur.end, Math.min(nextIdx, cur.end + 240))
+    // Expanded context window for per-listing agent extraction
+    const agentWin = body.slice(cur.idx, Math.min(nextIdx, cur.end + 300))
+    // Try to extract agent info from this listing's context; fall back to email-level
+    const agentDetails = Object.assign({}, emailAgentDetails, extractAgentDetails(body, agentWin))
     let price = lastPrice(preWin)
     if (price == null) price = lastPrice(postWin)
 

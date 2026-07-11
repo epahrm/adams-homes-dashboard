@@ -1334,7 +1334,9 @@
         status: 'offer-sent',
         generatedAt: now,
         offerExpires: addDays(now, OFFER_VALID_DAYS),
-        sentVia: 'Dotloop (Kevin)'
+        sentVia: 'Dotloop (Kevin)',
+        statusChangeReason: 'Offer generated and ready to send via Dotloop',
+        changedBy: currentUser()
       });
       try { await saveLot(set); } catch (e) { return msg('Could not save — please try again.', false); }
       lot.offerExpires = set.offerExpires;
@@ -1367,7 +1369,13 @@
     async function markSellerReceived() {
       const now = new Date().toISOString();
       const sellerEmail = lot.email || (lot.ownerContact || '').split('|').map(s => s.trim()).find(s => s.includes('@')) || 'seller';
-      const set = { status: 'pending-ep-sig', sellerReceivedAt: now, notifications: logNotif('Contract received — acknowledgment sent', sellerEmail) };
+      const set = {
+        status: 'pending-ep-sig',
+        sellerReceivedAt: now,
+        notifications: logNotif('Contract received — acknowledgment sent', sellerEmail),
+        statusChangeReason: 'Seller returned signed contract',
+        changedBy: currentUser()
+      };
       try { await saveLot(set); } catch (e) { return msg('Could not save — please try again.', false); }
       renderAll();
       msg('Seller contract received. Acknowledgment queued to ' + sellerEmail + '. Routed to Elizabeth for counter-signature.', true);
@@ -1393,7 +1401,9 @@
       const set = {
         status: 'ip', epSignedAt: now, epSignedBy: currentUser(),
         ipDate: ip, defaultCloseDate: defClose, scheduledClose: actualClose,
-        notifications: logNotif('Contract fully executed (official) — notice sent', sellerEmail)
+        notifications: logNotif('Contract fully executed (official) — notice sent', sellerEmail),
+        statusChangeReason: 'Elizabeth approved and signed contract',
+        changedBy: currentUser()
       };
       try { await saveLot(set); } catch (e) { return msg('Could not save — please try again.', false); }
       renderAll();
@@ -1405,14 +1415,23 @@
     async function advanceStage() {
       const next = NEXT_STAGE[lot.status];
       if (!next) return;
-      const set = { status: next };
+      const set = {
+        status: next,
+        statusChangeReason: 'Advanced to ' + (PILL_LABELS[next] || next),
+        changedBy: currentUser()
+      };
       if (next === 'closed') set.closedAt = new Date().toISOString();
       try { await saveLot(set); } catch (e) { return msg('Could not save — please try again.', false); }
       renderAll();
       msg('Advanced to ' + (PILL_LABELS[next] || next) + '.', true);
     }
     async function markClosed() {
-      try { await saveLot({ status: 'closed', closedAt: new Date().toISOString() }); } catch (e) { return msg('Could not save — please try again.', false); }
+      try { await saveLot({
+        status: 'closed',
+        closedAt: new Date().toISOString(),
+        statusChangeReason: 'Manually marked closed',
+        changedBy: currentUser()
+      }); } catch (e) { return msg('Could not save — please try again.', false); }
       renderAll();
       msg('Marked closed.', true);
     }
@@ -1712,7 +1731,13 @@
       if (!confirm('Record that the seller declined this offer? It will resurface in 30 days for a follow-up if still listed.')) return;
       const now = Date.now();
       try {
-        await saveLot({ status: 'offer-denied', deniedAt: new Date(now).toISOString(), nextReviewAt: new Date(now + 30 * 86400000).toISOString() });
+        await saveLot({
+          status: 'offer-denied',
+          deniedAt: new Date(now).toISOString(),
+          nextReviewAt: new Date(now + 30 * 86400000).toISOString(),
+          statusChangeReason: 'Seller declined offer',
+          changedBy: currentUser()
+        });
         lot.status = 'offer-denied'; renderAll();
         msg('Seller decline recorded — it will resurface in 30 days for a follow-up.', true);
       } catch (e) { msg('Could not record the decline — try again.', false); }
@@ -1721,7 +1746,12 @@
     async function markUnsuitable() {
       if (!confirm('Mark this lot unsuitable? It will be removed and never shown again.')) return;
       try {
-        await saveLot({ status: 'dismissed', dismissedAt: new Date().toISOString() });
+        await saveLot({
+          status: 'dismissed',
+          dismissedAt: new Date().toISOString(),
+          statusChangeReason: 'Marked unsuitable',
+          changedBy: currentUser()
+        });
         lot.status = 'dismissed'; renderAll();
         msg('Lot marked unsuitable and removed from the worklist.', true);
       } catch (e) { msg('Could not update the lot — try again.', false); }

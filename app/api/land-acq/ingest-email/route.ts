@@ -102,6 +102,12 @@ export async function GET(req: NextRequest) {
             addedBy: 'email-scan',
             sourceEmail: from,
           }
+          // Log agent info extraction for debugging
+          if (li.agentName || li.agentPhone || li.agentEmail || li.brokerage) {
+            console.log(`[land-acq] Agent info extracted: ${li.address} → ${li.agentName || '(no name)'} @ ${li.brokerage || '(no brokerage)'} | phone: ${li.agentPhone || 'none'} | email: ${li.agentEmail || 'none'}`)
+          } else {
+            console.log(`[land-acq] No agent info found in email for: ${li.address}`)
+          }
           // Merge with existing lot data if it already exists (e.g., from Redfin sweep)
           // First try to insert; if conflict, update with agent info from Zillow
           const mergeData = JSON.stringify(data)
