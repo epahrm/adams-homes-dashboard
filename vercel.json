@@ -6,7 +6,7 @@
     },
     {
       "path": "/app/api/land-acq/ingest-email/route.ts",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 6,12,18 * * *"
     },
     {
       "path": "/app/api/land-acq/check-mls-status/route.ts",
