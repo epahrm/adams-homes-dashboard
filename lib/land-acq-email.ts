@@ -295,3 +295,60 @@ function parseCardAlerts(rawHtml: string, body: string, source: string, agentDet
   }
   return out
 }
+
+// Fetch and parse agent data from a Redfin listing URL
+export async function fetchRedffinAgentData(url: string | null | undefined): Promise<{
+  agentName?: string
+  agentPhone?: string
+  agentEmail?: string
+  agentLicense?: string
+  agentBrokerage?: string
+} | null> {
+  if (!url) return null
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      },
+      signal: AbortSignal.timeout(8000),
+    })
+    if (!res.ok) return null
+    const html = await res.text()
+    const body = htmlToText(html)
+
+    // Look for agent block: "Listing Agent" or "Listed by", followed by name, phone, email
+    // Redfin typically shows: "Listed by [Name] • [License] • [Brokerage]"
+    const result: Record<string, string> = {}
+
+    // Agent name: "Listed by [Name]" or "Listing Agent: [Name]"
+    let m = body.match(/(?:Listed\s+by|Listing\s+Agent)\s*:?\s*([A-Z][A-Za-z\s.'-]{1,45}?)(?:\s+•|\n|,|$)/i)
+    if (m) {
+      let name = m[1].trim().replace(/\s+(Phone|Email|License|Mobile|Brokerage).*$/i, '')
+      if (name.length > 2) result.agentName = name
+    }
+
+    // Phone: "(XXX) XXX-XXXX" or "XXX-XXX-XXXX"
+    m = body.match(/(?:Phone|Mobile|Tel)\s*:?\s*([\d\s\-().+]+?)(?:\n|•|$)/i)
+    if (m) {
+      const phone = m[1].trim()
+      if (/\d{10,}/.test(phone.replace(/\D/g, ''))) result.agentPhone = phone
+    }
+
+    // Email
+    m = body.match(/(?:Email|Contact)\s*:?\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i)
+    if (m) result.agentEmail = m[1].trim()
+
+    // License
+    m = body.match(/(?:License|Lic\.?)\s*#?\s*:?\s*([A-Z0-9]{4,20}?)(?:\n|•|$)/i)
+    if (m) result.agentLicense = m[1].trim()
+
+    // Brokerage: "• [Brokerage Name]" or "[Brokerage] Realty" etc
+    m = body.match(/•\s*([A-Z][A-Za-z0-9 &'./-]+?)(?:\s•|\n|$)/i)
+    if (m) result.agentBrokerage = m[1].trim()
+
+    return Object.keys(result).length ? result : null
+  } catch (e) {
+    console.error('[land-acq] redfin agent fetch failed:', e)
+    return null
+  }
+}

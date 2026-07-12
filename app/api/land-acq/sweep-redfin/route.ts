@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { pool, ensureTable, isAdmin, addressKey } from '@/lib/land-acq-db'
+import { fetchRedffinAgentData } from '@/lib/land-acq-email'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -117,6 +118,17 @@ export async function GET(req: NextRequest) {
   try {
     await ensureTable()
     for (const lot of candidates) {
+      // Fetch agent data from Redfin listing URL
+      if (lot.data.listingUrl) {
+        const agentData = await fetchRedffinAgentData(String(lot.data.listingUrl))
+        if (agentData) {
+          lot.data.agentName = agentData.agentName
+          lot.data.agentPhone = agentData.agentPhone
+          lot.data.agentEmail = agentData.agentEmail
+          lot.data.agentLicense = agentData.agentLicense
+          lot.data.agentBrokerage = agentData.agentBrokerage
+        }
+      }
       const res = await pool.query(
         `INSERT INTO land_acq_lots (address, address_key, status, data)
          VALUES ($1, $2, 'opportunity', $3)
