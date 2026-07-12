@@ -288,7 +288,22 @@ Kevin's test checklist: See `Land_Acq_Pro_Test_Checklist.html` for step-by-step 
 - Mark Offer as Sent button (updates status)
 - Admin buttons (Hold, GM Defer, Unsuitable confirmation)
 
+### Critical Fixes (July 12 PM Session)
+
+**LOCKED IN - WORKING:**
+- ✅ Hold → Nurture button (status: 'nurture')
+- ✅ GM Defer button (status: 'gm-defer', editable timeline default 7 days)
+- ✅ Unsuitable double-confirmation (confirmation 1: mark unsuitable?, confirmation 2: move to monitoring?)
+- ✅ Unsuitable lots kept in database for monitoring/restore (not deleted)
+
+**IN PROGRESS:**
+- ⏳ Timeline display in Holds section (show "Re-engage in X days")
+- ⏳ MLS status filtering (auto-remove Pending/Sold, label "Missed Opportunity")
+
 ### Known To-Do (Next Sprint)
+- [ ] MLS status tracking integration (requires MLS data flow)
+- [ ] GM Defer timeline countdown display + re-engagement reminder
+- [ ] "Missed Opportunity" section display + archive
 - [ ] Off-market cover letter template + Kevin selector
 - [ ] Logo rendering in cover letter preview
 - [ ] Holidays/closures calendar with conflict detection
