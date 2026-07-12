@@ -133,7 +133,24 @@
       "Read(//tmp/node_modules/**)",
       "Bash(npx --yes @playwright/test install chromium)",
       "Bash(node \"/c/Users/elizp/AppData/Local/Temp/claude/C--Users-elizp-OneDrive-Documents-Claude-Lot-Dashboard--claude-worktrees-brave-noyce-4652f1/9a12cebe-cc3a-4783-b00c-4c1a5cc9c5ed/scratchpad/test-features-detailed.js\")",
-      "Bash(node \"/c/Users/elizp/AppData/Local/Temp/claude/C--Users-elizp-OneDrive-Documents-Claude-Lot-Dashboard--claude-worktrees-brave-noyce-4652f1/9a12cebe-cc3a-4783-b00c-4c1a5cc9c5ed/scratchpad/test-final.js\")"
+      "Bash(node \"/c/Users/elizp/AppData/Local/Temp/claude/C--Users-elizp-OneDrive-Documents-Claude-Lot-Dashboard--claude-worktrees-brave-noyce-4652f1/9a12cebe-cc3a-4783-b00c-4c1a5cc9c5ed/scratchpad/test-final.js\")",
+      "Bash(mkdir -p \"C:/Users/elizp/AppData/Local/Temp/claude/scratchpad\")",
+      "Read(//c/Users/elizp/OneDrive/Documents/Claude Lot Dashboard/**)",
+      "Bash(node qa/land-acq-pro.e2e.js)",
+      "Bash(timeout 300 node qa/land-acq-pro.e2e.js)",
+      "Bash(npx playwright *)",
+      "Bash(find ~/.cache -name \"chromium-*\" -type d 2>/dev/null | head -1 || find ~/.playwright -name \"chromium\" -type d 2>/dev/null | head -1 || find \"C:/Users/elizp/AppData/Local\" -name \"chromium*\" -type d 2>/dev/null | head -3)",
+      "Bash(npm ls *)",
+      "Bash(ls \"C:/Users/elizp/OneDrive/Documents/Claude Lot Dashboard/node_modules/.bin/\" | grep -i play)",
+      "Bash(node -e \"const {chromium} = require\\('playwright'\\); chromium.executablePath\\(\\).then\\(p => console.log\\(p\\)\\).catch\\(e => console.error\\(e.message\\)\\)\")",
+      "Bash(node -e \"const {chromium} = require\\('playwright'\\); console.log\\(chromium.executablePath\\(\\)\\)\")",
+      "Bash(CHROMIUM_PATH=\"C:\\\\Users\\\\elizp\\\\AppData\\\\Local\\\\ms-playwright\\\\chromium-1228\\\\chrome-win64\\\\chrome.exe\" timeout 300 node qa/land-acq-pro.e2e.js)",
+      "Bash(tee qa-results.txt)",
+      "Bash(cd \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\" && grep -n \"EMD cannot be equal\" public/land-acq-pro/offer-approval.html)",
+      "Bash(cd \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\" && grep -n \"function validateForm\" public/land-acq-pro/offer-approval.html)",
+      "Bash(grep -n \"off-market opens at \\\\$30,000\" public/land-acq-pro/offer-approval.html)",
+      "Bash(cd \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\" && grep -n \"right: 12px; font-size: 13px\" public/land-acq-pro/offer-approval.html)",
+      "Bash(node \"C:\\\\Users\\\\elizp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\scratchpad\\\\verify-fixes.js\")"
     ]
   }
 }
