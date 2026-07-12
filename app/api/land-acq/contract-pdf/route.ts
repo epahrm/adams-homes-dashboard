@@ -162,7 +162,7 @@ export async function GET(req: NextRequest) {
   if (offer) put(p1, Number(offer).toLocaleString('en-US'), 505, 549, 11)
   // Balance to Close = Offer Price - Earnest Money Deposit (EMD)
   // Line 31 on form, positioned after EMD field
-  if (balanceToClose > 0) put(p1, Number(balanceToClose).toLocaleString('en-US'), 505, 360, 11)
+  if (balanceToClose > 0) put(p1, Number(balanceToClose).toLocaleString('en-US'), 505, 357, 11)
 
   // Paragraph 3 "Time for Acceptance": offer withdraws if not fully executed by
   // this date. Line 39, positioned after blank space for signature date
