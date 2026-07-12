@@ -1188,10 +1188,19 @@
     async function patchLot(id, set) {
       if (mode === 'server') {
         try {
-          await fetch(API_LOTS, { method: 'PATCH',
+          const res = await fetch(API_LOTS, { method: 'PATCH',
             headers: Object.assign({ 'Content-Type': 'application/json' }, adminHeaders()),
             body: JSON.stringify({ id, set }), signal: AbortSignal.timeout(9000) });
-        } catch (e) { /* keep UI responsive; next load reconciles */ }
+          if (!res.ok) {
+            console.error('[admin] patchLot failed:', res.status, await res.text());
+            alert('Error updating lot. Please try again.');
+            return;
+          }
+        } catch (e) {
+          console.error('[admin] patchLot error:', e);
+          alert('Error updating lot: ' + (e.message || 'Network error'));
+          return;
+        }
       } else {
         const lots = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
         const t = lots.find(l => String(l.id) === String(id));
@@ -1633,6 +1642,7 @@
       const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Unsuitable';
       skip.title = 'Remove permanently — pick a reason';
       skip.addEventListener('click', () => {
+        if (!confirm('Mark ' + (l.address || 'this lot') + ' as unsuitable? This removes it permanently.')) return;
         actions.innerHTML = '';
         const q = document.createElement('span'); q.className = 'opp-reason-q'; q.textContent = 'Reason:';
         actions.appendChild(q);
