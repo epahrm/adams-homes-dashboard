@@ -1627,8 +1627,14 @@
       nurture.addEventListener('click', () => patchLot(l.id, { status: 'nurture', nurtureAt: new Date().toISOString() }));
       // Defer to the GM for a review decision.
       const defer = document.createElement('button'); defer.className = 'opp-btn-hold'; defer.textContent = 'GM Defer';
-      defer.title = 'Hold / defer for GM review';
-      defer.addEventListener('click', () => patchLot(l.id, { status: 'gm-defer', gmDeferAt: new Date().toISOString() }));
+      defer.title = 'Hold / defer for GM review with timeline';
+      defer.addEventListener('click', () => {
+        const days = prompt('Re-engage in how many days if no response from GM? (default 7)', '7');
+        if (days === null) return;
+        const daysNum = parseInt(days) || 7;
+        const deadline = new Date(Date.now() + daysNum * 86400000).toISOString();
+        patchLot(l.id, { status: 'gm-defer', gmDeferAt: new Date().toISOString(), gmDeferTimeline: daysNum, gmDeferDeadline: deadline });
+      });
       actions.appendChild(add);
       // Off-market lots are blind mailers to the owner. "Mailed" adds them to the CRM.
       if (!isListedLot(l)) {
