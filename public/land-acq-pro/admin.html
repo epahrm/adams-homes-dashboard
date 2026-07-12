@@ -1638,17 +1638,20 @@
         actions.appendChild(mailed);
       }
       actions.appendChild(nurture); actions.appendChild(defer);
-      // Unsuitable → Kevin labels why (Flood / Power / Species / Neighbor / Other).
+      // Unsuitable → Kevin labels why (Flood / Power / Species / Neighbor / Other), then confirms move to unsuitable.
       const skip = document.createElement('button'); skip.className = 'opp-btn-skip'; skip.textContent = 'Unsuitable';
-      skip.title = 'Remove permanently — pick a reason';
+      skip.title = 'Mark as unsuitable for monitoring — pick a reason';
       skip.addEventListener('click', () => {
-        if (!confirm('Mark ' + (l.address || 'this lot') + ' as unsuitable? This removes it permanently.')) return;
+        if (!confirm('Mark ' + (l.address || 'this lot') + ' as unsuitable?')) return;
         actions.innerHTML = '';
         const q = document.createElement('span'); q.className = 'opp-reason-q'; q.textContent = 'Reason:';
         actions.appendChild(q);
         ['Flood', 'Power', 'Species', 'Neighbor', 'Other'].forEach(reasonTxt => {
           const b = document.createElement('button'); b.className = 'opp-btn-skip'; b.textContent = reasonTxt;
-          b.addEventListener('click', () => patchLot(l.id, { status: 'dismissed', dismissedAt: new Date().toISOString(), unsuitableReason: reasonTxt, unsuitableBy: currentUser() }));
+          b.addEventListener('click', () => {
+            if (!confirm('Move to Unsuitable for monitoring? You can restore this lot if the issue is resolved.')) return;
+            patchLot(l.id, { status: 'dismissed', dismissedAt: new Date().toISOString(), unsuitableReason: reasonTxt, unsuitableBy: currentUser() });
+          });
           actions.appendChild(b);
         });
         const cancel = document.createElement('button'); cancel.className = 'opp-btn-hold'; cancel.textContent = 'Cancel';

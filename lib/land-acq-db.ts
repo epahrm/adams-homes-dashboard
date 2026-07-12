@@ -38,7 +38,10 @@ globalForPool.landAcqPool = pool
 export const LOT_STATUSES = [
   'opportunity',      // buy-box market-scan match, pre-triage
   'opportunity-hold', // held for a later campaign
-  'dismissed',        // marked unsuitable — never shown/re-added again
+  'nurture',          // held for nurturing — priced too high now, re-engage on timeline
+  'gm-defer',         // held for GM review — GM drives next steps, deferred with timeline
+  'dismissed',        // marked unsuitable — kept for monitoring, Kevin can restore
+  'missed-opportunity', // MLS status changed to Pending/Sold before we could offer
   'offer-denied',     // seller declined the offer — re-review in 30 days
   'pending',          // new lead, pre-offer
   'offer-sent',       // offer sent to seller

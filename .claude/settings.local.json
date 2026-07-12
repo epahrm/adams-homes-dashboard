@@ -158,7 +158,9 @@
       "Bash(node -e \"const { chromium } = require\\('playwright'\\); console.log\\('Playwright OK'\\);\")",
       "Bash(timeout 180 node qa/land-acq-pro.e2e.js)",
       "Bash(tee /tmp/test-output.txt)",
-      "Bash(curl -s https://palmbaylandoffer.com/api/land-acq/sweep-redfin -H 'x-vercel-id: manual-test' -w '\\\\nStatus: %{http_code}\\\\n')"
+      "Bash(curl -s https://palmbaylandoffer.com/api/land-acq/sweep-redfin -H 'x-vercel-id: manual-test' -w '\\\\nStatus: %{http_code}\\\\n')",
+      "mcp__visualize__show_widget",
+      "Bash(node debug-hold-gm.js)"
     ]
   }
 }
