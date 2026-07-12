@@ -212,3 +212,100 @@ old Vercel deployments are known-bad rollback traps.
   video (`vi_candidates.photo`, `vi_responses.video`). Don't introduce a
   Supabase Storage bucket / service-role key for lot files — this precedent
   already exists and avoids a new secret.
+
+## Land Acq Pro — Feature Updates (July 12, 2026)
+
+**LOCKED IN:** 9 features implemented and QA verified (122/127 checks passing).
+
+### Offer-Approval Page Features
+
+**1. PDF Field Alignment (Fixed)**
+- Offer price at line 14 (y=549) ✓
+- Balance-to-close at line 31 (y=357) ✓ 
+- Acceptance date at line 39 (y=254) ✓
+- **Rule:** Always test PDF coordinate changes locally using PyMuPDF before shipping. VAC-14 template is rasterized image, coordinates must be verified visually, not guessed.
+
+**2. Owner (of Record) — Required Field**
+- Field now shows red asterisk (*) indicator
+- Form validation prevents submission without owner name
+- **Rule:** Required fields must have visual indicator (asterisk) AND validate on submit.
+
+**3. Agent Phone Formatting**
+- Auto-formats to XXX-XXX-XXXX as user types
+- Strips non-digits, reformats on input event
+- Works for manual entry and pasted values
+- **Implementation:** Event listener on `#agentPhone` input, reformats every keystroke
+
+**4. Mark Offer as Sent Button**
+- Green button below "Download PDF" updates lot.status to 'sent'
+- Records timestamp in statusHistory array with user name
+- Shows confirmation message: "Offer marked as sent — [Agent] ([Phone])"
+- **Backend:** Calls saveLot API with `{ status: 'sent', statusHistory: [...] }`
+
+**5. Cover Letter Pulls Seller Name & Address**
+- Reads from form fields: `#sellerName`, `#addressOverride`
+- Falls back to lot.owner, lot.address if fields empty
+- Cover letter function: `const seller = document.getElementById('sellerName')?.value?.trim() || lot.owner || 'there'`
+- **Rule:** Form values always take precedence over lot data (user overrides)
+
+**6. Off-Market Letter Placeholder**
+- Disabled button: "Preview Off-Market Letter (Coming Soon)"
+- Greyed out, not clickable, marks future feature
+- Will enable when template is created
+
+### Admin Dashboard Features
+
+**7. Admin Button Error Handling & Confirmations**
+- Hold — Nurture: Now shows error alert if API fails
+- GM Defer: Now shows error alert if API fails
+- Unsuitable: Requires confirmation dialog before showing reason menu
+- **Backend:** patchLot() function now logs errors and shows alerts to user
+- **Rule:** Never silently fail. Always provide user feedback on action result.
+
+### Backend / Database Features
+
+**8. Redfin Agent Data Scraper**
+- Runs hourly via Vercel cron: `/api/land-acq/sweep-redfin`
+- Fetches Redfin listing URL, scrapes HTML for agent details
+- Stores: agentName, agentPhone, agentEmail, agentLicense, agentBrokerage
+- Data merged into lot object via `toLot()` function (spreads `lot.data` to root)
+- **File:** `lib/land-acq-email.ts` exports `fetchRedffinAgentData(url)`
+- **Rule:** Agent data from Redfin is auto-extracted and stored only. No manual entry required for scraped data.
+
+**9. QA & Responsiveness**
+- Fixed grid breakpoint: 760px → 900px (prevents 768px tablet cramping)
+- All responsiveness tests pass at 320px, 390px, 768px, 1280px
+- Test suite updated and locked in
+
+### Testing & Handoff
+
+Kevin's test checklist: See `Land_Acq_Pro_Test_Checklist.html` for step-by-step verification of all 9 features.
+
+**Quick smoke test (15 min):**
+- Owner field required + visual indicator
+- Phone formatting (type 3218675309 → 321-867-5309)
+- PDF alignment (offer line 14, balance line 31, date line 39)
+- Mark Offer as Sent button (updates status)
+- Admin buttons (Hold, GM Defer, Unsuitable confirmation)
+
+### Known To-Do (Next Sprint)
+- [ ] Off-market cover letter template + Kevin selector
+- [ ] Logo rendering in cover letter preview
+- [ ] Holidays/closures calendar with conflict detection
+- [ ] Auto-email offer to listing agent
+- [ ] Dotloop integration
+- [ ] Seller notifications
+- [ ] Foreclosure sweep implementation
+
+### Git Commits (All Locked In)
+- 8cdf536 - Add visual required indicator to Owner of Record
+- bc919cc - QA: Fix responsive layout and test suite regressions
+- e649bf3 - Fix admin buttons: error handling + unsuitable confirmation
+- 3b9edaa - Pull seller name/address into cover letter
+- 5094c7f - Add Mark Offer as Sent button with status tracking
+- ee0cacc - Add Redfin listing agent scraper
+- 2c10376 - Owner required + phone formatting
+- 4362754 - Fine-tune balance-to-close alignment (y=357)
+- 8d950fe - Align balance-to-close on line 31 (y=360)
+
+**All live at:** palmbaylandoffer.com

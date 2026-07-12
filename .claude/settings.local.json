@@ -157,7 +157,8 @@
       "Bash(CHROMIUM_PATH=\"\" node qa/land-acq-pro.e2e.js)",
       "Bash(node -e \"const { chromium } = require\\('playwright'\\); console.log\\('Playwright OK'\\);\")",
       "Bash(timeout 180 node qa/land-acq-pro.e2e.js)",
-      "Bash(tee /tmp/test-output.txt)"
+      "Bash(tee /tmp/test-output.txt)",
+      "Bash(curl -s https://palmbaylandoffer.com/api/land-acq/sweep-redfin -H 'x-vercel-id: manual-test' -w '\\\\nStatus: %{http_code}\\\\n')"
     ]
   }
 }
