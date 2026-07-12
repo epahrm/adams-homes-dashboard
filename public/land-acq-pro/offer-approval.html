@@ -218,7 +218,7 @@
           <div class="field"><label class="form-label" for="addressOverride">Address <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="addressOverride" placeholder="Street address"><div class="val" id="cAddress" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
           <div class="field"><label class="form-label" for="legalOverride">Legal Description <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="legalOverride" placeholder="Legal description"><div class="val" id="cLegal" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
           <div class="field"><label class="form-label" for="parcelOverride">Parcel <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="parcelOverride" placeholder="Parcel ID"><div class="val" id="cParcel" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
-          <div class="field"><label class="form-label" for="ownerOverride">Owner (of Record) <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="ownerOverride" placeholder="Owner name"><div class="val" id="cOwner" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
+          <div class="field"><label class="form-label" for="ownerOverride">Owner (of Record) <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="ownerOverride" placeholder="Owner name" required><div class="val" id="cOwner" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
           <div class="field"><label class="form-label" for="sellerName">Seller Name (for Contract) <span style="color:#b02a1a;">*</span></label><input type="text" id="sellerName" placeholder="Name to appear on contract"></div>
           <div class="field"><div class="lbl">Owner Contact</div><div class="val" id="cOwnerContact">—</div></div>
           <div class="field"><label class="form-label" for="lotSizeOverride">Lot Size <span style="font-weight:400; color:#667;">(override if needed)</span></label><input type="text" id="lotSizeOverride" placeholder="e.g. 0.5 acres"><div class="val" id="cLotSize" style="margin-top:4px; font-size:12px; color:#889;">—</div></div>
@@ -1652,6 +1652,14 @@
     document.getElementById('commission').addEventListener('input', updateCommissionHint);
     document.getElementById('leadSource').addEventListener('change', toggleWholesaler);
     document.getElementById('saveAgentBtn').addEventListener('click', saveAgentDetails);
+    document.getElementById('agentPhone').addEventListener('input', function() {
+      const digits = this.value.replace(/\D/g, '');
+      if (digits.length <= 10) {
+        if (digits.length <= 3) this.value = digits;
+        else if (digits.length <= 6) this.value = digits.slice(0, 3) + '-' + digits.slice(3);
+        else this.value = digits.slice(0, 3) + '-' + digits.slice(3, 6) + '-' + digits.slice(6, 10);
+      }
+    });
     document.getElementById('saveDraftBtn').addEventListener('click', saveDraft);
     document.getElementById('viewListingBtn').addEventListener('click', viewListing);
     document.getElementById('sellerName').addEventListener('change', async function() {
