@@ -460,7 +460,8 @@
           <button type="button" class="btn btn-primary" id="downloadPdfBtn">Fill &amp; Download Contract PDF (your VAC-14 + Exhibit A)</button>
           <button type="button" class="btn btn-success" id="markSentBtn" style="margin-top:12px;">Mark Offer as Sent</button>
           <button type="button" class="btn btn-outline" id="previewContractBtn" style="margin-top:12px;">Preview Filled Contract</button>
-          <button type="button" class="btn btn-outline" id="previewPacketBtn" style="margin-top:12px;">Preview Cover Letter</button>
+          <button type="button" class="btn btn-outline" id="previewPacketBtn" style="margin-top:12px;">Preview On-Market Cover Letter</button>
+          <button type="button" class="btn btn-outline" id="previewOffMarketBtn" style="margin-top:12px; opacity:0.5; cursor:not-allowed;" disabled>Preview Off-Market Letter (Coming Soon)</button>
         </div>
         <div class="packet" id="packetPreview"></div>
         <div class="hint" style="margin-top:8px;">Base form: <a class="county-link" href="contract-template.pdf" target="_blank" rel="noopener">Vacant Land Contract (VAC-14)</a> + Adams Homes Addendum — the terms above populate it.</div>
@@ -730,10 +731,11 @@
 
     // ---------- Cover letter ----------
     function coverLetter() {
-      const addr = (lot.address || 'your property');
+      const addr = document.getElementById('addressOverride')?.value?.trim() || lot.address || 'your property';
+      const seller = document.getElementById('sellerName')?.value?.trim() || lot.owner || 'there';
       const exp = lot.offerExpires ? fmtDate(lot.offerExpires) : fmtDate(addDays(new Date().toISOString(), OFFER_VALID_DAYS));
-      const owner = lot.owner || [lot.firstName, lot.lastName].filter(Boolean).join(' ') || 'there';
-      return 'Dear ' + owner + ',\n\n' +
+      const logo = '[Adams Homes Logo]'; // TODO: render as image in preview
+      return logo + '\n\nDear ' + seller + ',\n\n' +
         'Adams Homes is proud to present the enclosed all-cash offer for ' + addr + '.\n\n' +
         "Adams Homes is one of the nation's largest homebuilders — we've built more than 65,000 homes across more than 30 markets. That scale is your advantage: no banks, no financing contingencies, no waiting — and no agents, commissions, or hidden fees.\n\n" +
         'Your enclosed offer is firm and ready to sign electronically. It expires on ' + exp + ', which keeps your closing on our fast track. The moment you sign, our team gets to work and we move straight to a fast, all-cash closing.\n\n' +
