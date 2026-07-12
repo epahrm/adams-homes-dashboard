@@ -151,7 +151,13 @@
       "Bash(grep -n \"off-market opens at \\\\$30,000\" public/land-acq-pro/offer-approval.html)",
       "Bash(cd \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\" && grep -n \"right: 12px; font-size: 13px\" public/land-acq-pro/offer-approval.html)",
       "Bash(node \"C:\\\\Users\\\\elizp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\scratchpad\\\\verify-fixes.js\")",
-      "Bash(git pull *)"
+      "Bash(git pull *)",
+      "Bash(curl -s \"https://palmbaylandoffer.com/land-acq-pro/offer-approval.html?id=203\" -o /dev/null -w \"HTTP Status: %{http_code}\\\\n\")",
+      "Bash(npm list *)",
+      "Bash(CHROMIUM_PATH=\"\" node qa/land-acq-pro.e2e.js)",
+      "Bash(node -e \"const { chromium } = require\\('playwright'\\); console.log\\('Playwright OK'\\);\")",
+      "Bash(timeout 180 node qa/land-acq-pro.e2e.js)",
+      "Bash(tee /tmp/test-output.txt)"
     ]
   }
 }
