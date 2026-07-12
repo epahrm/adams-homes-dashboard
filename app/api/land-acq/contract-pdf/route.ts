@@ -161,12 +161,12 @@ export async function GET(req: NextRequest) {
   put(p1, seller, 308, 694, sellerSize)
   if (offer) put(p1, Number(offer).toLocaleString('en-US'), 505, 549, 11)
   // Balance to Close = Offer Price - Earnest Money Deposit (EMD)
-  if (balanceToClose > 0) put(p1, Number(balanceToClose).toLocaleString('en-US'), 505, 520, 11)
+  // Line 31 on form, positioned after EMD field
+  if (balanceToClose > 0) put(p1, Number(balanceToClose).toLocaleString('en-US'), 505, 475, 11)
 
   // Paragraph 3 "Time for Acceptance": offer withdraws if not fully executed by
-  // this date. Blank starts right after "before" — x=163 collided with that
-  // word in testing; x=235 clears it. Underline at y≈245.5, y=249 for clearance.
-  if (offerExpiresStr) put(p1, offerExpiresStr, 235, 249, 9)
+  // this date. Line 39, positioned after blank space for signature date
+  if (offerExpiresStr) put(p1, offerExpiresStr, 280, 248, 10)
 
   // Listing-agent (Seller's-side) block — the Buyer's side is pre-printed with
   // Adams Homes. Fill the left column from the lot for on-market deals:

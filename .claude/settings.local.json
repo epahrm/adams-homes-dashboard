@@ -150,7 +150,8 @@
       "Bash(cd \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\" && grep -n \"function validateForm\" public/land-acq-pro/offer-approval.html)",
       "Bash(grep -n \"off-market opens at \\\\$30,000\" public/land-acq-pro/offer-approval.html)",
       "Bash(cd \"C:\\\\Users\\\\elizp\\\\OneDrive\\\\Documents\\\\Claude Lot Dashboard\" && grep -n \"right: 12px; font-size: 13px\" public/land-acq-pro/offer-approval.html)",
-      "Bash(node \"C:\\\\Users\\\\elizp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\scratchpad\\\\verify-fixes.js\")"
+      "Bash(node \"C:\\\\Users\\\\elizp\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\scratchpad\\\\verify-fixes.js\")",
+      "Bash(git pull *)"
     ]
   }
 }
