@@ -117,6 +117,8 @@
     .btn-primary:hover { background: #14472e; }
     .btn-navy { background: #003d66; color: white; flex: 1 1 220px; }
     .btn-navy:hover { background: #0a4f8e; }
+    .btn-success { background: #2d7a4f; color: white; flex: 1 1 220px; }
+    .btn-success:hover { background: #1f5a3a; }
     .btn-outline { background: white; color: #003d66; border: 2px solid #003d66; flex: 1 1 140px; }
     .btn-outline:hover { background: #eaf2fb; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -456,6 +458,7 @@
         <div class="hint">Generates the seller packet: your Vacant Land Contract (VAC-14) <b>auto-filled</b> with the terms below + Kevin's cover letter (14-day expiration) + the county property card.</div>
         <div class="actions" style="margin-top:12px;">
           <button type="button" class="btn btn-primary" id="downloadPdfBtn">Fill &amp; Download Contract PDF (your VAC-14 + Exhibit A)</button>
+          <button type="button" class="btn btn-success" id="markSentBtn" style="margin-top:12px;">Mark Offer as Sent</button>
           <button type="button" class="btn btn-outline" id="previewContractBtn" style="margin-top:12px;">Preview Filled Contract</button>
           <button type="button" class="btn btn-outline" id="previewPacketBtn" style="margin-top:12px;">Preview Cover Letter</button>
         </div>
@@ -1314,6 +1317,22 @@
       return true;
     }
 
+    async function markOfferAsSent() {
+      const btn = document.getElementById('markSentBtn');
+      btn.disabled = true;
+      try {
+        const now = new Date().toISOString();
+        const statusHistory = lot.statusHistory || [];
+        statusHistory.push({ status: 'sent', timestamp: now, by: adminName || 'admin' });
+        await saveLot({ status: 'sent', statusHistory });
+        msg('Offer marked as sent — ' + agentName + ' (' + agentPhone + ')', true);
+        renderStage();
+      } catch (e) {
+        msg('Could not mark offer as sent — please try again.', false);
+      }
+      btn.disabled = false;
+    }
+
     async function saveDraft() {
       if (!validateForm()) return;
       const set = Object.assign(readForm(), {
@@ -1696,6 +1715,7 @@
       p.textContent = contractSummary();
       p.classList.add('show');
     });
+    document.getElementById('markSentBtn').addEventListener('click', markOfferAsSent);
     document.getElementById('downloadPdfBtn').addEventListener('click', async function() {
       if (!validateForm()) return;
       const btn = this, label = btn.textContent;
