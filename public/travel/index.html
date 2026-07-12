@@ -915,6 +915,16 @@ function vHome(){
     </div>
   </div>
 
+  ${(() => {
+    const installed = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone;
+    if (installed || S.hideStorageTip) return "";
+    return `<div class="card storagetip" style="margin-top:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--warn,#eda100)">
+      <span style="font-size:20px">\ud83d\udccc</span>
+      <span class="grow" style="font-size:13.5px;line-height:1.45"><b>Keep your trips safe:</b> you\u2019re in a regular browser \u2014 temporary/in-app browsers can lose saved data. Open in Safari, then <b>Share \u2192 Add to Home Screen</b> and always plan from that icon.</span>
+      <button class="iconbtn noprint" data-a="hideStorageTip" title="Dismiss">\u2715</button>
+    </div>`;
+  })()}
+
   ${hero ? `<div style="margin-top:18px">${hero}</div>` : ""}
 
   ${S.draft ? `
@@ -1664,6 +1674,7 @@ const A = {
     if (d.step === 2 && d.v1) tripWizard2(d.v1, j, d.v2); else tripWizard(j, d);
   },
   dropDraft(){ S.draft = null; save(); render(); toast("Draft discarded"); },
+  hideStorageTip(){ S.hideStorageTip = true; save(); render(); },
   editTrip(){ tripForm(trip(R.trip)); },
   resumeIntake(){ tripWizard3(trip(R.trip)); },
   openJournal(el){ go({ view:"journal", jid: el.dataset.id }); },
@@ -2292,6 +2303,7 @@ document.addEventListener("change", e => {
   if (fn) fn(el);
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape") (modalCancelHook ? modalCancelHook() : closeModal()); });
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 
 render();
 

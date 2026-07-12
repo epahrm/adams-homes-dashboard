@@ -37,6 +37,13 @@
   the repo. This applies across ALL builds/projects, not just travel.
 - Screenshots are still milestones-only.
 
+## Durable trips (Elizabeth 2026-07-10 — do not skip)
+- The app's localStorage must NEVER be the only copy of a trip. Any trip
+  Elizabeth starts, mentions, or plans gets seeded into the app code
+  (JOURNALS-style, see the `vegas-vault-2026` seed with the `s.seeded`
+  guard in normalize()) AND a trip file in docs/travel/trips/ in the
+  same session. Git is the vault; her device is the working copy.
+
 ## Travel planning
 - Before any trip-planning work, read `docs/travel/` in this order:
   `PLANNING_STANDARD_V2.md` (wins on conflicts) →

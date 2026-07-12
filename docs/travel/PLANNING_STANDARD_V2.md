@@ -231,6 +231,12 @@ Note: this planned itinerary differs from what was actually done (see
 Fine Arts were cut on the ground; San Pedro Square was added). Both documents
 matter: this one shows the FORMAT, the recap shows the JUDGMENTS.
 
+## 20.5 Durable trips (added 2026-07-10 — Elizabeth's rule)
+Any trip Elizabeth starts or mentions is seeded into the app source code
+and a docs/trips file in the same session — device storage is never the
+only copy. The app warns when it runs outside the installed home-screen
+copy (temporary browsers can lose data) and requests persistent storage.
+
 ## 21. App intake capabilities (added 2026-07-09, Elizabeth's requests)
 - Confirmed bookings (flight/hotel/rental/tickets) accept a PHOTO UPLOAD
   (screenshot of the confirmation) and a LINK at intake step 3 and in the
