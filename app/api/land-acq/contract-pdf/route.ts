@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
 
   const address = addressOverride || String(lot.address || '')
   const offer = (q.get('offer') || String(lot.offer || '')).replace(/[^0-9.]/g, '')
-  const emd = (lot.emd as string || '$100').replace(/[^0-9.]/g, '')
+  const emd = (q.get('emd') || String(lot.emd || '') || '$100').replace(/[^0-9.]/g, '')
   const offerNum = Number(offer) || 0
   const emdNum = Number(emd) || 0
   const balanceToClose = offerNum - emdNum
@@ -87,8 +87,8 @@ export async function GET(req: NextRequest) {
   const commissionType = q.get('commissionType') === 'flat' ? 'flat' : 'pct'
   const commissionAmt = (q.get('commissionAmt') || '').replace(/[^0-9.]/g, '')
 
-  // Paragraph 3 "Time for Acceptance" deadline — offer withdraws if not fully
-  // executed by this date. Falls back to today + 14 days if not provided.
+  // Paragraph 3 "Time for Acceptance" (line 39) — deadline for seller to respond.
+  // Falls back to today + 14 days if not provided.
   const offerExpiresRaw = q.get('offerExpires')
   const offerExpiresDate = offerExpiresRaw ? new Date(offerExpiresRaw) : new Date(Date.now() + 14 * 86400000)
   const offerExpiresStr = Number.isNaN(offerExpiresDate.getTime())

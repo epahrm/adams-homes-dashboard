@@ -144,7 +144,7 @@
     /* Live Site link — top-right on desktop, bottom-right on mobile */
     .live-site-link { position: fixed; top: 24px; right: 24px; text-decoration: none; color: #0a4f8e; font-size: 14px; font-weight: 500; z-index: 998; transition: color 0.2s; }
     .live-site-link:hover { color: #003d66; text-decoration: underline; }
-    @media (max-width: 640px) { .live-site-link { top: auto; bottom: 80px; } }
+    @media (max-width: 640px) { .live-site-link { top: auto; bottom: 80px; right: 12px; font-size: 13px; } }
     @media print { .live-site-link { display: none !important; } .back-to-top { display: none !important; } }
 
     /* Mobile responsiveness: prevent horizontal overflow on small viewports */
@@ -313,7 +313,7 @@
         </div>
         <div class="hint">Auto-filled from the listing when available; fills the contract's Seller-agent lines. Confirm the agent on <a id="lookupMfl" href="https://www.myfloridalicense.com/wl11.asp?mode=2&search=Name&SID=" target="_blank" rel="noopener">myfloridalicense.com ↗</a> · <a id="lookupZillow" href="https://www.zillow.com/professionals/real-estate-agent-reviews/" target="_blank" rel="noopener">Zillow agent search ↗</a> to verify the license #, phone, and brokerage.</div>
         <button type="button" class="btn btn-outline" id="saveAgentBtn" style="margin-top:12px; width:auto;">Save Agent Details</button>
-        <span class="agent-saved" id="agentSaved" style="display:none; margin-left:12px; color:#1a7a44; font-weight:600; font-size:14px;">✓ Saved</span>
+        <span class="agent-saved" id="agentSaved" style="display:none; margin-left:12px; color:#1a7a44; font-weight:600; font-size:14px;">✓ Agent details saved</span>
       </div>
 
       <!-- Wholesaler (wholesaler deals: capture WHO the wholesaler is) -->
@@ -363,8 +363,9 @@
             </label>
           </div>
           <div class="field">
-            <div class="lbl">Offer Expiration</div>
-            <div class="val" id="expiryVal">Set when the offer is generated (14 days)</div>
+            <label class="form-label" for="offerExpiryDate">Offer Response Deadline (Seller must respond by)</label>
+            <input type="date" id="offerExpiryDate" placeholder="YYYY-MM-DD">
+            <div class="hint">Date seller must accept or reject the offer (line 39 on contract)</div>
           </div>
         </div>
 
@@ -1279,7 +1280,42 @@
       document.getElementById('wholesalerCheck').style.display = isWholesalerDeal() ? 'block' : 'none';
     }
 
+    // Validate required fields and business logic
+    function validateForm() {
+      const sellerName = document.getElementById('sellerName').value.trim();
+      const offerAmount = document.getElementById('offerAmount').value.trim();
+      const emd = num(document.getElementById('emd').value);
+      const offer = num(offerAmount);
+
+      // Check Seller Name
+      if (!sellerName) {
+        msg('Seller Name is required. Please enter the name to appear on the contract.', false);
+        document.getElementById('sellerName').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('sellerName').focus();
+        return false;
+      }
+
+      // Check Offer Amount
+      if (!offer || offer <= 0) {
+        msg('Offer Amount is required. Please enter a valid amount.', false);
+        document.getElementById('offerAmount').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('offerAmount').focus();
+        return false;
+      }
+
+      // Check EMD vs Offer Amount
+      if (emd >= offer) {
+        msg('EMD cannot be equal to or greater than Offer Amount. Please enter a valid EMD amount.', false);
+        document.getElementById('emd').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById('emd').focus();
+        return false;
+      }
+
+      return true;
+    }
+
     async function saveDraft() {
+      if (!validateForm()) return;
       const set = Object.assign(readForm(), {
         lotStipend: stipendForLot()
       });
@@ -1548,17 +1584,24 @@
       toggleAgentCard();
 
       // Offer terms. Default: on-market (listed) opens $2k below the stipend
-      // (room to negotiate up to the stipend); off-market opens at the stipend.
+      // (room to negotiate up to the stipend); off-market opens at $30,000.
       const stip = stipendForLot();
       let defOffer;
       if (lot.offer) defOffer = lot.offer;
       else if (listed === 'listed' && stip != null) defOffer = money(Math.max(0, stip - 2000));
+      else if (listed === 'off-market' || listed === 'wholesaler') defOffer = '$30,000';
       else if (stip != null) defOffer = money(stip);
       else defOffer = '$30,000';
       document.getElementById('offerAmount').value = defOffer;
       if (lot.emd) document.getElementById('emd').value = lot.emd;
-      // Off-market deals carry no third-party commission; listed deals default 3%.
-      document.getElementById('commission').value = lot.commission || (listed === 'off-market' ? '0%' : '3%');
+      // On-market deals default 3%; off-market deals default blank for manual entry (no third-party commission).
+      if (lot.commission) {
+        document.getElementById('commission').value = lot.commission;
+      } else if (listed === 'listed') {
+        document.getElementById('commission').value = '3%';
+      } else {
+        document.getElementById('commission').value = '';
+      }
       document.getElementById('commissionConfirmed').checked = !!lot.commissionConfirmed;
       updateCommissionHint();
       document.getElementById('expiryVal').textContent = lot.offerExpires ? fmtDate(lot.offerExpires) : 'Set when the offer is generated (14 days)';
@@ -1646,18 +1689,22 @@
       p.classList.add('show');
     });
     document.getElementById('downloadPdfBtn').addEventListener('click', async function() {
+      if (!validateForm()) return;
       const btn = this, label = btn.textContent;
       const offer = num(document.getElementById('offerAmount').value);
       const cc = resolveCommission();
       const listed = document.getElementById('listingType').value === 'listed';
+      const emdValue = document.getElementById('emd')?.value?.trim() || '';
+      const offerExpiryValue = document.getElementById('offerExpiryDate')?.value?.trim() || '';
       const params = new URLSearchParams({
         id: String(lot.id),
         offer: String(offer || ''),
+        emd: String(emdValue || ''),
         commission: String(cc.pct || ''),
         commissionType: cc.type || 'pct',
         commissionAmt: String(cc.amt || ''),
         listed: listed ? '1' : '0',
-        offerExpires: lot.offerExpires || addDays(new Date().toISOString(), OFFER_VALID_DAYS),
+        offerExpires: offerExpiryValue || lot.offerExpires || addDays(new Date().toISOString(), OFFER_VALID_DAYS),
         parcelOverride: document.getElementById('parcelOverride')?.value?.trim() || '',
         addressOverride: document.getElementById('addressOverride')?.value?.trim() || '',
         legalOverride: document.getElementById('legalOverride')?.value?.trim() || '',
