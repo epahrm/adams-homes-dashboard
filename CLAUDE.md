@@ -1,16 +1,20 @@
 # Working notes for Claude sessions
 
-## Scope guardrail — Porter Travel isolation (Elizabeth 2026-07-10)
-- Travel sessions work ONLY in `public/travel/`, `docs/travel/`, and this
-  file. Do not read, modify, reference, or report on ANY other project in
-  this repo or this Vercel account — no cross-contamination.
+## Scope guardrail — Porter Travel isolation (Elizabeth 2026-07-10/12, HARD RULE)
+- Travel sessions may touch ONLY: `public/travel/`, `docs/travel/`, and
+  this file. NEVER open, read, search, edit, deploy, or report on the
+  Adams Homes dashboard or any other project, page, API, database, or
+  Vercel/Supabase resource in this repo or account. No exceptions, no
+  "just checking."
 - Shared notifications (Vercel PR comments cover every project attached
   to this repo): silently filter to the travel app's row only; NEVER
   mention other projects' names or statuses to Elizabeth.
-- Permanent fix is the move to the dedicated `porter-travel-planner`
-  repo (staged at /home/user/porter-travel-planner) — complete it as
-  soon as Elizabeth creates the repo; travel then leaves this repo
-  entirely.
+- The dedicated repo is `epahrm/porter-travel-planner` (working copy at
+  /home/user/porter-travel-planner). Once it hosts the app, ALL travel
+  work happens there and travel sessions must NOT attach this repo at
+  all. The one exception — removing `public/travel/` + `docs/travel/`
+  from this repo and closing PR #49 — happens ONLY with Elizabeth's
+  explicit go-ahead.
 
 ## Verification (Elizabeth's rule — do not skip)
 - NEVER report a deploy as done/live without verifying the DEPLOYED URL —
